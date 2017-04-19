@@ -14,15 +14,16 @@
  *    limitations under the License.
  */
 
-package ca.watier;
+package ca.watier.daos;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Repository;
 
-@SpringBootApplication
-public class EchechessApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(EchechessApplication.class, args);
+/**
+ * Created by yannick on 4/17/2017.
+ */
+@Repository
+public class ChessDao {
+    public String getName() {
+        return "SUPER_NAME";
     }
 }

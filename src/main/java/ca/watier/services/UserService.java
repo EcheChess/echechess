@@ -14,15 +14,27 @@
  *    limitations under the License.
  */
 
-package ca.watier;
+package ca.watier.services;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import ca.watier.daos.ChessDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@SpringBootApplication
-public class EchechessApplication {
+/**
+ * Created by yannick on 4/17/2017.
+ */
 
-    public static void main(String[] args) {
-        SpringApplication.run(EchechessApplication.class, args);
+@Service
+public class UserService {
+
+    private final ChessDao dao;
+
+    @Autowired
+    public UserService(ChessDao dao) {
+        this.dao = dao;
+    }
+
+    public String getName() {
+        return dao.getName();
     }
 }

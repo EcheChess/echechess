@@ -14,15 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier;
+package ca.watier.enums;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-@SpringBootApplication
-public class EchechessApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(EchechessApplication.class, args);
-    }
+/**
+ * Created by yannick on 4/17/2017.
+ */
+public enum Side {
+    BLACK, WHITE, OBSERVER
 }

@@ -14,15 +14,29 @@
  *    limitations under the License.
  */
 
-package ca.watier;
+package ca.watier.sessions;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-@SpringBootApplication
-public class EchechessApplication {
+/**
+ * Created by yannick on 4/17/2017.
+ */
+public class Player {
+    private List<UUID> gameList = new ArrayList<>();
+    private UUID lastGameCreated;
 
-    public static void main(String[] args) {
-        SpringApplication.run(EchechessApplication.class, args);
+    public void addGame(UUID uuid) {
+        lastGameCreated = uuid;
+        gameList.add(uuid);
+    }
+
+    public List<UUID> getGameList() {
+        return gameList;
+    }
+
+    public UUID getLastGameCreated() {
+        return lastGameCreated;
     }
 }
