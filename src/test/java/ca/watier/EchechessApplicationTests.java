@@ -52,7 +52,7 @@ public class EchechessApplicationTests {
     private WebApplicationContext webApplicationContext;
 
     @Autowired
-    GameService gameService;
+    private GameService gameService;
 
     @Before
     public void setup() throws Exception {

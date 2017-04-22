@@ -33,7 +33,7 @@ import java.util.UUID;
 public class GameService {
     private final static Map<UUID, GameHandler> GAMES_HANDLER_MAP = new HashMap<>();
 
-    public GameHandler createNewGame(Player player) {
+    private GameHandler createNewGame(Player player) {
         GameHandler gameHandler = new GameHandler();
         UUID uui = UUID.randomUUID();
         GAMES_HANDLER_MAP.put(uui, gameHandler);
