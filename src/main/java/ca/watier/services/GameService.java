@@ -17,6 +17,7 @@
 package ca.watier.services;
 
 import ca.watier.defassert.Assert;
+import ca.watier.enums.CasePosition;
 import ca.watier.game.GameHandler;
 import ca.watier.sessions.Player;
 import org.springframework.stereotype.Service;
@@ -33,28 +34,31 @@ import java.util.UUID;
 public class GameService {
     private final static Map<UUID, GameHandler> GAMES_HANDLER_MAP = new HashMap<>();
 
-    private GameHandler createNewGame(Player player) {
+    public GameHandler createNewGame(Player player) {
         GameHandler gameHandler = new GameHandler();
         UUID uui = UUID.randomUUID();
+        gameHandler.setUuid(uui.toString());
         GAMES_HANDLER_MAP.put(uui, gameHandler);
         player.addGame(uui);
 
         return gameHandler;
     }
 
-    public GameHandler getGameFromUuid(String uuid, Player player) {
+    public GameHandler getGameFromUuid(String uuid) {
         Assert.assertNotEmpty(uuid);
         UUID key = UUID.fromString(uuid);
-        GameHandler gameHandler = GAMES_HANDLER_MAP.get(key);
 
-        if (gameHandler == null) {
-            gameHandler = createNewGame(player);
-        }
-
-        return gameHandler;
+        return GAMES_HANDLER_MAP.get(key);
     }
 
     public Map<UUID, GameHandler> getAllGames() {
         return GAMES_HANDLER_MAP;
+    }
+
+    public boolean movePiece(CasePosition from, CasePosition to, String uuid) {
+        GameHandler gameFromUuid = getGameFromUuid(uuid);
+        Assert.assertNotNull(gameFromUuid);
+
+        return gameFromUuid.movePiece(from, to);
     }
 }

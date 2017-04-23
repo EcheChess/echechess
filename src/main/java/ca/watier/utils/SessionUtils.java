@@ -14,24 +14,30 @@
  *    limitations under the License.
  */
 
-.black {
-    background-color: rgba(113, 113, 113, 0.31);
-}
+package ca.watier.utils;
 
-.white {
-    background-color: rgba(242, 244, 249, 0.99)
-}
+import ca.watier.defassert.Assert;
+import ca.watier.sessions.Player;
 
-.board-square {
-    width: 48px;
-    height: 48px;
-    text-align: center;
-}
+import javax.servlet.http.HttpSession;
 
-.board-pieces {
-    cursor: grab;
-}
+/**
+ * Created by yannick on 4/23/2017.
+ */
+public class SessionUtils {
 
-.board-pieces {
-    font-size: 35px;
+    /**
+     * Fetch the player from the HttpSession, the session cannot be null, same for the player
+     *
+     * @param session
+     * @return
+     */
+    public static Player getPlayer(HttpSession session) {
+
+        Assert.assertNotNull(session);
+        Player player = (Player) session.getAttribute(Constants.PLAYER);
+        Assert.assertNotNull(player);
+
+        return player;
+    }
 }

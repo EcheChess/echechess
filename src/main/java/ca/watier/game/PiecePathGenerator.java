@@ -14,24 +14,10 @@
  *    limitations under the License.
  */
 
-.black {
-    background-color: rgba(113, 113, 113, 0.31);
-}
+package ca.watier.game;
 
-.white {
-    background-color: rgba(242, 244, 249, 0.99)
-}
-
-.board-square {
-    width: 48px;
-    height: 48px;
-    text-align: center;
-}
-
-.board-pieces {
-    cursor: grab;
-}
-
-.board-pieces {
-    font-size: 35px;
+/**
+ * Created by yannick on 4/23/2017.
+ */
+public class PiecePathGenerator {
 }

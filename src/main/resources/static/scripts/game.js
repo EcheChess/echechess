@@ -25,6 +25,53 @@
  */
 
 $(document).ready(function () {
+    var currentUuid = createNewGame();
+
+    if (currentUuid) {
+        initGame(currentUuid);
+    }
+});
+
+function jsonFromGetRequest(url) {
+    var value = null;
+
+    $.ajax({
+        url: url,
+        type: 'GET',
+        async: false,
+        cache: false,
+        timeout: 30000,
+        success: function (json) {
+            value = json;
+        }
+    });
+
+    return value;
+}
+
+function jsonFromPostRequest(url, data) {
+    var value = null;
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        async: false,
+        cache: false,
+        timeout: 30000,
+        success: function (json) {
+            value = json;
+        }
+    });
+
+    return value;
+}
+
+function createNewGame() {
+    return jsonFromPostRequest('/game/create', {side: 'WHITE'}).uuid;
+}
+
+function initGame(currentUuid) {
     var tableInnerHtml = '';
     var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -46,23 +93,39 @@ $(document).ready(function () {
 
     $('#board').append(tableInnerHtml);
 
-    $(".board-pieces").draggable({
-        containment: "#board",
-        stop: function () {
+    var sourceEvt = null;
 
-        },
-        revert: function () {
-            return true;
+    var $currentPiece = $(".board-pieces");
+    $currentPiece.draggable({
+        containment: "#board",
+        helper: "clone",
+        start: function () {
+            sourceEvt = $(this).parent();
         }
     });
 
     $(".board-square").droppable({
-        drop: function () {
-            $(this)
-                .find("span.board-pieces");
+        drop: function (event, ui) {
+            var from = $(sourceEvt).attr("data-case-id");
+            var to = $(this).attr("data-case-id");
+
+            var response = jsonFromPostRequest('/game/move', {
+                from: from,
+                to: to,
+                uuid: currentUuid
+            }).response;
+
+            console.log($(ui.draggable).text() + " moved from " + from + " to " + to);
+            console.log("Player can move ? (" + response + ")");
+
+            if (response) {
+                $(this).append(ui.draggable);
+            }
+
+            $currentPiece.draggable("option", "revert", !response);
         }
     });
-});
+}
 
 function getPieceByPosition(x, y) {
     if (y > 1 && y < 6) {

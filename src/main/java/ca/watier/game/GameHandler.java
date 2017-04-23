@@ -17,19 +17,31 @@
 package ca.watier.game;
 
 import ca.watier.defassert.Assert;
+import ca.watier.enums.CasePosition;
+import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.sessions.Player;
+import ca.watier.utils.GameUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yannick on 4/17/2017.
  */
 public class GameHandler {
+
+    @JsonIgnore
     private Player playerWhite, playerBlack;
+    @JsonIgnore
     private List<Player> observerList;
+    @JsonIgnore
+    private final Map<CasePosition, Pieces> CURRENT_PIECES_LOCATION = GameUtils.getDefaultGame();
+    private String uuid;
 
     public GameHandler() {
         observerList = new ArrayList<>();
@@ -55,19 +67,21 @@ public class GameHandler {
         return playerBlack != null;
     }
 
-    public void setPlayerToSide(Player player, Side side) {
+    public boolean setPlayerToSide(Player player, Side side) {
         Assert.assertNotNull(player, side);
+
+        boolean value;
 
         switch (side) {
             case BLACK: {
                 removePlayerFromWhite(player);
-                changePlayerToBlack(player);
+                value = changePlayerToBlack(player);
                 observerList.remove(player);
                 break;
             }
             case WHITE: {
                 removePlayerFromBlack(player);
-                changePlayerToWhite(player);
+                value = changePlayerToWhite(player);
                 observerList.remove(player);
                 break;
             }
@@ -75,21 +89,30 @@ public class GameHandler {
                 removePlayerFromWhite(player);
                 removePlayerFromBlack(player);
                 observerList.add(player);
+                value = true;
                 break;
             }
         }
+
+        return value;
     }
 
-    private void changePlayerToBlack(Player player) {
+    private boolean changePlayerToBlack(Player player) {
         if (playerBlack == null) {
             playerBlack = player;
+            return true;
         }
+
+        return false;
     }
 
-    private void changePlayerToWhite(Player player) {
+    private boolean changePlayerToWhite(Player player) {
         if (playerWhite == null) {
             playerWhite = player;
+            return true;
         }
+
+        return false;
     }
 
     private void removePlayerFromWhite(Player player) {
@@ -115,5 +138,67 @@ public class GameHandler {
                 ", playerBlack=" + playerBlack +
                 ", observerList=" + observerList +
                 '}';
+    }
+
+    /**
+     * Check if the player can move the piece at the specified location
+     *
+     * @param player
+     * @param from
+     * @return
+     */
+    public boolean playerCanMovePiece(Player player, CasePosition from) {
+        Assert.assertNotNull(player, from);
+        Pieces pieceToMove = CURRENT_PIECES_LOCATION.get(from);
+
+        return pieceToMove != null && pieceToMove.getSide().equals(getPlayerSide(player));
+
+    }
+
+    /**
+     * Get the side of the player, null if not available
+     *
+     * @param player
+     * @return
+     */
+    public Side getPlayerSide(Player player) {
+        Side side = null;
+
+        if (playerWhite == player) {
+            side = Side.WHITE;
+        } else if (playerBlack == player) {
+            side = Side.BLACK;
+        } else if (observerList.contains(player)) {
+            side = Side.OBSERVER;
+        }
+
+        return side;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public boolean movePiece(CasePosition from, CasePosition to) {
+        Assert.assertNotNull(from, to);
+
+        Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
+        Pieces piecesTo = CURRENT_PIECES_LOCATION.get(to);
+
+        //Friendly Hit detection
+        if (piecesFrom != null && piecesTo != null && piecesFrom.getSide().equals(piecesTo.getSide())) {
+            return false;
+        }
+
+        CURRENT_PIECES_LOCATION.remove(from);
+        CURRENT_PIECES_LOCATION.put(to, piecesFrom);
+
+        throw new NotImplementedException();
+
+        //return true; //FIXME
     }
 }

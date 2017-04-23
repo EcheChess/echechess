@@ -14,24 +14,33 @@
  *    limitations under the License.
  */
 
-.black {
-    background-color: rgba(113, 113, 113, 0.31);
-}
+package ca.watier.responses;
 
-.white {
-    background-color: rgba(242, 244, 249, 0.99)
-}
+/**
+ * Created by yannick on 4/23/2017.
+ */
+public class BooleanResponse {
+    private boolean response;
+    private String message;
 
-.board-square {
-    width: 48px;
-    height: 48px;
-    text-align: center;
-}
+    public BooleanResponse(boolean response, String message) {
+        this.response = response;
+        this.message = message;
+    }
 
-.board-pieces {
-    cursor: grab;
-}
+    public boolean isResponse() {
+        return response;
+    }
 
-.board-pieces {
-    font-size: 35px;
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
