@@ -14,10 +14,18 @@
  *    limitations under the License.
  */
 
-package ca.watier.game;
+package ca.watier.constraints;
+
+import ca.watier.enums.CasePosition;
+import ca.watier.game.MoveConstraint;
 
 /**
  * Created by yannick on 4/23/2017.
  */
-public class PiecePathGenerator {
+public class PawnMoveConstraint implements MoveConstraint {
+
+    @Override
+    public boolean isMoveValid(CasePosition from, CasePosition to) {
+        return false;
+    }
 }

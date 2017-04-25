@@ -23,7 +23,6 @@ import ca.watier.enums.Side;
 import ca.watier.sessions.Player;
 import ca.watier.utils.GameUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,7 +140,7 @@ public class GameHandler {
     }
 
     /**
-     * Check if the player can move the piece at the specified location
+     * Check if the player can isMoveValid the piece at the specified location
      *
      * @param player
      * @param from
@@ -194,11 +193,12 @@ public class GameHandler {
             return false;
         }
 
+        Direction directionFromPosition = Direction.getDirectionFromPosition(from, to);
+
+
         CURRENT_PIECES_LOCATION.remove(from);
         CURRENT_PIECES_LOCATION.put(to, piecesFrom);
 
-        throw new NotImplementedException();
-
-        //return true; //FIXME
+        return true; //FIXME
     }
 }
