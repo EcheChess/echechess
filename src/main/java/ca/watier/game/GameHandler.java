@@ -193,9 +193,6 @@ public class GameHandler {
             return false;
         }
 
-        Direction directionFromPosition = Direction.getDirectionFromPosition(from, to);
-
-
         CURRENT_PIECES_LOCATION.remove(from);
         CURRENT_PIECES_LOCATION.put(to, piecesFrom);
 

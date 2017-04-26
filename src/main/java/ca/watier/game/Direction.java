@@ -32,44 +32,5 @@ import ca.watier.enums.CasePosition;
  */
 
 public enum Direction {
-    NORTH, SOUTH, WEST, EAST, NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST, NONE;
-
-    public static Direction getDirectionFromPosition(CasePosition from, CasePosition to) {
-        Assert.assertNotNull(from, to);
-
-        if (from == to) { //Same
-            return NONE;
-        }
-
-        Direction direction = null;
-
-        int xTo = to.getX();
-        int xFrom = from.getX();
-        int yTo = to.getY();
-        int yFrom = from.getY();
-
-        if (xTo == xFrom) { //North or South
-            if (yTo > yFrom) {
-                direction = NORTH;
-            } else {
-                direction = SOUTH;
-            }
-        } else if (yTo == yFrom) { //East or West
-            if (xTo > xFrom) {
-                direction = EAST;
-            } else {
-                direction = WEST;
-            }
-        } else if (xTo < xFrom && yTo < yFrom) {
-            direction = SOUTH_WEST;
-        } else if (xTo < xFrom && yTo > yFrom) {
-            direction = NORTH_WEST;
-        } else if (xTo > xFrom && yTo < yFrom) {
-            direction = SOUTH_EAST;
-        } else if (xTo > xFrom && yTo > yFrom) {
-            direction = NORTH_EAST;
-        }
-
-        return direction;
-    }
+    NORTH, SOUTH, WEST, EAST, NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST, NONE
 }

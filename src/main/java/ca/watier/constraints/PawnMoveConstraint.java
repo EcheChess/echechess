@@ -17,7 +17,9 @@
 package ca.watier.constraints;
 
 import ca.watier.enums.CasePosition;
+import ca.watier.game.Direction;
 import ca.watier.game.MoveConstraint;
+import ca.watier.utils.MathUtils;
 
 /**
  * Created by yannick on 4/23/2017.
@@ -26,6 +28,6 @@ public class PawnMoveConstraint implements MoveConstraint {
 
     @Override
     public boolean isMoveValid(CasePosition from, CasePosition to) {
-        return false;
+        return Direction.NORTH.equals(MathUtils.getDirectionFromPosition(from, to));
     }
 }
