@@ -16,6 +16,7 @@
 
 package ca.watier.utils;
 
+import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 
@@ -25,7 +26,7 @@ import java.util.Map;
 /**
  * Created by yannick on 4/23/2017.
  */
-public class GameUtils {
+public class GameUtils extends BaseUtils {
 
     private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new HashMap<>();
 
@@ -70,5 +71,11 @@ public class GameUtils {
         Map<CasePosition, Pieces> game = new HashMap<>();
         game.putAll(DEFAULT_GAME_TEMPLATE);
         return game;
+    }
+
+
+    public static boolean isDefaultPosition(CasePosition position, Pieces pieces) {
+        Assert.assertNotNull(position, pieces);
+        return pieces.equals(DEFAULT_GAME_TEMPLATE.get(position));
     }
 }

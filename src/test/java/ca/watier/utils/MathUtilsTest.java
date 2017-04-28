@@ -25,6 +25,23 @@ import org.junit.Test;
  * Created by yannick on 4/25/2017.
  */
 public class MathUtilsTest {
+    @Test
+    public void getDistanceBetweenPositions() throws Exception {
+        Assert.assertNull(MathUtils.getDistanceBetweenPositions(D_5, D_5));
+        Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.H1, CasePosition.H8));
+        Assert.assertEquals(Integer.valueOf(4), MathUtils.getDistanceBetweenPositions(CasePosition.H1, CasePosition.H5));
+        Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.H8, CasePosition.H1));
+        Assert.assertEquals(Integer.valueOf(4), MathUtils.getDistanceBetweenPositions(CasePosition.H5, CasePosition.H1));
+        Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.H5, CasePosition.A5));
+        Assert.assertEquals(Integer.valueOf(3), MathUtils.getDistanceBetweenPositions(CasePosition.H5, CasePosition.E5));
+        Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.A5, CasePosition.H5));
+        Assert.assertEquals(Integer.valueOf(3), MathUtils.getDistanceBetweenPositions(CasePosition.E5, CasePosition.H5));
+        Assert.assertEquals(Integer.valueOf(9), MathUtils.getDistanceBetweenPositions(CasePosition.H1, CasePosition.A8));
+        Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.F3, CasePosition.A8));
+        Assert.assertEquals(Integer.valueOf(9), MathUtils.getDistanceBetweenPositions(CasePosition.A8, CasePosition.H1));
+        Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.A8, CasePosition.F3));
+    }
+
     private static final Direction NORTH = Direction.NORTH;
     private static final Direction NORTH_WEST = Direction.NORTH_WEST;
     private static final Direction WEST = Direction.WEST;
@@ -96,6 +113,8 @@ public class MathUtilsTest {
         Assert.assertTrue(MathUtils.isPositionInLine(CasePosition.D6, CasePosition.E5, CasePosition.H2));
         Assert.assertTrue(MathUtils.isPositionInLine(CasePosition.A6, CasePosition.B5, CasePosition.D3));
         Assert.assertTrue(MathUtils.isPositionInLine(CasePosition.H8, CasePosition.G7, CasePosition.C3));
+        Assert.assertTrue(MathUtils.isPositionInLine(CasePosition.E4, CasePosition.D4, CasePosition.A4));
+        Assert.assertTrue(MathUtils.isPositionInLine(CasePosition.E4, CasePosition.E5, CasePosition.E8));
         Assert.assertFalse(MathUtils.isPositionInLine(CasePosition.H8, CasePosition.G7, CasePosition.C4));
     }
 }

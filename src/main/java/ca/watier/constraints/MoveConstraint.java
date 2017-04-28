@@ -14,30 +14,17 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.constraints;
 
-import ca.watier.defassert.Assert;
-import ca.watier.sessions.Player;
+import ca.watier.enums.CasePosition;
+import ca.watier.enums.Pieces;
+import ca.watier.enums.Side;
 
-import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 /**
  * Created by yannick on 4/23/2017.
  */
-public class SessionUtils extends BaseUtils {
-
-    /**
-     * Fetch the player from the HttpSession, the session cannot be null, same for the player
-     *
-     * @param session
-     * @return
-     */
-    public static Player getPlayer(HttpSession session) {
-
-        Assert.assertNotNull(session);
-        Player player = (Player) session.getAttribute(Constants.PLAYER);
-        Assert.assertNotNull(player);
-
-        return player;
-    }
+public interface MoveConstraint {
+    boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap);
 }

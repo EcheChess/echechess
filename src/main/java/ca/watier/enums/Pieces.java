@@ -33,9 +33,9 @@ public enum Pieces {
     B_KNIGHT("Black Knight", '♞', Side.BLACK),
     B_PAWN("Black Pawn", '♟', Side.BLACK);
 
-    private char unicodeIcon;
-    private String name;
-    private Side side;
+    private final char unicodeIcon;
+    private final String name;
+    private final Side side;
 
     Pieces(String name, char unicodeIcon, Side side) {
         this.name = name;
@@ -54,4 +54,5 @@ public enum Pieces {
     public Side getSide() {
         return side;
     }
+
 }

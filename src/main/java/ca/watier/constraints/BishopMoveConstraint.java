@@ -14,27 +14,24 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.constraints;
 
-import ca.watier.daos.ChessDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import ca.watier.defassert.Assert;
+import ca.watier.enums.CasePosition;
+import ca.watier.enums.Pieces;
+import ca.watier.enums.Side;
+
+import java.util.Map;
 
 /**
- * Created by yannick on 4/17/2017.
+ * Created by yannick on 4/23/2017.
  */
+public class BishopMoveConstraint implements MoveConstraint {
 
-@Service
-public class UserService {
+    @Override
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
+        Assert.assertNotNull(from, to, side);
 
-    private final ChessDao dao;
-
-    @Autowired
-    public UserService(ChessDao dao) {
-        this.dao = dao;
-    }
-
-    public String getName() {
-        return dao.getName();
+        return false;
     }
 }

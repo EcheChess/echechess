@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package ca.watier.game;
-
-import ca.watier.enums.CasePosition;
+package ca.watier.utils;
 
 /**
- * Created by yannick on 4/23/2017.
+ * Created by yannick on 4/27/2017.
  */
-public interface MoveConstraint {
-    boolean isMoveValid(CasePosition from, CasePosition to);
+public class BaseUtils {
+    public static int getSafeInteger(Integer value) {
+        return value == null ? 0 : value;
+    }
 }

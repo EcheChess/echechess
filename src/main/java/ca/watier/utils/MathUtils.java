@@ -26,10 +26,10 @@ import static ca.watier.game.Direction.*;
 /**
  * Created by yannick on 4/25/2017.
  */
-public class MathUtils {
+public class MathUtils extends BaseUtils {
 
     /**
-     * Get the direction based on a position
+     * Get the direction based on a position, this method is not precise when the depth is more than 1.
      *
      * @param from
      * @param to
@@ -136,6 +136,28 @@ public class MathUtils {
     }
 
     /**
+     * Get the number of case between two position, must be a straight line, return null if not
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public static Integer getDistanceBetweenPositions(CasePosition from, CasePosition to) {
+        Assert.assertNotNull(from, to);
+
+        Direction directionFromPosition = getDirectionFromPosition(from, to);
+        CasePosition nearestPositionFromDirection = getNearestPositionFromDirection(from, directionFromPosition);
+
+        if (nearestPositionFromDirection == null || !isPositionInLine(from, nearestPositionFromDirection, to)) {
+            return null;
+        }
+
+        double partOne = Math.pow(from.getX() - to.getX(), 2);
+        double partTwo = Math.pow(from.getY() - to.getY(), 2);
+        return (int) (Math.sqrt(partOne + partTwo));
+    }
+
+    /**
      * Check if the position is on the same line than the others
      *
      * @param first
@@ -150,6 +172,9 @@ public class MathUtils {
         int xCurrent = first.getX();
         int yToCheck = toCheck.getY();
         int xToCheck = toCheck.getX();
+
+        if (xCurrent == xToCheck && xCurrent == toCheck.getX() || yCurrent == yToCheck && yCurrent == toCheck.getY())
+            return true;
 
         float m = getSlopeFromPosition(first, second);
         float b = yCurrent - (m * xCurrent);

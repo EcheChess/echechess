@@ -21,9 +21,7 @@ import ca.watier.enums.Side;
 import ca.watier.game.GameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.services.GameService;
-import ca.watier.services.UserService;
 import ca.watier.sessions.Player;
-import ca.watier.utils.PlayerUtils;
 import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -41,13 +39,11 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/game")
 public class GameController {
-    private final UserService userService;
     private final GameService gameService;
 
     @Autowired
-    public GameController(GameService gameService, UserService userService) {
+    public GameController(GameService gameService) {
         this.gameService = gameService;
-        this.userService = userService;
     }
 
     @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,12 +61,7 @@ public class GameController {
     @RequestMapping(path = "/move", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public BooleanResponse movePieceOfPlayer(CasePosition from, CasePosition to, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
-        boolean playerCanMoveInGame = PlayerUtils.isPlayerCanMovePiece(player, from, uuid, gameService);
 
-        if (playerCanMoveInGame) {
-            playerCanMoveInGame = gameService.movePiece(from, to, uuid);
-        }
-
-        return new BooleanResponse(playerCanMoveInGame, "");
+        return new BooleanResponse(gameService.movePiece(from, to, uuid, player), "");
     }
 }

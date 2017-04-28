@@ -140,7 +140,7 @@ public class GameHandler {
     }
 
     /**
-     * Check if the player can isMoveValid the piece at the specified location
+     * Check if the player can movePiece the piece at the specified location
      *
      * @param player
      * @param from
@@ -182,20 +182,17 @@ public class GameHandler {
         return uuid;
     }
 
-    public boolean movePiece(CasePosition from, CasePosition to) {
+    public void movePiece(CasePosition from, CasePosition to) {
         Assert.assertNotNull(from, to);
 
         Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
-        Pieces piecesTo = CURRENT_PIECES_LOCATION.get(to);
-
-        //Friendly Hit detection
-        if (piecesFrom != null && piecesTo != null && piecesFrom.getSide().equals(piecesTo.getSide())) {
-            return false;
-        }
 
         CURRENT_PIECES_LOCATION.remove(from);
         CURRENT_PIECES_LOCATION.put(to, piecesFrom);
 
-        return true; //FIXME
+    }
+
+    public Map<CasePosition, Pieces> getPiecesLocation() {
+        return Collections.unmodifiableMap(CURRENT_PIECES_LOCATION);
     }
 }

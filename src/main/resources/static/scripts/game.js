@@ -116,9 +116,16 @@ function initGame(currentUuid) {
             }).response;
 
             console.log($(ui.draggable).text() + " moved from " + from + " to " + to);
-            console.log("Player can move ? (" + response + ")");
 
             if (response) {
+                $(this).find('.board-pieces').each(function () {
+                    var item = $(this).text();
+
+                    if (item) {
+                        $(this).hide();
+                    }
+                });
+
                 $(this).append(ui.draggable);
             }
 

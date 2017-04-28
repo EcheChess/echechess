@@ -19,7 +19,6 @@ package ca.watier.controllers;
 import ca.watier.enums.Side;
 import ca.watier.game.GameHandler;
 import ca.watier.services.GameService;
-import ca.watier.services.UserService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +36,11 @@ import javax.servlet.http.HttpSession;
 @RequestMapping("/usr")
 public class UserController {
 
-    private final UserService userService;
     private final GameService gameService;
 
     @Autowired
-    public UserController(GameService gameService, UserService userService) {
+    public UserController(GameService gameService) {
         this.gameService = gameService;
-        this.userService = userService;
     }
 
     @RequestMapping(path = "/side", method = RequestMethod.POST)

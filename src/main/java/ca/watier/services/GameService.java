@@ -20,6 +20,7 @@ import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.game.GameHandler;
 import ca.watier.sessions.Player;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -33,6 +34,13 @@ import java.util.UUID;
 @Service
 public class GameService {
     private final static Map<UUID, GameHandler> GAMES_HANDLER_MAP = new HashMap<>();
+
+    private final ConstraintService constraintService;
+
+    @Autowired
+    public GameService(ConstraintService constraintService) {
+        this.constraintService = constraintService;
+    }
 
     public GameHandler createNewGame(Player player) {
         GameHandler gameHandler = new GameHandler();
@@ -55,10 +63,13 @@ public class GameService {
         return GAMES_HANDLER_MAP;
     }
 
-    public boolean movePiece(CasePosition from, CasePosition to, String uuid) {
+    public boolean movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
+        Assert.assertNotNull(from, to);
+        Assert.assertNotEmpty(uuid);
+
         GameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
-        return gameFromUuid.movePiece(from, to);
+        return constraintService.movePiece(from, to, gameFromUuid.getPlayerSide(player), gameFromUuid);
     }
 }
