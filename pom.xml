@@ -49,6 +49,12 @@
             <version>2.9.9</version>
         </dependency>
 
+        <dependency> <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

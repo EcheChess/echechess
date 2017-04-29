@@ -19,6 +19,7 @@ package ca.watier.utils;
 import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
+import ca.watier.game.Direction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +68,11 @@ public class GameUtils extends BaseUtils {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.H7, Pieces.B_PAWN);
     }
 
+    /**
+     * Create a new HashMap containing the default game
+     *
+     * @return
+     */
     public static Map<CasePosition, Pieces> getDefaultGame() {
         Map<CasePosition, Pieces> game = new HashMap<>();
         game.putAll(DEFAULT_GAME_TEMPLATE);
@@ -74,8 +80,51 @@ public class GameUtils extends BaseUtils {
     }
 
 
+    /**
+     * Check if it's the default position for the piece (based on the default game)
+     *
+     * @param position
+     * @param pieces
+     * @return
+     */
     public static boolean isDefaultPosition(CasePosition position, Pieces pieces) {
         Assert.assertNotNull(position, pieces);
         return pieces.equals(DEFAULT_GAME_TEMPLATE.get(position));
+    }
+
+    /**
+     * Check if there's another piece between two pieces
+     *
+     * @param from
+     * @param to
+     * @param pieces
+     * @return
+     */
+    public static boolean isOtherPiecesBetweenTarget(CasePosition from, CasePosition to, Map<CasePosition, Pieces> pieces) {
+        Assert.assertNotNull(from, to, pieces);
+
+        boolean value = false;
+
+        int distanceFromDestination = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to));
+        Direction directionToDestination = MathUtils.getDirectionFromPosition(from, to);
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : pieces.entrySet()) {
+
+            CasePosition key = casePositionPiecesEntry.getKey();
+
+            if (casePositionPiecesEntry.getValue() != null && key != from && key != to) {
+
+                int distanceToOther = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, key));
+                Direction directionToOther = MathUtils.getDirectionFromPosition(from, key);
+
+                if (MathUtils.isPositionInLine(from, to, key) && distanceFromDestination > distanceToOther && directionToOther == directionToDestination) {
+                    value = true;
+                    break;
+                }
+            }
+        }
+
+
+        return value;
     }
 }

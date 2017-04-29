@@ -20,7 +20,11 @@ import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
+import ca.watier.game.Direction;
+import ca.watier.utils.MathUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,10 +32,27 @@ import java.util.Map;
  */
 public class KnightMoveConstraint implements MoveConstraint {
 
+    private static final List<Direction> DEFAULT_RADIUS_FINDER_POSITION = new ArrayList<>();
+    public static final float KNIGHT_RADIUS_EQUATION = 2.23606797749979f;
+
+    static {
+        DEFAULT_RADIUS_FINDER_POSITION.add(Direction.NORTH);
+        DEFAULT_RADIUS_FINDER_POSITION.add(Direction.SOUTH);
+        DEFAULT_RADIUS_FINDER_POSITION.add(Direction.EAST);
+        DEFAULT_RADIUS_FINDER_POSITION.add(Direction.WEST);
+    }
+
     @Override
     public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
         Assert.assertNotNull(from, to, side);
+        Pieces hittingPiece = positionPiecesMap.get(to);
 
-        return false;
+        boolean canAttack = true;
+        if (hittingPiece != null) {
+            canAttack = !side.equals(hittingPiece.getSide());
+        }
+
+        return canAttack && MathUtils.isPositionOnCirclePerimeter(from, to, from.getX() + KNIGHT_RADIUS_EQUATION, from.getY()) &&
+                !DEFAULT_RADIUS_FINDER_POSITION.contains(MathUtils.getDirectionFromPosition(from, to));
     }
 }

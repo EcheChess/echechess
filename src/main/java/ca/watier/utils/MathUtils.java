@@ -19,6 +19,7 @@ package ca.watier.utils;
 import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.game.Direction;
+import org.apache.commons.math3.util.Precision;
 
 import static ca.watier.enums.CasePosition.getCasePositionByCoor;
 import static ca.watier.game.Direction.*;
@@ -82,6 +83,17 @@ public class MathUtils extends BaseUtils {
      * @return
      */
     public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction) {
+        return getNearestPositionFromDirection(casePosition, direction, 1);
+    }
+
+    /**
+     * Get the case based on the direction
+     *
+     * @param casePosition
+     * @param direction
+     * @return
+     */
+    public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction, int nbOfCases) {
         Assert.assertNotNull(casePosition, direction);
 
         CasePosition position = null;
@@ -91,28 +103,28 @@ public class MathUtils extends BaseUtils {
 
         switch (direction) {
             case NORTH:
-                position = getCasePositionByCoor(x, y + 1);
+                position = getCasePositionByCoor(x, y + nbOfCases);
                 break;
             case NORTH_EAST:
-                position = getCasePositionByCoor(x + 1, y + 1);
+                position = getCasePositionByCoor(x + nbOfCases, y + nbOfCases);
                 break;
             case NORTH_WEST:
-                position = getCasePositionByCoor(x - 1, y + 1);
+                position = getCasePositionByCoor(x - nbOfCases, y + nbOfCases);
                 break;
             case SOUTH:
-                position = getCasePositionByCoor(x, y - 1);
+                position = getCasePositionByCoor(x, y - nbOfCases);
                 break;
             case SOUTH_EAST:
-                position = getCasePositionByCoor(x + 1, y - 1);
+                position = getCasePositionByCoor(x + nbOfCases, y - nbOfCases);
                 break;
             case SOUTH_WEST:
-                position = getCasePositionByCoor(x - 1, y - 1);
+                position = getCasePositionByCoor(x - nbOfCases, y - nbOfCases);
                 break;
             case EAST:
-                position = getCasePositionByCoor(x + 1, y);
+                position = getCasePositionByCoor(x + nbOfCases, y);
                 break;
             case WEST:
-                position = getCasePositionByCoor(x - 1, y);
+                position = getCasePositionByCoor(x - nbOfCases, y);
                 break;
         }
 
@@ -157,6 +169,23 @@ public class MathUtils extends BaseUtils {
         return (int) (Math.sqrt(partOne + partTwo));
     }
 
+
+    /**
+     * Get the number of case between two position, must be a straight line, return null if not
+     *
+     * @param from
+     * @param xTo
+     * @param yTo
+     * @return
+     */
+    public static double getDistanceBetweenPositions(CasePosition from, float xTo, float yTo) {
+        Assert.assertNotNull(from);
+
+        double partOne = Math.pow(from.getX() - xTo, 2);
+        double partTwo = Math.pow(from.getY() - yTo, 2);
+        return Math.sqrt(partOne + partTwo);
+    }
+
     /**
      * Check if the position is on the same line than the others
      *
@@ -176,9 +205,31 @@ public class MathUtils extends BaseUtils {
         if (xCurrent == xToCheck && xCurrent == toCheck.getX() || yCurrent == yToCheck && yCurrent == toCheck.getY())
             return true;
 
+        // y = mx + b
         float m = getSlopeFromPosition(first, second);
         float b = yCurrent - (m * xCurrent);
 
         return yToCheck == (m * xToCheck + b);
+    }
+
+
+    /**
+     * Check if the position is on the perimeter of the circle
+     *
+     * @param from
+     * @param to
+     * @param xRadius
+     * @param yRadius
+     * @return
+     */
+    public static boolean isPositionOnCirclePerimeter(CasePosition from, CasePosition to, float xRadius, float yRadius) {
+        Assert.assertNotNull(from, to);
+
+        //(x−a)^2 + (y−b)^2 = r^2
+        double partOne = Math.pow(to.getX() - from.getX(), 2);
+        double partTwo = Math.pow(to.getY() - from.getY(), 2);
+        double disRadius = Math.pow(getDistanceBetweenPositions(from, xRadius, yRadius), 2);
+
+        return Precision.equals(partOne + partTwo, disRadius, 0.1);
     }
 }

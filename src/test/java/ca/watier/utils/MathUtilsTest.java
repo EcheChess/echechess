@@ -16,6 +16,7 @@
 
 package ca.watier.utils;
 
+import ca.watier.constraints.KnightMoveConstraint;
 import ca.watier.enums.CasePosition;
 import ca.watier.game.Direction;
 import org.junit.Assert;
@@ -25,6 +26,42 @@ import org.junit.Test;
  * Created by yannick on 4/25/2017.
  */
 public class MathUtilsTest {
+
+    private static final Direction NORTH = Direction.NORTH;
+    private static final Direction NORTH_WEST = Direction.NORTH_WEST;
+    private static final Direction WEST = Direction.WEST;
+    private static final Direction SOUTH_WEST = Direction.SOUTH_WEST;
+    private static final Direction SOUTH = Direction.SOUTH;
+    private static final Direction SOUTH_EAST = Direction.SOUTH_EAST;
+    private static final Direction EAST = Direction.EAST;
+    private static final Direction NORTH_EAST = Direction.NORTH_EAST;
+    private static final CasePosition D_5 = CasePosition.D5;
+    private static final float DELTA_SLOPE_TEST = 0f;
+
+    @Test
+    public void isPositionOnCirclePerimeter_knight() throws Exception {
+
+        int x = D_5.getX();
+        int y = D_5.getY();
+
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.B4, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.B6, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.C7, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.E7, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.F4, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.F6, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.C3, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertTrue(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.E3, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+
+        Assert.assertFalse(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.D7, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertFalse(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.D3, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertFalse(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.B5, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+        Assert.assertFalse(MathUtils.isPositionOnCirclePerimeter(D_5, CasePosition.F5, x + KnightMoveConstraint.KNIGHT_RADIUS_EQUATION, y));
+    }
+
     @Test
     public void getDistanceBetweenPositions() throws Exception {
         Assert.assertNull(MathUtils.getDistanceBetweenPositions(D_5, D_5));
@@ -42,17 +79,6 @@ public class MathUtilsTest {
         Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositions(CasePosition.A8, CasePosition.F3));
     }
 
-    private static final Direction NORTH = Direction.NORTH;
-    private static final Direction NORTH_WEST = Direction.NORTH_WEST;
-    private static final Direction WEST = Direction.WEST;
-    private static final Direction SOUTH_WEST = Direction.SOUTH_WEST;
-    private static final Direction SOUTH = Direction.SOUTH;
-    private static final Direction SOUTH_EAST = Direction.SOUTH_EAST;
-    private static final Direction EAST = Direction.EAST;
-    private static final Direction NORTH_EAST = Direction.NORTH_EAST;
-    private static final CasePosition D_5 = CasePosition.D5;
-    private static final float DELTA_SLOPE_TEST = 0f;
-
     @Test
     public void getNearestPositionFromDirection() throws Exception {
         Assert.assertEquals(CasePosition.D6, MathUtils.getNearestPositionFromDirection(D_5, Direction.NORTH));
@@ -65,6 +91,18 @@ public class MathUtilsTest {
 
         Assert.assertEquals(CasePosition.C4, MathUtils.getNearestPositionFromDirection(D_5, Direction.SOUTH_WEST));
         Assert.assertEquals(CasePosition.E4, MathUtils.getNearestPositionFromDirection(D_5, Direction.SOUTH_EAST));
+
+
+        Assert.assertEquals(CasePosition.D7, MathUtils.getNearestPositionFromDirection(D_5, Direction.NORTH, 2));
+        Assert.assertEquals(CasePosition.D3, MathUtils.getNearestPositionFromDirection(D_5, Direction.SOUTH, 2));
+        Assert.assertEquals(CasePosition.B5, MathUtils.getNearestPositionFromDirection(D_5, Direction.WEST, 2));
+        Assert.assertEquals(CasePosition.F5, MathUtils.getNearestPositionFromDirection(D_5, Direction.EAST, 2));
+
+        Assert.assertEquals(CasePosition.B7, MathUtils.getNearestPositionFromDirection(D_5, Direction.NORTH_WEST, 2));
+        Assert.assertEquals(CasePosition.F7, MathUtils.getNearestPositionFromDirection(D_5, Direction.NORTH_EAST, 2));
+
+        Assert.assertEquals(CasePosition.B3, MathUtils.getNearestPositionFromDirection(D_5, Direction.SOUTH_WEST, 2));
+        Assert.assertEquals(CasePosition.F3, MathUtils.getNearestPositionFromDirection(D_5, Direction.SOUTH_EAST, 2));
     }
 
     @Test
