@@ -16,22 +16,8 @@
 
 package ca.watier.constraints;
 
-import ca.watier.defassert.Assert;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-
-import java.util.Map;
-
 /**
  * Created by yannick on 4/23/2017.
  */
-public class QueenMoveConstraint implements MoveConstraint {
-
-    @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        Assert.assertNotNull(from, to, side);
-
-        return false;
-    }
+public class QueenMoveConstraint extends GenericMoveConstraint {
 }

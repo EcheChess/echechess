@@ -16,44 +16,15 @@
 
 package ca.watier.constraints;
 
-import ca.watier.defassert.Assert;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-import ca.watier.game.Direction;
-import ca.watier.utils.GameUtils;
-import ca.watier.utils.MathUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import ca.watier.enums.DirectionPattern;
 
 /**
  * Created by yannick on 4/23/2017.
  */
-public class RookMoveConstraint implements MoveConstraint {
-
-    private static final List<Direction> DEFAULT_MOVE_POSITION = new ArrayList<>();
-
-    static {
-        DEFAULT_MOVE_POSITION.add(Direction.NORTH);
-        DEFAULT_MOVE_POSITION.add(Direction.SOUTH);
-        DEFAULT_MOVE_POSITION.add(Direction.EAST);
-        DEFAULT_MOVE_POSITION.add(Direction.WEST);
-    }
+public class RookMoveConstraint extends GenericMoveConstraint {
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        Assert.assertNotNull(from, to, side);
-        Pieces pieces = positionPiecesMap.get(to);
-
-        Direction directionFromPosition = MathUtils.getDirectionFromPosition(from, to);
-        boolean isMoveValid = !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap) && DEFAULT_MOVE_POSITION.contains(directionFromPosition);
-
-        if (pieces != null) {
-            isMoveValid &= !side.equals(pieces.getSide());
-        }
-
-        return isMoveValid;
+    protected DirectionPattern authorizedMoves() {
+        return DirectionPattern.NORMAL;
     }
 }
