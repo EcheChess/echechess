@@ -235,4 +235,8 @@ public class GameHandler {
     public void setAllowObservers(boolean allowObservers) {
         this.allowObservers = allowObservers;
     }
+
+    public boolean hasPlayer(Player player) {
+        return observerList.contains(player) || playerBlack == player || playerWhite == player;
+    }
 }

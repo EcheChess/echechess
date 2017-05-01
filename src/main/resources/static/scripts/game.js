@@ -19,12 +19,14 @@
  */
 
 var currentUuid = null;
+var wsClient = null;
 
 $(document).ready(function () {
     initUiTriggers();
 
     $("#createGame").click(function () {
         currentUuid = createNewGame();
+        wsClient = connect(currentUuid);
 
         var url = document.location.href + '?game=' + currentUuid;
         var $uuid = $('#uuid');
@@ -34,17 +36,45 @@ $(document).ready(function () {
         renderBoard();
     });
 
-
     $("#joinGameButton").click(function () {
         currentUuid = $("#joinGame").val();
+
+        var response = jsonFromRequest("POST", '/game/join', {
+            side: $("#changeSide").find("option:selected").val(),
+            uuid: currentUuid
+        }).response;
+
+        wsClient = connect(currentUuid);
         renderBoard();
     });
 });
 
+function connect(uuid) {
+    var stompClient = null;
+    var socket = new SockJS('/gs-guide-websocket');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/' + uuid, function (greeting) {
+            var message = JSON.parse(greeting.body).event;
+
+            switch (message) {
+                case 'MOVE':
+                    renderBoard();
+                    break;
+            }
+
+        });
+    });
+
+    return stompClient;
+}
+
+
 function initUiTriggers() {
     $("#changeSide").change(function () {
         if (currentUuid) {
-            var response = jsonFromRequest("POST", '/usr/side', {
+            var response = jsonFromRequest("POST", '/game/side', {
                 side: $("#changeSide").find("option:selected").val(),
                 uuid: currentUuid
             }).response;

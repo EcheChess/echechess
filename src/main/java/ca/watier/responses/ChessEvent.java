@@ -14,17 +14,24 @@
  *    limitations under the License.
  */
 
-package ca.watier;
+package ca.watier.responses;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import ca.watier.enums.ChessEventMessage;
 
-@SpringBootApplication
-@EnableAutoConfiguration
-public class EchechessApplication {
+/**
+ * Created by yannick on 5/1/2017.
+ */
+public class ChessEvent {
+    private ChessEventMessage event;
 
-    public static void main(String[] args) {
-        SpringApplication.run(EchechessApplication.class, args);
+    public ChessEvent() {
+    }
+
+    public ChessEvent(ChessEventMessage event) {
+        this.event = event;
+    }
+
+    public ChessEventMessage getEvent() {
+        return event;
     }
 }
