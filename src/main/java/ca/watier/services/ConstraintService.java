@@ -49,21 +49,21 @@ public class ConstraintService {
         }
     }
 
-    public boolean movePiece(CasePosition from, CasePosition to, Side side, GameHandler gameHandler) {
-        Assert.assertNotNull(from, to, side, gameHandler);
+    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide, GameHandler gameHandler) {
+        Assert.assertNotNull(from, to, playerSide, gameHandler);
+
+        if (Side.OBSERVER.equals(playerSide)) {
+            return false;
+        }
 
         Map<CasePosition, Pieces> piecesLocation = gameHandler.getPiecesLocation();
         Pieces fromPiece = piecesLocation.get(from);
 
-        if (!fromPiece.getSide().equals(side) || Side.OBSERVER.equals(side)) {
-            return false;
-        }
-
         MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
-        boolean moveValid = moveConstraint.isMoveValid(from, to, side, piecesLocation);
+        boolean moveValid = moveConstraint.isMoveValid(from, to, playerSide, piecesLocation);
 
         if (moveValid) {
-            gameHandler.movePiece(from, to);
+            moveValid = gameHandler.movePiece(from, to, playerSide);
         }
 
         return moveValid;

@@ -47,7 +47,7 @@ public class GameService {
         UUID uui = UUID.randomUUID();
         gameHandler.setUuid(uui.toString());
         GAMES_HANDLER_MAP.put(uui, gameHandler);
-        player.addGame(uui);
+        player.addCreatedGame(uui);
 
         return gameHandler;
     }

@@ -27,6 +27,18 @@
     <script src="scripts/game.js"></script>
 </head>
 <body>
+<button id="createGame">Create a new game</button>
+<select id="changeSide">
+    <option value="BLACK">Black</option>
+    <option value="WHITE" selected>White</option>
+    <option value="OBSERVER">Observer</option>
+</select>
+<label for="allowOtherPlayers">Play against a computer: </label><input id="allowOtherPlayers" type="checkbox" checked>
+<label for="allowOtherObserver">Allow observers: </label><input id="allowOtherObserver" type="checkbox" checked>
 <table id="board"></table>
+Send this url to share this game: <a id="uuid"></a>
+<br>
+<label for="joinGame">Join a game</label><input type="text" id="joinGame">
+<button id="joinGameButton">JOIN</button>
 </body>
 </html>

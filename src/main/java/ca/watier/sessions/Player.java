@@ -17,6 +17,7 @@
 package ca.watier.sessions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,19 +25,30 @@ import java.util.UUID;
  * Created by yannick on 4/17/2017.
  */
 public class Player {
-    private List<UUID> gameList = new ArrayList<>();
+    private List<UUID> createdGameList = new ArrayList<>();
+    private List<UUID> joinedGameList = new ArrayList<>();
     private UUID lastGameCreated;
 
-    public void addGame(UUID uuid) {
+    public void addCreatedGame(UUID uuid) {
         lastGameCreated = uuid;
-        gameList.add(uuid);
+        createdGameList.add(uuid);
     }
 
-    public List<UUID> getGameList() {
-        return gameList;
+    public void addJoinedGame(UUID uuid) {
+        joinedGameList.add(uuid);
+    }
+
+
+    public List<UUID> getCreatedGameList() {
+        return Collections.unmodifiableList(createdGameList);
     }
 
     public UUID getLastGameCreated() {
         return lastGameCreated;
     }
+
+    public List<UUID> getJoinedGameList() {
+        return Collections.unmodifiableList(joinedGameList);
+    }
+
 }

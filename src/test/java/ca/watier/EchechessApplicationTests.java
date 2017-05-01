@@ -74,7 +74,7 @@ public class EchechessApplicationTests {
         Set<UUID> allIdGamesFromGameService = mapOfGames.keySet();
 
         //Get the current game
-        Set<UUID> gameListIdFromPlayer = new HashSet<>(player1.getGameList());
+        Set<UUID> gameListIdFromPlayer = new HashSet<>(player1.getCreatedGameList());
         List<GameHandler> allGames = new ArrayList<>(mapOfGames.values());
         GameHandler gameHandler = allGames.get(0);
 

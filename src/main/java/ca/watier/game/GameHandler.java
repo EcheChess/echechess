@@ -41,6 +41,10 @@ public class GameHandler {
     @JsonIgnore
     private final Map<CasePosition, Pieces> CURRENT_PIECES_LOCATION = GameUtils.getDefaultGame();
     private String uuid;
+    private boolean allowOtherToJoin = false;
+    private boolean allowObservers = false;
+
+    private Side currentAllowedMoveSide = Side.WHITE;
 
     public GameHandler() {
         observerList = new ArrayList<>();
@@ -182,17 +186,53 @@ public class GameHandler {
         return uuid;
     }
 
-    public void movePiece(CasePosition from, CasePosition to) {
+    private void changeAllowedMoveSide() {
+        if (Side.BLACK.equals(currentAllowedMoveSide)) {
+            currentAllowedMoveSide = Side.WHITE;
+        } else {
+            currentAllowedMoveSide = Side.BLACK;
+        }
+    }
+
+    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) {
         Assert.assertNotNull(from, to);
 
         Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
+        boolean isMoved = false;
 
-        CURRENT_PIECES_LOCATION.remove(from);
-        CURRENT_PIECES_LOCATION.put(to, piecesFrom);
+        if (piecesFrom != null) {
+            Side sideFrom = piecesFrom.getSide();
 
+            if (currentAllowedMoveSide.equals(sideFrom) && sideFrom.equals(playerSide)) {
+                CURRENT_PIECES_LOCATION.remove(from);
+                CURRENT_PIECES_LOCATION.put(to, piecesFrom);
+                changeAllowedMoveSide();
+
+                isMoved = true;
+            }
+        }
+
+        return isMoved;
     }
 
     public Map<CasePosition, Pieces> getPiecesLocation() {
         return Collections.unmodifiableMap(CURRENT_PIECES_LOCATION);
+    }
+
+
+    public boolean isAllowOtherToJoin() {
+        return allowOtherToJoin;
+    }
+
+    public void setAllowOtherToJoin(boolean allowOtherToJoin) {
+        this.allowOtherToJoin = allowOtherToJoin;
+    }
+
+    public boolean isAllowObservers() {
+        return allowObservers;
+    }
+
+    public void setAllowObservers(boolean allowObservers) {
+        this.allowObservers = allowObservers;
     }
 }

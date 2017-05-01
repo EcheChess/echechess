@@ -16,9 +16,13 @@
 
 package ca.watier.enums;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * Created by yannick on 4/18/2017.
  */
+
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Pieces {
     W_KING("White King", '♔', Side.WHITE), //TODO: Castling
     W_QUEEN("White Queen ", '♕', Side.WHITE),

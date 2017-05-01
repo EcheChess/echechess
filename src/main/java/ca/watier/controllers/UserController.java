@@ -18,6 +18,7 @@ package ca.watier.controllers;
 
 import ca.watier.enums.Side;
 import ca.watier.game.GameHandler;
+import ca.watier.responses.BooleanResponse;
 import ca.watier.services.GameService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.SessionUtils;
@@ -44,7 +45,7 @@ public class UserController {
     }
 
     @RequestMapping(path = "/side", method = RequestMethod.POST)
-    public boolean setSideOfPlayer(Side side, String uuid, HttpSession session) {
+    public BooleanResponse setSideOfPlayer(Side side, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
         GameHandler game = gameService.getGameFromUuid(uuid);
@@ -53,6 +54,6 @@ public class UserController {
             game = gameService.createNewGame(player);
         }
 
-        return game.setPlayerToSide(player, side);
+        return new BooleanResponse(game.setPlayerToSide(player, side), "");
     }
 }

@@ -18,43 +18,50 @@
  * Created by yannick on 4/18/2017.
  */
 
-/**
- * To enable Remode debuf on firefox:
- * SHIFT+F2
- * listen 6000
- */
+var currentUuid = null;
 
 $(document).ready(function () {
-    var currentUuid = createNewGame();
+    initUiTriggers();
 
-    if (currentUuid) {
-        initGame(currentUuid);
-    }
-});
+    $("#createGame").click(function () {
+        currentUuid = createNewGame();
 
-function jsonFromGetRequest(url) {
-    var value = null;
+        var url = document.location.href + '?game=' + currentUuid;
+        var $uuid = $('#uuid');
+        $uuid.text(url);
+        $uuid.attr('href', url);
 
-    $.ajax({
-        url: url,
-        type: 'GET',
-        async: false,
-        cache: false,
-        timeout: 30000,
-        success: function (json) {
-            value = json;
-        }
+        renderBoard();
     });
 
-    return value;
+
+    $("#joinGameButton").click(function () {
+        currentUuid = $("#joinGame").val();
+        renderBoard();
+    });
+});
+
+function initUiTriggers() {
+    $("#changeSide").change(function () {
+        if (currentUuid) {
+            var response = jsonFromRequest("POST", '/usr/side', {
+                side: $("#changeSide").find("option:selected").val(),
+                uuid: currentUuid
+            }).response;
+
+            if (response) {
+                alert("Side changed !");
+            }
+        }
+    });
 }
 
-function jsonFromPostRequest(url, data) {
+function jsonFromRequest(type, url, data) {
     var value = null;
 
     $.ajax({
         url: url,
-        type: 'POST',
+        type: type,
         data: data,
         async: false,
         cache: false,
@@ -68,30 +75,66 @@ function jsonFromPostRequest(url, data) {
 }
 
 function createNewGame() {
-    return jsonFromPostRequest('/game/create', {side: 'WHITE'}).uuid;
+    return jsonFromRequest('POST', '/game/create', {
+        side: $("#changeSide").find("option:selected").val(),
+        otherPlayer: $("#allowOtherPlayers").is(':checked'),
+        observers: $("#allowOtherObserver").is(':checked')
+    }).uuid;
 }
 
-function initGame(currentUuid) {
+function renderBoard() {
+
+    if (!currentUuid) {
+        return;
+    }
+    var $board = $("#board");
+
+    $board.empty();
+
     var tableInnerHtml = '';
     var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-    var idx = 0;
-    for (var y = 0; y < 8; y++) { //lines
-        tableInnerHtml += '<tr>';
-        for (var x = 0; x < 8; x++) { //columns
-            var caseLetter = boardColumnLetters[x];
-            var caseNumber = (8 - y);
-            var caseColor = (((idx & 1) === 1) ? 'black' : 'white');
-            var pieceIcon = getPieceByPosition(x, y);
 
-            tableInnerHtml += '<td data-case-id="' + caseLetter + caseNumber + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
-            idx++;
+    var piecesLocation = jsonFromRequest('GET', '/game/pieces', {
+        uuid: currentUuid
+    });
+
+
+    var caseColorIndex = 0;
+    var letterIdx = 0;
+    var numberIdx = 8;
+
+    for (var y = 4; y > -4; y--) { //lines
+        tableInnerHtml += '<tr>';
+        letterIdx = 0;
+        for (var x = -4; x < 4; x++) { //columns
+            var caseLetter = boardColumnLetters[letterIdx];
+            var caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
+            var pieceIcon = '';
+
+            for (var key in piecesLocation) {
+                var currentPiece = piecesLocation[key];
+                var currentElementX = currentPiece.value1.x;
+                var currentElementY = currentPiece.value1.y;
+
+                if (x === currentElementX && y === currentElementY) {
+                    pieceIcon = currentPiece.value2.unicodeIcon;
+                    break;
+                }
+            }
+
+            tableInnerHtml += '<td data-case-id="' + caseLetter + numberIdx + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
+
+
+            caseColorIndex++;
+            letterIdx++;
         }
-        idx++;
+        numberIdx--;
+        caseColorIndex++;
         tableInnerHtml += '</tr>';
     }
 
-    $('#board').append(tableInnerHtml);
+    $board.append(tableInnerHtml);
 
     var sourceEvt = null;
 
@@ -104,18 +147,17 @@ function initGame(currentUuid) {
         }
     });
 
+
     $(".board-square").droppable({
         drop: function (event, ui) {
             var from = $(sourceEvt).attr("data-case-id");
             var to = $(this).attr("data-case-id");
 
-            var response = jsonFromPostRequest('/game/move', {
+            var response = jsonFromRequest('POST', '/game/move', {
                 from: from,
                 to: to,
                 uuid: currentUuid
             }).response;
-
-            console.log($(ui.draggable).text() + " moved from " + from + " to " + to);
 
             if (response) {
                 $(this).find('.board-pieces').each(function () {
@@ -132,42 +174,4 @@ function initGame(currentUuid) {
             $currentPiece.draggable("option", "revert", !response);
         }
     });
-}
-
-function getPieceByPosition(x, y) {
-    if (y > 1 && y < 6) {
-        return '';
-    }
-
-    if (y === 0) { //black
-        return getSpecialPieces(false, x);
-    } else if (y === 1) {
-        return '♟';
-    } else if (y === 6) {
-        return '♙'
-    }
-
-    return getSpecialPieces(true, x);
-}
-
-
-function getSpecialPieces(isWhite, x) {
-
-    switch (x) {
-        case 0: //Rooks
-        case 7:
-            return isWhite ? '♖' : '♜';
-        case 1: //Knights
-        case 6:
-            return isWhite ? '♘' : '♞';
-        case 2: //Pawns
-        case 5:
-            return isWhite ? '♗' : '♝';
-        case 3: //Queen
-            return isWhite ? '♕' : '♛';
-        case 4:  //King
-            return isWhite ? '♔' : '♚';
-    }
-
-    return '';
 }
