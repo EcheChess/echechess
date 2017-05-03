@@ -21,7 +21,6 @@ import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.game.GameHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -49,24 +48,28 @@ public class ConstraintService {
         }
     }
 
-    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide, GameHandler gameHandler) {
-        Assert.assertNotNull(from, to, playerSide, gameHandler);
+    /**
+     * Checks if the piece is movable to the specified location
+     *
+     * @param from
+     * @param to
+     * @param playerSide
+     * @param piecesLocation
+     * @return
+     */
+    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation) {
+        Assert.assertNotNull(from, to, playerSide, piecesLocation);
 
         if (Side.OBSERVER.equals(playerSide)) {
             return false;
         }
 
-        Map<CasePosition, Pieces> piecesLocation = gameHandler.getPiecesLocation();
         Pieces fromPiece = piecesLocation.get(from);
-
         MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
-        boolean moveValid = moveConstraint.isMoveValid(from, to, playerSide, piecesLocation);
 
-        if (moveValid) {
-            moveValid = gameHandler.movePiece(from, to, playerSide);
-        }
+        Assert.assertNotNull(moveConstraint);
 
-        return moveValid;
+        return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation);
     }
 
     private static Class<? extends MoveConstraint> getPieceMoveConstraintClass(Pieces pieces) {

@@ -56,20 +56,38 @@ public class GameController {
         this.template = template;
     }
 
+    /**
+     * Create a new game
+     *
+     * @param side
+     * @param againstComputer
+     * @param observers
+     * @param session
+     * @return
+     */
     @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public GameHandler createNewGame(Side side, boolean otherPlayer, boolean observers, HttpSession session) {
+    public GameHandler createNewGame(Side side, boolean againstComputer, boolean observers, HttpSession session) {
 
         GameHandler newGame = gameService.createNewGame(SessionUtils.getPlayer(session));
 
         if (side != null) {
             newGame.setPlayerToSide(SessionUtils.getPlayer(session), side);
-            newGame.setAllowOtherToJoin(otherPlayer);
+            newGame.setAllowOtherToJoin(!againstComputer);
             newGame.setAllowObservers(observers);
         }
 
         return newGame;
     }
 
+    /**
+     * Checks if the move is valid
+     *
+     * @param from
+     * @param to
+     * @param uuid
+     * @param session
+     * @return
+     */
     @RequestMapping(path = "/move", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public BooleanResponse movePieceOfPlayer(CasePosition from, CasePosition to, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
@@ -83,6 +101,37 @@ public class GameController {
         return new BooleanResponse(isMoved, "");
     }
 
+
+    /**
+     * Return a list of position that the piece can moves
+     *
+     * @param from
+     * @param uuid
+     * @param session
+     * @return
+     */
+    @RequestMapping(path = "/moves", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> getMovesOfAPiece(CasePosition from, String uuid, HttpSession session) {
+        Player player = SessionUtils.getPlayer(session);
+
+        GameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        List<String> positions = null;
+
+        if (gameFromUuid != null && gameFromUuid.hasPlayer(player)) {
+            positions = gameService.getAllAvailableMoves(from, uuid, player);
+        }
+
+        return positions;
+    }
+
+
+    /**
+     * Gets the pieces location
+     *
+     * @param uuid
+     * @param session
+     * @return
+     */
     @RequestMapping(path = "/pieces", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<DualValueResponse> getPieceLocations(String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
@@ -106,6 +155,14 @@ public class GameController {
     }
 
 
+    /**
+     * Join a game
+     *
+     * @param uuid
+     * @param side
+     * @param session
+     * @return
+     */
     @RequestMapping(path = "/join", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public BooleanResponse joinGame(String uuid, Side side, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
@@ -114,7 +171,7 @@ public class GameController {
         GameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
 
         UUID gameUuid = UUID.fromString(uuid);
-        if ((gameFromUuid.isAllowOtherToJoin() || gameFromUuid.isAllowObservers()) &&
+        if (gameFromUuid != null && (gameFromUuid.isAllowOtherToJoin() || gameFromUuid.isAllowObservers()) &&
                 !player.getCreatedGameList().contains(gameUuid) && !player.getJoinedGameList().contains(gameUuid)) {
             player.addJoinedGame(gameUuid);
             joined = gameFromUuid.setPlayerToSide(player, side);
@@ -127,6 +184,14 @@ public class GameController {
         template.convertAndSend("/topic/" + uuid, new ChessEvent(message));
     }
 
+    /**
+     * Change side of a player
+     *
+     * @param side
+     * @param uuid
+     * @param session
+     * @return
+     */
     @RequestMapping(path = "/side", method = RequestMethod.POST)
     public BooleanResponse setSideOfPlayer(Side side, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);

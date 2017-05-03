@@ -23,16 +23,13 @@ var wsClient = null;
 
 $(document).ready(function () {
     initUiTriggers();
+    drawBoard(null);
 
     $("#createGame").click(function () {
         currentUuid = createNewGame();
         wsClient = connect(currentUuid);
 
-        var url = document.location.href + '?game=' + currentUuid;
-        var $uuid = $('#uuid');
-        $uuid.text(url);
-        $uuid.attr('href', url);
-
+        $('#uuid').text(currentUuid);
         renderBoard();
     });
 
@@ -107,8 +104,8 @@ function jsonFromRequest(type, url, data) {
 function createNewGame() {
     return jsonFromRequest('POST', '/game/create', {
         side: $("#changeSide").find("option:selected").val(),
-        otherPlayer: $("#allowOtherPlayers").is(':checked'),
-        observers: $("#allowOtherObserver").is(':checked')
+        againstComputer: $("#againstComputer").hasClass('active'),
+        observers: $("#allowOtherObserver").hasClass('active')
     }).uuid;
 }
 
@@ -117,54 +114,13 @@ function renderBoard() {
     if (!currentUuid) {
         return;
     }
-    var $board = $("#board");
-
-    $board.empty();
-
-    var tableInnerHtml = '';
-    var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 
     var piecesLocation = jsonFromRequest('GET', '/game/pieces', {
         uuid: currentUuid
     });
 
-
-    var caseColorIndex = 0;
-    var letterIdx = 0;
-    var numberIdx = 8;
-
-    for (var y = 4; y > -4; y--) { //lines
-        tableInnerHtml += '<tr>';
-        letterIdx = 0;
-        for (var x = -4; x < 4; x++) { //columns
-            var caseLetter = boardColumnLetters[letterIdx];
-            var caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
-            var pieceIcon = '';
-
-            for (var key in piecesLocation) {
-                var currentPiece = piecesLocation[key];
-                var currentElementX = currentPiece.value1.x;
-                var currentElementY = currentPiece.value1.y;
-
-                if (x === currentElementX && y === currentElementY) {
-                    pieceIcon = currentPiece.value2.unicodeIcon;
-                    break;
-                }
-            }
-
-            tableInnerHtml += '<td data-case-id="' + caseLetter + numberIdx + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
-
-
-            caseColorIndex++;
-            letterIdx++;
-        }
-        numberIdx--;
-        caseColorIndex++;
-        tableInnerHtml += '</tr>';
-    }
-
-    $board.append(tableInnerHtml);
+    drawBoard(piecesLocation);
 
     var sourceEvt = null;
 
@@ -204,4 +160,68 @@ function renderBoard() {
             $currentPiece.draggable("option", "revert", !response);
         }
     });
+
+    var $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
+
+    $boardCaseWithPieceSelector.mouseover(function () {
+        var piecesLocation = jsonFromRequest('GET', '/game/moves', {
+            from: $(this).parent().attr("data-case-id"),
+            uuid: currentUuid
+        });
+
+        if (piecesLocation) {
+            for (var i = 0; i < piecesLocation.length; i++) {
+                $("[data-case-id='" + piecesLocation[i] + "']").addClass("pieceAvailMoves");
+            }
+        }
+    });
+
+
+    $boardCaseWithPieceSelector.mouseleave(function () {
+        $("td").removeClass("pieceAvailMoves");
+    });
+}
+
+
+function drawBoard(piecesLocation) {
+    var $board = $("#board");
+    $board.empty();
+
+    var tableInnerHtml = '';
+    var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    var caseColorIndex = 0;
+    var letterIdx = 0;
+    var numberIdx = 8;
+
+    for (var y = 4; y > -4; y--) { //lines
+        tableInnerHtml += '<tr>';
+        letterIdx = 0;
+        for (var x = -4; x < 4; x++) { //columns
+            var caseLetter = boardColumnLetters[letterIdx];
+            var caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
+            var pieceIcon = '';
+
+            if (piecesLocation) {
+                for (var key in piecesLocation) {
+                    var currentPiece = piecesLocation[key];
+                    var currentElementX = currentPiece.value1.x;
+                    var currentElementY = currentPiece.value1.y;
+
+                    if (x === currentElementX && y === currentElementY) {
+                        pieceIcon = currentPiece.value2.unicodeIcon;
+                        break;
+                    }
+                }
+            }
+
+            tableInnerHtml += '<td data-case-id="' + caseLetter + numberIdx + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
+            caseColorIndex++;
+            letterIdx++;
+        }
+        numberIdx--;
+        caseColorIndex++;
+        tableInnerHtml += '</tr>';
+    }
+
+    $board.append(tableInnerHtml);
 }

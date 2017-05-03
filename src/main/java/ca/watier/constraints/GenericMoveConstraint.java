@@ -55,7 +55,13 @@ public class GenericMoveConstraint implements MoveConstraint {
         Pieces pieces = positionPiecesMap.get(to);
 
         Direction directionFromPosition = MathUtils.getDirectionFromPosition(from, to);
-        boolean isMoveValid = !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap) && directionList.contains(directionFromPosition);
+
+        if (!directionList.contains(directionFromPosition)) {
+            return false;
+        }
+
+        boolean isMoveValid = !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap) &&
+                MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
 
         if (pieces != null) {
             isMoveValid &= !side.equals(pieces.getSide());

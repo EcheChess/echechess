@@ -18,14 +18,14 @@ package ca.watier.services;
 
 import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.Pieces;
+import ca.watier.enums.Side;
 import ca.watier.game.GameHandler;
 import ca.watier.sessions.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by yannick on 4/17/2017.
@@ -42,6 +42,12 @@ public class GameService {
         this.constraintService = constraintService;
     }
 
+    /**
+     * Create a new game, and associate it to tha player
+     *
+     * @param player
+     * @return
+     */
     public GameHandler createNewGame(Player player) {
         GameHandler gameHandler = new GameHandler();
         UUID uui = UUID.randomUUID();
@@ -52,6 +58,12 @@ public class GameService {
         return gameHandler;
     }
 
+    /**
+     * Get the game associated to the uuid
+     *
+     * @param uuid
+     * @return
+     */
     public GameHandler getGameFromUuid(String uuid) {
         Assert.assertNotEmpty(uuid);
         UUID key = UUID.fromString(uuid);
@@ -63,6 +75,15 @@ public class GameService {
         return GAMES_HANDLER_MAP;
     }
 
+    /**
+     * Moves the piece to the specified location
+     *
+     * @param from
+     * @param to
+     * @param uuid
+     * @param player
+     * @return
+     */
     public boolean movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
         Assert.assertNotNull(from, to);
         Assert.assertNotEmpty(uuid);
@@ -70,6 +91,47 @@ public class GameService {
         GameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
-        return constraintService.movePiece(from, to, gameFromUuid.getPlayerSide(player), gameFromUuid);
+        Side playerSide = gameFromUuid.getPlayerSide(player);
+
+        boolean isMovable = constraintService.isPieceMovableTo(from, to, playerSide, gameFromUuid.getPiecesLocation());
+
+        if (isMovable) {
+            isMovable = gameFromUuid.movePiece(from, to, playerSide);
+        }
+
+        return isMovable;
+    }
+
+    /**
+     * Gets all possible moves for the selected piece
+     *
+     * @param from
+     * @param uuid
+     * @param player
+     * @return
+     */
+    public List<String> getAllAvailableMoves(CasePosition from, String uuid, Player player) {
+        Assert.assertNotNull(from);
+        Assert.assertNotEmpty(uuid);
+
+        GameHandler gameFromUuid = getGameFromUuid(uuid);
+        Assert.assertNotNull(gameFromUuid);
+
+        List<String> positions = new ArrayList<>();
+        Map<CasePosition, Pieces> piecesLocation = gameFromUuid.getPiecesLocation();
+        Side playerSide = gameFromUuid.getPlayerSide(player);
+        Pieces pieces = piecesLocation.get(from);
+
+        if (pieces == null || !pieces.getSide().equals(playerSide)) {
+            return Collections.EMPTY_LIST;
+        }
+
+        for (CasePosition position : CasePosition.values()) {
+            if (!from.equals(position) && constraintService.isPieceMovableTo(from, position, playerSide, piecesLocation)) {
+                positions.add(position.name());
+            }
+        }
+
+        return positions;
     }
 }

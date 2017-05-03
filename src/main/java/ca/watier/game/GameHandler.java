@@ -144,7 +144,7 @@ public class GameHandler {
     }
 
     /**
-     * Check if the player can movePiece the piece at the specified location
+     * Check if the player can isPieceMovableTo the piece at the specified location
      *
      * @param player
      * @param from

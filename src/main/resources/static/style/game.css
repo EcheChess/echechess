@@ -22,6 +22,10 @@
     background-color: rgba(242, 244, 249, 0.99)
 }
 
+.pieceAvailMoves {
+    border: 5px solid rgba(0, 133, 9, 0.47);
+}
+
 .board-square {
     width: 48px;
     height: 48px;
