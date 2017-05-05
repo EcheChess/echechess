@@ -49,10 +49,11 @@ public class PawnMoveConstraint implements MoveConstraint {
         Pieces hittingPiece = positionPiecesMap.get(to);
         int nbCaseBetweenPositions = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to));
         Direction directionFromPosition = MathUtils.getDirectionFromPosition(from, to);
+        boolean otherPiecesBetweenTarget = GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap);
 
         boolean isFrontMove = direction.equals(directionFromPosition);
         boolean isNbOfCaseIsOne = nbCaseBetweenPositions == 1;
-        boolean normalMove = (GameUtils.isDefaultPosition(from, positionPiecesMap.get(from)) && nbCaseBetweenPositions == 2 || isNbOfCaseIsOne) && isFrontMove;
+        boolean normalMove = (GameUtils.isDefaultPosition(from, positionPiecesMap.get(from)) && nbCaseBetweenPositions == 2 || isNbOfCaseIsOne) && isFrontMove && !otherPiecesBetweenTarget;
 
         if (normalMove && hittingPiece == null) { //Normal move
             return true;
@@ -61,6 +62,6 @@ public class PawnMoveConstraint implements MoveConstraint {
         }
 
         //Attack move
-        return isNbOfCaseIsOne && hittingPiece != null && (directionFromPosition.equals(directionAttack1) || directionFromPosition.equals(directionAttack2));
+        return isNbOfCaseIsOne && hittingPiece != null && !hittingPiece.getSide().equals(side) && (directionFromPosition.equals(directionAttack1) || directionFromPosition.equals(directionAttack2));
     }
 }

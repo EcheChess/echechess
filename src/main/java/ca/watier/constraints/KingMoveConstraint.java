@@ -20,6 +20,8 @@ import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
+import ca.watier.utils.BaseUtils;
+import ca.watier.utils.MathUtils;
 
 import java.util.Map;
 
@@ -32,6 +34,8 @@ public class KingMoveConstraint implements MoveConstraint {
     public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
         Assert.assertNotNull(from, to, side);
 
-        return false;
+        Pieces hittingPiece = positionPiecesMap.get(to);
+
+        return BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to)) == 1 && (hittingPiece == null || !side.equals(hittingPiece.getSide()));
     }
 }

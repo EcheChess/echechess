@@ -14,6 +14,11 @@
  *    limitations under the License.
  */
 
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
 .black {
     background-color: rgba(113, 113, 113, 0.31);
 }
@@ -26,9 +31,15 @@
     border: 5px solid rgba(0, 133, 9, 0.47);
 }
 
+#boardSegment {
+    min-width: 460px;
+}
+
 .board-square {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
     text-align: center;
 }
 
@@ -36,6 +47,28 @@
     cursor: grab;
 }
 
+#board {
+    width: 100%;
+}
+
 .board-pieces {
     font-size: 35px;
+}
+
+#main {
+    height: 70%;
+    margin-top: 5%;
+    min-height: 490px;
+}
+
+.board-letter {
+    text-align: center;
+}
+
+.board-number {
+    padding-right: 5px;
+}
+
+.board-letter, .board-number {
+    font-weight: bolder;
 }

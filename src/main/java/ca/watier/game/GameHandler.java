@@ -43,6 +43,7 @@ public class GameHandler {
     private String uuid;
     private boolean allowOtherToJoin = false;
     private boolean allowObservers = false;
+    private boolean isGameWinned = false;
 
     private Side currentAllowedMoveSide = Side.WHITE;
 
@@ -72,6 +73,10 @@ public class GameHandler {
 
     public boolean setPlayerToSide(Player player, Side side) {
         Assert.assertNotNull(player, side);
+
+        if (isGameWinned) {
+            return false;
+        }
 
         boolean value;
 
@@ -144,21 +149,6 @@ public class GameHandler {
     }
 
     /**
-     * Check if the player can isPieceMovableTo the piece at the specified location
-     *
-     * @param player
-     * @param from
-     * @return
-     */
-    public boolean playerCanMovePiece(Player player, CasePosition from) {
-        Assert.assertNotNull(player, from);
-        Pieces pieceToMove = CURRENT_PIECES_LOCATION.get(from);
-
-        return pieceToMove != null && pieceToMove.getSide().equals(getPlayerSide(player));
-
-    }
-
-    /**
      * Get the side of the player, null if not available
      *
      * @param player
@@ -194,8 +184,16 @@ public class GameHandler {
         }
     }
 
+    public boolean isGameWinned() {
+        return isGameWinned;
+    }
+
     public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) {
         Assert.assertNotNull(from, to);
+
+        if (isGameWinned) {
+            return false;
+        }
 
         Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
         boolean isMoved = false;

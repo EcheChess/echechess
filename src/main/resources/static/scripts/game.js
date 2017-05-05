@@ -20,6 +20,7 @@
 
 var currentUuid = null;
 var wsClient = null;
+var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 $(document).ready(function () {
     initUiTriggers();
@@ -34,16 +35,22 @@ $(document).ready(function () {
     });
 
     $("#joinGameButton").click(function () {
-        currentUuid = $("#joinGame").val();
+        var enteredUuid = $("#joinGame").val();
 
-        var response = jsonFromRequest("POST", '/game/join', {
-            side: $("#changeSide").find("option:selected").val(),
-            uuid: currentUuid
-        }).response;
+        if (enteredUuid !== '' && enteredUuid.length === 36) {
+            currentUuid = enteredUuid;
 
-        wsClient = connect(currentUuid);
-        renderBoard();
+            var response = jsonFromRequest("POST", '/game/join', {
+                side: $("#changeSide").find("option:selected").val(),
+                uuid: currentUuid
+            }).response;
+
+            wsClient = connect(currentUuid);
+            renderBoard();
+        }
     });
+
+    $('.menu .item').tab();
 });
 
 function connect(uuid) {
@@ -69,7 +76,9 @@ function connect(uuid) {
 
 
 function initUiTriggers() {
-    $("#changeSide").change(function () {
+    var $changeSide = $('#changeSide');
+
+    $changeSide.change(function () {
         if (currentUuid) {
             var response = jsonFromRequest("POST", '/game/side', {
                 side: $("#changeSide").find("option:selected").val(),
@@ -80,6 +89,10 @@ function initUiTriggers() {
                 alert("Side changed !");
             }
         }
+    });
+
+    $changeSide.dropdown({
+        allowAdditions: true
     });
 }
 
@@ -104,8 +117,8 @@ function jsonFromRequest(type, url, data) {
 function createNewGame() {
     return jsonFromRequest('POST', '/game/create', {
         side: $("#changeSide").find("option:selected").val(),
-        againstComputer: $("#againstComputer").hasClass('active'),
-        observers: $("#allowOtherObserver").hasClass('active')
+        againstComputer: $("#againstComputer").checkbox('is checked'),
+        observers: $("#allowOtherObserver").checkbox('is checked')
     }).uuid;
 }
 
@@ -188,14 +201,13 @@ function drawBoard(piecesLocation) {
     $board.empty();
 
     var tableInnerHtml = '';
-    var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     var caseColorIndex = 0;
     var letterIdx = 0;
     var numberIdx = 8;
 
     for (var y = 4; y > -4; y--) { //lines
-        tableInnerHtml += '<tr>';
         letterIdx = 0;
+        tableInnerHtml += '<tr><td class="board-number">' + (y + 4) + '</td>';
         for (var x = -4; x < 4; x++) { //columns
             var caseLetter = boardColumnLetters[letterIdx];
             var caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
@@ -222,6 +234,15 @@ function drawBoard(piecesLocation) {
         caseColorIndex++;
         tableInnerHtml += '</tr>';
     }
+    tableInnerHtml += '<tr><td></td>' +
+        '<td class="board-letter">' + boardColumnLetters[0] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[1] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[2] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[3] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[4] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[5] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[6] + '</td>' +
+        '<td class="board-letter">' + boardColumnLetters[7] + '</td></tr>';
 
     $board.append(tableInnerHtml);
 }

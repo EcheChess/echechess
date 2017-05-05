@@ -123,7 +123,7 @@ public class GameService {
         Pieces pieces = piecesLocation.get(from);
 
         if (pieces == null || !pieces.getSide().equals(playerSide)) {
-            return Collections.EMPTY_LIST;
+            return positions;
         }
 
         for (CasePosition position : CasePosition.values()) {

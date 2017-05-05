@@ -49,7 +49,6 @@ public class GameUtils extends BaseUtils {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.G2, Pieces.W_PAWN);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.H2, Pieces.W_PAWN);
 
-
         DEFAULT_GAME_TEMPLATE.put(CasePosition.A8, Pieces.B_ROOK);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.B8, Pieces.B_KNIGHT);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.C8, Pieces.B_BISHOP);

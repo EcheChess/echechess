@@ -24,34 +24,71 @@
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="style/game.css">
     <link rel="stylesheet" type="text/css" href="style/jquery-ui.css">
-    <link rel="stylesheet" type="text/css" href="style/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style/semantic.min.css">
 
     <script src="scripts/jquery-3.2.1.min.js"></script>
     <script src="scripts/jquery-ui.min.js"></script>
-    <script src="scripts/bootstrap.min.js"></script>
+    <script src="scripts/semantic.min.js"></script>
     <script src="scripts/sockjs.min.js"></script>
     <script src="scripts/stomp.min.js"></script>
     <script src="scripts/game.js"></script>
 </head>
 <body>
-<label for="changeSide">Pick a side: </label><select id="changeSide">
-    <option value="BLACK">Black</option>
-    <option value="WHITE" selected>White</option>
-    <option value="OBSERVER">Observer</option>
-</select>
-<br>
-<button type="button" id="againstComputer" class="btn btn-primary active" data-toggle="button">
-    Play against a computer
-</button>
-<button type="button" id="allowOtherObserver" class="btn btn-primary active" data-toggle="button">
-    Allow observers
-</button>
-<br>
-<button id="createGame">Create a new game</button>
-<table id="board"></table>
-Game ID: <span id="uuid"></span>
-<br>
-<label for="joinGame">Join a game</label><input type="text" id="joinGame">
-<button id="joinGameButton">JOIN</button>
+
+
+<div id="main">
+    <div class="ui top attached tabular menu">
+        <a class="active item" data-tab="tabBoard">Board</a>
+        <a class="item" data-tab="tabLog">Log</a>
+    </div>
+    <div class="ui horizontal segments">
+        <div class="ui segment" id="boardSegment">
+            <table id="board" class="ui bottom attached active tab segment" data-tab="tabBoard"></table>
+            <select size="15"  class="ui bottom attached tab segment" data-tab="tabLog">
+            </select>
+            <span id="uuid"></span>
+        </div>
+        <div class="ui segment" id="gameOptionsSegment">
+            <div class="ui segment">
+                <div class="ui toggle checkbox" id="againstComputer">
+                    <input type="checkbox">
+                    <label>Play against a computer</label>
+                </div>
+            </div>
+            <div class="ui segment">
+                <div class="ui toggle checkbox" id="allowOtherObserver">
+                    <input type="checkbox">
+                    <label>Allow observers</label>
+                </div>
+            </div>
+            <div class="ui segment">
+                <select id="changeSide">
+                    <option value="BLACK">Black</option>
+                    <option value="WHITE" selected>White</option>
+                    <option value="OBSERVER">Observer</option>
+                </select>
+                <label for="changeSide">Side</label>
+            </div>
+            <div class="ui center aligned segment">
+                <button class="ui compact green labeled icon button" id="createGame">
+                    <i class="icon plus"></i>
+                    Create a new game
+                </button>
+            </div>
+            <div class="ui horizontal divider">
+                OR
+            </div>
+            <div class="ui center aligned segment">
+                <div class="ui labeled action input" id="joinGameGroup">
+                    <div class="ui label">
+                        Join a game
+                    </div>
+                    <input placeholder="Game ID" type="text" name="gameIdJoinGame" id="joinGame">
+                    <button class="ui button" id="joinGameButton">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
