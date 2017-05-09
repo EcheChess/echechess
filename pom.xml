@@ -42,7 +42,6 @@
     </properties>
 
     <dependencies>
-
         <dependency> <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -54,7 +53,14 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
-        
+
+        <dependency>  <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.6.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -40,14 +40,6 @@ public enum CasePosition {
         this.y = y;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
     public static CasePosition getCasePositionByCoor(int x, int y) {
         CasePosition position = null;
 
@@ -59,6 +51,14 @@ public enum CasePosition {
         }
 
         return position;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
 }

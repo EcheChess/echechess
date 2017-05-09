@@ -16,7 +16,6 @@
 
 package ca.watier.utils;
 
-import ca.watier.defassert.Assert;
 import ca.watier.sessions.Player;
 
 import javax.servlet.http.HttpSession;

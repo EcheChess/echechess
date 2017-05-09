@@ -16,12 +16,13 @@
 
 package ca.watier.services;
 
-import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.game.GameHandler;
+import ca.watier.exceptions.GameException;
+import ca.watier.game.StandardGameHandler;
 import ca.watier.sessions.Player;
+import ca.watier.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ import java.util.*;
 
 @Service
 public class GameService {
-    private final static Map<UUID, GameHandler> GAMES_HANDLER_MAP = new HashMap<>();
+    private final static Map<UUID, StandardGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
 
     private final ConstraintService constraintService;
 
@@ -48,30 +49,17 @@ public class GameService {
      * @param player
      * @return
      */
-    public GameHandler createNewGame(Player player) {
-        GameHandler gameHandler = new GameHandler();
+    public StandardGameHandler createNewGame(Player player) {
+        StandardGameHandler normalGameHandler = new StandardGameHandler(constraintService);
         UUID uui = UUID.randomUUID();
-        gameHandler.setUuid(uui.toString());
-        GAMES_HANDLER_MAP.put(uui, gameHandler);
+        normalGameHandler.setUuid(uui.toString());
+        GAMES_HANDLER_MAP.put(uui, normalGameHandler);
         player.addCreatedGame(uui);
 
-        return gameHandler;
+        return normalGameHandler;
     }
 
-    /**
-     * Get the game associated to the uuid
-     *
-     * @param uuid
-     * @return
-     */
-    public GameHandler getGameFromUuid(String uuid) {
-        Assert.assertNotEmpty(uuid);
-        UUID key = UUID.fromString(uuid);
-
-        return GAMES_HANDLER_MAP.get(key);
-    }
-
-    public Map<UUID, GameHandler> getAllGames() {
+    public Map<UUID, StandardGameHandler> getAllGames() {
         return GAMES_HANDLER_MAP;
     }
 
@@ -88,18 +76,33 @@ public class GameService {
         Assert.assertNotNull(from, to);
         Assert.assertNotEmpty(uuid);
 
-        GameHandler gameFromUuid = getGameFromUuid(uuid);
+        StandardGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
-        boolean isMovable = constraintService.isPieceMovableTo(from, to, playerSide, gameFromUuid.getPiecesLocation());
+        boolean isMovable = false;
 
-        if (isMovable) {
+        try {
             isMovable = gameFromUuid.movePiece(from, to, playerSide);
+        } catch (GameException e) {
+            e.printStackTrace();
         }
 
         return isMovable;
+    }
+
+    /**
+     * Get the game associated to the uuid
+     *
+     * @param uuid
+     * @return
+     */
+    public StandardGameHandler getGameFromUuid(String uuid) {
+        Assert.assertNotEmpty(uuid);
+        UUID key = UUID.fromString(uuid);
+
+        return GAMES_HANDLER_MAP.get(key);
     }
 
     /**
@@ -114,7 +117,7 @@ public class GameService {
         Assert.assertNotNull(from);
         Assert.assertNotEmpty(uuid);
 
-        GameHandler gameFromUuid = getGameFromUuid(uuid);
+        StandardGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
         List<String> positions = new ArrayList<>();
@@ -127,7 +130,7 @@ public class GameService {
         }
 
         for (CasePosition position : CasePosition.values()) {
-            if (!from.equals(position) && constraintService.isPieceMovableTo(from, position, playerSide, piecesLocation)) {
+            if (!from.equals(position) && gameFromUuid.isPieceMovableTo(from, position, playerSide)) {
                 positions.add(position.name());
             }
         }

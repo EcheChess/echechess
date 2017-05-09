@@ -14,24 +14,13 @@
  *    limitations under the License.
  */
 
-package ca.watier.enums;
+package ca.watier.exceptions;
 
 /**
- * Created by yannick on 4/29/2017.
+ * Created by yannick on 5/5/2017.
  */
-public enum DirectionPattern {
-    NORMAL(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST),
-    DIAGONAL(Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST),
-    ALL(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST);
-
-    private Direction[] directions;
-
-    DirectionPattern(Direction... directions) {
-        this.directions = directions;
-    }
-
-    public Direction[] getDirections() {
-        return directions;
+public class GameEndedException extends GameException {
+    public GameEndedException(String s) {
+        super(s);
     }
 }
-

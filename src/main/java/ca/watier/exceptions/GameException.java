@@ -14,23 +14,13 @@
  *    limitations under the License.
  */
 
-package ca.watier.game;
-
-import ca.watier.defassert.Assert;
-import ca.watier.enums.CasePosition;
+package ca.watier.exceptions;
 
 /**
- * Created by yannick on 4/23/2017.
+ * Created by yannick on 5/7/2017.
  */
-
-/**
- * N
- * W-E
- * S
- * 1 2
- * 3 4
- */
-
-public enum Direction {
-    NORTH, SOUTH, WEST, EAST, NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST, NONE
+public class GameException extends Exception {
+    public GameException(String s) {
+        super(s);
+    }
 }

@@ -17,7 +17,7 @@
 package ca.watier;
 
 import ca.watier.enums.Side;
-import ca.watier.game.GameHandler;
+import ca.watier.game.StandardGameHandler;
 import ca.watier.services.GameService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Constants;
@@ -70,26 +70,26 @@ public class EchechessApplicationTests {
 
         changePlayerSide(BLACK, UUID.randomUUID().toString(), sessionPlayer1);
 
-        Map<UUID, GameHandler> mapOfGames = gameService.getAllGames();
+        Map<UUID, StandardGameHandler> mapOfGames = gameService.getAllGames();
         Set<UUID> allIdGamesFromGameService = mapOfGames.keySet();
 
         //Get the current game
         Set<UUID> gameListIdFromPlayer = new HashSet<>(player1.getCreatedGameList());
-        List<GameHandler> allGames = new ArrayList<>(mapOfGames.values());
-        GameHandler gameHandler = allGames.get(0);
+        List<StandardGameHandler> allGames = new ArrayList<>(mapOfGames.values());
+        StandardGameHandler normalGameHandler = allGames.get(0);
 
         //Check if the player1 is set to black
-        Assert.assertEquals(player1, gameHandler.getPlayerBlack());
-        Assert.assertEquals(null, gameHandler.getPlayerWhite());
-        Assert.assertTrue(gameHandler.getObserverList().isEmpty());
+        Assert.assertEquals(player1, normalGameHandler.getPlayerBlack());
+        Assert.assertEquals(null, normalGameHandler.getPlayerWhite());
+        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         UUID gameUuid = player1.getLastGameCreated();
         changePlayerSide(WHITE, gameUuid.toString(), sessionPlayer1);
 
         //Check if the player1 is set to white (was black before)
-        Assert.assertEquals(null, gameHandler.getPlayerBlack());
-        Assert.assertEquals(player1, gameHandler.getPlayerWhite());
-        Assert.assertTrue(gameHandler.getObserverList().isEmpty());
+        Assert.assertEquals(null, normalGameHandler.getPlayerBlack());
+        Assert.assertEquals(player1, normalGameHandler.getPlayerWhite());
+        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //compare the service vs player1 data
         Assert.assertEquals(allIdGamesFromGameService, gameListIdFromPlayer);
@@ -100,29 +100,29 @@ public class EchechessApplicationTests {
         changePlayerSide(WHITE, gameUuid.toString(), sessionPlayer2);
 
         //Check if the player1 is still associated to black, player2 not set yet
-        Assert.assertEquals(null, gameHandler.getPlayerBlack());
-        Assert.assertEquals(player1, gameHandler.getPlayerWhite());
-        Assert.assertTrue(gameHandler.getObserverList().isEmpty());
+        Assert.assertEquals(null, normalGameHandler.getPlayerBlack());
+        Assert.assertEquals(player1, normalGameHandler.getPlayerWhite());
+        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //Try to associate the black to the player 2 (not set yet)
         changePlayerSide(BLACK, gameUuid.toString(), sessionPlayer2);
 
-        Assert.assertEquals(player2, gameHandler.getPlayerBlack());
-        Assert.assertEquals(player1, gameHandler.getPlayerWhite());
-        Assert.assertTrue(gameHandler.getObserverList().isEmpty());
+        Assert.assertEquals(player2, normalGameHandler.getPlayerBlack());
+        Assert.assertEquals(player1, normalGameHandler.getPlayerWhite());
+        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //Change both of the player to observers
         changePlayerSide(OBSERVER, gameUuid.toString(), sessionPlayer1);
         changePlayerSide(OBSERVER, gameUuid.toString(), sessionPlayer2);
 
-        Assert.assertEquals(null, gameHandler.getPlayerBlack());
-        Assert.assertEquals(null, gameHandler.getPlayerWhite());
-        Assert.assertTrue(gameHandler.getObserverList().containsAll(Arrays.asList(player1, player2)));
+        Assert.assertEquals(null, normalGameHandler.getPlayerBlack());
+        Assert.assertEquals(null, normalGameHandler.getPlayerWhite());
+        Assert.assertTrue(normalGameHandler.getObserverList().containsAll(Arrays.asList(player1, player2)));
     }
 
     private void changePlayerSide(String side, String uuid, MockHttpSession session) {
         try {
-            mockMvc.perform(post("/usr/side")
+            mockMvc.perform(post("/game/side")
                     .session(session)
                     .param("side", side)
                     .param("uuid", uuid)

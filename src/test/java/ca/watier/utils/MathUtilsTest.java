@@ -18,7 +18,7 @@ package ca.watier.utils;
 
 import ca.watier.constraints.KnightMoveConstraint;
 import ca.watier.enums.CasePosition;
-import ca.watier.game.Direction;
+import ca.watier.enums.Direction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -108,7 +108,7 @@ public class MathUtilsTest {
     @Test
     public void getDirectionFromPosition() throws Exception {
 
-        Assert.assertEquals(Direction.NONE, MathUtils.getDirectionFromPosition(D_5, D_5));
+        Assert.assertNull(MathUtils.getDirectionFromPosition(D_5, D_5));
 
         Assert.assertEquals(NORTH, MathUtils.getDirectionFromPosition(D_5, CasePosition.D6));
         Assert.assertEquals(NORTH, MathUtils.getDirectionFromPosition(D_5, CasePosition.D8));

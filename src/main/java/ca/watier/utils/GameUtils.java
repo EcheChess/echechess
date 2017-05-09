@@ -16,10 +16,9 @@
 
 package ca.watier.utils;
 
-import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
-import ca.watier.game.Direction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,7 +76,6 @@ public class GameUtils extends BaseUtils {
         game.putAll(DEFAULT_GAME_TEMPLATE);
         return game;
     }
-
 
     /**
      * Check if it's the default position for the piece (based on the default game)

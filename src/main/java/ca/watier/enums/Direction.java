@@ -17,21 +17,17 @@
 package ca.watier.enums;
 
 /**
- * Created by yannick on 4/29/2017.
+ * Created by yannick on 4/23/2017.
  */
-public enum DirectionPattern {
-    NORMAL(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST),
-    DIAGONAL(Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST),
-    ALL(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST);
 
-    private Direction[] directions;
+/**
+ * N
+ * W-E
+ * S
+ * 1 2
+ * 3 4
+ */
 
-    DirectionPattern(Direction... directions) {
-        this.directions = directions;
-    }
-
-    public Direction[] getDirections() {
-        return directions;
-    }
+public enum Direction {
+    NORTH, SOUTH, WEST, EAST, NORTH_WEST, NORTH_EAST, SOUTH_WEST, SOUTH_EAST
 }
-

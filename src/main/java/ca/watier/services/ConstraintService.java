@@ -17,10 +17,10 @@
 package ca.watier.services;
 
 import ca.watier.constraints.*;
-import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
+import ca.watier.utils.Assert;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -46,30 +46,6 @@ public class ConstraintService {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * Checks if the piece is movable to the specified location
-     *
-     * @param from
-     * @param to
-     * @param playerSide
-     * @param piecesLocation
-     * @return
-     */
-    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation) {
-        Assert.assertNotNull(from, to, playerSide, piecesLocation);
-
-        if (Side.OBSERVER.equals(playerSide)) {
-            return false;
-        }
-
-        Pieces fromPiece = piecesLocation.get(from);
-        MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
-
-        Assert.assertNotNull(moveConstraint);
-
-        return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation);
     }
 
     private static Class<? extends MoveConstraint> getPieceMoveConstraintClass(Pieces pieces) {
@@ -105,5 +81,29 @@ public class ConstraintService {
         }
 
         return moveConstraint;
+    }
+
+    /**
+     * Checks if the piece is movable to the specified location
+     *
+     * @param from
+     * @param to
+     * @param playerSide
+     * @param piecesLocation
+     * @return
+     */
+    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation) {
+        Assert.assertNotNull(from, to, playerSide, piecesLocation);
+
+        if (Side.OBSERVER.equals(playerSide)) {
+            return false;
+        }
+
+        Pieces fromPiece = piecesLocation.get(from);
+        MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
+
+        Assert.assertNotNull(moveConstraint);
+
+        return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation);
     }
 }

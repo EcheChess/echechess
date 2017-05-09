@@ -16,11 +16,11 @@
 
 package ca.watier.constraints;
 
-import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.game.Direction;
+import ca.watier.utils.Assert;
 import ca.watier.utils.BaseUtils;
 import ca.watier.utils.GameUtils;
 import ca.watier.utils.MathUtils;

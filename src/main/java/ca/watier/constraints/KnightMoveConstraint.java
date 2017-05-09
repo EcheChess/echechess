@@ -16,11 +16,11 @@
 
 package ca.watier.constraints;
 
-import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.game.Direction;
+import ca.watier.utils.Assert;
 import ca.watier.utils.MathUtils;
 
 import java.util.ArrayList;
@@ -32,8 +32,8 @@ import java.util.Map;
  */
 public class KnightMoveConstraint implements MoveConstraint {
 
-    private static final List<Direction> DEFAULT_RADIUS_FINDER_POSITION = new ArrayList<>();
     public static final float KNIGHT_RADIUS_EQUATION = 2.23606797749979f;
+    private static final List<Direction> DEFAULT_RADIUS_FINDER_POSITION = new ArrayList<>();
 
     static {
         DEFAULT_RADIUS_FINDER_POSITION.add(Direction.NORTH);

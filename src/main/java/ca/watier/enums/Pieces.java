@@ -16,6 +16,7 @@
 
 package ca.watier.enums;
 
+import ca.watier.utils.Assert;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
@@ -47,6 +48,12 @@ public enum Pieces {
         this.side = side;
     }
 
+    public static boolean isKing(Pieces piecesFrom) {
+        Assert.assertNotNull(piecesFrom);
+
+        return W_KING.equals(piecesFrom) || B_KING.equals(piecesFrom);
+    }
+
     public char getUnicodeIcon() {
         return unicodeIcon;
     }
@@ -58,5 +65,4 @@ public enum Pieces {
     public Side getSide() {
         return side;
     }
-
 }

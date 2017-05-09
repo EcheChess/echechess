@@ -16,18 +16,44 @@
 
 package ca.watier.utils;
 
-import ca.watier.defassert.Assert;
 import ca.watier.enums.CasePosition;
-import ca.watier.game.Direction;
+import ca.watier.enums.Direction;
 import org.apache.commons.math3.util.Precision;
 
 import static ca.watier.enums.CasePosition.getCasePositionByCoor;
-import static ca.watier.game.Direction.*;
+import static ca.watier.enums.Direction.*;
 
 /**
  * Created by yannick on 4/25/2017.
  */
 public class MathUtils extends BaseUtils {
+
+    /**
+     * Get the number of case between two position, must be a straight line, return null if not
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public static Integer getDistanceBetweenPositions(CasePosition from, CasePosition to) {
+        Assert.assertNotNull(from, to);
+
+        Direction directionFromPosition = getDirectionFromPosition(from, to);
+
+        if (directionFromPosition == null) {
+            return null;
+        }
+
+        CasePosition nearestPositionFromDirection = getNearestPositionFromDirection(from, directionFromPosition);
+
+        if (nearestPositionFromDirection == null || !isPositionInLine(from, nearestPositionFromDirection, to)) {
+            return null;
+        }
+
+        double partOne = Math.pow(from.getX() - to.getX(), 2);
+        double partTwo = Math.pow(from.getY() - to.getY(), 2);
+        return (int) (Math.sqrt(partOne + partTwo));
+    }
 
     /**
      * Get the direction based on a position, this method is not precise when the depth is more than 1.
@@ -40,7 +66,7 @@ public class MathUtils extends BaseUtils {
         Assert.assertNotNull(from, to);
 
         if (from == to) { //Same
-            return NONE;
+            return null;
         }
 
         Direction direction = null;
@@ -84,6 +110,32 @@ public class MathUtils extends BaseUtils {
      */
     public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction) {
         return getNearestPositionFromDirection(casePosition, direction, 1);
+    }
+
+    /**
+     * Check if the position is on the same line than the others
+     *
+     * @param first
+     * @param second
+     * @param toCheck
+     * @return
+     */
+    public static boolean isPositionInLine(CasePosition first, CasePosition second, CasePosition toCheck) {
+        Assert.assertNotNull(first, second, toCheck);
+
+        int yCurrent = first.getY();
+        int xCurrent = first.getX();
+        int yToCheck = toCheck.getY();
+        int xToCheck = toCheck.getX();
+
+        if (xCurrent == xToCheck && xCurrent == toCheck.getX() || yCurrent == yToCheck && yCurrent == toCheck.getY())
+            return true;
+
+        // y = mx + b
+        float m = getSlopeFromPosition(first, second);
+        float b = yCurrent - (m * xCurrent);
+
+        return yToCheck == (m * xToCheck + b);
     }
 
     /**
@@ -148,72 +200,6 @@ public class MathUtils extends BaseUtils {
     }
 
     /**
-     * Get the number of case between two position, must be a straight line, return null if not
-     *
-     * @param from
-     * @param to
-     * @return
-     */
-    public static Integer getDistanceBetweenPositions(CasePosition from, CasePosition to) {
-        Assert.assertNotNull(from, to);
-
-        Direction directionFromPosition = getDirectionFromPosition(from, to);
-        CasePosition nearestPositionFromDirection = getNearestPositionFromDirection(from, directionFromPosition);
-
-        if (nearestPositionFromDirection == null || !isPositionInLine(from, nearestPositionFromDirection, to)) {
-            return null;
-        }
-
-        double partOne = Math.pow(from.getX() - to.getX(), 2);
-        double partTwo = Math.pow(from.getY() - to.getY(), 2);
-        return (int) (Math.sqrt(partOne + partTwo));
-    }
-
-
-    /**
-     * Get the number of case between two position, must be a straight line, return null if not
-     *
-     * @param from
-     * @param xTo
-     * @param yTo
-     * @return
-     */
-    public static double getDistanceBetweenPositions(CasePosition from, float xTo, float yTo) {
-        Assert.assertNotNull(from);
-
-        double partOne = Math.pow(from.getX() - xTo, 2);
-        double partTwo = Math.pow(from.getY() - yTo, 2);
-        return Math.sqrt(partOne + partTwo);
-    }
-
-    /**
-     * Check if the position is on the same line than the others
-     *
-     * @param first
-     * @param second
-     * @param toCheck
-     * @return
-     */
-    public static boolean isPositionInLine(CasePosition first, CasePosition second, CasePosition toCheck) {
-        Assert.assertNotNull(first, second, toCheck);
-
-        int yCurrent = first.getY();
-        int xCurrent = first.getX();
-        int yToCheck = toCheck.getY();
-        int xToCheck = toCheck.getX();
-
-        if (xCurrent == xToCheck && xCurrent == toCheck.getX() || yCurrent == yToCheck && yCurrent == toCheck.getY())
-            return true;
-
-        // y = mx + b
-        float m = getSlopeFromPosition(first, second);
-        float b = yCurrent - (m * xCurrent);
-
-        return yToCheck == (m * xToCheck + b);
-    }
-
-
-    /**
      * Check if the position is on the perimeter of the circle
      *
      * @param from
@@ -231,5 +217,21 @@ public class MathUtils extends BaseUtils {
         double disRadius = Math.pow(getDistanceBetweenPositions(from, xRadius, yRadius), 2);
 
         return Precision.equals(partOne + partTwo, disRadius, 0.1);
+    }
+
+    /**
+     * Get the number of case between two position, must be a straight line, return null if not
+     *
+     * @param from
+     * @param xTo
+     * @param yTo
+     * @return
+     */
+    public static double getDistanceBetweenPositions(CasePosition from, float xTo, float yTo) {
+        Assert.assertNotNull(from);
+
+        double partOne = Math.pow(from.getX() - xTo, 2);
+        double partTwo = Math.pow(from.getY() - yTo, 2);
+        return Math.sqrt(partOne + partTwo);
     }
 }

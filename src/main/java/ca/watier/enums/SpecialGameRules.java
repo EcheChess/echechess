@@ -17,21 +17,12 @@
 package ca.watier.enums;
 
 /**
- * Created by yannick on 4/29/2017.
+ * Created by yannick on 5/8/2017.
  */
-public enum DirectionPattern {
-    NORMAL(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST),
-    DIAGONAL(Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST),
-    ALL(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.NORTH_EAST, Direction.NORTH_WEST, Direction.SOUTH_EAST, Direction.SOUTH_WEST);
 
-    private Direction[] directions;
-
-    DirectionPattern(Direction... directions) {
-        this.directions = directions;
-    }
-
-    public Direction[] getDirections() {
-        return directions;
-    }
+/**
+ * These rules are only indented to allow easier junit testing
+ */
+public enum SpecialGameRules {
+    NO_PLAYER_TURN, CAN_SET_PIECES
 }
-

@@ -20,7 +20,9 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.ChessEventMessage;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.game.GameHandler;
+import ca.watier.exceptions.GameException;
+import ca.watier.game.GenericGameHandler;
+import ca.watier.game.StandardGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.ChessEvent;
 import ca.watier.responses.DualValueResponse;
@@ -66,12 +68,17 @@ public class GameController {
      * @return
      */
     @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public GameHandler createNewGame(Side side, boolean againstComputer, boolean observers, HttpSession session) {
+    public GenericGameHandler createNewGame(Side side, boolean againstComputer, boolean observers, HttpSession session) {
 
-        GameHandler newGame = gameService.createNewGame(SessionUtils.getPlayer(session));
+        StandardGameHandler newGame = gameService.createNewGame(SessionUtils.getPlayer(session));
 
         if (side != null) {
-            newGame.setPlayerToSide(SessionUtils.getPlayer(session), side);
+            try {
+                newGame.setPlayerToSide(SessionUtils.getPlayer(session), side);
+            } catch (GameException e) {
+                e.printStackTrace();
+                return null;
+            }
             newGame.setAllowOtherToJoin(!againstComputer);
             newGame.setAllowObservers(observers);
         }
@@ -101,6 +108,9 @@ public class GameController {
         return new BooleanResponse(isMoved, "");
     }
 
+    private void fireChessEvent(String uuid, ChessEventMessage message) {
+        template.convertAndSend("/topic/" + uuid, new ChessEvent(message));
+    }
 
     /**
      * Return a list of position that the piece can moves
@@ -114,7 +124,7 @@ public class GameController {
     public List<String> getMovesOfAPiece(CasePosition from, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        GameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        StandardGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
         List<String> positions = null;
 
         if (gameFromUuid != null && gameFromUuid.hasPlayer(player)) {
@@ -123,7 +133,6 @@ public class GameController {
 
         return positions;
     }
-
 
     /**
      * Gets the pieces location
@@ -136,7 +145,7 @@ public class GameController {
     public List<DualValueResponse> getPieceLocations(String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        GameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        StandardGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
         List<DualValueResponse> values = null;
 
         if (gameFromUuid != null) {
@@ -154,7 +163,6 @@ public class GameController {
         return values;
     }
 
-
     /**
      * Join a game
      *
@@ -168,20 +176,21 @@ public class GameController {
         Player player = SessionUtils.getPlayer(session);
         boolean joined = false;
 
-        GameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        StandardGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
 
         UUID gameUuid = UUID.fromString(uuid);
         if (gameFromUuid != null && (gameFromUuid.isAllowOtherToJoin() || gameFromUuid.isAllowObservers()) &&
                 !player.getCreatedGameList().contains(gameUuid) && !player.getJoinedGameList().contains(gameUuid)) {
             player.addJoinedGame(gameUuid);
-            joined = gameFromUuid.setPlayerToSide(player, side);
+            try {
+                joined = gameFromUuid.setPlayerToSide(player, side);
+            } catch (GameException e) {
+                joined = false;
+                e.printStackTrace();
+            }
         }
 
         return new BooleanResponse(joined, "");
-    }
-
-    private void fireChessEvent(String uuid, ChessEventMessage message) {
-        template.convertAndSend("/topic/" + uuid, new ChessEvent(message));
     }
 
     /**
@@ -196,13 +205,20 @@ public class GameController {
     public BooleanResponse setSideOfPlayer(Side side, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        GameHandler game = gameService.getGameFromUuid(uuid);
+        StandardGameHandler game = gameService.getGameFromUuid(uuid);
 
         if (game == null) {
             game = gameService.createNewGame(player);
         }
 
-        return new BooleanResponse(game.setPlayerToSide(player, side), "");
+        boolean response = false;
+        try {
+            response = game.setPlayerToSide(player, side);
+        } catch (GameException e) {
+            e.printStackTrace();
+        }
+
+        return new BooleanResponse(response, "");
     }
 
 }
