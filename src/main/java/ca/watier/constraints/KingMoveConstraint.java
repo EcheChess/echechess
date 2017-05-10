@@ -31,11 +31,25 @@ import java.util.Map;
 public class KingMoveConstraint implements MoveConstraint {
 
     @Override
+    public boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
+        return isMoveValid(from, to, side, positionPiecesMap, true);
+    }
+
+    @Override
     public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
+        return isMoveValid(from, to, side, positionPiecesMap, false);
+    }
+
+    private boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean skipHittingValidation) {
         Assert.assertNotNull(from, to, side);
 
         Pieces hittingPiece = positionPiecesMap.get(to);
 
-        return BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to)) == 1 && (hittingPiece == null || !side.equals(hittingPiece.getSide()));
+        boolean checkHit = true;
+        if (!skipHittingValidation) {
+            checkHit = hittingPiece == null || !side.equals(hittingPiece.getSide());
+        }
+
+        return (BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to)) == 1) && checkHit;
     }
 }

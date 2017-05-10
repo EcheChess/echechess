@@ -23,8 +23,7 @@ import ca.watier.enums.DirectionPattern;
  */
 public class BishopMoveConstraint extends GenericMoveConstraint {
 
-    @Override
-    protected DirectionPattern authorizedMoves() {
-        return DirectionPattern.DIAGONAL;
+    public BishopMoveConstraint() {
+        super(DirectionPattern.DIAGONAL);
     }
 }

@@ -43,6 +43,11 @@ public class KnightMoveConstraint implements MoveConstraint {
     }
 
     @Override
+    public boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
+        return isMoveValid(from, to, side, positionPiecesMap);
+    }
+
+    @Override
     public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
         Assert.assertNotNull(from, to, side);
         Pieces hittingPiece = positionPiecesMap.get(to);

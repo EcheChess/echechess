@@ -54,20 +54,18 @@ public class GenericGameHandler {
     }
 
     protected boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
-        assertGameNotWinned();
         assertKingNotCheck(playerSide);
+        assertGameNotWon();
 
         return true;
     }
 
-    private void assertGameNotWinned() throws GameEndedException {
-        if (isKingCheckMate(getPosition(Pieces.W_KING), Side.WHITE) || isKingCheckMate(getPosition(Pieces.B_KING), Side.BLACK)) {
-            throw new GameEndedException("The game is ended !");
-        }
-    }
-
     private void assertKingNotCheck(Side side) throws KingCheckException {
         Assert.assertNotNull(side);
+
+        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
+            return;
+        }
 
         CasePosition currentKingPos = null;
 
@@ -81,13 +79,19 @@ public class GenericGameHandler {
         }
         Assert.assertNotNull(currentKingPos);
 
-        if (isKingCheckMate(currentKingPos, side)) {
+        if (isKingCheck(currentKingPos, side)) {
             throw new KingCheckException("The king is check !");
         }
     }
 
-    protected boolean isKingCheckMate(CasePosition kingPosition, Side playerSide) {
-        return false;
+    private void assertGameNotWon() throws GameEndedException {
+        if (isKingCheckMate(getPosition(Pieces.W_KING), Side.WHITE) || isKingCheckMate(getPosition(Pieces.B_KING), Side.BLACK)) {
+            throw new GameEndedException("The game is ended !");
+        }
+    }
+
+    public boolean isGameHaveRule(SpecialGameRules rule) {
+        return SPECIAL_GAME_RULES.contains(rule);
     }
 
     /**
@@ -115,6 +119,10 @@ public class GenericGameHandler {
         return false;
     }
 
+    protected boolean isKingCheckMate(CasePosition kingPosition, Side playerSide) {
+        return false;
+    }
+
     protected final void changeAllowedMoveSide() {
         if (Side.BLACK.equals(currentAllowedMoveSide)) {
             currentAllowedMoveSide = Side.WHITE;
@@ -131,12 +139,8 @@ public class GenericGameHandler {
         return currentAllowedMoveSide.equals(sideFrom);
     }
 
-    public boolean isGameHaveRule(SpecialGameRules rule) {
-        return SPECIAL_GAME_RULES.contains(rule);
-    }
-
     public final boolean setPlayerToSide(Player player, Side side) throws GameException {
-        assertGameNotWinned();
+        assertGameNotWon();
         Assert.assertNotNull(player, side);
         boolean value;
 
@@ -260,7 +264,7 @@ public class GenericGameHandler {
                     continue;
                 }
 
-                if (CONSTRAINT_SERVICE.isPieceMovableTo(key, position, pieceSide, CURRENT_PIECES_LOCATION)) {
+                if (CONSTRAINT_SERVICE.isPieceCanAttackTo(key, position, pieceSide, CURRENT_PIECES_LOCATION)) {
                     values.put(position, value);
                 }
             }

@@ -33,8 +33,7 @@ import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.*;
-import static ca.watier.enums.SpecialGameRules.CAN_SET_PIECES;
-import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static ca.watier.enums.SpecialGameRules.*;
 import static junit.framework.TestCase.fail;
 
 /**
@@ -50,8 +49,6 @@ public class BishopMovesTest {
     public void moveTest() {
         List<CasePosition> allowedMoves = Arrays.asList(A8, C8, A6, C6);
         Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(E2, W_KING);
-        pieces.put(E7, B_KING);
 
         //Cannot move (blocked in all ways)
         pieces.put(E4, W_BISHOP);
@@ -61,7 +58,7 @@ public class BishopMovesTest {
         pieces.put(F3, W_PAWN);
 
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
+        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
         gameHandler.setPieceLocation(pieces);
 
         try {
@@ -78,8 +75,6 @@ public class BishopMovesTest {
             //Kill in all direction
             for (CasePosition position : allowedMoves) {
                 pieces.clear();
-                pieces.put(E2, W_KING);
-                pieces.put(E7, B_KING);
                 pieces.put(B7, W_BISHOP);
                 pieces.put(A8, B_ROOK);
                 pieces.put(C8, B_ROOK);

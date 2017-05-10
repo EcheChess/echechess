@@ -26,5 +26,17 @@ import java.util.Map;
  * Created by yannick on 4/23/2017.
  */
 public interface MoveConstraint {
+    /**
+     * Check if the pieces can attack to the selected position, used to check to attack capability of the pieces <br>
+     * <b>Warning</b>: This method doesn't validate if there's another pieces at the specified location
+     *
+     * @param from
+     * @param to
+     * @param side
+     * @param positionPiecesMap
+     * @return
+     */
+    boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap);
+
     boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap);
 }

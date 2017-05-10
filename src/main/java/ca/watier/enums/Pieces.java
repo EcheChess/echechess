@@ -48,10 +48,16 @@ public enum Pieces {
         this.side = side;
     }
 
-    public static boolean isKing(Pieces piecesFrom) {
-        Assert.assertNotNull(piecesFrom);
+    public static boolean isKing(Pieces piece) {
+        Assert.assertNotNull(piece);
 
-        return W_KING.equals(piecesFrom) || B_KING.equals(piecesFrom);
+        return W_KING.equals(piece) || B_KING.equals(piece);
+    }
+
+    public static boolean isPawn(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return W_PAWN.equals(piece) || B_PAWN.equals(piece);
     }
 
     public char getUnicodeIcon() {

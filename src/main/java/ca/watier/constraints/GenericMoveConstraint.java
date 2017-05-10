@@ -30,16 +30,28 @@ import java.util.Map;
  */
 public class GenericMoveConstraint implements MoveConstraint {
 
+    private DirectionPattern pattern;
+
+    public GenericMoveConstraint(DirectionPattern pattern) {
+        this.pattern = pattern;
+    }
+
+    @Override
+    public boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
+        return isMoveValid(from, to, side, positionPiecesMap, true);
+    }
+
     @Override
     public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
+        return isMoveValid(from, to, side, positionPiecesMap, false);
+    }
 
-        DirectionPattern directionPattern = authorizedMoves();
-
-        if (directionPattern == null) {
+    private boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean skipHittingValidation) {
+        if (pattern == null) {
             return false;
         }
 
-        Direction[] directions = directionPattern.getDirections();
+        Direction[] directions = pattern.getDirections();
 
         if (directions == null) {
             return false;
@@ -59,14 +71,10 @@ public class GenericMoveConstraint implements MoveConstraint {
         boolean isMoveValid = !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap) &&
                 MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
 
-        if (pieces != null) {
+        if (pieces != null && !skipHittingValidation) {
             isMoveValid &= !side.equals(pieces.getSide());
         }
 
         return isMoveValid;
-    }
-
-    protected DirectionPattern authorizedMoves() {
-        return DirectionPattern.ALL;
     }
 }

@@ -23,8 +23,7 @@ import ca.watier.enums.DirectionPattern;
  */
 public class RookMoveConstraint extends GenericMoveConstraint {
 
-    @Override
-    protected DirectionPattern authorizedMoves() {
-        return DirectionPattern.NORMAL;
+    public RookMoveConstraint() {
+        super(DirectionPattern.NORMAL);
     }
 }

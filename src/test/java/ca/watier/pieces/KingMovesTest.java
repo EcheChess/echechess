@@ -34,6 +34,7 @@ import java.util.Map;
 import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.CAN_SET_PIECES;
+import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static junit.framework.TestCase.fail;
 
@@ -50,11 +51,10 @@ public class KingMovesTest {
     public void moveTest() {
         List<CasePosition> allowedMoves = Arrays.asList(A8, C8, A6, C6, B8, B6, C7, A7);
         Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(E7, B_KING);
         pieces.put(B7, W_KING);
 
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
+        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
         gameHandler.setPieceLocation(pieces);
 
         try {
@@ -63,7 +63,6 @@ public class KingMovesTest {
             //Kill in all direction
             for (CasePosition position : allowedMoves) {
                 pieces.clear();
-                pieces.put(E7, B_KING);
                 pieces.put(B7, W_KING);
                 pieces.put(A8, B_PAWN);
                 pieces.put(C8, B_PAWN);

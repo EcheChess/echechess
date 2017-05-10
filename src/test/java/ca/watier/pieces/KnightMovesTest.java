@@ -32,9 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Pieces.*;
-import static ca.watier.enums.SpecialGameRules.CAN_SET_PIECES;
-import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static ca.watier.enums.Pieces.W_KNIGHT;
+import static ca.watier.enums.SpecialGameRules.*;
 import static junit.framework.TestCase.fail;
 
 /**
@@ -51,11 +50,9 @@ public class KnightMovesTest {
         List<CasePosition> allowedMoves = Arrays.asList(C3, C5, D6, F6, G5, G3, D2, F2);
 
         Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(E2, W_KING);
-        pieces.put(E7, B_KING);
 
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
+        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
         gameHandler.setPieceLocation(pieces);
 
         try {
@@ -64,8 +61,6 @@ public class KnightMovesTest {
             // Not allowed moves
             for (CasePosition position : CasePosition.values()) {
                 pieces.clear();
-                pieces.put(E2, W_KING);
-                pieces.put(E7, B_KING);
                 pieces.put(E4, W_KNIGHT);
 
                 if (!allowedMoves.contains(position) && !position.equals(E4)) {
@@ -76,8 +71,6 @@ public class KnightMovesTest {
             //Allowed moves
             for (CasePosition position : allowedMoves) {
                 pieces.clear();
-                pieces.put(E2, W_KING);
-                pieces.put(E7, B_KING);
                 pieces.put(E4, W_KNIGHT);
 
                 Assert.assertTrue(gameHandler.movePiece(E4, position, WHITE));

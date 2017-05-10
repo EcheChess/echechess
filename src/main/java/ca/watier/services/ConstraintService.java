@@ -106,4 +106,28 @@ public class ConstraintService {
 
         return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation);
     }
+
+    /**
+     * Checks if the piece can attack to the specified location
+     *
+     * @param from
+     * @param to
+     * @param playerSide
+     * @param piecesLocation
+     * @return
+     */
+    public boolean isPieceCanAttackTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation) {
+        Assert.assertNotNull(from, to, playerSide, piecesLocation);
+
+        if (Side.OBSERVER.equals(playerSide)) {
+            return false;
+        }
+
+        Pieces fromPiece = piecesLocation.get(from);
+        MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
+
+        Assert.assertNotNull(moveConstraint);
+
+        return moveConstraint.canAttackTo(from, to, playerSide, piecesLocation);
+    }
 }

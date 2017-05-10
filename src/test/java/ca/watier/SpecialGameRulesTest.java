@@ -34,6 +34,9 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.Pieces.B_QUEEN;
+import static ca.watier.enums.Pieces.W_KING;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,16 +59,16 @@ public class SpecialGameRulesTest {
             assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
             //No rules
-            Assert.assertTrue(gameHandler.movePiece(CasePosition.H2, CasePosition.H4, WHITE)); //White move
-            Assert.assertFalse(gameHandler.movePiece(CasePosition.H4, CasePosition.H5, WHITE)); //White move again, supposed to fail
-            Assert.assertTrue(gameHandler.movePiece(CasePosition.H7, CasePosition.H6, BLACK)); //Black move
-            Assert.assertFalse(gameHandler.movePiece(CasePosition.H6, CasePosition.H5, WHITE)); //Black move again, supposed to fail
+            Assert.assertTrue(gameHandler.movePiece(H2, H4, WHITE)); //White move
+            Assert.assertFalse(gameHandler.movePiece(H4, H5, WHITE)); //White move again, supposed to fail
+            Assert.assertTrue(gameHandler.movePiece(H7, H6, BLACK)); //Black move
+            Assert.assertFalse(gameHandler.movePiece(H6, H5, WHITE)); //Black move again, supposed to fail
 
             gameHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
 
             //With the rule
-            Assert.assertTrue(gameHandler.movePiece(CasePosition.G2, CasePosition.G4, WHITE)); //White move
-            Assert.assertTrue(gameHandler.movePiece(CasePosition.G4, CasePosition.G5, WHITE)); //White move again, supposed to pass (with the rule only)
+            Assert.assertTrue(gameHandler.movePiece(G2, G4, WHITE)); //White move
+            Assert.assertTrue(gameHandler.movePiece(G4, G5, WHITE)); //White move again, supposed to pass (with the rule only)
 
         } catch (GameException e) {
             e.printStackTrace();
@@ -92,6 +95,41 @@ public class SpecialGameRulesTest {
             gameHandler.addSpecialRule(SpecialGameRules.CAN_SET_PIECES);
             gameHandler.setPieceLocation(emptyMap);
             assertThat(gameHandler.getPiecesLocation()).isEmpty();
+
+        } catch (GameException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+
+    @Test
+    public void noCheckOrCheckmateTest() {
+        SpecialGameRules canSetPieces = SpecialGameRules.CAN_SET_PIECES;
+        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
+        Map<CasePosition, Pieces> pieces = new HashMap<>();
+        pieces.put(E1, W_KING);
+        pieces.put(E3, B_QUEEN);
+        pieces.put(D3, B_QUEEN);
+        pieces.put(F3, B_QUEEN);
+
+        try {
+            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
+            assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
+
+            gameHandler.addSpecialRule(canSetPieces);
+            assertThat(gameHandler.getSpecialGameRules()).containsOnly(canSetPieces); //Make sure there's only one rule applied at the beginning of this test (CAN_SET_PIECES)
+            gameHandler.setPieceLocation(pieces);
+
+            //No rule
+            Assert.assertTrue(gameHandler.isKingCheck(E1, WHITE));
+            Assert.assertTrue(gameHandler.isKingCheckMate(E1, WHITE));
+
+            //With the rule
+            gameHandler.addSpecialRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE);
+
+            Assert.assertFalse(gameHandler.isKingCheck(E1, WHITE));
+            Assert.assertFalse(gameHandler.isKingCheckMate(E1, WHITE));
 
         } catch (GameException e) {
             e.printStackTrace();

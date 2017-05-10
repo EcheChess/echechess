@@ -16,8 +16,14 @@
 
 package ca.watier.constraints;
 
+import ca.watier.enums.DirectionPattern;
+
 /**
  * Created by yannick on 4/23/2017.
  */
 public class QueenMoveConstraint extends GenericMoveConstraint {
+
+    public QueenMoveConstraint() {
+        super(DirectionPattern.ALL);
+    }
 }

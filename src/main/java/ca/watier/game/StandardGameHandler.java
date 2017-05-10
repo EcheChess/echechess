@@ -16,10 +16,7 @@
 
 package ca.watier.game;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Direction;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
 import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import ca.watier.utils.Assert;
@@ -28,7 +25,6 @@ import ca.watier.utils.MultiArrayMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by yannick on 4/17/2017.
@@ -68,27 +64,25 @@ public class StandardGameHandler extends GenericGameHandler {
     }
 
     @Override
-    protected boolean isKingCheckMate(CasePosition kingPosition, Side playerSide) {
+    public boolean isKingCheck(CasePosition kingPosition, Side playerSide) {
+        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
+            return false;
+        }
+
         Assert.assertNotNull(kingPosition, playerSide);
-        return isCheckMate(kingPosition, playerSide, 1);
+        Side otherPlayerSide = Side.BLACK.equals(playerSide) ? Side.WHITE : Side.BLACK;
+
+        return !getPiecesThatCanHitPosition(otherPlayerSide, kingPosition).isEmpty();
     }
 
     @Override
-    protected boolean isKingCheck(CasePosition kingPosition, Side playerSide) {
-        Assert.assertNotNull(kingPosition, playerSide);
-        Side otherPlayerSide = Side.BLACK.equals(playerSide) ? Side.WHITE : Side.BLACK;
-        Map<CasePosition, Pieces> otherPlayerPiecesLocation = getPiecesLocation(otherPlayerSide);
-        boolean isCheck = false;
-
-        //Check if the king is "check" in this position
-        for (CasePosition otherPieceLocation : otherPlayerPiecesLocation.keySet()) {
-            if (CONSTRAINT_SERVICE.isPieceMovableTo(otherPieceLocation, kingPosition, otherPlayerSide, CURRENT_PIECES_LOCATION)) {
-                isCheck = true;
-                break;
-            }
+    public boolean isKingCheckMate(CasePosition kingPosition, Side playerSide) {
+        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
+            return false;
         }
 
-        return isCheck;
+        Assert.assertNotNull(kingPosition, playerSide);
+        return isCheckMate(kingPosition, playerSide, 1);
     }
 
     private boolean isCheckMate(CasePosition kingPosition, Side playerSide, int maxRecursiveDepth) {
@@ -106,21 +100,28 @@ public class StandardGameHandler extends GenericGameHandler {
                     caseAround.add(nearestPositionFromDirection);
                 }
             }
+            int sizeCaseAround = caseAround.size();
 
             //Fetch the enemy pieces that can hit around the king
-            MultiArrayMap<CasePosition, Pieces> piecesThatCanHitPosition = getPiecesThatCanHitPosition(otherPlayerSide, caseAround.toArray(new CasePosition[caseAround.size()]));
+            MultiArrayMap<CasePosition, Pieces> piecesThatCanHitPosition = getPiecesThatCanHitPosition(otherPlayerSide, caseAround.toArray(new CasePosition[sizeCaseAround]));
 
-            if (caseAround.size() == piecesThatCanHitPosition.size()) { //There nowhere to move, all the move locations are targeted
-                //TODO: Try to block the way
+            int sizeCanHitPosition = piecesThatCanHitPosition.size();
+            if (sizeCaseAround == sizeCanHitPosition) { //There nowhere to move, all the move locations are targeted
+
 
                 //Check if the king can kill something to save himself
                 for (CasePosition position : caseAround) {
                     Pieces pieces = CURRENT_PIECES_LOCATION.get(position);
 
                     if (pieces != null && !pieces.getSide().equals(playerSide) && maxRecursiveDepth > 0) {
-                        boolean checkMate = isCheckMate(position, playerSide, maxRecursiveDepth--); //FIXME
-                        //TODO
+                        isCheckmate &= isKingCheck(position, playerSide);
                     }
+                }
+
+                //Try to block/kill with other pieces
+                if (isCheckmate) {//TODO: Try to block the way
+                    //FIXME
+                    //dfhbjghjkdcfghjdj
                 }
 
             } else { //There's more place to move
