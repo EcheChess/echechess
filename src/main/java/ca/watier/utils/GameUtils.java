@@ -102,7 +102,7 @@ public class GameUtils extends BaseUtils {
 
         boolean value = false;
 
-        int distanceFromDestination = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to));
+        int distanceFromDestination = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to));
         Direction directionToDestination = MathUtils.getDirectionFromPosition(from, to);
 
         for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : pieces.entrySet()) {
@@ -111,7 +111,7 @@ public class GameUtils extends BaseUtils {
 
             if (casePositionPiecesEntry.getValue() != null && key != from && key != to) {
 
-                int distanceToOther = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, key));
+                int distanceToOther = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, key));
                 Direction directionToOther = MathUtils.getDirectionFromPosition(from, key);
 
                 if (MathUtils.isPositionInLine(from, to, key) && distanceFromDestination > distanceToOther && directionToOther == directionToDestination) {

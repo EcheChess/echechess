@@ -50,6 +50,6 @@ public class KingMoveConstraint implements MoveConstraint {
             checkHit = hittingPiece == null || !side.equals(hittingPiece.getSide());
         }
 
-        return (BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to)) == 1) && checkHit;
+        return (BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to)) == 1) && checkHit;
     }
 }

@@ -57,7 +57,7 @@ public class PawnMoveConstraint implements MoveConstraint {
         }
 
         Pieces hittingPiece = positionPiecesMap.get(to);
-        int nbCaseBetweenPositions = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositions(from, to));
+        int nbCaseBetweenPositions = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to));
         Direction directionFromPosition = MathUtils.getDirectionFromPosition(from, to);
         boolean otherPiecesBetweenTarget = GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap);
 
@@ -78,7 +78,7 @@ public class PawnMoveConstraint implements MoveConstraint {
 
         boolean checkHit = true;
         if (!skipHittingValidation) {
-            checkHit = hittingPiece != null && !hittingPiece.getSide().equals(side);
+            checkHit = hittingPiece != null && !hittingPiece.getSide().equals(side) && !Pieces.isKing(hittingPiece);
         }
 
         //Attack move

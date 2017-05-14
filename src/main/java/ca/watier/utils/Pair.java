@@ -14,13 +14,37 @@
  *    limitations under the License.
  */
 
-package ca.watier.exceptions;
+package ca.watier.utils;
 
 /**
- * Created by yannick on 5/5/2017.
+ * Created by yannick on 5/10/2017.
  */
-public class KingCheckException extends GameException {
-    public KingCheckException(String s) {
-        super(s);
+public class Pair<X, Y> {
+
+    private X firstValue;
+    private Y secondValue;
+
+    public Pair(X firstValue, Y secondValue) {
+        this.firstValue = firstValue;
+        this.secondValue = secondValue;
+    }
+
+    public Pair() {
+    }
+
+    public X getFirstValue() {
+        return firstValue;
+    }
+
+    public void setFirstValue(X firstValue) {
+        this.firstValue = firstValue;
+    }
+
+    public Y getSecondValue() {
+        return secondValue;
+    }
+
+    public void setSecondValue(Y secondValue) {
+        this.secondValue = secondValue;
     }
 }

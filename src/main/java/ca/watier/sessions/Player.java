@@ -16,6 +16,7 @@
 
 package ca.watier.sessions;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,8 @@ import java.util.UUID;
 /**
  * Created by yannick on 4/17/2017.
  */
-public class Player {
+public class Player implements Serializable {
+    private static final long serialVersionUID = 296605081563013686L;
     private List<UUID> createdGameList = new ArrayList<>();
     private List<UUID> joinedGameList = new ArrayList<>();
     private UUID lastGameCreated;

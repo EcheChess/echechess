@@ -72,7 +72,7 @@ public class GenericMoveConstraint implements MoveConstraint {
                 MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
 
         if (pieces != null && !skipHittingValidation) {
-            isMoveValid &= !side.equals(pieces.getSide());
+            isMoveValid &= !side.equals(pieces.getSide()) && !Pieces.isKing(pieces);
         }
 
         return isMoveValid;

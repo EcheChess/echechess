@@ -23,4 +23,8 @@ public class BaseUtils {
     public static int getSafeInteger(Integer value) {
         return value == null ? 0 : value;
     }
+
+    public static float getSafeFloat(Float value) {
+        return value == null ? 0 : value;
+    }
 }

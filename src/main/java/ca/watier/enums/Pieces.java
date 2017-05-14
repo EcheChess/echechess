@@ -60,6 +60,22 @@ public enum Pieces {
         return W_PAWN.equals(piece) || B_PAWN.equals(piece);
     }
 
+    public static boolean isKnight(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return W_KNIGHT.equals(piece) || B_KNIGHT.equals(piece);
+    }
+
+    public static Pieces getKingOfCurrentSide(Side playerSide) {
+        Assert.assertNotNull(playerSide);
+
+        if (Side.OBSERVER.equals(playerSide)) {
+            return null;
+        }
+
+        return Side.BLACK.equals(playerSide) ? B_KNIGHT : W_KNIGHT;
+    }
+
     public char getUnicodeIcon() {
         return unicodeIcon;
     }

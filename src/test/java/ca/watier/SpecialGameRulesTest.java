@@ -20,10 +20,7 @@ package ca.watier;
  * Created by yannick on 5/8/2017.
  */
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-import ca.watier.enums.SpecialGameRules;
+import ca.watier.enums.*;
 import ca.watier.exceptions.GameException;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
@@ -35,8 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Pieces.B_QUEEN;
-import static ca.watier.enums.Pieces.W_KING;
+import static ca.watier.enums.Pieces.*;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -108,6 +104,7 @@ public class SpecialGameRulesTest {
         SpecialGameRules canSetPieces = SpecialGameRules.CAN_SET_PIECES;
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
         Map<CasePosition, Pieces> pieces = new HashMap<>();
+        pieces.put(A8, B_KING);
         pieces.put(E1, W_KING);
         pieces.put(E3, B_QUEEN);
         pieces.put(D3, B_QUEEN);
@@ -122,14 +119,12 @@ public class SpecialGameRulesTest {
             gameHandler.setPieceLocation(pieces);
 
             //No rule
-            Assert.assertTrue(gameHandler.isKingCheck(E1, WHITE));
-            Assert.assertTrue(gameHandler.isKingCheckMate(E1, WHITE));
+            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
 
             //With the rule
             gameHandler.addSpecialRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE);
 
-            Assert.assertFalse(gameHandler.isKingCheck(E1, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheckMate(E1, WHITE));
+            Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
 
         } catch (GameException e) {
             e.printStackTrace();

@@ -17,12 +17,12 @@
 package ca.watier.services;
 
 import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
+import ca.watier.utils.GameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -119,22 +119,15 @@ public class GameService {
 
         StandardGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
-
-        List<String> positions = new ArrayList<>();
-        Map<CasePosition, Pieces> piecesLocation = gameFromUuid.getPiecesLocation();
         Side playerSide = gameFromUuid.getPlayerSide(player);
-        Pieces pieces = piecesLocation.get(from);
 
-        if (pieces == null || !pieces.getSide().equals(playerSide)) {
-            return positions;
+        List<String> values = new ArrayList<>();
+
+        for (CasePosition casePosition : gameFromUuid.getAllAvailableMoves(from, playerSide)) {
+            values.add(casePosition.name());
         }
 
-        for (CasePosition position : CasePosition.values()) {
-            if (!from.equals(position) && gameFromUuid.isPieceMovableTo(from, position, playerSide)) {
-                positions.add(position.name());
-            }
-        }
-
-        return positions;
+        return values;
     }
+
 }

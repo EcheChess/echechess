@@ -16,20 +16,20 @@
 
 package ca.watier.game;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-import ca.watier.enums.SpecialGameRules;
+import ca.watier.enums.*;
 import ca.watier.exceptions.GameEndedException;
 import ca.watier.exceptions.GameException;
-import ca.watier.exceptions.KingCheckException;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 import ca.watier.utils.GameUtils;
 import ca.watier.utils.MultiArrayMap;
+import ca.watier.utils.Pair;
 
 import java.util.*;
+
+import static ca.watier.enums.Side.BLACK;
+import static ca.watier.enums.Side.WHITE;
 
 /**
  * Created by yannick on 5/5/2017.
@@ -41,7 +41,7 @@ public class GenericGameHandler {
     protected String uuid;
     protected boolean allowOtherToJoin = false;
     protected boolean allowObservers = false;
-    private Side currentAllowedMoveSide = Side.WHITE;
+    private Side currentAllowedMoveSide = WHITE;
     private Player playerWhite, playerBlack;
     private List<Player> observerList;
 
@@ -53,81 +53,49 @@ public class GenericGameHandler {
         this.CONSTRAINT_SERVICE = constraintService;
     }
 
-    protected boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
-        assertKingNotCheck(playerSide);
-        assertGameNotWon();
+    /**
+     * Return a List containing all the moves for the selected piece
+     *
+     * @param from
+     * @param playerSide
+     * @return
+     */
+    public List<CasePosition> getAllAvailableMoves(CasePosition from, Side playerSide) {
+        List<CasePosition> positions = new ArrayList<>();
 
+        Pieces pieces = CURRENT_PIECES_LOCATION.get(from);
+
+        if (pieces == null || !pieces.getSide().equals(playerSide)) {
+            return positions;
+        }
+
+        for (CasePosition position : CasePosition.values()) {
+            if (!from.equals(position) && isPieceMovableTo(from, position, playerSide)) {
+                positions.add(position);
+            }
+        }
+
+        return positions;
+    }
+
+    public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION);
+    }
+
+    public Map<CasePosition, Pieces> getPiecesLocation() {
+        return Collections.unmodifiableMap(CURRENT_PIECES_LOCATION);
+    }
+
+    protected boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
         return true;
     }
 
-    private void assertKingNotCheck(Side side) throws KingCheckException {
-        Assert.assertNotNull(side);
-
-        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
-            return;
-        }
-
-        CasePosition currentKingPos = null;
-
-        switch (side) {
-            case WHITE:
-                currentKingPos = getPosition(Pieces.W_KING);
-                break;
-            case BLACK:
-                currentKingPos = getPosition(Pieces.B_KING);
-                break;
-        }
-        Assert.assertNotNull(currentKingPos);
-
-        if (isKingCheck(currentKingPos, side)) {
-            throw new KingCheckException("The king is check !");
-        }
-    }
-
-    private void assertGameNotWon() throws GameEndedException {
-        if (isKingCheckMate(getPosition(Pieces.W_KING), Side.WHITE) || isKingCheckMate(getPosition(Pieces.B_KING), Side.BLACK)) {
-            throw new GameEndedException("The game is ended !");
-        }
-    }
-
-    public boolean isGameHaveRule(SpecialGameRules rule) {
-        return SPECIAL_GAME_RULES.contains(rule);
-    }
-
-    /**
-     * Gets the position of a piece
-     *
-     * @param pieces
-     * @return
-     */
-    public final CasePosition getPosition(Pieces pieces) {
-        Assert.assertNotNull(pieces);
-        CasePosition position = null;
-
-        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : CURRENT_PIECES_LOCATION.entrySet()) {
-            if (pieces.equals(casePositionPiecesEntry.getValue())) {
-                position = casePositionPiecesEntry.getKey();
-                break;
-            }
-
-        }
-
-        return position;
-    }
-
-    protected boolean isKingCheck(CasePosition kingPosition, Side playerSide) {
-        return false;
-    }
-
-    protected boolean isKingCheckMate(CasePosition kingPosition, Side playerSide) {
-        return false;
-    }
 
     protected final void changeAllowedMoveSide() {
-        if (Side.BLACK.equals(currentAllowedMoveSide)) {
-            currentAllowedMoveSide = Side.WHITE;
+        if (BLACK.equals(currentAllowedMoveSide)) {
+            currentAllowedMoveSide = WHITE;
         } else {
-            currentAllowedMoveSide = Side.BLACK;
+            currentAllowedMoveSide = BLACK;
         }
     }
 
@@ -137,6 +105,10 @@ public class GenericGameHandler {
         }
 
         return currentAllowedMoveSide.equals(sideFrom);
+    }
+
+    public boolean isGameHaveRule(SpecialGameRules rule) {
+        return SPECIAL_GAME_RULES.contains(rule);
     }
 
     public final boolean setPlayerToSide(Player player, Side side) throws GameException {
@@ -169,6 +141,13 @@ public class GenericGameHandler {
         return value;
     }
 
+    protected void assertGameNotWon() throws GameEndedException {
+        if (KingStatus.CHECKMATE.equals(getKingStatus(getPosition(Pieces.W_KING), WHITE)) ||
+                KingStatus.CHECKMATE.equals(getKingStatus(getPosition(Pieces.B_KING), BLACK))) {
+            throw new GameEndedException("The game is ended !");
+        }
+    }
+
     private void removePlayerFromWhite(Player player) {
         if (playerWhite == player) {
             playerWhite = null;
@@ -199,6 +178,34 @@ public class GenericGameHandler {
         return false;
     }
 
+    protected KingStatus getKingStatus(CasePosition kingPosition, Side playerSide) {
+        return KingStatus.OK;
+    }
+
+    /**
+     * Gets the position of a piece
+     *
+     * @param pieces
+     * @return
+     */
+    public final CasePosition getPosition(Pieces pieces) {
+        Assert.assertNotNull(pieces);
+        CasePosition position = null;
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : CURRENT_PIECES_LOCATION.entrySet()) {
+            if (pieces.equals(casePositionPiecesEntry.getValue())) {
+                position = casePositionPiecesEntry.getKey();
+                break;
+            }
+        }
+
+        return position;
+    }
+
+    protected Side getOtherPlayerSide(Side currentPlayerSide) {
+        return Side.BLACK.equals(currentPlayerSide) ? Side.WHITE : Side.BLACK;
+    }
+
     /**
      * Get the side of the player, null if not available
      *
@@ -209,14 +216,37 @@ public class GenericGameHandler {
         Side side = null;
 
         if (playerWhite == player) {
-            side = Side.WHITE;
+            side = WHITE;
         } else if (playerBlack == player) {
-            side = Side.BLACK;
+            side = BLACK;
         } else if (observerList.contains(player)) {
             side = Side.OBSERVER;
         }
 
         return side;
+    }
+
+
+    protected boolean isKingCheck(Side playerSide) {
+        Assert.assertNotNull(playerSide);
+
+        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
+            return false;
+        }
+        CasePosition position = null;
+
+        switch (playerSide) {
+            case WHITE:
+                position = getPosition(Pieces.W_KING);
+                break;
+            case BLACK:
+                position = getPosition(Pieces.B_KING);
+                break;
+        }
+
+        Assert.assertNotNull(position);
+
+        return KingStatus.CHECK.equals(getKingStatus(position, playerSide));
     }
 
     /**
@@ -243,16 +273,16 @@ public class GenericGameHandler {
     }
 
     /**
-     * Gets the pieces that can hit the target
+     * Gets the pieces that can hit the target, the {@link CasePosition} inside the {@link Pair} is the starting position of the attacking {@link Pieces}
      *
      * @param positions
      * @param sideToKeep
      * @return
      */
-    public MultiArrayMap<CasePosition, Pieces> getPiecesThatCanHitPosition(Side sideToKeep, CasePosition... positions) {
+    public MultiArrayMap<CasePosition, Pair<CasePosition, Pieces>> getPiecesThatCanHitPosition(Side sideToKeep, CasePosition... positions) {
         Assert.assertNotEmpty(positions);
 
-        MultiArrayMap<CasePosition, Pieces> values = new MultiArrayMap<>();
+        MultiArrayMap<CasePosition, Pair<CasePosition, Pieces>> values = new MultiArrayMap<>();
 
         for (CasePosition position : positions) {
             for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : CURRENT_PIECES_LOCATION.entrySet()) {
@@ -265,7 +295,7 @@ public class GenericGameHandler {
                 }
 
                 if (CONSTRAINT_SERVICE.isPieceCanAttackTo(key, position, pieceSide, CURRENT_PIECES_LOCATION)) {
-                    values.put(position, value);
+                    values.put(position, new Pair<>(key, value));
                 }
             }
         }
@@ -295,10 +325,6 @@ public class GenericGameHandler {
 
     public boolean isBlackSet() {
         return playerBlack != null;
-    }
-
-    public Map<CasePosition, Pieces> getPiecesLocation() {
-        return Collections.unmodifiableMap(CURRENT_PIECES_LOCATION);
     }
 
     public boolean isAllowOtherToJoin() {
@@ -357,11 +383,6 @@ public class GenericGameHandler {
     public List<Player> getObserverList() {
         return Collections.unmodifiableList(observerList);
     }
-
-    public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION);
-    }
-
 
     public Set<SpecialGameRules> getSpecialGameRules() {
         return Collections.unmodifiableSet(SPECIAL_GAME_RULES);

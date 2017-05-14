@@ -17,10 +17,10 @@
 package ca.watier.conditions;
 
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
-import ca.watier.exceptions.KingCheckException;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
 import ca.watier.testUtils.Utils;
@@ -59,22 +59,17 @@ public class CheckAndCheckMateTest {
             Utils.addBothPlayerToGameAndSetUUID(gameHandler);
             gameHandler.setPieceLocation(pieces);
 
-            Assert.assertTrue(gameHandler.isKingCheck(E1, WHITE));
-            Assert.assertTrue(gameHandler.isKingCheckMate(E1, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheck(H8, BLACK));
-            Assert.assertFalse(gameHandler.isKingCheckMate(H8, BLACK));
+            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
+            Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(H8, BLACK));
 
             //Move the E4, no more check mate
             pieces.remove(E4);
             pieces.put(D4, B_ROOK);
-            Assert.assertFalse(gameHandler.isKingCheck(E1, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheckMate(E1, WHITE));
+            Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
             pieces.put(A1, B_ROOK);
-            Assert.assertTrue(gameHandler.isKingCheck(E1, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheckMate(E1, WHITE)); //Can move to E2
+            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E1, WHITE)); //Can move to E2
             pieces.put(A2, B_ROOK);
-            Assert.assertTrue(gameHandler.isKingCheck(E1, WHITE));
-            Assert.assertTrue(gameHandler.isKingCheckMate(E1, WHITE));
+            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
 
         } catch (GameException e) {
             e.printStackTrace();
@@ -113,20 +108,14 @@ public class CheckAndCheckMateTest {
                 pieces.put(F3, B_PAWN);
 
                 if (position.equals(D3) || position.equals(D5) || position.equals(E5) || position.equals(F3) || position.equals(F5)) {
-                    Assert.assertFalse(gameHandler.isKingCheck(position, WHITE));
-                    Assert.assertFalse(gameHandler.isKingCheckMate(position, WHITE));
+                    Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(position, WHITE));
                 } else {
-                    try {
-                        Assert.assertTrue(gameHandler.isKingCheck(position, WHITE));
-                        gameHandler.movePiece(E4, position, WHITE);
-                        fail(); //Cannot move, will be check again (Need an exception to be valid)
-                    } catch (KingCheckException ignored) {
-                    }
+                    Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
+                    Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));  //Cannot move, will be check again (Need an exception to be valid)
                 }
             }
 
-            Assert.assertTrue(gameHandler.isKingCheck(E4, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheckMate(E4, WHITE));
+            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
         } catch (GameException e) {
             e.printStackTrace();
             fail();
@@ -139,10 +128,19 @@ public class CheckAndCheckMateTest {
      */
     @Test
     public void checkFromMixShortAndLongRangeWithPawn_multipleExitTest() {
-        List<CasePosition> allPosition = new ArrayList<>();
-        allPosition.addAll(Arrays.asList(E3, E5, D4, F4, D5, F5, D3, F3));
 
         Map<CasePosition, Pieces> pieces = new HashMap<>();
+        pieces.put(H8, B_KING);
+        pieces.put(E4, W_KING);
+        pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
+        pieces.put(E3, B_PAWN);
+        pieces.put(E5, B_PAWN);
+        pieces.put(D4, B_PAWN);
+        pieces.put(F4, B_PAWN);
+        pieces.put(D5, B_PAWN);
+        pieces.put(F5, B_PAWN);
+        pieces.put(D3, B_PAWN);
+        pieces.put(F3, B_PAWN);
 
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
         gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
@@ -150,35 +148,7 @@ public class CheckAndCheckMateTest {
             Utils.addBothPlayerToGameAndSetUUID(gameHandler);
             gameHandler.setPieceLocation(pieces);
 
-            for (CasePosition position : allPosition) {
-                pieces.clear();
-                pieces.put(H8, B_KING);
-                pieces.put(E4, W_KING);
-                pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
-                pieces.put(E3, B_PAWN);
-                pieces.put(E5, B_PAWN);
-                pieces.put(D4, B_PAWN);
-                pieces.put(F4, B_PAWN);
-                pieces.put(D5, B_PAWN);
-                pieces.put(F5, B_PAWN);
-                pieces.put(D3, B_PAWN);
-                pieces.put(F3, B_PAWN);
-
-                if (position.equals(E5) || position.equals(F3) || position.equals(F5)) {
-                    Assert.assertFalse(gameHandler.isKingCheck(position, WHITE));
-                    Assert.assertFalse(gameHandler.isKingCheckMate(position, WHITE));
-                } else {
-                    try {
-                        Assert.assertTrue(gameHandler.isKingCheck(position, WHITE));
-                        gameHandler.movePiece(E4, position, WHITE);
-                        fail(); //Cannot move, will be check again (Need an exception to be valid)
-                    } catch (KingCheckException ignored) {
-                    }
-                }
-            }
-
-            Assert.assertTrue(gameHandler.isKingCheck(E4, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheckMate(E4, WHITE));
+            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
         } catch (GameException e) {
             e.printStackTrace();
             fail();
@@ -191,47 +161,26 @@ public class CheckAndCheckMateTest {
      */
     @Test
     public void checkFromMixShortAndLongRangeWithPawn_oneExitTest() {
-        List<CasePosition> allPosition = new ArrayList<>();
-        allPosition.addAll(Arrays.asList(E3, E5, D4, F4, D5, F5, D3, F3));
-
         Map<CasePosition, Pieces> pieces = new HashMap<>();
+        pieces.put(H8, B_KING);
+        pieces.put(E4, W_KING);
+        pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
+        pieces.put(H5, B_QUEEN); //Prevent the king to move to F5 & F3
+        pieces.put(E3, B_PAWN);
+        pieces.put(E5, B_PAWN);
+        pieces.put(D4, B_PAWN);
+        pieces.put(F4, B_PAWN);
+        pieces.put(D5, B_PAWN);
+        pieces.put(F5, B_PAWN);
+        pieces.put(D3, B_PAWN);
+        pieces.put(F3, B_PAWN);
 
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
         gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
         try {
             Utils.addBothPlayerToGameAndSetUUID(gameHandler);
             gameHandler.setPieceLocation(pieces);
-
-            for (CasePosition position : allPosition) {
-                pieces.clear();
-                pieces.put(H8, B_KING);
-                pieces.put(E4, W_KING);
-                pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
-                pieces.put(H5, B_QUEEN); //Prevent the king to move to F5 & F3
-                pieces.put(E3, B_PAWN);
-                pieces.put(E5, B_PAWN);
-                pieces.put(D4, B_PAWN);
-                pieces.put(F4, B_PAWN);
-                pieces.put(D5, B_PAWN);
-                pieces.put(F5, B_PAWN);
-                pieces.put(D3, B_PAWN);
-                pieces.put(F3, B_PAWN);
-
-                if (position.equals(E5)) {
-                    Assert.assertFalse(gameHandler.isKingCheck(position, WHITE));
-                    Assert.assertFalse(gameHandler.isKingCheckMate(position, WHITE));
-                } else {
-                    try {
-                        Assert.assertTrue(gameHandler.isKingCheck(position, WHITE));
-                        gameHandler.movePiece(E4, position, WHITE);
-                        fail(); //Cannot move, will be check again (Need an exception to be valid)
-                    } catch (KingCheckException ignored) {
-                    }
-                }
-            }
-
-            Assert.assertTrue(gameHandler.isKingCheck(E4, WHITE));
-            Assert.assertFalse(gameHandler.isKingCheckMate(E4, WHITE));
+            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
         } catch (GameException e) {
             e.printStackTrace();
             fail();
@@ -244,42 +193,27 @@ public class CheckAndCheckMateTest {
      */
     @Test
     public void checkmateFromMixShortAndLongRangeWithPawn_noAllyTest() {
-        List<CasePosition> allPosition = new ArrayList<>();
-        allPosition.addAll(Arrays.asList(E3, E5, D4, F4, D5, F5, D3, F3));
-
         Map<CasePosition, Pieces> pieces = new HashMap<>();
+        pieces.put(H8, B_KING);
+        pieces.put(E4, W_KING);
+        pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
+        pieces.put(H5, B_QUEEN); //Prevent the king to move to F5 & F3
+        pieces.put(E7, B_ROOK);  //Prevent the king to move to E5
+        pieces.put(E3, B_PAWN);
+        pieces.put(E5, B_PAWN);
+        pieces.put(D4, B_PAWN);
+        pieces.put(F4, B_PAWN);
+        pieces.put(D5, B_PAWN);
+        pieces.put(F5, B_PAWN);
+        pieces.put(D3, B_PAWN);
+        pieces.put(F3, B_PAWN);
 
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
         gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
         try {
             Utils.addBothPlayerToGameAndSetUUID(gameHandler);
             gameHandler.setPieceLocation(pieces);
-
-            for (CasePosition position : allPosition) {
-                pieces.clear();
-                pieces.put(H8, B_KING);
-                pieces.put(E4, W_KING);
-                pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
-                pieces.put(H5, B_QUEEN); //Prevent the king to move to F5 & F3
-                pieces.put(E7, B_ROOK);  //Prevent the king to move to E5
-                pieces.put(E3, B_PAWN);
-                pieces.put(E5, B_PAWN);
-                pieces.put(D4, B_PAWN);
-                pieces.put(F4, B_PAWN);
-                pieces.put(D5, B_PAWN);
-                pieces.put(F5, B_PAWN);
-                pieces.put(D3, B_PAWN);
-                pieces.put(F3, B_PAWN);
-
-                try {
-                    Assert.assertTrue(gameHandler.isKingCheck(position, WHITE));
-                    gameHandler.movePiece(E4, position, WHITE);
-                    fail(); //Cannot move, will be check again (Need an exception to be valid)
-                } catch (KingCheckException ignored) {
-                }
-            }
-
-            Assert.assertTrue(gameHandler.isKingCheckMate(E4, WHITE));
+            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E4, WHITE));
         } catch (GameException e) {
             e.printStackTrace();
             fail();

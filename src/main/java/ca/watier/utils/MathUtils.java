@@ -20,6 +20,9 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.Direction;
 import org.apache.commons.math3.util.Precision;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static ca.watier.enums.CasePosition.getCasePositionByCoor;
 import static ca.watier.enums.Direction.*;
 
@@ -28,6 +31,124 @@ import static ca.watier.enums.Direction.*;
  */
 public class MathUtils extends BaseUtils {
 
+    public static final double EPS = 1E-5;
+
+    /**
+     * Check if the position is on the perimeter of the circle
+     *
+     * @param from
+     * @param to
+     * @param xRadius
+     * @param yRadius
+     * @return
+     */
+    public static boolean isPositionOnCirclePerimeter(CasePosition from, CasePosition to, float xRadius, float yRadius) {
+        Assert.assertNotNull(from, to);
+
+        //(x−a)^2 + (y−b)^2 = r^2
+        int xFrom = from.getX();
+        double partOne = Math.pow(to.getX() - xFrom, 2);
+        int yFrom = from.getY();
+        double partTwo = Math.pow(to.getY() - yFrom, 2);
+        double disRadius = Math.pow(getDistanceBetweenPositions(xFrom, yFrom, xRadius, yRadius), 2);
+
+        return Precision.equals(partOne + partTwo, disRadius, EPS);
+    }
+
+    /**
+     * Get the number of case between two position
+     *
+     * @param xFrom
+     * @param xTo
+     * @param yTo
+     * @return
+     */
+    public static double getDistanceBetweenPositions(float xFrom, float yFrom, float xTo, float yTo) {
+        Assert.assertNotNull(yFrom);
+
+        double partOne = Math.pow(xFrom - xTo, 2);
+        double partTwo = Math.pow(yFrom - yTo, 2);
+        return Math.sqrt(partOne + partTwo);
+    }
+
+    /**
+     * Gets all {@link CasePosition} around the target
+     *
+     * @param position
+     * @return
+     */
+    public static List<CasePosition> getAllPositionsAroundPosition(CasePosition position) {
+
+        List<CasePosition> values = new ArrayList<>();
+
+        //Fetch all the position around
+        for (Direction direction : Direction.values()) {
+            CasePosition nearestPositionFromDirection = MathUtils.getNearestPositionFromDirection(position, direction);
+
+            if (nearestPositionFromDirection != null) {
+                values.add(nearestPositionFromDirection);
+            }
+        }
+
+        return values;
+    }
+
+    /**
+     * Get the nearest case based on the direction
+     *
+     * @param casePosition
+     * @param direction
+     * @return
+     */
+    public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction) {
+        return getNearestPositionFromDirection(casePosition, direction, 1);
+    }
+
+    /**
+     * Get the case based on the direction
+     *
+     * @param casePosition
+     * @param direction
+     * @return
+     */
+    public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction, int nbOfCases) {
+        Assert.assertNotNull(casePosition, direction);
+
+        CasePosition position = null;
+
+        int x = casePosition.getX();
+        int y = casePosition.getY();
+
+        switch (direction) {
+            case NORTH:
+                position = getCasePositionByCoor(x, y + nbOfCases);
+                break;
+            case NORTH_EAST:
+                position = getCasePositionByCoor(x + nbOfCases, y + nbOfCases);
+                break;
+            case NORTH_WEST:
+                position = getCasePositionByCoor(x - nbOfCases, y + nbOfCases);
+                break;
+            case SOUTH:
+                position = getCasePositionByCoor(x, y - nbOfCases);
+                break;
+            case SOUTH_EAST:
+                position = getCasePositionByCoor(x + nbOfCases, y - nbOfCases);
+                break;
+            case SOUTH_WEST:
+                position = getCasePositionByCoor(x - nbOfCases, y - nbOfCases);
+                break;
+            case EAST:
+                position = getCasePositionByCoor(x + nbOfCases, y);
+                break;
+            case WEST:
+                position = getCasePositionByCoor(x - nbOfCases, y);
+                break;
+        }
+
+        return position;
+    }
+
     /**
      * Get the number of case between two position, must be a straight line, return null if not
      *
@@ -35,7 +156,7 @@ public class MathUtils extends BaseUtils {
      * @param to
      * @return
      */
-    public static Integer getDistanceBetweenPositions(CasePosition from, CasePosition to) {
+    public static Integer getDistanceBetweenPositionsWithCommonDirection(CasePosition from, CasePosition to) {
         Assert.assertNotNull(from, to);
 
         Direction directionFromPosition = getDirectionFromPosition(from, to);
@@ -50,9 +171,8 @@ public class MathUtils extends BaseUtils {
             return null;
         }
 
-        double partOne = Math.pow(from.getX() - to.getX(), 2);
-        double partTwo = Math.pow(from.getY() - to.getY(), 2);
-        return (int) (Math.sqrt(partOne + partTwo));
+
+        return (int) getDistanceBetweenPositions(from, to);
     }
 
     /**
@@ -102,17 +222,6 @@ public class MathUtils extends BaseUtils {
     }
 
     /**
-     * Get the nearest case based on the direction
-     *
-     * @param casePosition
-     * @param direction
-     * @return
-     */
-    public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction) {
-        return getNearestPositionFromDirection(casePosition, direction, 1);
-    }
-
-    /**
      * Check if the position is on the same line than the others
      *
      * @param first
@@ -132,106 +241,114 @@ public class MathUtils extends BaseUtils {
             return true;
 
         // y = mx + b
-        float m = getSlopeFromPosition(first, second);
+        Float m = getSlopeFromPosition(first, second);
+        m = (m != null) ? m : 0;
         float b = yCurrent - (m * xCurrent);
 
-        return yToCheck == (m * xToCheck + b);
+        return Precision.equals((float) yToCheck, m * xToCheck + b, EPS);
     }
 
     /**
-     * Get the case based on the direction
-     *
-     * @param casePosition
-     * @param direction
-     * @return
-     */
-    public static CasePosition getNearestPositionFromDirection(CasePosition casePosition, Direction direction, int nbOfCases) {
-        Assert.assertNotNull(casePosition, direction);
-
-        CasePosition position = null;
-
-        int x = casePosition.getX();
-        int y = casePosition.getY();
-
-        switch (direction) {
-            case NORTH:
-                position = getCasePositionByCoor(x, y + nbOfCases);
-                break;
-            case NORTH_EAST:
-                position = getCasePositionByCoor(x + nbOfCases, y + nbOfCases);
-                break;
-            case NORTH_WEST:
-                position = getCasePositionByCoor(x - nbOfCases, y + nbOfCases);
-                break;
-            case SOUTH:
-                position = getCasePositionByCoor(x, y - nbOfCases);
-                break;
-            case SOUTH_EAST:
-                position = getCasePositionByCoor(x + nbOfCases, y - nbOfCases);
-                break;
-            case SOUTH_WEST:
-                position = getCasePositionByCoor(x - nbOfCases, y - nbOfCases);
-                break;
-            case EAST:
-                position = getCasePositionByCoor(x + nbOfCases, y);
-                break;
-            case WEST:
-                position = getCasePositionByCoor(x - nbOfCases, y);
-                break;
-        }
-
-        return position;
-    }
-
-    /**
-     * Get the slope based on the CasePosition
+     * Get the number of case between two position
      *
      * @param from
      * @param to
      * @return
      */
-    public static float getSlopeFromPosition(CasePosition from, CasePosition to) {
+    public static double getDistanceBetweenPositions(CasePosition from, CasePosition to) {
+        Assert.assertNotNull(from, to);
+
+        return getDistanceBetweenPositions(from.getX(), from.getY(), to.getX(), to.getY());
+    }
+
+    /**
+     * Get the slope based on the CasePosition, null if undefined
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public static Float getSlopeFromPosition(CasePosition from, CasePosition to) {
         Assert.assertNotNull(from, to);
 
         float xDiff = from.getX() - to.getX();
         float yDiff = from.getY() - to.getY();
 
-        return (xDiff != 0) ? yDiff / xDiff : 0;
+        if (xDiff == 0) {
+            return null;
+        }
+
+        return yDiff / xDiff;
     }
 
     /**
-     * Check if the position is on the perimeter of the circle
+     * Gets all the position between the targets
      *
      * @param from
      * @param to
-     * @param xRadius
-     * @param yRadius
      * @return
      */
-    public static boolean isPositionOnCirclePerimeter(CasePosition from, CasePosition to, float xRadius, float yRadius) {
+    public static List<CasePosition> getPositionsBetweenTwoPosition(CasePosition from, CasePosition to) {
         Assert.assertNotNull(from, to);
+        List<CasePosition> positions = new ArrayList<>();
 
-        //(x−a)^2 + (y−b)^2 = r^2
-        double partOne = Math.pow(to.getX() - from.getX(), 2);
-        double partTwo = Math.pow(to.getY() - from.getY(), 2);
-        double disRadius = Math.pow(getDistanceBetweenPositions(from, xRadius, yRadius), 2);
+        int xFrom = from.getX();
+        int yFrom = from.getY();
+        int xTo = to.getX();
+        int yTo = to.getY();
 
-        return Precision.equals(partOne + partTwo, disRadius, 0.1);
-    }
+        Float slopeFromPosition = getSlopeFromPosition(from, to);
 
-    /**
-     * Get the number of case between two position, must be a straight line, return null if not
-     *
-     * @param from
-     * @param xTo
-     * @param yTo
-     * @return
-     */
-    public static double getDistanceBetweenPositions(CasePosition from, float xTo, float yTo) {
-        Assert.assertNotNull(from);
+        if (slopeFromPosition == null) { //Vertical, y++
+            int lesserY = (yFrom < yTo) ? yFrom : yTo;
+            int greaterY = (yFrom > yTo) ? yFrom : yTo;
 
-        double partOne = Math.pow(from.getX() - xTo, 2);
-        double partTwo = Math.pow(from.getY() - yTo, 2);
-        return Math.sqrt(partOne + partTwo);
+            for (int i = (lesserY + 1); i < greaterY; i++) {
+                CasePosition casePositionByCoor = CasePosition.getCasePositionByCoor(xTo, i);
+                if (casePositionByCoor != null && isPositionInLine(from, to, casePositionByCoor)) {
+                    positions.add(casePositionByCoor);
+                }
+            }
+        } else if (slopeFromPosition == 0) { //Horizontal, x++
+            int lesserX = (xFrom < xTo) ? xFrom : xTo;
+            int greaterX = (xFrom > xTo) ? xFrom : xTo;
+
+            for (int i = (lesserX + 1); i < greaterX; i++) {
+
+                CasePosition casePositionByCoor = CasePosition.getCasePositionByCoor(i, yTo);
+                if (casePositionByCoor != null && isPositionInLine(from, to, casePositionByCoor)) {
+                    positions.add(casePositionByCoor);
+                }
+            }
+        } else { //Diagonal
+            CasePosition leftPosition, rightPosition;
+
+            if (xFrom < xTo) {
+                leftPosition = from;
+                rightPosition = to;
+            } else {
+                rightPosition = from;
+                leftPosition = to;
+            }
+
+            int leftX = leftPosition.getX();
+            int leftY = leftPosition.getY();
+            int rightX = rightPosition.getX();
+
+            for (int i = (leftX + 1); i < rightX; i++) {
+                if (slopeFromPosition < 0) {
+                    leftY--;
+                } else {
+                    leftY++;
+                }
+
+                CasePosition casePositionByCoor = CasePosition.getCasePositionByCoor(i, leftY);
+                if (casePositionByCoor != null && isPositionInLine(from, to, casePositionByCoor)) {
+                    positions.add(casePositionByCoor);
+                }
+            }
+        }
+
+        return positions;
     }
 }
