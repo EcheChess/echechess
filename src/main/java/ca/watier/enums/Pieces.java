@@ -73,7 +73,7 @@ public enum Pieces {
             return null;
         }
 
-        return Side.BLACK.equals(playerSide) ? B_KNIGHT : W_KNIGHT;
+        return Side.BLACK.equals(playerSide) ? B_KING : W_KING;
     }
 
     public char getUnicodeIcon() {
