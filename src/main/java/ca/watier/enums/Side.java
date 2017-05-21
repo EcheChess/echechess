@@ -20,5 +20,9 @@ package ca.watier.enums;
  * Created by yannick on 4/17/2017.
  */
 public enum Side {
-    BLACK, WHITE, OBSERVER
+    BLACK, WHITE, OBSERVER;
+
+    public static Side getOtherPlayerSide(Side currentPlayerSide) {
+        return Side.BLACK.equals(currentPlayerSide) ? Side.WHITE : Side.BLACK;
+    }
 }

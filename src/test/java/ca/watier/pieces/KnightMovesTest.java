@@ -16,13 +16,12 @@
 
 package ca.watier.pieces;
 
+import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
-import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
-import ca.watier.testUtils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +32,8 @@ import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.W_KNIGHT;
-import static ca.watier.enums.SpecialGameRules.*;
+import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
+import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static junit.framework.TestCase.fail;
 
 /**
@@ -51,17 +51,15 @@ public class KnightMovesTest {
 
         Map<CasePosition, Pieces> pieces = new HashMap<>();
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
-        gameHandler.setPieceLocation(pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-
             // Not allowed moves
             for (CasePosition position : CasePosition.values()) {
                 pieces.clear();
                 pieces.put(E4, W_KNIGHT);
+                gameHandler.setPieces(pieces);
 
                 if (!allowedMoves.contains(position) && !position.equals(E4)) {
                     Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));
@@ -72,6 +70,7 @@ public class KnightMovesTest {
             for (CasePosition position : allowedMoves) {
                 pieces.clear();
                 pieces.put(E4, W_KNIGHT);
+                gameHandler.setPieces(pieces);
 
                 Assert.assertTrue(gameHandler.movePiece(E4, position, WHITE));
             }

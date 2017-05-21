@@ -41,9 +41,9 @@ public class GenericGameHandler {
     protected String uuid;
     protected boolean allowOtherToJoin = false;
     protected boolean allowObservers = false;
-    private Side currentAllowedMoveSide = WHITE;
-    private Player playerWhite, playerBlack;
-    private List<Player> observerList;
+    protected Side currentAllowedMoveSide = WHITE;
+    protected Player playerWhite, playerBlack;
+    protected List<Player> observerList;
 
 
     public GenericGameHandler(ConstraintService constraintService) {
@@ -58,9 +58,10 @@ public class GenericGameHandler {
      *
      * @param from
      * @param playerSide
+     * @param ignoreOtherPieces - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    public List<CasePosition> getAllAvailableMoves(CasePosition from, Side playerSide) {
+    public List<CasePosition> getAllAvailableMoves(CasePosition from, Side playerSide, boolean ignoreOtherPieces) {
         List<CasePosition> positions = new ArrayList<>();
 
         Pieces pieces = CURRENT_PIECES_LOCATION.get(from);
@@ -70,7 +71,9 @@ public class GenericGameHandler {
         }
 
         for (CasePosition position : CasePosition.values()) {
-            if (!from.equals(position) && isPieceMovableTo(from, position, playerSide)) {
+            if (!from.equals(position) && ignoreOtherPieces ?
+                    isPieceMovableToWithIgnoreOtherPieces(from, position, playerSide) :
+                    isPieceMovableTo(from, position, playerSide)) {
                 positions.add(position);
             }
         }
@@ -78,8 +81,12 @@ public class GenericGameHandler {
         return positions;
     }
 
+    public final boolean isPieceMovableToWithIgnoreOtherPieces(CasePosition from, CasePosition to, Side playerSide) {
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION, true);
+    }
+
     public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION);
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION, false);
     }
 
     public Map<CasePosition, Pieces> getPiecesLocation() {
@@ -142,8 +149,8 @@ public class GenericGameHandler {
     }
 
     protected void assertGameNotWon() throws GameEndedException {
-        if (KingStatus.CHECKMATE.equals(getKingStatus(getPosition(Pieces.W_KING), WHITE)) ||
-                KingStatus.CHECKMATE.equals(getKingStatus(getPosition(Pieces.B_KING), BLACK))) {
+        if (KingStatus.CHECKMATE.equals(getKingStatus(GameUtils.getPosition(Pieces.W_KING, CURRENT_PIECES_LOCATION), WHITE)) ||
+                KingStatus.CHECKMATE.equals(getKingStatus(GameUtils.getPosition(Pieces.B_KING, CURRENT_PIECES_LOCATION), BLACK))) {
             throw new GameEndedException("The game is ended !");
         }
     }
@@ -183,30 +190,6 @@ public class GenericGameHandler {
     }
 
     /**
-     * Gets the position of a piece
-     *
-     * @param pieces
-     * @return
-     */
-    public final CasePosition getPosition(Pieces pieces) {
-        Assert.assertNotNull(pieces);
-        CasePosition position = null;
-
-        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : CURRENT_PIECES_LOCATION.entrySet()) {
-            if (pieces.equals(casePositionPiecesEntry.getValue())) {
-                position = casePositionPiecesEntry.getKey();
-                break;
-            }
-        }
-
-        return position;
-    }
-
-    protected Side getOtherPlayerSide(Side currentPlayerSide) {
-        return Side.BLACK.equals(currentPlayerSide) ? Side.WHITE : Side.BLACK;
-    }
-
-    /**
      * Get the side of the player, null if not available
      *
      * @param player
@@ -237,10 +220,10 @@ public class GenericGameHandler {
 
         switch (playerSide) {
             case WHITE:
-                position = getPosition(Pieces.W_KING);
+                position = GameUtils.getPosition(Pieces.W_KING, CURRENT_PIECES_LOCATION);
                 break;
             case BLACK:
-                position = getPosition(Pieces.B_KING);
+                position = GameUtils.getPosition(Pieces.B_KING, CURRENT_PIECES_LOCATION);
                 break;
         }
 
@@ -294,7 +277,7 @@ public class GenericGameHandler {
                     continue;
                 }
 
-                if (CONSTRAINT_SERVICE.isPieceCanAttackTo(key, position, pieceSide, CURRENT_PIECES_LOCATION)) {
+                if (CONSTRAINT_SERVICE.isPieceMovableTo(key, position, pieceSide, CURRENT_PIECES_LOCATION, true)) {
                     values.put(position, new Pair<>(key, value));
                 }
             }
@@ -363,21 +346,6 @@ public class GenericGameHandler {
     public void addSpecialRule(SpecialGameRules... rules) {
         Assert.assertNotEmpty(rules);
         SPECIAL_GAME_RULES.addAll(Arrays.asList(rules));
-    }
-
-    /**
-     * Set the pieces location, need the rule SpecialGameRules.CAN_SET_PIECES
-     *
-     * @param pieces
-     */
-    public void setPieceLocation(Map<CasePosition, Pieces> pieces) {
-        Assert.assertNotNull(pieces);
-
-        if (!isGameHaveRule(SpecialGameRules.CAN_SET_PIECES)) {
-            return;
-        }
-
-        this.CURRENT_PIECES_LOCATION = pieces;
     }
 
     public List<Player> getObserverList() {

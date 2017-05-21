@@ -19,10 +19,7 @@ package ca.watier.game;
 import ca.watier.enums.*;
 import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
-import ca.watier.utils.Assert;
-import ca.watier.utils.MathUtils;
-import ca.watier.utils.MultiArrayMap;
-import ca.watier.utils.Pair;
+import ca.watier.utils.*;
 
 import java.util.List;
 import java.util.Map;
@@ -42,27 +39,24 @@ public class StandardGameHandler extends GenericGameHandler {
     public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
         Assert.assertNotNull(from, to);
 
+        Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
+        Assert.assertNotNull(piecesFrom);
+
         if (!isPieceMovableTo(from, to, playerSide)) {
             return false;
         }
 
-        Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
-        Assert.assertNotNull(piecesFrom);
-
         boolean isMoved = false;
-        Side sideFrom = piecesFrom.getSide();
 
-        boolean isPlayerTurn = isPlayerTurn(sideFrom);
+        boolean isPlayerTurn = isPlayerTurn(playerSide);
         if (isPlayerTurn) {
-            CURRENT_PIECES_LOCATION.remove(from);
-            CURRENT_PIECES_LOCATION.put(to, piecesFrom);
+            movePieceTo(from, to, piecesFrom);
             isMoved = true;
         }
 
-        KingStatus kingStatusAfterMove = getKingStatus(getPosition(Pieces.getKingOfCurrentSide(playerSide)), playerSide);
+        KingStatus kingStatusAfterMove = getKingStatus(GameUtils.getPosition(Pieces.getKingBySide(playerSide), CURRENT_PIECES_LOCATION), playerSide);
         if (KingStatus.isCheckOrCheckMate(kingStatusAfterMove)) { //Cannot move, revert
-            CURRENT_PIECES_LOCATION.remove(to);
-            CURRENT_PIECES_LOCATION.put(from, piecesFrom);
+            movePieceTo(to, from, piecesFrom);
             isMoved = false;
         } else if (isPlayerTurn) {
             changeAllowedMoveSide();
@@ -90,7 +84,7 @@ public class StandardGameHandler extends GenericGameHandler {
         }
 
         Assert.assertNotNull(kingPosition, playerSide);
-        MultiArrayMap<CasePosition, Pair<CasePosition, Pieces>> piecesThatCanHitOriginalPosition = getPiecesThatCanHitPosition(getOtherPlayerSide(playerSide), kingPosition);
+        MultiArrayMap<CasePosition, Pair<CasePosition, Pieces>> piecesThatCanHitOriginalPosition = getPiecesThatCanHitPosition(Side.getOtherPlayerSide(playerSide), kingPosition);
 
         boolean isCheckmate = !piecesThatCanHitOriginalPosition.isEmpty();
         if (isCheckmate) {
@@ -110,7 +104,7 @@ public class StandardGameHandler extends GenericGameHandler {
                 CasePosition positionFrom = enemyPiecesPair.getFirstValue();
 
                 for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : getPiecesLocation(playerSide).entrySet()) {
-                    if (!Pieces.isKing(casePositionPiecesEntry.getValue()) && CONSTRAINT_SERVICE.isPieceMovableTo(casePositionPiecesEntry.getKey(), positionFrom, playerSide, CURRENT_PIECES_LOCATION)) {
+                    if (!Pieces.isKing(casePositionPiecesEntry.getValue()) && isPieceMovableTo(casePositionPiecesEntry.getKey(), positionFrom, playerSide)) {
                         return CHECK; //One or more piece is able to kill the enemy
                     }
                 }
@@ -133,7 +127,7 @@ public class StandardGameHandler extends GenericGameHandler {
                     }
 
                     for (CasePosition casePosition : MathUtils.getPositionsBetweenTwoPosition(position, enemyPosition)) {
-                        if (CONSTRAINT_SERVICE.isPieceMovableTo(position, casePosition, playerSide, CURRENT_PIECES_LOCATION)) {
+                        if (isPieceMovableTo(position, casePosition, playerSide)) {
                             return CHECK;
                         }
                     }
@@ -144,6 +138,18 @@ public class StandardGameHandler extends GenericGameHandler {
         return kingStatus;
     }
 
+    /**
+     * Change a piece position
+     *
+     * @param from
+     * @param to
+     * @param piece
+     */
+    private void movePieceTo(CasePosition from, CasePosition to, Pieces piece) {
+        CURRENT_PIECES_LOCATION.remove(from);
+        CURRENT_PIECES_LOCATION.put(to, piece);
+    }
+
     private boolean isKingCheckAtPosition(CasePosition currentPosition, Side playerSide) {
         if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
             return false;
@@ -151,6 +157,6 @@ public class StandardGameHandler extends GenericGameHandler {
 
         Assert.assertNotNull(currentPosition, playerSide);
 
-        return !getPiecesThatCanHitPosition(getOtherPlayerSide(playerSide), currentPosition).isEmpty();
+        return !getPiecesThatCanHitPosition(Side.getOtherPlayerSide(playerSide), currentPosition).isEmpty();
     }
 }

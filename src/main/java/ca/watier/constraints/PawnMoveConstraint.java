@@ -33,16 +33,7 @@ import java.util.Map;
 public class PawnMoveConstraint implements MoveConstraint {
 
     @Override
-    public boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        return isMoveValid(from, to, side, positionPiecesMap, true);
-    }
-
-    @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        return isMoveValid(from, to, side, positionPiecesMap, false);
-    }
-
-    private boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean skipHittingValidation) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
         Assert.assertNotNull(from, to, side);
 
         Direction direction = Direction.NORTH,
@@ -77,7 +68,7 @@ public class PawnMoveConstraint implements MoveConstraint {
         }
 
         boolean checkHit = true;
-        if (!skipHittingValidation) {
+        if (!ignoreOtherPieces) {
             checkHit = hittingPiece != null && !hittingPiece.getSide().equals(side) && !Pieces.isKing(hittingPiece);
         }
 

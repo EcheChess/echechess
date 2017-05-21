@@ -16,13 +16,12 @@
 
 package ca.watier.pieces;
 
+import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
-import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
-import ca.watier.testUtils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +32,6 @@ import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.*;
-import static ca.watier.enums.SpecialGameRules.CAN_SET_PIECES;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static junit.framework.TestCase.fail;
@@ -64,13 +62,10 @@ public class QueenMovesTest {
         pieces.put(F3, W_PAWN);
 
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
-        gameHandler.setPieceLocation(pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-
             //Cannot move (blocked in all ways)
             Assert.assertFalse(gameHandler.movePiece(E4, E2, WHITE));
             Assert.assertFalse(gameHandler.movePiece(E4, E6, WHITE));

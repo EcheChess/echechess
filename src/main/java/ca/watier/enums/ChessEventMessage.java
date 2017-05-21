@@ -20,5 +20,5 @@ package ca.watier.enums;
  * Created by yannick on 5/1/2017.
  */
 public enum ChessEventMessage {
-    MOVE, PLAYER_TURN
+    MOVE, PLAYER_TURN, PLAYER_JOINED, GAME_WON, GAME_WON_EVENT_MOVE
 }

@@ -20,11 +20,11 @@ package ca.watier;
  * Created by yannick on 5/8/2017.
  */
 
+import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.*;
 import ca.watier.exceptions.GameException;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
-import ca.watier.testUtils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,8 +50,6 @@ public class SpecialGameRulesTest {
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
 
         try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-
             assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
             //No rules
@@ -74,35 +72,7 @@ public class SpecialGameRulesTest {
 
 
     @Test
-    public void canSetPiecesTest() {
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        Map<CasePosition, Pieces> emptyMap = new HashMap<>();
-
-        try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
-
-            //No rule
-            assertThat(gameHandler.getPiecesLocation()).isNotEmpty();
-            gameHandler.setPieceLocation(emptyMap); //Is not set, because we need the CAN_SET_PIECES
-            assertThat(gameHandler.getPiecesLocation()).isNotEmpty();
-
-            //With the rule
-            gameHandler.addSpecialRule(SpecialGameRules.CAN_SET_PIECES);
-            gameHandler.setPieceLocation(emptyMap);
-            assertThat(gameHandler.getPiecesLocation()).isEmpty();
-
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
-    }
-
-
-    @Test
     public void noCheckOrCheckmateTest() {
-        SpecialGameRules canSetPieces = SpecialGameRules.CAN_SET_PIECES;
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
         Map<CasePosition, Pieces> pieces = new HashMap<>();
         pieces.put(A8, B_KING);
         pieces.put(E1, W_KING);
@@ -110,26 +80,17 @@ public class SpecialGameRulesTest {
         pieces.put(D3, B_QUEEN);
         pieces.put(F3, B_QUEEN);
 
-        try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
 
-            gameHandler.addSpecialRule(canSetPieces);
-            assertThat(gameHandler.getSpecialGameRules()).containsOnly(canSetPieces); //Make sure there's only one rule applied at the beginning of this test (CAN_SET_PIECES)
-            gameHandler.setPieceLocation(pieces);
+        assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
-            //No rule
-            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
+        //No rule
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
 
-            //With the rule
-            gameHandler.addSpecialRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE);
+        //With the rule
+        gameHandler.addSpecialRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE);
 
-            Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
-
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
     }
 
 }

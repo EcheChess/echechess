@@ -30,23 +30,15 @@ import java.util.Map;
  */
 public class KingMoveConstraint implements MoveConstraint {
 
-    @Override
-    public boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        return isMoveValid(from, to, side, positionPiecesMap, true);
-    }
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        return isMoveValid(from, to, side, positionPiecesMap, false);
-    }
-
-    private boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean skipHittingValidation) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
         Assert.assertNotNull(from, to, side);
 
         Pieces hittingPiece = positionPiecesMap.get(to);
 
         boolean checkHit = true;
-        if (!skipHittingValidation) {
+        if (!ignoreOtherPieces) {
             checkHit = hittingPiece == null || !side.equals(hittingPiece.getSide());
         }
 

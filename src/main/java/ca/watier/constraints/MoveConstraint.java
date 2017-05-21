@@ -20,6 +20,7 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,16 +28,12 @@ import java.util.Map;
  */
 public interface MoveConstraint {
     /**
-     * Check if the pieces can attack to the selected position, used to check to attack capability of the pieces <br>
-     * <b>Warning</b>: This method doesn't validate if there's another pieces at the specified location
-     *
      * @param from
      * @param to
      * @param side
      * @param positionPiecesMap
+     * @param ignoreOtherPieces - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap);
-
-    boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap);
+    boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces);
 }

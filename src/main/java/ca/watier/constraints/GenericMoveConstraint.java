@@ -37,16 +37,7 @@ public class GenericMoveConstraint implements MoveConstraint {
     }
 
     @Override
-    public boolean canAttackTo(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        return isMoveValid(from, to, side, positionPiecesMap, true);
-    }
-
-    @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap) {
-        return isMoveValid(from, to, side, positionPiecesMap, false);
-    }
-
-    private boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean skipHittingValidation) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
         if (pattern == null) {
             return false;
         }
@@ -68,11 +59,24 @@ public class GenericMoveConstraint implements MoveConstraint {
             return false;
         }
 
-        boolean isMoveValid = !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap) &&
-                MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
+        boolean isMoveValid = MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
 
-        if (pieces != null && !skipHittingValidation) {
-            isMoveValid &= !side.equals(pieces.getSide()) && !Pieces.isKing(pieces);
+
+        if (!ignoreOtherPieces) { //Moves
+            isMoveValid &= !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap);
+
+            if (pieces != null) {
+                isMoveValid &= !side.equals(pieces.getSide()) && !Pieces.isKing(pieces);
+            }
+        } else { //Attack
+
+            /*
+                1) If a king between position, return true
+                2) If other piece between position, return false
+             */
+
+            List<CasePosition> piecesBetweenPosition = GameUtils.getPiecesBetweenPosition(from, to, positionPiecesMap);
+            isMoveValid &= piecesBetweenPosition.isEmpty() || piecesBetweenPosition.contains(GameUtils.getPosition(Pieces.getKingBySide(Side.getOtherPlayerSide(side)), positionPiecesMap));
         }
 
         return isMoveValid;

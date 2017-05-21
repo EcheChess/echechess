@@ -60,18 +60,37 @@ function connect(uuid) {
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
         stompClient.subscribe('/topic/' + uuid, function (greeting) {
-            var message = JSON.parse(greeting.body).event;
+            var parsed = JSON.parse(greeting.body);
+            var chessEvent = parsed.event;
+            var message = parsed.message;
 
-            switch (message) {
+            switch (chessEvent) {
                 case 'MOVE':
                     renderBoard();
+                    writeToGameLog(message);
+                    break;
+                case 'PLAYER_TURN':
+                    writeToGameLog(message);
+                    break;
+                case 'PLAYER_JOINED':
+                    writeToGameLog(message);
+                    break;
+                case 'GAME_WON':
+                    writeToGameLog(message);
+                    break;
+                case 'GAME_WON_EVENT_MOVE':
+                    alert(message);
                     break;
             }
-
         });
     });
 
     return stompClient;
+}
+
+
+function writeToGameLog(message) {
+    $('#chessLog').append("<option>" + message + "</option>");
 }
 
 

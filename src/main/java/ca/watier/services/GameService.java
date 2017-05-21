@@ -22,7 +22,6 @@ import ca.watier.exceptions.GameException;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
-import ca.watier.utils.GameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -72,24 +71,14 @@ public class GameService {
      * @param player
      * @return
      */
-    public boolean movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
+    public boolean movePiece(CasePosition from, CasePosition to, String uuid, Player player) throws GameException {
         Assert.assertNotNull(from, to);
         Assert.assertNotEmpty(uuid);
 
         StandardGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
-        Side playerSide = gameFromUuid.getPlayerSide(player);
-
-        boolean isMovable = false;
-
-        try {
-            isMovable = gameFromUuid.movePiece(from, to, playerSide);
-        } catch (GameException e) {
-            e.printStackTrace();
-        }
-
-        return isMovable;
+        return gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
     }
 
     /**
@@ -103,6 +92,21 @@ public class GameService {
         UUID key = UUID.fromString(uuid);
 
         return GAMES_HANDLER_MAP.get(key);
+    }
+
+
+    /**
+     * Get the side of the player for the associated game
+     *
+     * @param uuid
+     * @return
+     */
+    public Side getPlayerSide(String uuid, Player player) {
+        Assert.assertNotEmpty(uuid);
+
+        StandardGameHandler standardGameHandler = GAMES_HANDLER_MAP.get(UUID.fromString(uuid));
+        Assert.assertNotNull(standardGameHandler);
+        return standardGameHandler.getPlayerSide(player);
     }
 
     /**
@@ -123,7 +127,7 @@ public class GameService {
 
         List<String> values = new ArrayList<>();
 
-        for (CasePosition casePosition : gameFromUuid.getAllAvailableMoves(from, playerSide)) {
+        for (CasePosition casePosition : gameFromUuid.getAllAvailableMoves(from, playerSide, false)) {
             values.add(casePosition.name());
         }
 

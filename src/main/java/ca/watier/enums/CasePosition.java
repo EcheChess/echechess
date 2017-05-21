@@ -60,5 +60,4 @@ public enum CasePosition {
     public int getY() {
         return y;
     }
-
 }

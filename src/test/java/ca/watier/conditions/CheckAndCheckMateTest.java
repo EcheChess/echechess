@@ -16,14 +16,13 @@
 
 package ca.watier.conditions;
 
+import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
-import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
-import ca.watier.testUtils.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +31,6 @@ import java.util.*;
 import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.Side.BLACK;
-import static ca.watier.enums.SpecialGameRules.CAN_SET_PIECES;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static junit.framework.TestCase.fail;
 
@@ -53,28 +51,20 @@ public class CheckAndCheckMateTest {
         pieces.put(D3, B_ROOK);
         pieces.put(F3, B_ROOK);
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
-        try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            gameHandler.setPieceLocation(pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(H8, BLACK));
 
-            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
-            Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(H8, BLACK));
+        //Move the E4, no more check mate
+        pieces.remove(E4);
+        pieces.put(D4, B_ROOK);
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
+        pieces.put(A1, B_ROOK);
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E1, WHITE)); //Can move to E2
+        pieces.put(A2, B_ROOK);
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
 
-            //Move the E4, no more check mate
-            pieces.remove(E4);
-            pieces.put(D4, B_ROOK);
-            Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
-            pieces.put(A1, B_ROOK);
-            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E1, WHITE)); //Can move to E2
-            pieces.put(A2, B_ROOK);
-            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
-
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
     }
 
 
@@ -88,12 +78,9 @@ public class CheckAndCheckMateTest {
 
         Map<CasePosition, Pieces> pieces = new HashMap<>();
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
         try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            gameHandler.setPieceLocation(pieces);
-
             for (CasePosition position : allPosition) {
                 pieces.clear();
                 pieces.put(H8, B_KING);
@@ -106,6 +93,7 @@ public class CheckAndCheckMateTest {
                 pieces.put(F5, B_PAWN);
                 pieces.put(D3, B_PAWN);
                 pieces.put(F3, B_PAWN);
+                gameHandler.setPieces(pieces);
 
                 if (position.equals(D3) || position.equals(D5) || position.equals(E5) || position.equals(F3) || position.equals(F5)) {
                     Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(position, WHITE));
@@ -142,17 +130,9 @@ public class CheckAndCheckMateTest {
         pieces.put(D3, B_PAWN);
         pieces.put(F3, B_PAWN);
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
-        try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            gameHandler.setPieceLocation(pieces);
-
-            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
     }
 
 
@@ -175,16 +155,9 @@ public class CheckAndCheckMateTest {
         pieces.put(D3, B_PAWN);
         pieces.put(F3, B_PAWN);
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
-        try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            gameHandler.setPieceLocation(pieces);
-            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
     }
 
 
@@ -208,16 +181,69 @@ public class CheckAndCheckMateTest {
         pieces.put(D3, B_PAWN);
         pieces.put(F3, B_PAWN);
 
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
-        gameHandler.addSpecialRule(CAN_SET_PIECES, NO_PLAYER_TURN);
-        try {
-            Utils.addBothPlayerToGameAndSetUUID(gameHandler);
-            gameHandler.setPieceLocation(pieces);
-            Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E4, WHITE));
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E4, WHITE));
+    }
+
+    /**
+     * In this test, the king is checkmate <br>
+     * The king is blocked by it's own pawn, and a rook can hit the king <br>
+     * This test make sure that the king is not blocking their field of view
+     */
+    @Test
+    public void checkmateFromLongRange_horizontal_Test() {
+        Map<CasePosition, Pieces> piecesContext = new HashMap<>();
+        piecesContext.put(H8, B_KING);
+        piecesContext.put(E1, W_KING);
+        piecesContext.put(H1, B_ROOK);
+
+        //Block the king
+        piecesContext.put(A2, W_PAWN);
+        piecesContext.put(B2, W_PAWN);
+        piecesContext.put(C2, W_PAWN);
+        piecesContext.put(D2, W_PAWN);
+        piecesContext.put(E2, W_PAWN);
+        piecesContext.put(F2, W_PAWN);
+        piecesContext.put(G2, W_PAWN);
+        piecesContext.put(H2, W_PAWN);
+
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, piecesContext);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(E1, WHITE));
+
+        piecesContext.remove(H1);
+        piecesContext.put(A1, B_ROOK);
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(E1, WHITE));
+    }
+
+
+    /**
+     * In this test, the king is checkmate <br>
+     * The king is blocked by it's own pawn, and a rook can hit the king <br>
+     * This test make sure that the king is not blocking their field of view
+     */
+    @Test
+    public void checkmateFromLongRange_vertical_Test() {
+        Map<CasePosition, Pieces> piecesContext = new HashMap<>();
+        piecesContext.put(H8, B_KING);
+        piecesContext.put(A4, W_KING);
+        piecesContext.put(A8, B_ROOK);
+
+        //Block the king
+        piecesContext.put(B3, W_PAWN);
+        piecesContext.put(B4, W_PAWN);
+        piecesContext.put(B5, W_PAWN);
+
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, piecesContext);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(A4, WHITE));
+
+        piecesContext.remove(A8);
+        piecesContext.put(A1, B_ROOK);
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(A4, WHITE));
     }
 
 }

@@ -20,7 +20,9 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -90,7 +92,7 @@ public class GameUtils extends BaseUtils {
     }
 
     /**
-     * Check if there's another piece between two pieces
+     * Check if there's one or more piece between two pieces
      *
      * @param from
      * @param to
@@ -100,7 +102,21 @@ public class GameUtils extends BaseUtils {
     public static boolean isOtherPiecesBetweenTarget(CasePosition from, CasePosition to, Map<CasePosition, Pieces> pieces) {
         Assert.assertNotNull(from, to, pieces);
 
-        boolean value = false;
+        return !getPiecesBetweenPosition(from, to, pieces).isEmpty();
+    }
+
+    /**
+     * Gets all {@link CasePosition} that have a piece between two positions
+     *
+     * @param from
+     * @param to
+     * @param pieces
+     * @return
+     */
+    public static List<CasePosition> getPiecesBetweenPosition(CasePosition from, CasePosition to, Map<CasePosition, Pieces> pieces) {
+        Assert.assertNotNull(from, to, pieces);
+
+        List<CasePosition> positions = new ArrayList<>();
 
         int distanceFromDestination = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to));
         Direction directionToDestination = MathUtils.getDirectionFromPosition(from, to);
@@ -115,13 +131,32 @@ public class GameUtils extends BaseUtils {
                 Direction directionToOther = MathUtils.getDirectionFromPosition(from, key);
 
                 if (MathUtils.isPositionInLine(from, to, key) && distanceFromDestination > distanceToOther && directionToOther == directionToDestination) {
-                    value = true;
-                    break;
+                    positions.add(key);
                 }
             }
         }
 
+        return positions;
+    }
 
-        return value;
+    /**
+     * Gets the position of a piece
+     *
+     * @param pieces
+     * @param positionPiecesMap
+     * @return
+     */
+    public static CasePosition getPosition(Pieces pieces, Map<CasePosition, Pieces> positionPiecesMap) {
+        Assert.assertNotNull(pieces);
+        CasePosition position = null;
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : positionPiecesMap.entrySet()) {
+            if (pieces.equals(casePositionPiecesEntry.getValue())) {
+                position = casePositionPiecesEntry.getKey();
+                break;
+            }
+        }
+
+        return position;
     }
 }

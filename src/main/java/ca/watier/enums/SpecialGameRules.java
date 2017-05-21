@@ -24,5 +24,5 @@ package ca.watier.enums;
  * These rules are only indented to allow easier junit testing
  */
 public enum SpecialGameRules {
-    NO_PLAYER_TURN, CAN_SET_PIECES, NO_CHECK_OR_CHECKMATE
+    NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE
 }

@@ -23,15 +23,18 @@ import ca.watier.enums.ChessEventMessage;
  */
 public class ChessEvent {
     private ChessEventMessage event;
+    private String message;
 
-    public ChessEvent() {
-    }
-
-    public ChessEvent(ChessEventMessage event) {
+    public ChessEvent(ChessEventMessage event, String message) {
         this.event = event;
+        this.message = message;
     }
 
     public ChessEventMessage getEvent() {
         return event;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

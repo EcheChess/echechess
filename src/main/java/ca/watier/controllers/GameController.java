@@ -99,17 +99,23 @@ public class GameController {
     public BooleanResponse movePieceOfPlayer(CasePosition from, CasePosition to, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        boolean isMoved = gameService.movePiece(from, to, uuid, player);
+        boolean isMoved = false;
+
+        try {
+            isMoved = gameService.movePiece(from, to, uuid, player);
+        } catch (GameException e) {
+            fireChessEvent(uuid, ChessEventMessage.GAME_WON_EVENT_MOVE, "Cannot moves, the game is ended !");
+        }
 
         if (isMoved) {
-            fireChessEvent(uuid, ChessEventMessage.MOVE);
+            fireChessEvent(uuid, ChessEventMessage.MOVE, String.format("%s player moved %s to %s", gameService.getPlayerSide(uuid, player), from, to));
         }
 
         return new BooleanResponse(isMoved, "");
     }
 
-    private void fireChessEvent(String uuid, ChessEventMessage message) {
-        template.convertAndSend("/topic/" + uuid, new ChessEvent(message));
+    private void fireChessEvent(String uuid, ChessEventMessage evtMessage, String message) {
+        template.convertAndSend("/topic/" + uuid, new ChessEvent(evtMessage, message));
     }
 
     /**
@@ -188,6 +194,10 @@ public class GameController {
                 joined = false;
                 e.printStackTrace();
             }
+        }
+
+        if (joined) {
+            fireChessEvent(uuid, ChessEventMessage.PLAYER_JOINED, String.format("New player joined the %s side", side));
         }
 
         return new BooleanResponse(joined, "");

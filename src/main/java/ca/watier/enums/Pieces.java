@@ -66,7 +66,7 @@ public enum Pieces {
         return W_KNIGHT.equals(piece) || B_KNIGHT.equals(piece);
     }
 
-    public static Pieces getKingOfCurrentSide(Side playerSide) {
+    public static Pieces getKingBySide(Side playerSide) {
         Assert.assertNotNull(playerSide);
 
         if (Side.OBSERVER.equals(playerSide)) {
