@@ -27,6 +27,8 @@ import ca.watier.responses.ChessEvent;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.services.GameService;
 import ca.watier.sessions.Player;
+import ca.watier.utils.Assert;
+import ca.watier.utils.Pair;
 import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -76,6 +78,7 @@ public class GameController {
                 newGame.setPlayerToSide(SessionUtils.getPlayer(session), side);
             } catch (GameException e) {
                 e.printStackTrace();
+                fireGlobalChessEvent(newGame.getUuid(), ChessEventMessage.GAME_WON, "One of the king is checkmate !");
                 return null;
             }
             newGame.setAllowOtherToJoin(!againstComputer);
@@ -83,6 +86,10 @@ public class GameController {
         }
 
         return newGame;
+    }
+
+    private void fireGlobalChessEvent(String uuid, ChessEventMessage evtMessage, String message) {
+        template.convertAndSend("/topic/" + uuid, new ChessEvent(evtMessage, message));
     }
 
     /**
@@ -97,24 +104,29 @@ public class GameController {
     @RequestMapping(path = "/move", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public BooleanResponse movePieceOfPlayer(CasePosition from, CasePosition to, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
+        boolean isMoved;
 
-        boolean isMoved = false;
-
-        try {
-            isMoved = gameService.movePiece(from, to, uuid, player);
-        } catch (GameException e) {
-            fireChessEvent(uuid, ChessEventMessage.GAME_WON_EVENT_MOVE, "Cannot moves, the game is ended !");
-        }
+        Pair<Boolean, Boolean> pair = gameService.movePiece(from, to, uuid, player);
+        isMoved = pair.getFirstValue();
 
         if (isMoved) {
-            fireChessEvent(uuid, ChessEventMessage.MOVE, String.format("%s player moved %s to %s", gameService.getPlayerSide(uuid, player), from, to));
+            fireGlobalChessEvent(uuid, ChessEventMessage.MOVE, String.format("%s player moved %s to %s", gameService.getPlayerSide(uuid, player), from, to));
+            fireSideChessEvent(uuid, Side.getOtherPlayerSide(gameService.getPlayerSide(uuid, player)), ChessEventMessage.PLAYER_TURN, "It's your turn !");
+        }
+
+        if (pair.getSecondValue()) {
+            fireGlobalChessEvent(uuid, ChessEventMessage.GAME_WON_EVENT_MOVE, "The game is ended !");
         }
 
         return new BooleanResponse(isMoved, "");
     }
 
-    private void fireChessEvent(String uuid, ChessEventMessage evtMessage, String message) {
-        template.convertAndSend("/topic/" + uuid, new ChessEvent(evtMessage, message));
+    private void fireSideChessEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
+        Assert.assertNotNull(side, evtMessage);
+        Assert.assertNotEmpty(uuid);
+        Assert.assertNotEmpty(message);
+
+        template.convertAndSend("/topic/" + uuid + '/' + side, new ChessEvent(evtMessage, message));
     }
 
     /**
@@ -196,7 +208,7 @@ public class GameController {
         }
 
         if (joined) {
-            fireChessEvent(uuid, ChessEventMessage.PLAYER_JOINED, String.format("New player joined the %s side", side));
+            fireGlobalChessEvent(uuid, ChessEventMessage.PLAYER_JOINED, String.format("New player joined the %s side", side));
         }
 
         return new BooleanResponse(joined, "");

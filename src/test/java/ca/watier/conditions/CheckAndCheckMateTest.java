@@ -21,7 +21,6 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -80,34 +79,29 @@ public class CheckAndCheckMateTest {
 
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        try {
-            for (CasePosition position : allPosition) {
-                pieces.clear();
-                pieces.put(H8, B_KING);
-                pieces.put(E4, W_KING);
-                pieces.put(E3, B_PAWN);
-                pieces.put(E5, B_PAWN);
-                pieces.put(D4, B_PAWN);
-                pieces.put(F4, B_PAWN);
-                pieces.put(D5, B_PAWN);
-                pieces.put(F5, B_PAWN);
-                pieces.put(D3, B_PAWN);
-                pieces.put(F3, B_PAWN);
-                gameHandler.setPieces(pieces);
+        for (CasePosition position : allPosition) {
+            pieces.clear();
+            pieces.put(H8, B_KING);
+            pieces.put(E4, W_KING);
+            pieces.put(E3, B_PAWN);
+            pieces.put(E5, B_PAWN);
+            pieces.put(D4, B_PAWN);
+            pieces.put(F4, B_PAWN);
+            pieces.put(D5, B_PAWN);
+            pieces.put(F5, B_PAWN);
+            pieces.put(D3, B_PAWN);
+            pieces.put(F3, B_PAWN);
+            gameHandler.setPieces(pieces);
 
-                if (position.equals(D3) || position.equals(D5) || position.equals(E5) || position.equals(F3) || position.equals(F5)) {
-                    Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(position, WHITE));
-                } else {
-                    Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
-                    Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));  //Cannot move, will be check again (Need an exception to be valid)
-                }
+            if (position.equals(D3) || position.equals(D5) || position.equals(E5) || position.equals(F3) || position.equals(F5)) {
+                Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(position, WHITE));
+            } else {
+                Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
+                Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));  //Cannot move, will be check again (Need an exception to be valid)
             }
-
-            Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
         }
+
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
     }
 
 

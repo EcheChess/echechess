@@ -25,12 +25,15 @@
     <link rel="stylesheet" type="text/css" href="style/game.css">
     <link rel="stylesheet" type="text/css" href="style/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="style/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="style/alertify.min.css">
+    <link rel="stylesheet" type="text/css" href="style/themes/default_alertifyjs.min.css">
 
     <script src="scripts/jquery-3.2.1.min.js"></script>
     <script src="scripts/jquery-ui.min.js"></script>
     <script src="scripts/semantic.min.js"></script>
     <script src="scripts/sockjs.min.js"></script>
     <script src="scripts/stomp.min.js"></script>
+    <script src="scripts/alertify.min.js"></script>
     <script src="scripts/game.js"></script>
 </head>
 <body>
@@ -60,7 +63,6 @@
             <table id="board" class="ui bottom attached active tab segment" data-tab="tabBoard"></table>
             <select id="chessLog" size="15" class="ui bottom attached tab segment" data-tab="tabLog">
             </select>
-            <span id="uuid"></span>
         </div>
         <div class="ui segment" id="gameOptionsSegment">
             <div class="ui segment">
@@ -101,17 +103,17 @@
             <div class="ui horizontal divider">
                 OR
             </div>
-            <div class="ui center aligned segment">
-                <div class="ui labeled action input" id="joinGameGroup">
-                    <div class="ui label">
-                        Join a game
-                    </div>
-                    <input placeholder="Game ID" type="text" name="gameIdJoinGame" id="joinGame">
-                    <button class="ui button" id="joinGameButton">OK</button>
+            Game ID: <span id="uuid">NONE</span><br>
+            <div class="ui labeled action input" id="joinGameGroup">
+                <div class="ui label">
+                    Join a game
                 </div>
+                <input placeholder="Game ID" type="text" name="gameIdJoinGame" id="joinGame">
+                <button class="ui button" id="joinGameButton">OK</button>
             </div>
         </div>
     </div>
+</div>
 </div>
 </body>
 </html>

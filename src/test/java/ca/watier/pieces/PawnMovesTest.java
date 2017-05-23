@@ -20,7 +20,6 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,57 +63,52 @@ public class PawnMovesTest {
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
-        try {
-            //Cannot move (blocked in front)
-            Assert.assertFalse(gameHandler.movePiece(H2, H4, WHITE)); // 2 cases
-            Assert.assertFalse(gameHandler.movePiece(H2, H3, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(H7, H5, BLACK)); // 2 cases
-            Assert.assertFalse(gameHandler.movePiece(H7, H6, BLACK));
+        //Cannot move (blocked in front)
+        Assert.assertFalse(gameHandler.movePiece(H2, H4, WHITE)); // 2 cases
+        Assert.assertFalse(gameHandler.movePiece(H2, H3, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(H7, H5, BLACK)); // 2 cases
+        Assert.assertFalse(gameHandler.movePiece(H7, H6, BLACK));
 
-            //Can move
-            Assert.assertTrue(gameHandler.movePiece(A2, A4, WHITE)); // 2 cases
-            Assert.assertTrue(gameHandler.movePiece(B2, B3, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(A7, A5, BLACK)); // 2 cases
-            Assert.assertTrue(gameHandler.movePiece(B7, B6, BLACK));
+        //Can move
+        Assert.assertTrue(gameHandler.movePiece(A2, A4, WHITE)); // 2 cases
+        Assert.assertTrue(gameHandler.movePiece(B2, B3, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(A7, A5, BLACK)); // 2 cases
+        Assert.assertTrue(gameHandler.movePiece(B7, B6, BLACK));
 
-            //Cannot move by 2 position (not on the starting position)
-            Assert.assertFalse(gameHandler.movePiece(B3, B5, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(B6, B4, WHITE));
+        //Cannot move by 2 position (not on the starting position)
+        Assert.assertFalse(gameHandler.movePiece(B3, B5, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(B6, B4, WHITE));
 
-            //Can move by one position
-            Assert.assertTrue(gameHandler.movePiece(B3, B4, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(B6, B5, BLACK));
+        //Can move by one position
+        Assert.assertTrue(gameHandler.movePiece(B3, B4, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(B6, B5, BLACK));
 
-            //cannot move diagonally (without attack)
-            Assert.assertFalse(gameHandler.movePiece(F2, E3, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(F2, G3, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(F2, D4, WHITE)); // 2 cases
-            Assert.assertFalse(gameHandler.movePiece(F2, H4, WHITE)); // 2 cases
-            Assert.assertFalse(gameHandler.movePiece(F7, E6, BLACK));
-            Assert.assertFalse(gameHandler.movePiece(F7, G6, BLACK));
-            Assert.assertFalse(gameHandler.movePiece(F7, D5, WHITE)); // 2 cases
-            Assert.assertFalse(gameHandler.movePiece(F7, H5, WHITE)); // 2 cases
+        //cannot move diagonally (without attack)
+        Assert.assertFalse(gameHandler.movePiece(F2, E3, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(F2, G3, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(F2, D4, WHITE)); // 2 cases
+        Assert.assertFalse(gameHandler.movePiece(F2, H4, WHITE)); // 2 cases
+        Assert.assertFalse(gameHandler.movePiece(F7, E6, BLACK));
+        Assert.assertFalse(gameHandler.movePiece(F7, G6, BLACK));
+        Assert.assertFalse(gameHandler.movePiece(F7, D5, WHITE)); // 2 cases
+        Assert.assertFalse(gameHandler.movePiece(F7, H5, WHITE)); // 2 cases
 
-            //Kill in all direction
-            pieces.clear();
-            pieces.put(D5, W_PAWN);
-            pieces.put(D3, B_PAWN);
-            pieces.put(F5, W_PAWN);
-            pieces.put(F3, B_PAWN);
+        //Kill in all direction
+        pieces.clear();
+        pieces.put(D5, W_PAWN);
+        pieces.put(D3, B_PAWN);
+        pieces.put(F5, W_PAWN);
+        pieces.put(F3, B_PAWN);
 
-            pieces.put(C6, B_PAWN);
-            pieces.put(G6, B_PAWN);
-            pieces.put(C2, W_PAWN);
-            pieces.put(G2, W_PAWN);
+        pieces.put(C6, B_PAWN);
+        pieces.put(G6, B_PAWN);
+        pieces.put(C2, W_PAWN);
+        pieces.put(G2, W_PAWN);
 
-            Assert.assertTrue(gameHandler.movePiece(D5, C6, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(D3, C2, BLACK));
-            Assert.assertTrue(gameHandler.movePiece(F5, G6, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(F3, G2, BLACK));
+        Assert.assertTrue(gameHandler.movePiece(D5, C6, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(D3, C2, BLACK));
+        Assert.assertTrue(gameHandler.movePiece(F5, G6, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(F3, G2, BLACK));
 
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
     }
 }

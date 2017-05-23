@@ -22,7 +22,6 @@ package ca.watier;
 
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.*;
-import ca.watier.exceptions.GameException;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
@@ -49,25 +48,20 @@ public class SpecialGameRulesTest {
     public void noPlayerTurnTest() {
         StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
 
-        try {
-            assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
+        assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
-            //No rules
-            Assert.assertTrue(gameHandler.movePiece(H2, H4, WHITE)); //White move
-            Assert.assertFalse(gameHandler.movePiece(H4, H5, WHITE)); //White move again, supposed to fail
-            Assert.assertTrue(gameHandler.movePiece(H7, H6, BLACK)); //Black move
-            Assert.assertFalse(gameHandler.movePiece(H6, H5, WHITE)); //Black move again, supposed to fail
+        //No rules
+        Assert.assertTrue(gameHandler.movePiece(H2, H4, WHITE)); //White move
+        Assert.assertFalse(gameHandler.movePiece(H4, H5, WHITE)); //White move again, supposed to fail
+        Assert.assertTrue(gameHandler.movePiece(H7, H6, BLACK)); //Black move
+        Assert.assertFalse(gameHandler.movePiece(H6, H5, WHITE)); //Black move again, supposed to fail
 
-            gameHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+        gameHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
 
-            //With the rule
-            Assert.assertTrue(gameHandler.movePiece(G2, G4, WHITE)); //White move
-            Assert.assertTrue(gameHandler.movePiece(G4, G5, WHITE)); //White move again, supposed to pass (with the rule only)
+        //With the rule
+        Assert.assertTrue(gameHandler.movePiece(G2, G4, WHITE)); //White move
+        Assert.assertTrue(gameHandler.movePiece(G4, G5, WHITE)); //White move again, supposed to pass (with the rule only)
 
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
     }
 
 

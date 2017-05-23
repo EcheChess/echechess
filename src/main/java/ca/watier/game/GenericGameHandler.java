@@ -17,7 +17,6 @@
 package ca.watier.game;
 
 import ca.watier.enums.*;
-import ca.watier.exceptions.GameEndedException;
 import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
@@ -45,6 +44,7 @@ public class GenericGameHandler {
     protected Player playerWhite, playerBlack;
     protected List<Player> observerList;
     private GameType gameType;
+    private boolean isGameDone = false;
 
 
     public GenericGameHandler(ConstraintService constraintService) {
@@ -94,10 +94,18 @@ public class GenericGameHandler {
         return Collections.unmodifiableMap(CURRENT_PIECES_LOCATION);
     }
 
-    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
+    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) {
         return true;
     }
 
+
+    public boolean isGameDone() {
+        return isGameDone;
+    }
+
+    public void setGameDone(boolean gameDone) {
+        isGameDone = gameDone;
+    }
 
     protected final void changeAllowedMoveSide() {
         if (BLACK.equals(currentAllowedMoveSide)) {
@@ -120,7 +128,6 @@ public class GenericGameHandler {
     }
 
     public final boolean setPlayerToSide(Player player, Side side) throws GameException {
-        assertGameNotWon();
         Assert.assertNotNull(player, side);
         boolean value;
 
@@ -149,12 +156,6 @@ public class GenericGameHandler {
         return value;
     }
 
-    protected void assertGameNotWon() throws GameEndedException {
-        if (KingStatus.CHECKMATE.equals(getKingStatus(GameUtils.getPosition(Pieces.W_KING, CURRENT_PIECES_LOCATION), WHITE)) ||
-                KingStatus.CHECKMATE.equals(getKingStatus(GameUtils.getPosition(Pieces.B_KING, CURRENT_PIECES_LOCATION), BLACK))) {
-            throw new GameEndedException("The game is ended !");
-        }
-    }
 
     private void removePlayerFromWhite(Player player) {
         if (playerWhite == player) {
@@ -186,10 +187,6 @@ public class GenericGameHandler {
         return false;
     }
 
-    protected KingStatus getKingStatus(CasePosition kingPosition, Side playerSide) {
-        return KingStatus.OK;
-    }
-
     /**
      * Get the side of the player, null if not available
      *
@@ -209,7 +206,6 @@ public class GenericGameHandler {
 
         return side;
     }
-
 
     protected boolean isKingCheck(Side playerSide) {
         Assert.assertNotNull(playerSide);
@@ -231,6 +227,10 @@ public class GenericGameHandler {
         Assert.assertNotNull(position);
 
         return KingStatus.CHECK.equals(getKingStatus(position, playerSide));
+    }
+
+    protected KingStatus getKingStatus(CasePosition kingPosition, Side playerSide) {
+        return KingStatus.OK;
     }
 
     /**

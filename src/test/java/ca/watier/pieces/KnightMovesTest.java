@@ -20,7 +20,6 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,31 +53,26 @@ public class KnightMovesTest {
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
-        try {
-            // Not allowed moves
-            for (CasePosition position : CasePosition.values()) {
-                pieces.clear();
-                pieces.put(E4, W_KNIGHT);
-                gameHandler.setPieces(pieces);
+        // Not allowed moves
+        for (CasePosition position : CasePosition.values()) {
+            pieces.clear();
+            pieces.put(E4, W_KNIGHT);
+            gameHandler.setPieces(pieces);
 
-                if (!allowedMoves.contains(position) && !position.equals(E4)) {
-                    Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));
-                }
+            if (!allowedMoves.contains(position) && !position.equals(E4)) {
+                Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));
             }
-
-            //Allowed moves
-            for (CasePosition position : allowedMoves) {
-                pieces.clear();
-                pieces.put(E4, W_KNIGHT);
-                gameHandler.setPieces(pieces);
-
-                Assert.assertTrue(gameHandler.movePiece(E4, position, WHITE));
-            }
-
-
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
         }
+
+        //Allowed moves
+        for (CasePosition position : allowedMoves) {
+            pieces.clear();
+            pieces.put(E4, W_KNIGHT);
+            gameHandler.setPieces(pieces);
+
+            Assert.assertTrue(gameHandler.movePiece(E4, position, WHITE));
+        }
+
+
     }
 }

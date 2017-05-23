@@ -20,7 +20,6 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,28 +63,23 @@ public class RookMovesTest {
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
-        try {
-            //Cannot move (blocked in all ways)
-            Assert.assertFalse(gameHandler.movePiece(E4, E8, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, E1, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, A4, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, H4, WHITE));
+        //Cannot move (blocked in all ways)
+        Assert.assertFalse(gameHandler.movePiece(E4, E8, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, E1, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, A4, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, H4, WHITE));
 
-            //Kill in all direction
-            Assert.assertTrue(gameHandler.movePiece(H1, H8, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(H8, A8, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(A8, A1, WHITE));
-            Assert.assertTrue(gameHandler.movePiece(A1, G1, WHITE));
+        //Kill in all direction
+        Assert.assertTrue(gameHandler.movePiece(H1, H8, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(H8, A8, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(A8, A1, WHITE));
+        Assert.assertTrue(gameHandler.movePiece(A1, G1, WHITE));
 
-            //cannot move diagonally
-            Assert.assertFalse(gameHandler.movePiece(E4, D5, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, D3, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, F5, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, F3, WHITE));
+        //cannot move diagonally
+        Assert.assertFalse(gameHandler.movePiece(E4, D5, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, D3, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, F5, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, F3, WHITE));
 
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
-        }
     }
 }

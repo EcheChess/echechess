@@ -20,7 +20,6 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,26 +54,21 @@ public class KingMovesTest {
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
-        try {
-            //Kill in all direction
-            for (CasePosition position : allowedMoves) {
-                pieces.clear();
-                pieces.put(B7, W_KING);
-                pieces.put(A8, B_PAWN);
-                pieces.put(C8, B_PAWN);
-                pieces.put(A6, B_PAWN);
-                pieces.put(C6, B_PAWN);
-                pieces.put(B8, B_PAWN);
-                pieces.put(B6, B_PAWN);
-                pieces.put(C7, B_PAWN);
-                pieces.put(A7, B_PAWN);
+        //Kill in all direction
+        for (CasePosition position : allowedMoves) {
+            pieces.clear();
+            pieces.put(B7, W_KING);
+            pieces.put(A8, B_PAWN);
+            pieces.put(C8, B_PAWN);
+            pieces.put(A6, B_PAWN);
+            pieces.put(C6, B_PAWN);
+            pieces.put(B8, B_PAWN);
+            pieces.put(B6, B_PAWN);
+            pieces.put(C7, B_PAWN);
+            pieces.put(A7, B_PAWN);
 
-                Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
-            }
-
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
+            Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
         }
+
     }
 }

@@ -20,6 +20,7 @@
 
 var currentUuid = null;
 var wsClient = null;
+var wsClientColor = null;
 var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 var lastSelectedBoardSquareHelper = null;
 var helperSetItemMap = [];
@@ -30,7 +31,8 @@ $(document).ready(function () {
 
     $("#createGame").click(function () {
         currentUuid = createNewGame();
-        wsClient = connect(currentUuid);
+        connect(currentUuid);
+        connectSideEvent(currentUuid);
 
         $('#uuid').text(currentUuid);
         renderBoard();
@@ -42,13 +44,14 @@ $(document).ready(function () {
         if (enteredUuid !== '' && enteredUuid.length === 36) {
             currentUuid = enteredUuid;
 
+            var side = $("#changeSide").find("option:selected").val();
             var response = jsonFromRequest("POST", '/game/join', {
-                side: $("#changeSide").find("option:selected").val(),
+                side: side,
                 uuid: currentUuid
             }).response;
-
-            wsClient = connect(currentUuid);
+            connect(currentUuid, side);
             renderBoard();
+            connectSideEvent(currentUuid);
         }
     });
 
@@ -56,12 +59,14 @@ $(document).ready(function () {
 });
 
 function connect(uuid) {
-    var stompClient = null;
-    var socket = new SockJS('/gs-guide-websocket');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
+    if (wsClient) {
+        wsClient.unsubscribe();
+    }
+
+    wsClient = Stomp.over(new SockJS('/gs-guide-websocket'));
+    wsClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/' + uuid, function (greeting) {
+        wsClient.subscribe('/topic/' + uuid, function (greeting) {
             var parsed = JSON.parse(greeting.body);
             var chessEvent = parsed.event;
             var message = parsed.message;
@@ -69,29 +74,58 @@ function connect(uuid) {
             switch (chessEvent) {
                 case 'MOVE':
                     renderBoard();
-                    writeToGameLog(message);
-                    break;
-                case 'PLAYER_TURN':
-                    writeToGameLog(message);
+                    writeToGameLog(message, chessEvent);
                     break;
                 case 'PLAYER_JOINED':
-                    writeToGameLog(message);
+                    writeToGameLog(message, chessEvent);
                     break;
                 case 'GAME_WON':
-                    writeToGameLog(message);
+                    writeToGameLog(message, chessEvent);
                     break;
                 case 'GAME_WON_EVENT_MOVE':
-                    alert(message);
+                    writeToGameLog(message, chessEvent);
                     break;
             }
         });
     });
-
-    return stompClient;
 }
 
-function writeToGameLog(message) {
+function connectSideEvent(uuid) {
+    if (wsClientColor) {
+        wsClientColor.unsubscribe();
+    }
+
+    wsClientColor = Stomp.over(new SockJS('/gs-guide-websocket'));
+    wsClientColor.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        wsClientColor.subscribe('/topic/' + uuid + '/' + $("#changeSide").find("option:selected").val(), function (greeting) {
+            var parsed = JSON.parse(greeting.body);
+            var chessEvent = parsed.event;
+            var message = parsed.message;
+
+            switch (chessEvent) {
+                case 'PLAYER_TURN':
+                    writeToGameLog(message, chessEvent);
+                    break;
+            }
+        });
+    });
+}
+
+function writeToGameLog(message, type) {
     $('#chessLog').append("<option>" + message + "</option>");
+
+    switch (type) {
+        case 'MOVE':
+        case 'PLAYER_JOINED':
+        case 'GAME_WON':
+        case 'GAME_WON_EVENT_MOVE':
+            alertify.notify(message, 'custom', 3);
+            break;
+        case 'PLAYER_TURN':
+            alertify.success(message, 6);
+            break;
+    }
 }
 
 function setBoardEvents() {
@@ -252,6 +286,7 @@ function initUiTriggers() {
 
             if (response) {
                 alert("Side changed !");
+                connectSideEvent(currentUuid);
             }
         }
     });

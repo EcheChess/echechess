@@ -20,12 +20,12 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.GameType;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
+import ca.watier.utils.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -100,16 +100,16 @@ public class GameService {
      * @param to
      * @param uuid
      * @param player
-     * @return
+     * @return - A {@link Pair} Containing if the piece can move, and if the game is ended
      */
-    public boolean movePiece(CasePosition from, CasePosition to, String uuid, Player player) throws GameException {
+    public Pair<Boolean, Boolean> movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
         Assert.assertNotNull(from, to);
         Assert.assertNotEmpty(uuid);
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
-        return gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
+        return new Pair<>(gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player)), gameFromUuid.isGameDone());
     }
 
     /**

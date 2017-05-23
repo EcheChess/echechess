@@ -17,7 +17,6 @@
 package ca.watier.game;
 
 import ca.watier.enums.*;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import ca.watier.utils.*;
 
@@ -36,7 +35,7 @@ public class StandardGameHandler extends GenericGameHandler {
     }
 
     @Override
-    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
+    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) {
         Assert.assertNotNull(from, to);
 
         Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
@@ -68,9 +67,16 @@ public class StandardGameHandler extends GenericGameHandler {
             changeAllowedMoveSide();
         }
 
-        assertGameNotWon();
+
+        Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
+        KingStatus otherkingStatusAfterMove = getKingStatus(GameUtils.getPosition(Pieces.getKingBySide(otherPlayerSide), CURRENT_PIECES_LOCATION), otherPlayerSide);
+        if (KingStatus.CHECKMATE.equals(otherkingStatusAfterMove)) {
+            setGameDone(true);
+        }
+
         return isMoved;
     }
+
 
     /**
      * 1) Check if the king can move / kill to escape.

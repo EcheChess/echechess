@@ -20,7 +20,6 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,28 +59,23 @@ public class BishopMovesTest {
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
-        try {
-            //Cannot move (blocked in all ways)
-            Assert.assertFalse(gameHandler.movePiece(E4, C6, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, G6, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, C2, WHITE));
-            Assert.assertFalse(gameHandler.movePiece(E4, G2, WHITE));
+        //Cannot move (blocked in all ways)
+        Assert.assertFalse(gameHandler.movePiece(E4, C6, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, G6, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, C2, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(E4, G2, WHITE));
 
 
-            //Kill in all direction
-            for (CasePosition position : allowedMoves) {
-                pieces.clear();
-                pieces.put(B7, W_BISHOP);
-                pieces.put(A8, B_ROOK);
-                pieces.put(C8, B_ROOK);
-                pieces.put(A6, B_ROOK);
-                pieces.put(C6, B_ROOK);
+        //Kill in all direction
+        for (CasePosition position : allowedMoves) {
+            pieces.clear();
+            pieces.put(B7, W_BISHOP);
+            pieces.put(A8, B_ROOK);
+            pieces.put(C8, B_ROOK);
+            pieces.put(A6, B_ROOK);
+            pieces.put(C6, B_ROOK);
 
-                Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
-            }
-        } catch (GameException e) {
-            e.printStackTrace();
-            fail();
+            Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
         }
     }
 }
