@@ -38,32 +38,15 @@
 <div class="ui modal" id="modalSpecialGameMoreInfo">
     <div class="header">More info</div>
     <div class="content">
-        <span>Click a position (on the board), then click on a piece</span>
-        <table>
-            <tr>
-                <td class="helperBordPieces" data-helper-icon="W_KING">♔</td>
-                <td class="helperBordPieces" data-helper-icon="W_QUEEN">♕</td>
-                <td class="helperBordPieces" data-helper-icon="W_ROOK">♖</td>
-                <td class="helperBordPieces" data-helper-icon="W_BISHOP">♗</td>
-                <td class="helperBordPieces" data-helper-icon="W_KNIGHT">♘</td>
-                <td class="helperBordPieces" data-helper-icon="W_PAWN">♙</td>
-            </tr>
-            <tr>
-                <td class="helperBordPieces" data-helper-icon="B_KING">♚</td>
-                <td class="helperBordPieces" data-helper-icon="B_QUEEN">♛</td>
-                <td class="helperBordPieces" data-helper-icon="B_ROOK">♜</td>
-                <td class="helperBordPieces" data-helper-icon="B_BISHOP">♝</td>
-                <td class="helperBordPieces" data-helper-icon="B_KNIGHT">♞</td>
-                <td class="helperBordPieces" data-helper-icon="B_PAWN">♟</td>
-        </table>
-
+        <span>Click on a case to set a piece</span>
         <table id="helperBoard" class="tab"></table>
         <div class="ui icon input">
             <input id="inputValidatePatternSpecialGame" placeholder="Place your text here..." type="text">
             <i id="iconValidatePatternSpecialGame" class="warning circle icon"></i>
         </div>
-        <button class="ui button" id="buttonValidatePatternSpecialGame">Validate</button>
-        <button class="ui button" id="buttonSendPatternSpecialGame">Update the input & close the helper</button>
+        <button class="ui button blue" id="buttonValidatePatternSpecialGame">Validate</button>
+        <button class="ui button green" id="buttonSendPatternSpecialGame">Send & Close the helper</button>
+        <button class="ui button red" id="buttonResetPatternSpecialGame">Reset the board</button>
     </div>
 </div>
 

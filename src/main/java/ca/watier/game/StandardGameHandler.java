@@ -40,6 +40,7 @@ public class StandardGameHandler extends GenericGameHandler {
         Assert.assertNotNull(from, to);
 
         Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
+        Pieces piecesTo = CURRENT_PIECES_LOCATION.get(to);
         Assert.assertNotNull(piecesFrom);
 
         if (!isPieceMovableTo(from, to, playerSide)) {
@@ -57,6 +58,11 @@ public class StandardGameHandler extends GenericGameHandler {
         KingStatus kingStatusAfterMove = getKingStatus(GameUtils.getPosition(Pieces.getKingBySide(playerSide), CURRENT_PIECES_LOCATION), playerSide);
         if (KingStatus.isCheckOrCheckMate(kingStatusAfterMove)) { //Cannot move, revert
             movePieceTo(to, from, piecesFrom);
+
+            if (piecesTo != null) {
+                CURRENT_PIECES_LOCATION.put(to, piecesTo); //reset the attacked piece
+            }
+
             isMoved = false;
         } else if (isPlayerTurn) {
             changeAllowedMoveSide();

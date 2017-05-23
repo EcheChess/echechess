@@ -61,7 +61,6 @@ public class GenericMoveConstraint implements MoveConstraint {
 
         boolean isMoveValid = MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
 
-
         if (!ignoreOtherPieces) { //Moves
             isMoveValid &= !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap);
 

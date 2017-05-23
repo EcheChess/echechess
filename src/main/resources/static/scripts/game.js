@@ -20,9 +20,9 @@
 
 var currentUuid = null;
 var wsClient = null;
-var helperLastSelectedCase = null;
-var helperContainer = [];
 var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+var lastSelectedBoardSquareHelper = null;
+var helperSetItemMap = [];
 
 $(document).ready(function () {
     initUiTriggers();
@@ -90,11 +90,107 @@ function connect(uuid) {
     return stompClient;
 }
 
-
 function writeToGameLog(message) {
     $('#chessLog').append("<option>" + message + "</option>");
 }
 
+function setBoardEvents() {
+    $("#helperBoard").find("tr > td.board-square").popup({
+        on: 'click',
+        hoverable: true,
+        html: "<div class='header'>Choose a piece</div><div class='content'>" +
+        "<table> " +
+        "<tr>" +
+        "<td class='helperBordPieces' data-helper-icon='W_KING'>♔</td>" +
+        "<td class='helperBordPieces' data-helper-icon='W_QUEEN'>♕</td>" +
+        "<td class='helperBordPieces' data-helper-icon='W_ROOK'>♖</td>" +
+        "<td class='helperBordPieces' data-helper-icon='W_BISHOP'>♗</td>" +
+        "<td class='helperBordPieces' data-helper-icon='W_KNIGHT'>♘</td>" +
+        "<td class='helperBordPieces' data-helper-icon='W_PAWN'>♙</td> " +
+        "</tr> " +
+        "<tr> " +
+        "<td class='helperBordPieces' data-helper-icon='B_KING'>♚</td>" +
+        "<td class='helperBordPieces' data-helper-icon='B_QUEEN'>♛</td>" +
+        "<td class='helperBordPieces' data-helper-icon='B_ROOK'>♜</td>" +
+        "<td class='helperBordPieces' data-helper-icon='B_BISHOP'>♝</td>" +
+        "<td class='helperBordPieces' data-helper-icon='B_KNIGHT'>♞</td>" +
+        "<td class='helperBordPieces' data-helper-icon='B_PAWN'>♟</td>" +
+        "</tr> " +
+        "</table>" +
+        "<button id='helperActionRemovePiece' class='ui red basic button'>Empty the case</button>" +
+        "</div>"
+    });
+}
+
+function writeToSpecialGameInput(tempStrucks) {
+    var values = "";
+
+    if (tempStrucks) {
+        tempStrucks.forEach(function (element) {
+            values += element.caseName;
+            values += ':';
+            values += element.iconName;
+            values += ';';
+        });
+        values = values.substring(0, values.length - 1); //remove the ';' at the end
+    } else {
+        values = null;
+    }
+
+    $("#inputValidatePatternSpecialGame").val(values);
+}
+function convertSpecialGameToDrawable() {
+    var tempStrucks = [];
+    for (var key in helperSetItemMap) {
+        var struct = helperSetItemMap[key];
+        tempStrucks.push({
+            iconName: struct.name,
+            caseName: struct.caseName,
+            value1: {
+                x: struct.x,
+                y: struct.y
+            }, value2: {
+                unicodeIcon: struct.icon
+            }
+        });
+    }
+    return tempStrucks;
+}
+function initHelperEvents() {
+    setBoardEvents();
+
+    $(document).on("click", ".helperBordPieces", function () {
+        var $currentCase = $(lastSelectedBoardSquareHelper);
+        var caseName = $currentCase.attr("data-case-id");
+        helperSetItemMap[caseName] =
+            {
+                icon: $(this).text(),
+                name: $(this).attr("data-helper-icon"),
+                caseName: $currentCase.attr("data-case-id"),
+                x: parseInt($currentCase.attr("data-case-x")),
+                y: parseInt($currentCase.attr("data-case-y"))
+            };
+
+        var tempStrucks = convertSpecialGameToDrawable();
+        drawBoard(tempStrucks, "#helperBoard");
+        setBoardEvents();
+        writeToSpecialGameInput(tempStrucks);
+    });
+
+    $(document).on("click", "#helperActionRemovePiece", function () {
+        var $currentCase = $(lastSelectedBoardSquareHelper);
+        var caseName = $currentCase.attr("data-case-id");
+        delete helperSetItemMap[caseName];
+        var tempStrucks = convertSpecialGameToDrawable();
+        drawBoard(tempStrucks, "#helperBoard");
+        setBoardEvents();
+        writeToSpecialGameInput(tempStrucks);
+    });
+
+    $(document).on("click", "#helperBoard > tr > td.board-square", function () {
+        lastSelectedBoardSquareHelper = $(this);
+    });
+}
 
 function initUiTriggers() {
     var $changeSide = $('#changeSide');
@@ -116,6 +212,7 @@ function initUiTriggers() {
         "</div>"
     });
 
+
     $("#buttonValidatePatternSpecialGame").click(function () {
         var $iconValidatePatternSpecialGame = $("#iconValidatePatternSpecialGame");
 
@@ -134,43 +231,16 @@ function initUiTriggers() {
         }
     });
 
-    var $inputValidatePatternSpecialGame = $("#inputValidatePatternSpecialGame");
-    $(document).on("click", "#helperBoard > tr > td.board-square", function () {
-        var oldText = $inputValidatePatternSpecialGame.val();
-        $inputValidatePatternSpecialGame.val((oldText.length === 0 ? "" : oldText + ";") + $(this).attr("data-case-id"));
-
-        helperLastSelectedCase = {
-            value1: {
-                x: parseInt($(this).attr("data-case-x")),
-                y: parseInt($(this).attr("data-case-y"))
-            }
-        };
-    });
-
-
-    $(document).on("click", ".helperBordPieces", function () {
-        var oldText = $inputValidatePatternSpecialGame.val();
-        $inputValidatePatternSpecialGame.val((oldText.length === 0 ? "" : oldText + ":" ) + $(this).attr("data-helper-icon"));
-
-        var xValue = helperLastSelectedCase.value1.x;
-        var yValue = helperLastSelectedCase.value1.y;
-
-        helperLastSelectedCase = {
-            value1: {
-                x: xValue,
-                y: yValue
-            }, value2: {
-                unicodeIcon: $(this).text()
-            }
-        };
-
-        helperContainer.push(helperLastSelectedCase);
-        drawBoard(helperContainer, "#helperBoard");
-    });
-
     $("#buttonSendPatternSpecialGame").click(function () {
         $("#specialGamePieces").val($("#inputValidatePatternSpecialGame").val());
         $('#modalSpecialGameMoreInfo').modal('hide');
+    });
+
+    $("#buttonResetPatternSpecialGame").click(function () {
+        helperSetItemMap = [];
+        drawBoard(null, "#helperBoard");
+        writeToSpecialGameInput(null);
+        setBoardEvents();
     });
 
     $changeSide.change(function () {
@@ -207,8 +277,9 @@ function initUiTriggers() {
     $(document).on("click", "#moreInfoSpecialGame", function () {
         var $modalSpecialGameMoreInfo = $('#modalSpecialGameMoreInfo');
         $modalSpecialGameMoreInfo.modal('show');
-        drawBoard(null, "#helperBoard");
-        $modalSpecialGameMoreInfo.modal('refresh')
+        drawBoard(convertSpecialGameToDrawable(), "#helperBoard");
+        initHelperEvents();
+        $modalSpecialGameMoreInfo.modal('refresh');
     });
 }
 
