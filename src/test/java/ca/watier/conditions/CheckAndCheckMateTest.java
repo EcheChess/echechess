@@ -246,4 +246,43 @@ public class CheckAndCheckMateTest {
         Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(A4, WHITE));
     }
 
+    /**
+     * In this test, the king is not checkmate <br>
+     * All the long ranges are blocked by other pieces (by both color)
+     */
+    @Test
+    public void longRangeBlocked_Test() {
+        Map<CasePosition, Pieces> piecesContext = new HashMap<>();
+        piecesContext.put(G8, B_KING);
+        piecesContext.put(E4, W_KING);
+        piecesContext.put(A8, B_ROOK);
+
+        //Block the king
+        piecesContext.put(D5, W_PAWN);
+        piecesContext.put(E5, W_PAWN);
+        piecesContext.put(F5, W_PAWN);
+        piecesContext.put(D4, B_PAWN);
+        piecesContext.put(F4, W_PAWN);
+        piecesContext.put(D3, B_PAWN);
+        piecesContext.put(E3, B_PAWN);
+        piecesContext.put(F3, B_PAWN);
+
+        //Long ranges
+        piecesContext.put(E1, B_ROOK);
+        piecesContext.put(E8, B_ROOK);
+        piecesContext.put(A4, B_ROOK);
+        piecesContext.put(H4, B_ROOK);
+
+        piecesContext.put(A8, B_BISHOP);
+        piecesContext.put(A1, B_BISHOP);
+        piecesContext.put(H1, B_BISHOP);
+        piecesContext.put(H7, B_BISHOP);
+
+
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, piecesContext);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(E4, WHITE));
+    }
+
 }

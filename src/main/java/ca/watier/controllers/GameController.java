@@ -22,7 +22,6 @@ import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
 import ca.watier.game.GenericGameHandler;
-import ca.watier.game.StandardGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.ChessEvent;
 import ca.watier.responses.DualValueResponse;
@@ -68,9 +67,9 @@ public class GameController {
      * @return
      */
     @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public GenericGameHandler createNewGame(Side side, boolean againstComputer, boolean observers, HttpSession session) {
+    public GenericGameHandler createNewGame(Side side, boolean againstComputer, boolean observers, String specialGamePieces, HttpSession session) {
 
-        StandardGameHandler newGame = gameService.createNewGame(SessionUtils.getPlayer(session));
+        GenericGameHandler newGame = gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces);
 
         if (side != null) {
             try {
@@ -130,7 +129,7 @@ public class GameController {
     public List<String> getMovesOfAPiece(CasePosition from, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        StandardGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
         List<String> positions = null;
 
         if (gameFromUuid != null && gameFromUuid.hasPlayer(player)) {
@@ -151,7 +150,7 @@ public class GameController {
     public List<DualValueResponse> getPieceLocations(String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        StandardGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
         List<DualValueResponse> values = null;
 
         if (gameFromUuid != null) {
@@ -182,7 +181,7 @@ public class GameController {
         Player player = SessionUtils.getPlayer(session);
         boolean joined = false;
 
-        StandardGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
+        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(uuid);
 
         UUID gameUuid = UUID.fromString(uuid);
         if (gameFromUuid != null && (gameFromUuid.isAllowOtherToJoin() || gameFromUuid.isAllowObservers()) &&
@@ -215,10 +214,10 @@ public class GameController {
     public BooleanResponse setSideOfPlayer(Side side, String uuid, HttpSession session) {
         Player player = SessionUtils.getPlayer(session);
 
-        StandardGameHandler game = gameService.getGameFromUuid(uuid);
+        GenericGameHandler game = gameService.getGameFromUuid(uuid);
 
         if (game == null) {
-            game = gameService.createNewGame(player);
+            game = gameService.createNewGame(player, null);
         }
 
         boolean response = false;

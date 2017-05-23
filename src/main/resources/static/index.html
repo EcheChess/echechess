@@ -35,6 +35,37 @@
 </head>
 <body>
 
+<div class="ui modal" id="modalSpecialGameMoreInfo">
+    <div class="header">More info</div>
+    <div class="content">
+        <span>Click a position (on the board), then click on a piece</span>
+        <table>
+            <tr>
+                <td class="helperBordPieces" data-helper-icon="W_KING">♔</td>
+                <td class="helperBordPieces" data-helper-icon="W_QUEEN">♕</td>
+                <td class="helperBordPieces" data-helper-icon="W_ROOK">♖</td>
+                <td class="helperBordPieces" data-helper-icon="W_BISHOP">♗</td>
+                <td class="helperBordPieces" data-helper-icon="W_KNIGHT">♘</td>
+                <td class="helperBordPieces" data-helper-icon="W_PAWN">♙</td>
+            </tr>
+            <tr>
+                <td class="helperBordPieces" data-helper-icon="B_KING">♚</td>
+                <td class="helperBordPieces" data-helper-icon="B_QUEEN">♛</td>
+                <td class="helperBordPieces" data-helper-icon="B_ROOK">♜</td>
+                <td class="helperBordPieces" data-helper-icon="B_BISHOP">♝</td>
+                <td class="helperBordPieces" data-helper-icon="B_KNIGHT">♞</td>
+                <td class="helperBordPieces" data-helper-icon="B_PAWN">♟</td>
+        </table>
+
+        <table id="helperBoard" class="tab"></table>
+        <div class="ui icon input">
+            <input id="inputValidatePatternSpecialGame" placeholder="Place your text here..." type="text">
+            <i id="iconValidatePatternSpecialGame" class="warning circle icon"></i>
+        </div>
+        <button class="ui button" id="buttonValidatePatternSpecialGame">Validate</button>
+        <button class="ui button" id="buttonSendPatternSpecialGame">Update the input & close the helper</button>
+    </div>
+</div>
 
 <div id="main">
     <div class="ui top attached tabular menu">
@@ -67,7 +98,16 @@
                     <option value="WHITE" selected>White</option>
                     <option value="OBSERVER">Observer</option>
                 </select>
-                <label for="changeSide">Side</label>
+                <label for="changeSide">side and</label>
+                <select id="gameType">
+                    <option value="CLASSIC" selected>Classic</option>
+                    <option value="SPECIAL">Special order</option>
+                </select>
+                <label for="gameType">game mode</label>
+                <label id="specialGamePiecesLabel" for="specialGamePieces" hidden> with pieces set has</label>
+                <div class="ui input" id="divSpecialGamePieces">
+                    <input id="specialGamePieces" placeholder="E1:W_KING;E8:B_KING" type="text" hidden>
+                </div>
             </div>
             <div class="ui center aligned segment">
                 <button class="ui compact green labeled icon button" id="createGame">

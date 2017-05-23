@@ -44,6 +44,7 @@ public class GenericGameHandler {
     protected Side currentAllowedMoveSide = WHITE;
     protected Player playerWhite, playerBlack;
     protected List<Player> observerList;
+    private GameType gameType;
 
 
     public GenericGameHandler(ConstraintService constraintService) {
@@ -93,7 +94,7 @@ public class GenericGameHandler {
         return Collections.unmodifiableMap(CURRENT_PIECES_LOCATION);
     }
 
-    protected boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
+    public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) throws GameException {
         return true;
     }
 
@@ -284,6 +285,14 @@ public class GenericGameHandler {
         }
 
         return values;
+    }
+
+    public GameType getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
     }
 
     public final boolean hasPlayer(Player player) {

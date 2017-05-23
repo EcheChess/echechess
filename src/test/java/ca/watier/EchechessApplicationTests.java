@@ -17,7 +17,7 @@
 package ca.watier;
 
 import ca.watier.enums.Side;
-import ca.watier.game.StandardGameHandler;
+import ca.watier.game.GenericGameHandler;
 import ca.watier.services.GameService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Constants;
@@ -70,13 +70,13 @@ public class EchechessApplicationTests {
 
         changePlayerSide(BLACK, UUID.randomUUID().toString(), sessionPlayer1);
 
-        Map<UUID, StandardGameHandler> mapOfGames = gameService.getAllGames();
+        Map<UUID, GenericGameHandler> mapOfGames = gameService.getAllGames();
         Set<UUID> allIdGamesFromGameService = mapOfGames.keySet();
 
         //Get the current game
         Set<UUID> gameListIdFromPlayer = new HashSet<>(player1.getCreatedGameList());
-        List<StandardGameHandler> allGames = new ArrayList<>(mapOfGames.values());
-        StandardGameHandler normalGameHandler = allGames.get(0);
+        List<GenericGameHandler> allGames = new ArrayList<>(mapOfGames.values());
+        GenericGameHandler normalGameHandler = allGames.get(0);
 
         //Check if the player1 is set to black
         Assert.assertEquals(player1, normalGameHandler.getPlayerBlack());

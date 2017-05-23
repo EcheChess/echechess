@@ -17,8 +17,12 @@
 package ca.watier.services;
 
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.GameType;
+import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.exceptions.GameException;
+import ca.watier.game.CustomPieceWithStandardRulesHandler;
+import ca.watier.game.GenericGameHandler;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
@@ -33,7 +37,7 @@ import java.util.*;
 
 @Service
 public class GameService {
-    private final static Map<UUID, StandardGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
+    private final static Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
 
     private final ConstraintService constraintService;
 
@@ -46,19 +50,46 @@ public class GameService {
      * Create a new game, and associate it to tha player
      *
      * @param player
+     * @param specialGamePieces - If null, create a StandardGameHandler
      * @return
      */
-    public StandardGameHandler createNewGame(Player player) {
-        StandardGameHandler normalGameHandler = new StandardGameHandler(constraintService);
+    public GenericGameHandler createNewGame(Player player, String specialGamePieces) {
+        GameType gameType = GameType.CLASSIC;
+
+        GenericGameHandler genericGameHandler;
+
+        if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
+            gameType = GameType.SPECIAL;
+
+            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(constraintService);
+
+            Map<CasePosition, Pieces> positionPiecesMap = new HashMap<>();
+
+            for (String section : specialGamePieces.split(";")) {
+                String[] values = section.split(":");
+
+                if (values.length != 2) {
+                    break;
+                }
+
+                positionPiecesMap.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
+            }
+            customPieceWithStandardRulesHandler.setPieces(positionPiecesMap);
+            genericGameHandler = customPieceWithStandardRulesHandler;
+        } else {
+            genericGameHandler = new StandardGameHandler(constraintService);
+        }
+
         UUID uui = UUID.randomUUID();
-        normalGameHandler.setUuid(uui.toString());
-        GAMES_HANDLER_MAP.put(uui, normalGameHandler);
+        genericGameHandler.setGameType(gameType);
+        genericGameHandler.setUuid(uui.toString());
+        GAMES_HANDLER_MAP.put(uui, genericGameHandler);
         player.addCreatedGame(uui);
 
-        return normalGameHandler;
+        return genericGameHandler;
     }
 
-    public Map<UUID, StandardGameHandler> getAllGames() {
+    public Map<UUID, GenericGameHandler> getAllGames() {
         return GAMES_HANDLER_MAP;
     }
 
@@ -75,7 +106,7 @@ public class GameService {
         Assert.assertNotNull(from, to);
         Assert.assertNotEmpty(uuid);
 
-        StandardGameHandler gameFromUuid = getGameFromUuid(uuid);
+        GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
         return gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
@@ -87,7 +118,7 @@ public class GameService {
      * @param uuid
      * @return
      */
-    public StandardGameHandler getGameFromUuid(String uuid) {
+    public GenericGameHandler getGameFromUuid(String uuid) {
         Assert.assertNotEmpty(uuid);
         UUID key = UUID.fromString(uuid);
 
@@ -104,7 +135,7 @@ public class GameService {
     public Side getPlayerSide(String uuid, Player player) {
         Assert.assertNotEmpty(uuid);
 
-        StandardGameHandler standardGameHandler = GAMES_HANDLER_MAP.get(UUID.fromString(uuid));
+        GenericGameHandler standardGameHandler = GAMES_HANDLER_MAP.get(UUID.fromString(uuid));
         Assert.assertNotNull(standardGameHandler);
         return standardGameHandler.getPlayerSide(player);
     }
@@ -121,7 +152,7 @@ public class GameService {
         Assert.assertNotNull(from);
         Assert.assertNotEmpty(uuid);
 
-        StandardGameHandler gameFromUuid = getGameFromUuid(uuid);
+        GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
         Side playerSide = gameFromUuid.getPlayerSide(player);
 

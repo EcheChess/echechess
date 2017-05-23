@@ -20,11 +20,13 @@
 
 var currentUuid = null;
 var wsClient = null;
+var helperLastSelectedCase = null;
+var helperContainer = [];
 var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 $(document).ready(function () {
     initUiTriggers();
-    drawBoard(null);
+    drawBoard(null, "#board");
 
     $("#createGame").click(function () {
         currentUuid = createNewGame();
@@ -96,11 +98,85 @@ function writeToGameLog(message) {
 
 function initUiTriggers() {
     var $changeSide = $('#changeSide');
+    var $gameType = $('#gameType');
+    var $specialGameLabel = $('#specialGamePiecesLabel');
+    var $specialGame = $('#specialGamePieces');
+
+    $("#divSpecialGamePieces").popup({
+        hoverable: true,
+        html: "<div class='header'>Use this format</div><div class='content'>Position" +
+        "<span class='special-game-item-spacer'>:</span>" +
+        "Piece" +
+        "<span class='special-game-item-spacer'>;</span>" +
+        "Position" +
+        "<span class='special-game-item-spacer'>:</span>" +
+        "Piece..." +
+        "<br>" +
+        "Click <button id='moreInfoSpecialGame'>HERE</button> to show the helper" +
+        "</div>"
+    });
+
+    $("#buttonValidatePatternSpecialGame").click(function () {
+        var $iconValidatePatternSpecialGame = $("#iconValidatePatternSpecialGame");
+
+        if (isSpecialGamePatternValid()) {
+            $iconValidatePatternSpecialGame.removeClass('warning');
+            $iconValidatePatternSpecialGame.removeClass('remove');
+            $iconValidatePatternSpecialGame.removeClass('red');
+            $iconValidatePatternSpecialGame.addClass('check');
+            $iconValidatePatternSpecialGame.addClass('green');
+        } else {
+            $iconValidatePatternSpecialGame.removeClass('warning');
+            $iconValidatePatternSpecialGame.removeClass('check');
+            $iconValidatePatternSpecialGame.removeClass('green');
+            $iconValidatePatternSpecialGame.addClass('remove');
+            $iconValidatePatternSpecialGame.addClass('red');
+        }
+    });
+
+    var $inputValidatePatternSpecialGame = $("#inputValidatePatternSpecialGame");
+    $(document).on("click", "#helperBoard > tr > td.board-square", function () {
+        var oldText = $inputValidatePatternSpecialGame.val();
+        $inputValidatePatternSpecialGame.val((oldText.length === 0 ? "" : oldText + ";") + $(this).attr("data-case-id"));
+
+        helperLastSelectedCase = {
+            value1: {
+                x: parseInt($(this).attr("data-case-x")),
+                y: parseInt($(this).attr("data-case-y"))
+            }
+        };
+    });
+
+
+    $(document).on("click", ".helperBordPieces", function () {
+        var oldText = $inputValidatePatternSpecialGame.val();
+        $inputValidatePatternSpecialGame.val((oldText.length === 0 ? "" : oldText + ":" ) + $(this).attr("data-helper-icon"));
+
+        var xValue = helperLastSelectedCase.value1.x;
+        var yValue = helperLastSelectedCase.value1.y;
+
+        helperLastSelectedCase = {
+            value1: {
+                x: xValue,
+                y: yValue
+            }, value2: {
+                unicodeIcon: $(this).text()
+            }
+        };
+
+        helperContainer.push(helperLastSelectedCase);
+        drawBoard(helperContainer, "#helperBoard");
+    });
+
+    $("#buttonSendPatternSpecialGame").click(function () {
+        $("#specialGamePieces").val($("#inputValidatePatternSpecialGame").val());
+        $('#modalSpecialGameMoreInfo').modal('hide');
+    });
 
     $changeSide.change(function () {
         if (currentUuid) {
             var response = jsonFromRequest("POST", '/game/side', {
-                side: $("#changeSide").find("option:selected").val(),
+                side: $(this).find("option:selected").val(),
                 uuid: currentUuid
             }).response;
 
@@ -110,8 +186,29 @@ function initUiTriggers() {
         }
     });
 
+    $gameType.change(function () {
+        if ($(this).find("option:selected").val() === 'SPECIAL') {
+            $specialGameLabel.show();
+            $specialGame.show();
+        } else { //Reset
+            $specialGameLabel.hide();
+            $specialGame.hide();
+        }
+    });
+
     $changeSide.dropdown({
         allowAdditions: true
+    });
+
+    $gameType.dropdown({
+        allowAdditions: true
+    });
+
+    $(document).on("click", "#moreInfoSpecialGame", function () {
+        var $modalSpecialGameMoreInfo = $('#modalSpecialGameMoreInfo');
+        $modalSpecialGameMoreInfo.modal('show');
+        drawBoard(null, "#helperBoard");
+        $modalSpecialGameMoreInfo.modal('refresh')
     });
 }
 
@@ -137,7 +234,8 @@ function createNewGame() {
     return jsonFromRequest('POST', '/game/create', {
         side: $("#changeSide").find("option:selected").val(),
         againstComputer: $("#againstComputer").checkbox('is checked'),
-        observers: $("#allowOtherObserver").checkbox('is checked')
+        observers: $("#allowOtherObserver").checkbox('is checked'),
+        specialGamePieces: $("#specialGamePieces").val()
     }).uuid;
 }
 
@@ -147,12 +245,11 @@ function renderBoard() {
         return;
     }
 
-
     var piecesLocation = jsonFromRequest('GET', '/game/pieces', {
         uuid: currentUuid
     });
 
-    drawBoard(piecesLocation);
+    drawBoard(piecesLocation, "#board");
 
     var sourceEvt = null;
 
@@ -214,9 +311,8 @@ function renderBoard() {
     });
 }
 
-
-function drawBoard(piecesLocation) {
-    var $board = $("#board");
+function drawBoard(piecesLocation, boardId) {
+    var $board = $(boardId);
     $board.empty();
 
     var tableInnerHtml = '';
@@ -245,7 +341,7 @@ function drawBoard(piecesLocation) {
                 }
             }
 
-            tableInnerHtml += '<td data-case-id="' + caseLetter + numberIdx + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
+            tableInnerHtml += '<td data-case-id="' + caseLetter + numberIdx + '" data-case-x="' + x + '" data-case-y="' + y + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
             caseColorIndex++;
             letterIdx++;
         }
@@ -264,4 +360,25 @@ function drawBoard(piecesLocation) {
         '<td class="board-letter">' + boardColumnLetters[7] + '</td></tr>';
 
     $board.append(tableInnerHtml);
+}
+
+function isSpecialGamePatternValid() {
+    var isPatternValid = 1;
+    var values = $("#inputValidatePatternSpecialGame").val().split(";");
+    var pieces = ["W_KING", "W_QUEEN", "W_ROOK", "W_BISHOP", "W_KNIGHT", "W_PAWN", "B_KING", "B_QUEEN", "B_ROOK", "B_BISHOP", "B_KNIGHT", "B_PAWN"];
+    var positionRegex = /[A-H][1-9]/g;
+
+    for (var i = 0; i < values.length; i++) {
+        var items = values[i].split(":");
+
+        if (items.length > 2) {
+            isPatternValid = false;
+            break;
+        }
+
+        isPatternValid &= items[0].match(positionRegex) !== null; //Position
+        isPatternValid &= ($.inArray(items[1], pieces) !== -1); //Piece
+    }
+
+    return isPatternValid;
 }

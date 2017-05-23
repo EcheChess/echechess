@@ -18,7 +18,7 @@ package ca.watier.contexts;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
-import ca.watier.game.StandardGameHandler;
+import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
@@ -29,7 +29,7 @@ import java.util.UUID;
 /**
  * Created by yannick on 5/20/2017.
  */
-public class StandardGameHandlerContext extends StandardGameHandler {
+public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHandler {
 
     public StandardGameHandlerContext(ConstraintService constraintService) {
         super(constraintService);
@@ -51,9 +51,5 @@ public class StandardGameHandlerContext extends StandardGameHandler {
 
         setPieces(positionPieces);
         addBothPlayerToGameAndSetUUID();
-    }
-
-    public void setPieces(Map<CasePosition, Pieces> positionPieces) {
-        CURRENT_PIECES_LOCATION = positionPieces;
     }
 }
