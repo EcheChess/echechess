@@ -19,6 +19,7 @@ package ca.watier.game;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.services.ConstraintService;
+import ca.watier.utils.Assert;
 
 import java.util.Map;
 
@@ -33,5 +34,21 @@ public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {
         CURRENT_PIECES_LOCATION = positionPieces;
+    }
+
+    public void setPieces(String specialGamePieces) {
+        Assert.assertNotEmpty(specialGamePieces);
+
+        CURRENT_PIECES_LOCATION.clear();
+
+        for (String section : specialGamePieces.split(";")) {
+            String[] values = section.split(":");
+
+            if (values.length != 2) {
+                break;
+            }
+
+            CURRENT_PIECES_LOCATION.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
+        }
     }
 }

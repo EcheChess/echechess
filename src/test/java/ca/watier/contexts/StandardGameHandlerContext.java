@@ -52,4 +52,12 @@ public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHand
         setPieces(positionPieces);
         addBothPlayerToGameAndSetUUID();
     }
+
+    public StandardGameHandlerContext(ConstraintService constraintService, String positionPieces) {
+        super(constraintService);
+        Assert.assertNotEmpty(positionPieces);
+
+        setPieces(positionPieces);
+        addBothPlayerToGameAndSetUUID();
+    }
 }

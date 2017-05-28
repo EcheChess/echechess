@@ -31,7 +31,6 @@ import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.Side.BLACK;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
-import static junit.framework.TestCase.fail;
 
 /**
  * Created by yannick on 5/9/2017.
@@ -240,43 +239,24 @@ public class CheckAndCheckMateTest {
         Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(A4, WHITE));
     }
 
-    /**
-     * In this test, the king is not checkmate <br>
-     * All the long ranges are blocked by other pieces (by both color)
-     */
     @Test
     public void longRangeBlocked_Test() {
-        Map<CasePosition, Pieces> piecesContext = new HashMap<>();
-        piecesContext.put(G8, B_KING);
-        piecesContext.put(E4, W_KING);
-        piecesContext.put(A8, B_ROOK);
 
-        //Block the king
-        piecesContext.put(D5, W_PAWN);
-        piecesContext.put(E5, W_PAWN);
-        piecesContext.put(F5, W_PAWN);
-        piecesContext.put(D4, B_PAWN);
-        piecesContext.put(F4, W_PAWN);
-        piecesContext.put(D3, B_PAWN);
-        piecesContext.put(E3, B_PAWN);
-        piecesContext.put(F3, B_PAWN);
-
-        //Long ranges
-        piecesContext.put(E1, B_ROOK);
-        piecesContext.put(E8, B_ROOK);
-        piecesContext.put(A4, B_ROOK);
-        piecesContext.put(H4, B_ROOK);
-
-        piecesContext.put(A8, B_BISHOP);
-        piecesContext.put(A1, B_BISHOP);
-        piecesContext.put(H1, B_BISHOP);
-        piecesContext.put(H7, B_BISHOP);
-
-
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, piecesContext);
+        String positionPieces = "G8:B_KING;E4:W_KING;D5:W_PAWN;E5:W_PAWN;F5:W_PAWN;D4:B_PAWN;F4:W_PAWN;D3:B_PAWN;E3:B_PAWN;F3:B_PAWN;E1:B_ROOK;A4:B_ROOK;H4:B_ROOK;A8:B_BISHOP;A1:B_BISHOP;H1:B_BISHOP;H7:B_BISHOP";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
         Assert.assertEquals(KingStatus.OK, context.getKingStatus(E4, WHITE));
+    }
+
+
+    @Test
+    public void checkmate_with_pawns_Test() {
+        String positionPieces = "D5:B_KING;H8:W_KING;C4:W_PAWN;D4:W_PAWN;E4:W_PAWN;C5:B_PAWN;E5:B_PAWN;C6:B_PAWN;D6:B_PAWN;E6:B_PAWN;B3:W_PAWN;C3:W_PAWN;D3:W_PAWN;E3:W_PAWN;F3:W_PAWN";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(D5, BLACK));
     }
 
 }

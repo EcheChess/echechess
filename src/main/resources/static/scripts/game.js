@@ -18,10 +18,13 @@
  * Created by yannick on 4/18/2017.
  */
 
+const boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+const pieces = ["W_KING", "W_QUEEN", "W_ROOK", "W_BISHOP", "W_KNIGHT", "W_PAWN", "B_KING", "B_QUEEN", "B_ROOK", "B_BISHOP", "B_KNIGHT", "B_PAWN"];
+
+
 var currentUuid = null;
 var wsClient = null;
 var wsClientColor = null;
-var boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 var lastSelectedBoardSquareHelper = null;
 var helperSetItemMap = [];
 
@@ -45,6 +48,8 @@ $(document).ready(function () {
             currentUuid = enteredUuid;
 
             var side = $("#changeSide").find("option:selected").val();
+
+            //FIXME
             var response = jsonFromRequest("POST", '/game/join', {
                 side: side,
                 uuid: currentUuid
@@ -128,28 +133,28 @@ function writeToGameLog(message, type) {
     }
 }
 
-function setBoardEvents() {
+function setHelperBoardEvents() {
     $("#helperBoard").find("tr > td.board-square").popup({
         on: 'click',
         hoverable: true,
         html: "<div class='header'>Choose a piece</div><div class='content'>" +
-        "<table> " +
+        "<table>" +
         "<tr>" +
         "<td class='helperBordPieces' data-helper-icon='W_KING'>♔</td>" +
         "<td class='helperBordPieces' data-helper-icon='W_QUEEN'>♕</td>" +
         "<td class='helperBordPieces' data-helper-icon='W_ROOK'>♖</td>" +
         "<td class='helperBordPieces' data-helper-icon='W_BISHOP'>♗</td>" +
         "<td class='helperBordPieces' data-helper-icon='W_KNIGHT'>♘</td>" +
-        "<td class='helperBordPieces' data-helper-icon='W_PAWN'>♙</td> " +
-        "</tr> " +
-        "<tr> " +
+        "<td class='helperBordPieces' data-helper-icon='W_PAWN'>♙</td>" +
+        "</tr>" +
+        "<tr>" +
         "<td class='helperBordPieces' data-helper-icon='B_KING'>♚</td>" +
         "<td class='helperBordPieces' data-helper-icon='B_QUEEN'>♛</td>" +
         "<td class='helperBordPieces' data-helper-icon='B_ROOK'>♜</td>" +
         "<td class='helperBordPieces' data-helper-icon='B_BISHOP'>♝</td>" +
         "<td class='helperBordPieces' data-helper-icon='B_KNIGHT'>♞</td>" +
         "<td class='helperBordPieces' data-helper-icon='B_PAWN'>♟</td>" +
-        "</tr> " +
+        "</tr>" +
         "</table>" +
         "<button id='helperActionRemovePiece' class='ui red basic button'>Empty the case</button>" +
         "</div>"
@@ -173,6 +178,7 @@ function writeToSpecialGameInput(tempStrucks) {
 
     $("#inputValidatePatternSpecialGame").val(values);
 }
+
 function convertSpecialGameToDrawable() {
     var tempStrucks = [];
     for (var key in helperSetItemMap) {
@@ -190,8 +196,9 @@ function convertSpecialGameToDrawable() {
     }
     return tempStrucks;
 }
+
 function initHelperEvents() {
-    setBoardEvents();
+    setHelperBoardEvents();
 
     $(document).on("click", ".helperBordPieces", function () {
         var $currentCase = $(lastSelectedBoardSquareHelper);
@@ -207,7 +214,7 @@ function initHelperEvents() {
 
         var tempStrucks = convertSpecialGameToDrawable();
         drawBoard(tempStrucks, "#helperBoard");
-        setBoardEvents();
+        setHelperBoardEvents();
         writeToSpecialGameInput(tempStrucks);
     });
 
@@ -217,7 +224,7 @@ function initHelperEvents() {
         delete helperSetItemMap[caseName];
         var tempStrucks = convertSpecialGameToDrawable();
         drawBoard(tempStrucks, "#helperBoard");
-        setBoardEvents();
+        setHelperBoardEvents();
         writeToSpecialGameInput(tempStrucks);
     });
 
@@ -246,7 +253,6 @@ function initUiTriggers() {
         "</div>"
     });
 
-
     $("#buttonValidatePatternSpecialGame").click(function () {
         var $iconValidatePatternSpecialGame = $("#iconValidatePatternSpecialGame");
 
@@ -256,6 +262,25 @@ function initUiTriggers() {
             $iconValidatePatternSpecialGame.removeClass('red');
             $iconValidatePatternSpecialGame.addClass('check');
             $iconValidatePatternSpecialGame.addClass('green');
+
+            var values = $("#inputValidatePatternSpecialGame").val().split(";");
+            for (var i = 0; i < values.length; i++) {
+                var items = values[i].split(":");
+                var caseName = items[0];
+                var pieceName = items[1];
+                var coordinates = getCoordinateFromCaseId(caseName);
+                helperSetItemMap[caseName] =
+                    {
+                        icon: getPieceIconByPieceName(pieceName),
+                        name: pieceName,
+                        caseName: caseName,
+                        x: parseInt(coordinates.x),
+                        y: parseInt(coordinates.y)
+                    };
+
+                drawBoard(convertSpecialGameToDrawable(), "#helperBoard");
+                setHelperBoardEvents();
+            }
         } else {
             $iconValidatePatternSpecialGame.removeClass('warning');
             $iconValidatePatternSpecialGame.removeClass('check');
@@ -274,7 +299,7 @@ function initUiTriggers() {
         helperSetItemMap = [];
         drawBoard(null, "#helperBoard");
         writeToSpecialGameInput(null);
-        setBoardEvents();
+        setHelperBoardEvents();
     });
 
     $changeSide.change(function () {
@@ -471,7 +496,6 @@ function drawBoard(piecesLocation, boardId) {
 function isSpecialGamePatternValid() {
     var isPatternValid = 1;
     var values = $("#inputValidatePatternSpecialGame").val().split(";");
-    var pieces = ["W_KING", "W_QUEEN", "W_ROOK", "W_BISHOP", "W_KNIGHT", "W_PAWN", "B_KING", "B_QUEEN", "B_ROOK", "B_BISHOP", "B_KNIGHT", "B_PAWN"];
     var positionRegex = /[A-H][1-9]/g;
 
     for (var i = 0; i < values.length; i++) {

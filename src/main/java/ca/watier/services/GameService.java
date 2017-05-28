@@ -62,19 +62,7 @@ public class GameService {
             gameType = GameType.SPECIAL;
 
             CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(constraintService);
-
-            Map<CasePosition, Pieces> positionPiecesMap = new HashMap<>();
-
-            for (String section : specialGamePieces.split(";")) {
-                String[] values = section.split(":");
-
-                if (values.length != 2) {
-                    break;
-                }
-
-                positionPiecesMap.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
-            }
-            customPieceWithStandardRulesHandler.setPieces(positionPiecesMap);
+            customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
             genericGameHandler = new StandardGameHandler(constraintService);
