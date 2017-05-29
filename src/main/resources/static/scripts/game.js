@@ -18,9 +18,6 @@
  * Created by yannick on 4/18/2017.
  */
 
-const boardColumnLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const pieces = ["W_KING", "W_QUEEN", "W_ROOK", "W_BISHOP", "W_KNIGHT", "W_PAWN", "B_KING", "B_QUEEN", "B_ROOK", "B_BISHOP", "B_KNIGHT", "B_PAWN"];
-
 
 var currentUuid = null;
 var wsClient = null;
@@ -268,10 +265,10 @@ function initUiTriggers() {
                 var items = values[i].split(":");
                 var caseName = items[0];
                 var pieceName = items[1];
-                var coordinates = getCoordinateFromCaseId(caseName);
+                var coordinates = BoardHelper.getCoordinateFromCaseId(caseName);
                 helperSetItemMap[caseName] =
                     {
-                        icon: getPieceIconByPieceName(pieceName),
+                        icon: BoardHelper.getPieceIconByPieceName(pieceName),
                         name: pieceName,
                         caseName: caseName,
                         x: parseInt(coordinates.x),
@@ -455,7 +452,7 @@ function drawBoard(piecesLocation, boardId) {
         letterIdx = 0;
         tableInnerHtml += '<tr><td class="board-number">' + (y + 4) + '</td>';
         for (var x = -4; x < 4; x++) { //columns
-            var caseLetter = boardColumnLetters[letterIdx];
+            var caseLetter = BoardHelper.BOARD_COLUMN_LETTERS[letterIdx];
             var caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
             var pieceIcon = '';
 
@@ -481,14 +478,14 @@ function drawBoard(piecesLocation, boardId) {
         tableInnerHtml += '</tr>';
     }
     tableInnerHtml += '<tr><td></td>' +
-        '<td class="board-letter">' + boardColumnLetters[0] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[1] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[2] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[3] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[4] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[5] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[6] + '</td>' +
-        '<td class="board-letter">' + boardColumnLetters[7] + '</td></tr>';
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[0] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[1] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[2] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[3] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[4] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[5] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[6] + '</td>' +
+        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[7] + '</td></tr>';
 
     $board.append(tableInnerHtml);
 }
@@ -507,7 +504,7 @@ function isSpecialGamePatternValid() {
         }
 
         isPatternValid &= items[0].match(positionRegex) !== null; //Position
-        isPatternValid &= ($.inArray(items[1], pieces) !== -1); //Piece
+        isPatternValid &= ($.inArray(items[1], BoardHelper.PIECE_NAMES) !== -1); //Piece
     }
 
     return isPatternValid;

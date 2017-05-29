@@ -18,7 +18,50 @@
  * Created by yannick on 5/28/2017.
  */
 
-const MAPPED_NAME_WITH_ICON = {
+
+class BoardHelper {
+    static getPieceIconByPieceName(name) {
+        var value = null;
+        for (var currentName in this.MAPPED_NAME_WITH_ICON) {
+            if (currentName === name) {
+                value = this.MAPPED_NAME_WITH_ICON[currentName];
+                break;
+            }
+        }
+
+        return value;
+    }
+
+    static getCoordinateFromCaseId(id) {
+        var value = null;
+        for (var caseId in this.MAPPED_CASENAME_WITH_COORDINATE) {
+            if (caseId === id) {
+                value = this.MAPPED_CASENAME_WITH_COORDINATE[caseId];
+                break;
+            }
+        }
+
+        return value;
+    }
+
+    static getCaseIdFromCoordinate(x, y) {
+        var value = null;
+        for (var caseId in this.MAPPED_CASENAME_WITH_COORDINATE) {
+            var currentCoor = this.MAPPED_CASENAME_WITH_COORDINATE[caseId];
+            if (currentCoor.x === x && currentCoor.y === y) {
+                value = caseId;
+                break;
+            }
+        }
+
+        return value;
+    }
+}
+
+BoardHelper.BOARD_COLUMN_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+BoardHelper.PIECE_NAMES = ["W_KING", "W_QUEEN", "W_ROOK", "W_BISHOP", "W_KNIGHT", "W_PAWN", "B_KING", "B_QUEEN", "B_ROOK", "B_BISHOP", "B_KNIGHT", "B_PAWN"];
+
+BoardHelper.MAPPED_NAME_WITH_ICON = {
     W_KING: '♔',
     W_QUEEN: '♕',
     W_ROOK: '♖',
@@ -33,7 +76,7 @@ const MAPPED_NAME_WITH_ICON = {
     B_PAWN: '♟'
 };
 
-const MAPPED_COLUMNS_AND_LINE = [
+BoardHelper.MAPPED_COLUMNS_AND_LINE = [
     ["A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"],
     ["A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7"],
     ["A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6"],
@@ -45,7 +88,7 @@ const MAPPED_COLUMNS_AND_LINE = [
 ];
 
 
-const MAPPED_CASENAME_WITH_COORDINATE = {
+BoardHelper.MAPPED_CASENAME_WITH_COORDINATE = {
     "A8": {x: -4, y: 4},
     "B8": {x: -3, y: 4},
     "C8": {x: -2, y: 4},
@@ -111,41 +154,3 @@ const MAPPED_CASENAME_WITH_COORDINATE = {
     "G1": {x: 2, y: -3},
     "H1": {x: 3, y: -3}
 };
-
-
-function getPieceIconByPieceName(name) {
-    var value = null;
-    for (var currentName in MAPPED_NAME_WITH_ICON) {
-        if (currentName === name) {
-            value = MAPPED_NAME_WITH_ICON[currentName];
-            break;
-        }
-    }
-
-    return value;
-}
-
-function getCoordinateFromCaseId(id) {
-    var value = null;
-    for (var caseId in MAPPED_CASENAME_WITH_COORDINATE) {
-        if (caseId === id) {
-            value = MAPPED_CASENAME_WITH_COORDINATE[caseId];
-            break;
-        }
-    }
-
-    return value;
-}
-
-function getCaseIdFromCoordinate(x, y) {
-    var value = null;
-    for (var caseId in MAPPED_CASENAME_WITH_COORDINATE) {
-        var currentCoor = MAPPED_CASENAME_WITH_COORDINATE[caseId];
-        if (currentCoor.x === x && currentCoor.y === y) {
-            value = caseId;
-            break;
-        }
-    }
-
-    return value;
-}
