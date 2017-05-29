@@ -20,8 +20,6 @@
 
 
 var currentUuid = null;
-var wsClient = null;
-var wsClientColor = null;
 var lastSelectedBoardSquareHelper = null;
 var helperSetItemMap = [];
 
@@ -31,8 +29,8 @@ $(document).ready(function () {
 
     $("#createGame").click(function () {
         currentUuid = createNewGame();
-        connect(currentUuid);
-        connectSideEvent(currentUuid);
+        ConnexionManager.connect(currentUuid, renderBoard, writeToGameLog);
+        ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
 
         $('#uuid').text(currentUuid);
         renderBoard();
@@ -51,68 +49,15 @@ $(document).ready(function () {
                 side: side,
                 uuid: currentUuid
             }).response;
-            connect(currentUuid, side);
+            ConnexionManager.connect(currentUuid, renderBoard, writeToGameLog);
             renderBoard();
-            connectSideEvent(currentUuid);
+            ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
         }
     });
 
     $('.menu .item').tab();
 });
 
-function connect(uuid) {
-    if (wsClient) {
-        wsClient.unsubscribe();
-    }
-
-    wsClient = Stomp.over(new SockJS('/gs-guide-websocket'));
-    wsClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        wsClient.subscribe('/topic/' + uuid, function (greeting) {
-            var parsed = JSON.parse(greeting.body);
-            var chessEvent = parsed.event;
-            var message = parsed.message;
-
-            switch (chessEvent) {
-                case 'MOVE':
-                    renderBoard();
-                    writeToGameLog(message, chessEvent);
-                    break;
-                case 'PLAYER_JOINED':
-                    writeToGameLog(message, chessEvent);
-                    break;
-                case 'GAME_WON':
-                    writeToGameLog(message, chessEvent);
-                    break;
-                case 'GAME_WON_EVENT_MOVE':
-                    writeToGameLog(message, chessEvent);
-                    break;
-            }
-        });
-    });
-}
-
-function connectSideEvent(uuid) {
-    if (wsClientColor) {
-        wsClientColor.unsubscribe();
-    }
-
-    wsClientColor = Stomp.over(new SockJS('/gs-guide-websocket'));
-    wsClientColor.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-        wsClientColor.subscribe('/topic/' + uuid + '/' + $("#changeSide").find("option:selected").val(), function (greeting) {
-            var parsed = JSON.parse(greeting.body);
-            var chessEvent = parsed.event;
-            var message = parsed.message;
-
-            switch (chessEvent) {
-                case 'PLAYER_TURN':
-                    writeToGameLog(message, chessEvent);
-                    break;
-            }
-        });
-    });
-}
 
 function writeToGameLog(message, type) {
     $('#chessLog').append("<option>" + message + "</option>");
@@ -308,7 +253,7 @@ function initUiTriggers() {
 
             if (response) {
                 alert("Side changed !");
-                connectSideEvent(currentUuid);
+                ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
             }
         }
     });
