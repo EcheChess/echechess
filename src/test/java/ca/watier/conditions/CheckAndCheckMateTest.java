@@ -17,20 +17,16 @@
 package ca.watier.conditions;
 
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.CasePosition;
 import ca.watier.enums.KingStatus;
-import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.*;
-
 import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.Side.BLACK;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by yannick on 5/9/2017.
@@ -40,92 +36,18 @@ public class CheckAndCheckMateTest {
     private static final Side WHITE = Side.WHITE;
     private static final ConstraintService constraintService = new ConstraintService();
 
-    @Test
-    public void checkMateFromLongRangeTest() {
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(H8, B_KING);
-        pieces.put(E1, W_KING);
-        pieces.put(E4, B_ROOK);
-        pieces.put(D3, B_ROOK);
-        pieces.put(F3, B_ROOK);
-
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
-        gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(H8, BLACK));
-
-        //Move the E4, no more check mate
-        pieces.remove(E4);
-        pieces.put(D4, B_ROOK);
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
-        pieces.put(A1, B_ROOK);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E1, WHITE)); //Can move to E2
-        pieces.put(A2, B_ROOK);
-        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
-
-    }
-
-
     /**
-     * In this test, the king should be movable only to D3, F3, D5, E5 & F5
-     */
-    @Test
-    public void checkFromShortRangeWithPawnTest() {
-        List<CasePosition> allPosition = new ArrayList<>();
-        allPosition.addAll(Arrays.asList(E3, E5, D4, F4, D5, F5, D3, F3));
-
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
-
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService);
-        gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        for (CasePosition position : allPosition) {
-            pieces.clear();
-            pieces.put(H8, B_KING);
-            pieces.put(E4, W_KING);
-            pieces.put(E3, B_PAWN);
-            pieces.put(E5, B_PAWN);
-            pieces.put(D4, B_PAWN);
-            pieces.put(F4, B_PAWN);
-            pieces.put(D5, B_PAWN);
-            pieces.put(F5, B_PAWN);
-            pieces.put(D3, B_PAWN);
-            pieces.put(F3, B_PAWN);
-            gameHandler.setPieces(pieces);
-
-            if (position.equals(D3) || position.equals(D5) || position.equals(E5) || position.equals(F3) || position.equals(F5)) {
-                Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(position, WHITE));
-            } else {
-                Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
-                Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));  //Cannot move, will be check again (Need an exception to be valid)
-            }
-        }
-
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
-    }
-
-
-    /**
-     * In this test, the king should be movable only to E5, F3 & D3
+     * In this test, the king should be movable only to E5, F5 & F3
      */
     @Test
     public void checkFromMixShortAndLongRangeWithPawn_multipleExitTest() {
-
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(H8, B_KING);
-        pieces.put(E4, W_KING);
-        pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
-        pieces.put(E3, B_PAWN);
-        pieces.put(E5, B_PAWN);
-        pieces.put(D4, B_PAWN);
-        pieces.put(F4, B_PAWN);
-        pieces.put(D5, B_PAWN);
-        pieces.put(F5, B_PAWN);
-        pieces.put(D3, B_PAWN);
-        pieces.put(F3, B_PAWN);
-
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        String positionPieces = "H8:B_KING;E4:W_KING;B5:B_QUEEN;D5:B_PAWN;D4:B_PAWN;D3:B_PAWN;E5:B_PAWN;E3:B_PAWN;F3:B_PAWN;F4:B_PAWN;F5:B_PAWN";
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
+
+        //gameHandler.getPositionKingCanMove()
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(E5, F3, F5);
     }
 
 
@@ -134,49 +56,22 @@ public class CheckAndCheckMateTest {
      */
     @Test
     public void checkFromMixShortAndLongRangeWithPawn_oneExitTest() {
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(H8, B_KING);
-        pieces.put(E4, W_KING);
-        pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
-        pieces.put(H5, B_QUEEN); //Prevent the king to move to F5 & F3
-        pieces.put(E3, B_PAWN);
-        pieces.put(E5, B_PAWN);
-        pieces.put(D4, B_PAWN);
-        pieces.put(F4, B_PAWN);
-        pieces.put(D5, B_PAWN);
-        pieces.put(F5, B_PAWN);
-        pieces.put(D3, B_PAWN);
-        pieces.put(F3, B_PAWN);
-
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        String positionPieces = "H8:B_KING;E4:W_KING;B5:B_QUEEN;H5:B_QUEEN;E3:B_PAWN;E5:B_PAWN;D4:B_PAWN;F4:B_PAWN;D5:B_PAWN;F5:B_PAWN;D3:B_PAWN;F3:B_PAWN";
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(E4, WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(E5);
     }
-
 
     /**
      * In this test, the king is checkmate
      */
     @Test
-    public void checkmateFromMixShortAndLongRangeWithPawn_noAllyTest() {
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(H8, B_KING);
-        pieces.put(E4, W_KING);
-        pieces.put(B5, B_QUEEN); //Prevent the king to move to D5 & D3
-        pieces.put(H5, B_QUEEN); //Prevent the king to move to F5 & F3
-        pieces.put(E7, B_ROOK);  //Prevent the king to move to E5
-        pieces.put(E3, B_PAWN);
-        pieces.put(E5, B_PAWN);
-        pieces.put(D4, B_PAWN);
-        pieces.put(F4, B_PAWN);
-        pieces.put(D5, B_PAWN);
-        pieces.put(F5, B_PAWN);
-        pieces.put(D3, B_PAWN);
-        pieces.put(F3, B_PAWN);
-
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+    public void checkFromMixShortAndLongRangeWithPawn_noExitTest() {
+        String positionPieces = "H8:B_KING;E4:W_KING;B5:B_QUEEN;H5:B_QUEEN;E7:B_ROOK;E3:B_PAWN;E5:B_PAWN;D4:B_PAWN;F4:B_PAWN;D5:B_PAWN;F5:B_PAWN;D3:B_PAWN;F3:B_PAWN";
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E4, WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(WHITE));
     }
 
     /**
@@ -186,29 +81,14 @@ public class CheckAndCheckMateTest {
      */
     @Test
     public void checkmateFromLongRange_horizontal_Test() {
-        Map<CasePosition, Pieces> piecesContext = new HashMap<>();
-        piecesContext.put(H8, B_KING);
-        piecesContext.put(E1, W_KING);
-        piecesContext.put(H1, B_ROOK);
+        String positionPieces = "H8:B_KING;E1:W_KING;H1:B_ROOK;D2:W_PAWN;E2:W_PAWN;F2:W_PAWN";
 
-        //Block the king
-        piecesContext.put(A2, W_PAWN);
-        piecesContext.put(B2, W_PAWN);
-        piecesContext.put(C2, W_PAWN);
-        piecesContext.put(D2, W_PAWN);
-        piecesContext.put(E2, W_PAWN);
-        piecesContext.put(F2, W_PAWN);
-        piecesContext.put(G2, W_PAWN);
-        piecesContext.put(H2, W_PAWN);
-
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, piecesContext);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(E1, WHITE));
-
-        piecesContext.remove(H1);
-        piecesContext.put(A1, B_ROOK);
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(E1, WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+        context.movePieceTo(H1, A1);
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
     }
 
 
@@ -219,24 +99,14 @@ public class CheckAndCheckMateTest {
      */
     @Test
     public void checkmateFromLongRange_vertical_Test() {
-        Map<CasePosition, Pieces> piecesContext = new HashMap<>();
-        piecesContext.put(H8, B_KING);
-        piecesContext.put(A4, W_KING);
-        piecesContext.put(A8, B_ROOK);
+        String positionPieces = "H8:B_KING;A4:W_KING;A8:B_ROOK;B3:W_PAWN;B4:W_PAWN;B5:W_PAWN";
 
-        //Block the king
-        piecesContext.put(B3, W_PAWN);
-        piecesContext.put(B4, W_PAWN);
-        piecesContext.put(B5, W_PAWN);
-
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, piecesContext);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(A4, WHITE));
-
-        piecesContext.remove(A8);
-        piecesContext.put(A1, B_ROOK);
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(A4, WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+        context.movePieceTo(A8, A1); //Move the rook
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
     }
 
     @Test
@@ -246,7 +116,7 @@ public class CheckAndCheckMateTest {
         StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.OK, context.getKingStatus(E4, WHITE));
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(WHITE));
     }
 
 
@@ -256,7 +126,89 @@ public class CheckAndCheckMateTest {
         StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(D5, BLACK));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(BLACK));
+    }
+
+
+    /**
+     * The king can kill the E4 pawn and remove the check status
+     */
+    @Test
+    public void check_with_pawns_Test() {
+        String positionPieces = "D5:B_KING;H8:W_KING;C4:W_PAWN;D4:W_PAWN;E4:W_PAWN;C5:B_PAWN;E5:B_PAWN;C6:B_PAWN;D6:B_PAWN;E6:B_PAWN;B3:W_PAWN;C3:W_PAWN;E3:W_PAWN";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(BLACK));
+    }
+
+
+    /**
+     * In this test, the white king should not be checked by the pawn
+     */
+    @Test
+    public void check_with_pawns_front_move_two_position_Test() {
+        String positionPieces = "B7:B_PAWN;B8:B_KING;B5:W_KING";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
+    }
+
+
+    /**
+     * In this test, the white king should not be checked by the pawn
+     */
+    @Test
+    public void check_with_pawns_front_move_one_position_Test() {
+        String positionPieces = "B7:B_PAWN;B8:B_KING;B6:W_KING";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
+    }
+
+
+    @Test
+    public void checkmate_with_knight_Test() {
+        String positionPieces = "E4:W_KING;H8:B_KING;G5:B_KNIGHT;G2:B_KNIGHT;G1:B_KNIGHT;G7:B_KNIGHT;H5:B_KNIGHT;C6:B_KNIGHT;B6:B_KNIGHT;B5:B_KNIGHT;B2:B_KNIGHT;D1:B_KNIGHT;B3:B_KNIGHT";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+    }
+
+    /**
+     * The king is movable to E5
+     */
+    @Test
+    public void check_with_knight_Test() {
+        String positionPieces = "E4:W_KING;H8:B_KING;G5:B_KNIGHT;G2:B_KNIGHT;G1:B_KNIGHT;G7:B_KNIGHT;H5:B_KNIGHT;B6:B_KNIGHT;B5:B_KNIGHT;B2:B_KNIGHT;D1:B_KNIGHT;B3:B_KNIGHT";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(WHITE));
+    }
+
+    @Test
+    public void checkmate_with_rook_Test() {
+        String positionPieces = "E4:W_KING;H8:B_KING;A3:B_ROOK;A5:B_ROOK;A4:B_ROOK";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+    }
+
+    /**
+     * The king can moves to the D4 or F4
+     */
+    @Test
+    public void check_with_rook_Test() {
+        String positionPieces = "E4:W_KING;H8:B_KING;A3:B_ROOK;A5:B_ROOK;E8:B_ROOK";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(WHITE));
     }
 
 }

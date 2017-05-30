@@ -54,12 +54,6 @@ public enum Pieces {
         return W_KING.equals(piece) || B_KING.equals(piece);
     }
 
-    public static boolean isPawn(Pieces piece) {
-        Assert.assertNotNull(piece);
-
-        return W_PAWN.equals(piece) || B_PAWN.equals(piece);
-    }
-
     public static boolean isKnight(Pieces piece) {
         Assert.assertNotNull(piece);
 

@@ -21,18 +21,15 @@ package ca.watier;
  */
 
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.*;
+import ca.watier.enums.KingStatus;
+import ca.watier.enums.Side;
+import ca.watier.enums.SpecialGameRules;
 import ca.watier.game.StandardGameHandler;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Pieces.*;
-import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -67,24 +64,19 @@ public class SpecialGameRulesTest {
 
     @Test
     public void noCheckOrCheckmateTest() {
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
-        pieces.put(A8, B_KING);
-        pieces.put(E1, W_KING);
-        pieces.put(E3, B_QUEEN);
-        pieces.put(D3, B_QUEEN);
-        pieces.put(F3, B_QUEEN);
+        String positionPieces = "A8:B_KING;E1:W_KING;E3:B_QUEEN;D3:B_QUEEN;F3:B_QUEEN";
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
 
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
         //No rule
-        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(E1, WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(WHITE));
 
         //With the rule
         gameHandler.addSpecialRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE);
 
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(E1, WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
     }
 
 }

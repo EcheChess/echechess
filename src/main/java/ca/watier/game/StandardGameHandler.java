@@ -20,6 +20,7 @@ import ca.watier.enums.*;
 import ca.watier.services.ConstraintService;
 import ca.watier.utils.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,7 @@ public class StandardGameHandler extends GenericGameHandler {
             isMoved = true;
         }
 
-        KingStatus kingStatusAfterMove = getKingStatus(GameUtils.getPosition(Pieces.getKingBySide(playerSide), CURRENT_PIECES_LOCATION), playerSide);
+        KingStatus kingStatusAfterMove = getKingStatus(playerSide);
         if (KingStatus.isCheckOrCheckMate(kingStatusAfterMove)) { //Cannot move, revert
             movePieceTo(to, from, piecesFrom);
 
@@ -69,7 +70,7 @@ public class StandardGameHandler extends GenericGameHandler {
 
 
         Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
-        KingStatus otherkingStatusAfterMove = getKingStatus(GameUtils.getPosition(Pieces.getKingBySide(otherPlayerSide), CURRENT_PIECES_LOCATION), otherPlayerSide);
+        KingStatus otherkingStatusAfterMove = getKingStatus(otherPlayerSide);
         if (KingStatus.CHECKMATE.equals(otherkingStatusAfterMove)) {
             setGameDone(true);
         }
@@ -77,19 +78,60 @@ public class StandardGameHandler extends GenericGameHandler {
         return isMoved;
     }
 
+    /**
+     * Change a piece position, there's no check/constraint(s) on this method (Direct access to the Map)
+     *
+     * @param from
+     * @param to
+     * @param piece
+     */
+    protected void movePieceTo(CasePosition from, CasePosition to, Pieces piece) {
+        Assert.assertNotNull(from, to, piece);
+
+        CURRENT_PIECES_LOCATION.remove(from);
+        CURRENT_PIECES_LOCATION.put(to, piece);
+    }
+
+    private boolean isKingCheckAtPosition(CasePosition currentPosition, Side playerSide) {
+        Assert.assertNotNull(currentPosition, playerSide);
+
+        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
+            return false;
+        }
+
+        Assert.assertNotNull(currentPosition, playerSide);
+
+        return !getPiecesThatCanHitPosition(Side.getOtherPlayerSide(playerSide), currentPosition).isEmpty();
+    }
+
+    @Override
+    public List<CasePosition> getPositionKingCanMove(Side playerSide) {
+        Assert.assertNotNull(playerSide);
+        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), CURRENT_PIECES_LOCATION);
+
+        List<CasePosition> values = new ArrayList<>();
+        List<CasePosition> caseAround = MathUtils.getAllPositionsAroundPosition(kingPosition);
+        for (CasePosition position : caseAround) {  //Check if the king can kill something to save himself
+            if (isPieceMovableTo(kingPosition, position, playerSide) && !isKingCheckAtPosition(position, playerSide)) {
+                values.add(position);
+            }
+        }
+        return values;
+    }
 
     /**
      * 1) Check if the king can move / kill to escape.
      * 2) If not, try to liberate a case around the king, by killing / blocking the piece with an ally piece (if only one that can hit this target).
      * 3) If not, the king is checkmate.
      *
-     * @param kingPosition
      * @param playerSide
      * @return
      */
     @Override
-    public KingStatus getKingStatus(CasePosition kingPosition, Side playerSide) {
+    public KingStatus getKingStatus(Side playerSide) {
         KingStatus kingStatus = OK;
+
+        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), CURRENT_PIECES_LOCATION);
 
         if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
             return kingStatus;
@@ -103,11 +145,8 @@ public class StandardGameHandler extends GenericGameHandler {
             kingStatus = CHECKMATE;
 
             //Try to move the king
-            List<CasePosition> caseAround = MathUtils.getAllPositionsAroundPosition(kingPosition);
-            for (CasePosition position : caseAround) {  //Check if the king can kill something to save himself
-                if (isPieceMovableTo(kingPosition, position, playerSide) && !isKingCheckAtPosition(position, playerSide)) {
-                    return CHECK;
-                }
+            if (!getPositionKingCanMove(playerSide).isEmpty()) {
+                return CHECK;
             }
 
             //If not able to move, try to kill the enemy piece with an other piece
@@ -148,27 +187,5 @@ public class StandardGameHandler extends GenericGameHandler {
         }
 
         return kingStatus;
-    }
-
-    /**
-     * Change a piece position
-     *
-     * @param from
-     * @param to
-     * @param piece
-     */
-    private void movePieceTo(CasePosition from, CasePosition to, Pieces piece) {
-        CURRENT_PIECES_LOCATION.remove(from);
-        CURRENT_PIECES_LOCATION.put(to, piece);
-    }
-
-    private boolean isKingCheckAtPosition(CasePosition currentPosition, Side playerSide) {
-        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
-            return false;
-        }
-
-        Assert.assertNotNull(currentPosition, playerSide);
-
-        return !getPiecesThatCanHitPosition(Side.getOtherPlayerSide(playerSide), currentPosition).isEmpty();
     }
 }

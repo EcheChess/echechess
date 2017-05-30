@@ -60,4 +60,19 @@ public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHand
         setPieces(positionPieces);
         addBothPlayerToGameAndSetUUID();
     }
+
+    public void movePieceTo(CasePosition from, CasePosition to) {
+        Assert.assertNotNull(from, to);
+
+        Pieces pieces = CURRENT_PIECES_LOCATION.get(from);
+        Assert.assertNotNull(pieces);
+
+        movePieceTo(from, to, pieces);
+    }
+
+    public void removePieceAt(CasePosition position) {
+        Assert.assertNotNull(position);
+
+        CURRENT_PIECES_LOCATION.remove(position);
+    }
 }

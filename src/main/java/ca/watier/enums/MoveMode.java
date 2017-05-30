@@ -14,13 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.exceptions;
+package ca.watier.enums;
 
 /**
- * Created by yannick on 5/5/2017.
+ * Created by yannick on 5/30/2017.
  */
-public class GameEndedException extends GameException {
-    public GameEndedException(String s) {
-        super(s);
-    }
+public enum MoveMode {
+    NORMAL_OR_ATTACK_MOVE, IS_KING_CHECK_MODE
 }

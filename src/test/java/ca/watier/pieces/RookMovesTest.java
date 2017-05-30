@@ -16,51 +16,26 @@
 
 package ca.watier.pieces;
 
+import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
-import static junit.framework.TestCase.fail;
 
 /**
  * Created by yannick on 5/8/2017.
  */
-public class RookMovesTest {
-
-    private static final Side WHITE = Side.WHITE;
-    private static final ConstraintService constraintService = new ConstraintService();
-
+public class RookMovesTest extends GameTest {
 
     @Test
     public void moveTest() {
-        Map<CasePosition, Pieces> pieces = new HashMap<>();
 
-        //Cannot move (blocked in all ways)
-        pieces.put(E4, W_ROOK);
-        pieces.put(E5, W_PAWN);
-        pieces.put(E3, W_PAWN);
-        pieces.put(D4, W_PAWN);
-        pieces.put(F4, W_PAWN);
+        String positionPieces = "E4:W_ROOK;E5:B_PAWN;E3:B_PAWN;F4:B_PAWN;D4:B_PAWN;H1:W_ROOK;H8:B_ROOK;A8:B_ROOK;A1:B_ROOK;G1:B_ROOK";
 
-        //Kill in all direction
-        pieces.put(H1, W_ROOK);
-        pieces.put(H8, B_ROOK);
-        pieces.put(A8, B_ROOK);
-        pieces.put(A1, B_ROOK);
-        pieces.put(G1, B_ROOK);
-
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         //Cannot move (blocked in all ways)

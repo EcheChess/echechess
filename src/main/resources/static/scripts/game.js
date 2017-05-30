@@ -17,11 +17,9 @@
 /**
  * Created by yannick on 4/18/2017.
  */
-
-
-var currentUuid = null;
-var lastSelectedBoardSquareHelper = null;
-var helperSetItemMap = [];
+let currentUuid = null;
+let lastSelectedBoardSquareHelper = null;
+let helperSetItemMap = [];
 
 $(document).ready(function () {
     initUiTriggers();
@@ -37,18 +35,23 @@ $(document).ready(function () {
     });
 
     $("#joinGameButton").click(function () {
-        var enteredUuid = $("#joinGame").val();
+        let enteredUuid = $("#joinGame").val();
 
         if (enteredUuid !== '' && enteredUuid.length === 36) {
             currentUuid = enteredUuid;
 
-            var side = $("#changeSide").find("option:selected").val();
-
-            //FIXME
-            var response = jsonFromRequest("POST", '/game/join', {
+            let side = $("#changeSide").find("option:selected").val();
+            let response = jsonFromRequest("POST", '/game/join', {
                 side: side,
                 uuid: currentUuid
             }).response;
+
+            if (response) {
+                alertify.success("Joined game " + currentUuid, 6);
+            } else {
+                alertify.error("Unable to join the game: " + response.message, 6);
+            }
+
             ConnexionManager.connect(currentUuid, renderBoard, writeToGameLog);
             renderBoard();
             ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
@@ -104,7 +107,7 @@ function setHelperBoardEvents() {
 }
 
 function writeToSpecialGameInput(tempStrucks) {
-    var values = "";
+    let values = "";
 
     if (tempStrucks) {
         tempStrucks.forEach(function (element) {
@@ -122,9 +125,9 @@ function writeToSpecialGameInput(tempStrucks) {
 }
 
 function convertSpecialGameToDrawable() {
-    var tempStrucks = [];
-    for (var key in helperSetItemMap) {
-        var struct = helperSetItemMap[key];
+    let tempStrucks = [];
+    for (let key in helperSetItemMap) {
+        let struct = helperSetItemMap[key];
         tempStrucks.push({
             iconName: struct.name,
             caseName: struct.caseName,
@@ -143,8 +146,8 @@ function initHelperEvents() {
     setHelperBoardEvents();
 
     $(document).on("click", ".helperBordPieces", function () {
-        var $currentCase = $(lastSelectedBoardSquareHelper);
-        var caseName = $currentCase.attr("data-case-id");
+        let $currentCase = $(lastSelectedBoardSquareHelper);
+        let caseName = $currentCase.attr("data-case-id");
         helperSetItemMap[caseName] =
             {
                 icon: $(this).text(),
@@ -154,17 +157,17 @@ function initHelperEvents() {
                 y: parseInt($currentCase.attr("data-case-y"))
             };
 
-        var tempStrucks = convertSpecialGameToDrawable();
+        let tempStrucks = convertSpecialGameToDrawable();
         drawBoard(tempStrucks, "#helperBoard");
         setHelperBoardEvents();
         writeToSpecialGameInput(tempStrucks);
     });
 
     $(document).on("click", "#helperActionRemovePiece", function () {
-        var $currentCase = $(lastSelectedBoardSquareHelper);
-        var caseName = $currentCase.attr("data-case-id");
+        let $currentCase = $(lastSelectedBoardSquareHelper);
+        let caseName = $currentCase.attr("data-case-id");
         delete helperSetItemMap[caseName];
-        var tempStrucks = convertSpecialGameToDrawable();
+        let tempStrucks = convertSpecialGameToDrawable();
         drawBoard(tempStrucks, "#helperBoard");
         setHelperBoardEvents();
         writeToSpecialGameInput(tempStrucks);
@@ -176,10 +179,10 @@ function initHelperEvents() {
 }
 
 function initUiTriggers() {
-    var $changeSide = $('#changeSide');
-    var $gameType = $('#gameType');
-    var $specialGameLabel = $('#specialGamePiecesLabel');
-    var $specialGame = $('#specialGamePieces');
+    let $changeSide = $('#changeSide');
+    let $gameType = $('#gameType');
+    let $specialGameLabel = $('#specialGamePiecesLabel');
+    let $specialGame = $('#specialGamePieces');
 
     $("#divSpecialGamePieces").popup({
         hoverable: true,
@@ -196,7 +199,7 @@ function initUiTriggers() {
     });
 
     $("#buttonValidatePatternSpecialGame").click(function () {
-        var $iconValidatePatternSpecialGame = $("#iconValidatePatternSpecialGame");
+        let $iconValidatePatternSpecialGame = $("#iconValidatePatternSpecialGame");
 
         if (isSpecialGamePatternValid()) {
             $iconValidatePatternSpecialGame.removeClass('warning');
@@ -205,12 +208,14 @@ function initUiTriggers() {
             $iconValidatePatternSpecialGame.addClass('check');
             $iconValidatePatternSpecialGame.addClass('green');
 
-            var values = $("#inputValidatePatternSpecialGame").val().split(";");
-            for (var i = 0; i < values.length; i++) {
-                var items = values[i].split(":");
-                var caseName = items[0];
-                var pieceName = items[1];
-                var coordinates = BoardHelper.getCoordinateFromCaseId(caseName);
+            helperSetItemMap = [];
+
+            let values = $("#inputValidatePatternSpecialGame").val().split(";");
+            for (let i = 0; i < values.length; i++) {
+                let items = values[i].split(":");
+                let caseName = items[0];
+                let pieceName = items[1];
+                let coordinates = BoardHelper.getCoordinateFromCaseId(caseName);
                 helperSetItemMap[caseName] =
                     {
                         icon: BoardHelper.getPieceIconByPieceName(pieceName),
@@ -246,14 +251,16 @@ function initUiTriggers() {
 
     $changeSide.change(function () {
         if (currentUuid) {
-            var response = jsonFromRequest("POST", '/game/side', {
+            let response = jsonFromRequest("POST", '/game/side', {
                 side: $(this).find("option:selected").val(),
                 uuid: currentUuid
             }).response;
 
             if (response) {
-                alert("Side changed !");
+                alertify.success("Side changed with success !", 6);
                 ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
+            } else {
+                alertify.error("Unable to change side !", 6);
             }
         }
     });
@@ -277,7 +284,7 @@ function initUiTriggers() {
     });
 
     $(document).on("click", "#moreInfoSpecialGame", function () {
-        var $modalSpecialGameMoreInfo = $('#modalSpecialGameMoreInfo');
+        let $modalSpecialGameMoreInfo = $('#modalSpecialGameMoreInfo');
         $modalSpecialGameMoreInfo.modal('show');
         drawBoard(convertSpecialGameToDrawable(), "#helperBoard");
         initHelperEvents();
@@ -286,7 +293,7 @@ function initUiTriggers() {
 }
 
 function jsonFromRequest(type, url, data) {
-    var value = null;
+    let value = null;
 
     $.ajax({
         url: url,
@@ -318,15 +325,15 @@ function renderBoard() {
         return;
     }
 
-    var piecesLocation = jsonFromRequest('GET', '/game/pieces', {
+    let piecesLocation = jsonFromRequest('GET', '/game/pieces', {
         uuid: currentUuid
     });
 
     drawBoard(piecesLocation, "#board");
 
-    var sourceEvt = null;
+    let sourceEvt = null;
 
-    var $currentPiece = $(".board-pieces");
+    let $currentPiece = $(".board-pieces");
     $currentPiece.draggable({
         containment: "#board",
         helper: "clone",
@@ -335,13 +342,12 @@ function renderBoard() {
         }
     });
 
-
     $(".board-square").droppable({
         drop: function (event, ui) {
-            var from = $(sourceEvt).attr("data-case-id");
-            var to = $(this).attr("data-case-id");
+            let from = $(sourceEvt).attr("data-case-id");
+            let to = $(this).attr("data-case-id");
 
-            var response = jsonFromRequest('POST', '/game/move', {
+            let response = jsonFromRequest('POST', '/game/move', {
                 from: from,
                 to: to,
                 uuid: currentUuid
@@ -349,7 +355,7 @@ function renderBoard() {
 
             if (response) {
                 $(this).find('.board-pieces').each(function () {
-                    var item = $(this).text();
+                    let item = $(this).text();
 
                     if (item) {
                         $(this).hide();
@@ -363,16 +369,16 @@ function renderBoard() {
         }
     });
 
-    var $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
+    let $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
 
     $boardCaseWithPieceSelector.mouseover(function () {
-        var piecesLocation = jsonFromRequest('GET', '/game/moves', {
+        let piecesLocation = jsonFromRequest('GET', '/game/moves', {
             from: $(this).parent().attr("data-case-id"),
             uuid: currentUuid
         });
 
         if (piecesLocation) {
-            for (var i = 0; i < piecesLocation.length; i++) {
+            for (let i = 0; i < piecesLocation.length; i++) {
                 $("[data-case-id='" + piecesLocation[i] + "']").addClass("pieceAvailMoves");
             }
         }
@@ -385,27 +391,27 @@ function renderBoard() {
 }
 
 function drawBoard(piecesLocation, boardId) {
-    var $board = $(boardId);
+    let $board = $(boardId);
     $board.empty();
 
-    var tableInnerHtml = '';
-    var caseColorIndex = 0;
-    var letterIdx = 0;
-    var numberIdx = 8;
+    let tableInnerHtml = '';
+    let caseColorIndex = 0;
+    let letterIdx = 0;
+    let numberIdx = 8;
 
-    for (var y = 4; y > -4; y--) { //lines
+    for (let y = 4; y > -4; y--) { //lines
         letterIdx = 0;
         tableInnerHtml += '<tr><td class="board-number">' + (y + 4) + '</td>';
-        for (var x = -4; x < 4; x++) { //columns
-            var caseLetter = BoardHelper.BOARD_COLUMN_LETTERS[letterIdx];
-            var caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
-            var pieceIcon = '';
+        for (let x = -4; x < 4; x++) { //columns
+            let caseLetter = BoardHelper.BOARD_COLUMN_LETTERS[letterIdx];
+            let caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
+            let pieceIcon = '';
 
             if (piecesLocation) {
-                for (var key in piecesLocation) {
-                    var currentPiece = piecesLocation[key];
-                    var currentElementX = currentPiece.value1.x;
-                    var currentElementY = currentPiece.value1.y;
+                for (let key in piecesLocation) {
+                    let currentPiece = piecesLocation[key];
+                    let currentElementX = currentPiece.value1.x;
+                    let currentElementY = currentPiece.value1.y;
 
                     if (x === currentElementX && y === currentElementY) {
                         pieceIcon = currentPiece.value2.unicodeIcon;
@@ -436,12 +442,12 @@ function drawBoard(piecesLocation, boardId) {
 }
 
 function isSpecialGamePatternValid() {
-    var isPatternValid = 1;
-    var values = $("#inputValidatePatternSpecialGame").val().split(";");
-    var positionRegex = /[A-H][1-9]/g;
+    let isPatternValid = 1;
+    let values = $("#inputValidatePatternSpecialGame").val().split(";");
+    let positionRegex = /[A-H][1-9]/g;
 
-    for (var i = 0; i < values.length; i++) {
-        var items = values[i].split(":");
+    for (let i = 0; i < values.length; i++) {
+        let items = values[i].split(":");
 
         if (items.length > 2) {
             isPatternValid = false;

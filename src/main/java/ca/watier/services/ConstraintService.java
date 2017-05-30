@@ -18,6 +18,7 @@ package ca.watier.services;
 
 import ca.watier.constraints.*;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.MoveMode;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.utils.Assert;
@@ -90,10 +91,10 @@ public class ConstraintService {
      * @param to
      * @param playerSide
      * @param piecesLocation
-     * @param ignoreOtherPieces - Gives the full move of the piece, ignoring the other pieces
+     * @param moveMode       - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation, boolean ignoreOtherPieces) {
+    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation, MoveMode moveMode) {
         Assert.assertNotNull(from, to, playerSide, piecesLocation);
         Pieces fromPiece = piecesLocation.get(from);
 
@@ -105,6 +106,6 @@ public class ConstraintService {
 
         Assert.assertNotNull(moveConstraint);
 
-        return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation, ignoreOtherPieces);
+        return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation, moveMode);
     }
 }

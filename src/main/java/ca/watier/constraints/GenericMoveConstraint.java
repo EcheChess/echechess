@@ -37,7 +37,7 @@ public class GenericMoveConstraint implements MoveConstraint {
     }
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
         if (pattern == null) {
             return false;
         }
@@ -61,21 +61,29 @@ public class GenericMoveConstraint implements MoveConstraint {
 
         boolean isMoveValid = MathUtils.isPositionInLine(from, MathUtils.getNearestPositionFromDirection(from, directionFromPosition), to);
 
-        if (!ignoreOtherPieces) { //Moves
+        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
             isMoveValid &= !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap);
 
             if (pieces != null) {
                 isMoveValid &= !side.equals(pieces.getSide()) && !Pieces.isKing(pieces);
             }
-        } else { //Attack
+        } else if (MoveMode.IS_KING_CHECK_MODE.equals(moveMode)) {
 
             /*
-                1) If a king between position, return true
+                1) If a king between position and not covered, return true
                 2) If other piece between position, return false
              */
 
+            boolean isKingDirectOnTheAttackingPiece = false;
+
             List<CasePosition> piecesBetweenPosition = GameUtils.getPiecesBetweenPosition(from, to, positionPiecesMap);
-            isMoveValid &= piecesBetweenPosition.isEmpty() || piecesBetweenPosition.contains(GameUtils.getPosition(Pieces.getKingBySide(Side.getOtherPlayerSide(side)), positionPiecesMap));
+            CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(Side.getOtherPlayerSide(side)), positionPiecesMap);
+
+            if (piecesBetweenPosition.contains(kingPosition)) { //If the king is on the path, check if he's covered by another piece
+                isKingDirectOnTheAttackingPiece = GameUtils.getPiecesBetweenPosition(from, kingPosition, positionPiecesMap).isEmpty();
+            }
+
+            isMoveValid &= piecesBetweenPosition.isEmpty() || isKingDirectOnTheAttackingPiece;
         }
 
         return isMoveValid;

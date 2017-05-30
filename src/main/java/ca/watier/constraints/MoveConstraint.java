@@ -17,10 +17,10 @@
 package ca.watier.constraints;
 
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.MoveMode;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,8 +32,8 @@ public interface MoveConstraint {
      * @param to
      * @param side
      * @param positionPiecesMap
-     * @param ignoreOtherPieces - Gives the full move of the piece, ignoring the other pieces
+     * @param moveMode - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces);
+    boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode);
 }

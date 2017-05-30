@@ -83,11 +83,11 @@ public class GenericGameHandler {
     }
 
     public final boolean isPieceMovableToWithIgnoreOtherPieces(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION, true);
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION, MoveMode.NORMAL_OR_ATTACK_MOVE);
     }
 
     public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION, false);
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, CURRENT_PIECES_LOCATION, MoveMode.NORMAL_OR_ATTACK_MOVE);
     }
 
     public Map<CasePosition, Pieces> getPiecesLocation() {
@@ -125,6 +125,10 @@ public class GenericGameHandler {
 
     public boolean isGameHaveRule(SpecialGameRules rule) {
         return SPECIAL_GAME_RULES.contains(rule);
+    }
+
+    public List<CasePosition> getPositionKingCanMove(Side playerSide) {
+        return null;
     }
 
     public final boolean setPlayerToSide(Player player, Side side) throws GameException {
@@ -207,29 +211,7 @@ public class GenericGameHandler {
         return side;
     }
 
-    protected boolean isKingCheck(Side playerSide) {
-        Assert.assertNotNull(playerSide);
-
-        if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
-            return false;
-        }
-        CasePosition position = null;
-
-        switch (playerSide) {
-            case WHITE:
-                position = GameUtils.getPosition(Pieces.W_KING, CURRENT_PIECES_LOCATION);
-                break;
-            case BLACK:
-                position = GameUtils.getPosition(Pieces.B_KING, CURRENT_PIECES_LOCATION);
-                break;
-        }
-
-        Assert.assertNotNull(position);
-
-        return KingStatus.CHECK.equals(getKingStatus(position, playerSide));
-    }
-
-    protected KingStatus getKingStatus(CasePosition kingPosition, Side playerSide) {
+    protected KingStatus getKingStatus(Side playerSide) {
         return KingStatus.OK;
     }
 
@@ -278,7 +260,7 @@ public class GenericGameHandler {
                     continue;
                 }
 
-                if (CONSTRAINT_SERVICE.isPieceMovableTo(key, position, pieceSide, CURRENT_PIECES_LOCATION, true)) {
+                if (CONSTRAINT_SERVICE.isPieceMovableTo(key, position, pieceSide, CURRENT_PIECES_LOCATION, MoveMode.IS_KING_CHECK_MODE)) {
                     values.put(position, new Pair<>(key, value));
                 }
             }

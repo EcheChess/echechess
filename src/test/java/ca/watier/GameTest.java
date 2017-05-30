@@ -14,16 +14,16 @@
  *    limitations under the License.
  */
 
-package ca.watier.daos;
+package ca.watier;
 
-import org.springframework.stereotype.Repository;
+import ca.watier.enums.Side;
+import ca.watier.services.ConstraintService;
 
 /**
- * Created by yannick on 4/17/2017.
+ * Created by yannick on 5/30/2017.
  */
-@Repository
-public class ChessDao {
-    public String getName() {
-        return "SUPER_NAME";
-    }
+public class GameTest {
+    protected static final Side WHITE = Side.WHITE;
+    protected static final Side BLACK = Side.BLACK;
+    protected static final ConstraintService constraintService = new ConstraintService();
 }

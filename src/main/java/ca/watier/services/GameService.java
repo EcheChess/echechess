@@ -146,7 +146,20 @@ public class GameService {
 
         List<String> values = new ArrayList<>();
 
-        for (CasePosition casePosition : gameFromUuid.getAllAvailableMoves(from, playerSide, false)) {
+        Map<CasePosition, Pieces> piecesLocation = gameFromUuid.getPiecesLocation();
+        Pieces pieces = piecesLocation.get(from);
+        Assert.assertNotNull(pieces);
+
+        if (!pieces.getSide().equals(playerSide)) {
+            return values;
+        }
+
+        List<CasePosition> positions =
+                Pieces.isKing(pieces) ?
+                        gameFromUuid.getPositionKingCanMove(playerSide) :
+                        gameFromUuid.getAllAvailableMoves(from, playerSide, false);
+
+        for (CasePosition casePosition : positions) {
             values.add(casePosition.name());
         }
 

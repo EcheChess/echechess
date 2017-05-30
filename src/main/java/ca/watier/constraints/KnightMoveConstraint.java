@@ -16,10 +16,7 @@
 
 package ca.watier.constraints;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Direction;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
 import ca.watier.utils.Assert;
 import ca.watier.utils.MathUtils;
 
@@ -43,13 +40,13 @@ public class KnightMoveConstraint implements MoveConstraint {
     }
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
         Assert.assertNotNull(from, to, side);
         Pieces hittingPiece = positionPiecesMap.get(to);
 
         boolean canAttack = true;
 
-        if (!ignoreOtherPieces) { //Move
+        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
             if (hittingPiece != null) {
                 canAttack = !side.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
             }

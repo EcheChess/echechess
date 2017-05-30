@@ -16,6 +16,7 @@
 
 package ca.watier.pieces;
 
+import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
@@ -36,11 +37,8 @@ import static junit.framework.TestCase.fail;
 /**
  * Created by yannick on 5/8/2017.
  */
-public class PawnMovesTest {
+public class PawnMovesTest extends GameTest {
 
-    private static final Side WHITE = Side.WHITE;
-    private static final Side BLACK = Side.BLACK;
-    private static final ConstraintService constraintService = new ConstraintService();
 
     @Test
     public void moveTest() {

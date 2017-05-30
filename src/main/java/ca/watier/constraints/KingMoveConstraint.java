@@ -17,6 +17,7 @@
 package ca.watier.constraints;
 
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.MoveMode;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.utils.Assert;
@@ -32,14 +33,14 @@ public class KingMoveConstraint implements MoveConstraint {
 
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
         Assert.assertNotNull(from, to, side);
 
         Pieces hittingPiece = positionPiecesMap.get(to);
 
         boolean checkHit = true;
-        if (!ignoreOtherPieces) {
-            checkHit = hittingPiece == null || !side.equals(hittingPiece.getSide());
+        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
+            checkHit = hittingPiece == null || !side.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
         }
 
         return (BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to)) == 1) && checkHit;

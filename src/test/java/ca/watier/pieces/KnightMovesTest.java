@@ -16,11 +16,10 @@
 
 package ca.watier.pieces;
 
+import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,18 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Pieces.W_KNIGHT;
+import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
-import static junit.framework.TestCase.fail;
 
 /**
  * Created by yannick on 5/8/2017.
  */
-public class KnightMovesTest {
-
-    private static final Side WHITE = Side.WHITE;
-    private static final ConstraintService constraintService = new ConstraintService();
+public class KnightMovesTest extends GameTest {
 
 
     @Test
@@ -73,6 +68,12 @@ public class KnightMovesTest {
             Assert.assertTrue(gameHandler.movePiece(E4, position, WHITE));
         }
 
+        //Cannot attack a friendly or a king
+        pieces.put(A8, W_KNIGHT);
+        pieces.put(C7, B_KING);
+        pieces.put(B6, W_KING);
+        Assert.assertFalse(gameHandler.movePiece(A8, C7, WHITE));
+        Assert.assertFalse(gameHandler.movePiece(A8, B6, WHITE));
 
     }
 }

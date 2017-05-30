@@ -16,10 +16,7 @@
 
 package ca.watier.constraints;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Direction;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
 import ca.watier.utils.Assert;
 import ca.watier.utils.BaseUtils;
 import ca.watier.utils.GameUtils;
@@ -33,7 +30,7 @@ import java.util.Map;
 public class PawnMoveConstraint implements MoveConstraint {
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, boolean ignoreOtherPieces) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
         Assert.assertNotNull(from, to, side);
 
         Direction direction = Direction.NORTH,
@@ -57,23 +54,29 @@ public class PawnMoveConstraint implements MoveConstraint {
         boolean normalMove = (GameUtils.isDefaultPosition(from, positionPiecesMap.get(from)) &&
                 nbCaseBetweenPositions == 2 || isNbOfCaseIsOne) && isFrontMove && !otherPiecesBetweenTarget;
 
-        if (normalMove && hittingPiece == null) { //Normal move
-            return true;
-        } else if (normalMove) { //Blocked by another piece, with a normal move
-            return false;
-        }
 
         if (directionFromPosition == null) {
             return false;
         }
 
-        boolean checkHit = true;
-        if (!ignoreOtherPieces) {
-            checkHit = hittingPiece != null && !hittingPiece.getSide().equals(side) && !Pieces.isKing(hittingPiece);
+        boolean isAttackMove = directionFromPosition.equals(directionAttack1) || directionFromPosition.equals(directionAttack2);
+        boolean isMoveValid = false;
+
+        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
+
+            if (normalMove && hittingPiece == null) { //Normal move
+                return true;
+            } else if (normalMove) { //Blocked by another piece, with a normal move
+                return false;
+            }
+
+            isMoveValid = hittingPiece != null && !hittingPiece.getSide().equals(side) && !Pieces.isKing(hittingPiece) &&
+                    isAttackMove;
+
+        } else if (MoveMode.IS_KING_CHECK_MODE.equals(moveMode)) {
+            isMoveValid = isAttackMove;
         }
 
-        //Attack move
-        return isNbOfCaseIsOne && checkHit &&
-                (directionFromPosition.equals(directionAttack1) || directionFromPosition.equals(directionAttack2));
+        return isMoveValid && isNbOfCaseIsOne;
     }
 }
