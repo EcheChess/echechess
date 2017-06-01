@@ -172,12 +172,13 @@ public class StandardGameHandler extends GenericGameHandler {
                     return CHECKMATE;
                 }
 
-                for (CasePosition position : getPiecesLocation(playerSide).keySet()) { //Try to find if one of our piece can block the target
-                    if (Pieces.isKing(CURRENT_PIECES_LOCATION.get(position))) {
-                        continue;
-                    }
 
-                    for (CasePosition casePosition : MathUtils.getPositionsBetweenTwoPosition(position, enemyPosition)) {
+                for (CasePosition casePosition : MathUtils.getPositionsBetweenTwoPosition(enemyPosition, kingPosition)) { //For each position between the king and the enemy, we try to block it
+                    for (CasePosition position : getPiecesLocation(playerSide).keySet()) { //Try to find if one of our piece can block the target
+                        if (Pieces.isKing(CURRENT_PIECES_LOCATION.get(position))) {
+                            continue;
+                        }
+
                         if (isPieceMovableTo(position, casePosition, playerSide)) {
                             return CHECK;
                         }
