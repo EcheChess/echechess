@@ -19,9 +19,8 @@ package ca.watier.pieces;
 import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
-import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,12 +31,36 @@ import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
-import static junit.framework.TestCase.fail;
 
 /**
  * Created by yannick on 5/8/2017.
  */
 public class PawnMovesTest extends GameTest {
+
+    /**
+     * In this test, the white king should not be checked by the pawn
+     */
+    @Test
+    public void check_with_pawns_front_move_two_position_Test() {
+        String positionPieces = "B7:B_PAWN;B8:B_KING;B5:W_KING";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
+    }
+
+
+    /**
+     * In this test, the white king should not be checked by the pawn
+     */
+    @Test
+    public void check_with_pawns_front_move_one_position_Test() {
+        String positionPieces = "B7:B_PAWN;B8:B_KING;B6:W_KING";
+        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        context.addSpecialRule(NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
+    }
 
 
     @Test

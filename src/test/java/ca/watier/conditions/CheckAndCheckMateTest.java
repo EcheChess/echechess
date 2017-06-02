@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.KingStatus.*;
 import static ca.watier.enums.Side.BLACK;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +46,7 @@ public class CheckAndCheckMateTest {
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(CHECK, gameHandler.getKingStatus(WHITE));
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(E5, F3, F5);
     }
 
@@ -58,7 +59,7 @@ public class CheckAndCheckMateTest {
         String positionPieces = "H8:B_KING;E4:W_KING;B5:B_QUEEN;H5:B_QUEEN;E3:B_PAWN;E5:B_PAWN;D4:B_PAWN;F4:B_PAWN;D5:B_PAWN;F5:B_PAWN;D3:B_PAWN;F3:B_PAWN";
         StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(CHECK, gameHandler.getKingStatus(WHITE));
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(E5);
     }
 
@@ -104,128 +105,36 @@ public class CheckAndCheckMateTest {
         StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.OK, context.getKingStatus(WHITE));
+        Assert.assertEquals(OK, context.getKingStatus(WHITE));
     }
 
-
-    /**
-     * The king can kill the E4 pawn and remove the check status
-     */
     @Test
-    public void check_with_pawns_Test() {
-        String positionPieces = "D5:B_KING;H8:W_KING;C4:W_PAWN;D4:W_PAWN;E4:W_PAWN;C5:B_PAWN;E5:B_PAWN;C6:B_PAWN;D6:B_PAWN;E6:B_PAWN;B3:W_PAWN;C3:W_PAWN;E3:W_PAWN";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(BLACK));
-    }
-
-
-    /**
-     * In this test, the white king should not be checked by the pawn
-     */
-    @Test
-    public void check_with_pawns_front_move_two_position_Test() {
-        String positionPieces = "B7:B_PAWN;B8:B_KING;B5:W_KING";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
-    }
-
-
-    /**
-     * In this test, the white king should not be checked by the pawn
-     */
-    @Test
-    public void check_with_pawns_front_move_one_position_Test() {
-        String positionPieces = "B7:B_PAWN;B8:B_KING;B6:W_KING";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
-    }
-
-    /**
-     * The king is movable to E5
-     */
-    @Test
-    public void check_with_knight_Test() {
-        String positionPieces = "E4:W_KING;H8:B_KING;G5:B_KNIGHT;G2:B_KNIGHT;G1:B_KNIGHT;G7:B_KNIGHT;H5:B_KNIGHT;B6:B_KNIGHT;B5:B_KNIGHT;B2:B_KNIGHT;D1:B_KNIGHT;B3:B_KNIGHT";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(WHITE));
-    }
-
-
-    /**
-     * The king can moves to the D4 or F4
-     */
-    @Test
-    public void check_with_rook_Test() {
-        String positionPieces = "E4:W_KING;H8:B_KING;A3:B_ROOK;A5:B_ROOK;E8:B_ROOK";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(WHITE));
-    }
-
-
-    /**
-     * The king can moves to
-     */
-    @Test
-    public void check_with_bishop_Test() {
-        String positionPieces = "E4:W_KING;H8:B_KING;A3:B_ROOK;A5:B_ROOK;E8:B_ROOK";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        Assert.assertEquals(KingStatus.CHECK, context.getKingStatus(WHITE));
-    }
-
-
-    @Test
-    public void checkWhiteKingPattern_Test() {
+    public void checkBlackKingPattern_check_Test() {
 
         StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService);
         context.addSpecialRule(NO_PLAYER_TURN);
 
         String[] patterns = new String[]{
-                "E4:W_KING;H8:B_KING;A3:B_ROOK;A5:B_ROOK;E8:B_ROOK", //Rook
-                "E4:W_KING;H8:B_KING;G5:B_KNIGHT;G2:B_KNIGHT;G1:B_KNIGHT;G7:B_KNIGHT;H5:B_KNIGHT;B6:B_KNIGHT;B5:B_KNIGHT;B2:B_KNIGHT;D1:B_KNIGHT;B3:B_KNIGHT", //Knight
+                "D5:B_KING;C4:W_PAWN;E4:W_PAWN",
+                "D5:B_KING;B6:W_KNIGHT",
+                "D5:B_KING;B7:W_BISHOP",
+                "D5:B_KING;D7:W_ROOK",
+                "D5:B_KING;D7:W_QUEEN",
+                "D5:B_KING;C4:W_KING"
         };
 
+        assertPattern(context, patterns, CHECK, BLACK);
+    }
+
+    private void assertPattern(StandardGameHandlerContext context, String[] patterns, KingStatus status, Side side) {
         for (String pattern : patterns) {
             context.setPieces(pattern);
-            Assert.assertEquals(String.format("The pattern %s has failed !", pattern), KingStatus.CHECK, context.getKingStatus(WHITE));
+            Assert.assertEquals(String.format("The pattern %s has failed !", pattern), status, context.getKingStatus(side));
         }
     }
 
-
     @Test
-    public void checkmateWhiteKingPattern_Test() {
-
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
-        String[] patterns = new String[]{
-                "E4:W_KING;H8:B_KING;C6:B_BISHOP;C5:B_BISHOP;C4:B_BISHOP;C7:B_BISHOP;C8:B_BISHOP", //Bishop
-                "E4:W_KING;H8:B_KING;A3:B_ROOK;A5:B_ROOK;A4:B_ROOK", //Rook
-                "E4:W_KING;H8:B_KING;G5:B_KNIGHT;G2:B_KNIGHT;G1:B_KNIGHT;G7:B_KNIGHT;H5:B_KNIGHT;C6:B_KNIGHT;B6:B_KNIGHT;B5:B_KNIGHT;B2:B_KNIGHT;D1:B_KNIGHT;B3:B_KNIGHT", //Knight
-                "C5:B_PAWN;E5:B_PAWN;D5:W_KING;H8:B_KING;C4:W_PAWN;D4:W_PAWN;E4:W_PAWN;C6:B_PAWN;D6:B_PAWN;E6:B_PAWN;B7:B_PAWN;C7:B_PAWN;D7:B_PAWN;E7:B_PAWN;F7:B_PAWN", //Pawn
-                "H8:B_KING;E4:W_KING;B5:B_QUEEN;H5:B_QUEEN;E7:B_ROOK;E3:B_PAWN;E5:B_PAWN;D4:B_PAWN;F4:B_PAWN;D5:B_PAWN;F5:B_PAWN;D3:B_PAWN;F3:B_PAWN", //Mix
-        };
-
-        for (String pattern : patterns) {
-            context.setPieces(pattern);
-            Assert.assertEquals(String.format("The pattern %s has failed !", pattern), KingStatus.CHECKMATE, context.getKingStatus(WHITE));
-        }
-    }
-
-
-    @Test
-    public void checkmateBlackKingPattern_Test() {
+    public void checkmateBlackKingPattern_checkmate_Test() {
 
         StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService);
         context.addSpecialRule(NO_PLAYER_TURN);
@@ -270,9 +179,6 @@ public class CheckAndCheckMateTest {
                 "F8:B_ROOK;G8:B_KING;H7:B_PAWN;F7:B_PAWN;E7:W_KNIGHT;C3:W_BISHOP" // Suffocation mate
         };
 
-        for (String pattern : patterns) {
-            context.setPieces(pattern);
-            Assert.assertEquals(String.format("The pattern %s has failed !", pattern), KingStatus.CHECKMATE, context.getKingStatus(BLACK));
-        }
+        assertPattern(context, patterns, CHECKMATE, BLACK);
     }
 }
