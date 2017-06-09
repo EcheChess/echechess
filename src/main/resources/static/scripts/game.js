@@ -20,6 +20,7 @@
 let currentUuid = null;
 let lastSelectedBoardSquareHelper = null;
 let helperSetItemMap = [];
+const BASE_API = "https://localhost:8443";
 
 $(document).ready(function () {
     initUiTriggers();
@@ -296,7 +297,7 @@ function jsonFromRequest(type, url, data) {
     let value = null;
 
     $.ajax({
-        url: url,
+        url: BASE_API + url,
         type: type,
         data: data,
         async: false,
@@ -401,7 +402,7 @@ function drawBoard(piecesLocation, boardId) {
 
     for (let y = 4; y > -4; y--) { //lines
         letterIdx = 0;
-        tableInnerHtml += '<tr><td class="board-number">' + (y + 4) + '</td>';
+        tableInnerHtml += '<tr><td class="board-number board-square">' + (y + 4) + '</td>';
         for (let x = -4; x < 4; x++) { //columns
             let caseLetter = BoardHelper.BOARD_COLUMN_LETTERS[letterIdx];
             let caseColor = (((caseColorIndex & 1) === 1) ? 'black' : 'white');
@@ -429,14 +430,14 @@ function drawBoard(piecesLocation, boardId) {
         tableInnerHtml += '</tr>';
     }
     tableInnerHtml += '<tr><td></td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[0] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[1] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[2] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[3] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[4] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[5] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[6] + '</td>' +
-        '<td class="board-letter">' + BoardHelper.BOARD_COLUMN_LETTERS[7] + '</td></tr>';
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[0] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[1] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[2] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[3] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[4] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[5] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[6] + '</td>' +
+        '<td class="board-letter board-square">' + BoardHelper.BOARD_COLUMN_LETTERS[7] + '</td></tr>';
 
     $board.append(tableInnerHtml);
 }

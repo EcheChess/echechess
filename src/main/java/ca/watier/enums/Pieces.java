@@ -19,33 +19,38 @@ package ca.watier.enums;
 import ca.watier.utils.Assert;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import static ca.watier.enums.Side.BLACK;
+import static ca.watier.enums.Side.WHITE;
+
 /**
  * Created by yannick on 4/18/2017.
  */
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Pieces {
-    W_KING("White King", '♔', Side.WHITE), //TODO: Castling
-    W_QUEEN("White Queen ", '♕', Side.WHITE),
-    W_ROOK("White Rook", '♖', Side.WHITE),
-    W_BISHOP("White Bishop", '♗', Side.WHITE),
-    W_KNIGHT("White Knight", '♘', Side.WHITE),
-    W_PAWN("White Pawn", '♙', Side.WHITE),
-    B_KING("Black King", '♚', Side.BLACK), //TODO: Castling
-    B_QUEEN("Black Queen ", '♛', Side.BLACK),
-    B_ROOK("Black Rook", '♜', Side.BLACK),
-    B_BISHOP("Black Bishop", '♝', Side.BLACK),
-    B_KNIGHT("Black Knight", '♞', Side.BLACK),
-    B_PAWN("Black Pawn", '♟', Side.BLACK);
+    W_KING("White King", '♔', WHITE, (byte) -128), //TODO: Castling
+    W_QUEEN("White Queen ", '♕', WHITE, (byte) 9),
+    W_ROOK("White Rook", '♖', WHITE, (byte) 5),
+    W_BISHOP("White Bishop", '♗', WHITE, (byte) 3),
+    W_KNIGHT("White Knight", '♘', WHITE, (byte) 3),
+    W_PAWN("White Pawn", '♙', WHITE, (byte) 1),
+    B_KING("Black King", '♚', BLACK, (byte) -128), //TODO: Castling
+    B_QUEEN("Black Queen ", '♛', BLACK, (byte) 9),
+    B_ROOK("Black Rook", '♜', BLACK, (byte) 5),
+    B_BISHOP("Black Bishop", '♝', BLACK, (byte) 3),
+    B_KNIGHT("Black Knight", '♞', BLACK, (byte) 3),
+    B_PAWN("Black Pawn", '♟', BLACK, (byte) 1);
 
     private final char unicodeIcon;
     private final String name;
     private final Side side;
+    private byte point;
 
-    Pieces(String name, char unicodeIcon, Side side) {
+    Pieces(String name, char unicodeIcon, Side side, byte point) {
         this.name = name;
         this.unicodeIcon = unicodeIcon;
         this.side = side;
+        this.point = point;
     }
 
     public static boolean isKing(Pieces piece) {
@@ -67,7 +72,7 @@ public enum Pieces {
             return null;
         }
 
-        return Side.BLACK.equals(playerSide) ? B_KING : W_KING;
+        return BLACK.equals(playerSide) ? B_KING : W_KING;
     }
 
     public char getUnicodeIcon() {
@@ -80,5 +85,9 @@ public enum Pieces {
 
     public Side getSide() {
         return side;
+    }
+
+    public byte getPoint() {
+        return point;
     }
 }

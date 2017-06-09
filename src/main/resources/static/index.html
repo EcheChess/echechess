@@ -62,7 +62,18 @@
     </div>
     <div class="ui horizontal segments">
         <div class="ui segment" id="boardSegment">
-            <table id="board" class="ui bottom attached active tab segment" data-tab="tabBoard"></table>
+            <div class="ui bottom attached active tab segment" id="mainBoardLayout" data-tab="tabBoard">
+                <table id="board"></table>
+                <div class="ui label">
+                    White
+                    <div class="detail" id="whitePlayerScore">0</div>
+                </div>
+                <div class="ui label">
+                    Black
+                    <div class="detail" id="blackPlayerScore">0</div>
+                </div>
+            </div>
+
             <select id="chessLog" size="15" class="ui bottom attached tab segment" data-tab="tabLog">
             </select>
         </div>

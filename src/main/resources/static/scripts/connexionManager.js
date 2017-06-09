@@ -17,19 +17,40 @@
 /**
  * Created by yannick on 5/28/2017.
  */
-
 let wsClient = null;
 let wsClientColor = null;
+let wsMainClient = null;
 
 class ConnexionManager {
+    static connectMainEvent(uuid, writeToGameLog) {
+        if (wsMainClient) {
+            wsMainClient.unsubscribe();
+        }
+
+        wsMainClient = Stomp.over(new SockJS('/gs-guide-websocket'));
+        wsMainClient.connect({}, function () {
+            wsMainClient.subscribe('/topic/' + getCookieValueByName('sessionId'), function (greeting) {
+                let parsed = JSON.parse(greeting.body);
+                let chessEvent = parsed.event;
+                let message = parsed.message;
+
+                switch (chessEvent) {
+                    case 'PLAYER_TURN':
+                        writeToGameLog(message, chessEvent);
+                        break;
+                }
+            });
+        });
+    }
+
+
     static connectSideEvent(uuid, writeToGameLog) {
         if (wsClientColor) {
             wsClientColor.unsubscribe();
         }
 
         wsClientColor = Stomp.over(new SockJS('/gs-guide-websocket'));
-        wsClientColor.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
+        wsClientColor.connect({}, function () {
             wsClientColor.subscribe('/topic/' + uuid + '/' + $("#changeSide").find("option:selected").val(), function (greeting) {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;
@@ -50,8 +71,7 @@ class ConnexionManager {
         }
 
         wsClient = Stomp.over(new SockJS('/gs-guide-websocket'));
-        wsClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
+        wsClient.connect({}, function () {
             wsClient.subscribe('/topic/' + uuid, function (greeting) {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;

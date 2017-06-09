@@ -28,6 +28,10 @@ public class BooleanResponse {
         this.message = message;
     }
 
+    public BooleanResponse(boolean response) {
+        this.response = response;
+    }
+
     public boolean isResponse() {
         return response;
     }

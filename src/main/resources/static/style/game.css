@@ -38,7 +38,8 @@ html {
 }
 
 #boardSegment {
-    min-width: 460px;
+    width: 460px;
+    min-width: 550px;
 }
 
 .board-square {
@@ -54,7 +55,7 @@ html {
 }
 
 #board {
-    width: 100%;
+    width: 486px;
 }
 
 .board-pieces {
@@ -86,4 +87,8 @@ html {
 
 #helperActionRemovePiece {
     float: right;
+}
+
+#mainBoardLayout {
+    min-width: 520px;
 }

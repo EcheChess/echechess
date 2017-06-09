@@ -29,10 +29,8 @@ public class Player implements Serializable {
     private static final long serialVersionUID = 296605081563013686L;
     private List<UUID> createdGameList = new ArrayList<>();
     private List<UUID> joinedGameList = new ArrayList<>();
-    private UUID lastGameCreated;
 
     public void addCreatedGame(UUID uuid) {
-        lastGameCreated = uuid;
         createdGameList.add(uuid);
     }
 
@@ -43,10 +41,6 @@ public class Player implements Serializable {
 
     public List<UUID> getCreatedGameList() {
         return Collections.unmodifiableList(createdGameList);
-    }
-
-    public UUID getLastGameCreated() {
-        return lastGameCreated;
     }
 
     public List<UUID> getJoinedGameList() {

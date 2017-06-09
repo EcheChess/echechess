@@ -41,6 +41,7 @@ public class StandardGameHandler extends GenericGameHandler {
 
         Pieces piecesFrom = CURRENT_PIECES_LOCATION.get(from);
         Pieces piecesTo = CURRENT_PIECES_LOCATION.get(to);
+        boolean isEatingPiece = piecesTo != null;
         Assert.assertNotNull(piecesFrom);
 
         if (!isPieceMovableTo(from, to, playerSide)) {
@@ -56,10 +57,11 @@ public class StandardGameHandler extends GenericGameHandler {
         }
 
         KingStatus kingStatusAfterMove = getKingStatus(playerSide);
+
         if (KingStatus.isCheckOrCheckMate(kingStatusAfterMove)) { //Cannot move, revert
             movePieceTo(to, from, piecesFrom);
 
-            if (piecesTo != null) {
+            if (isEatingPiece) {
                 CURRENT_PIECES_LOCATION.put(to, piecesTo); //reset the attacked piece
             }
 
@@ -68,10 +70,13 @@ public class StandardGameHandler extends GenericGameHandler {
             changeAllowedMoveSide();
         }
 
+        if (isMoved && isEatingPiece) { //Count the point for the piece
+            updatePointsForSide(playerSide, piecesTo.getPoint());
+        }
 
         Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
-        KingStatus otherkingStatusAfterMove = getKingStatus(otherPlayerSide);
-        if (KingStatus.CHECKMATE.equals(otherkingStatusAfterMove)) {
+        KingStatus otherKingStatusAfterMove = getKingStatus(otherPlayerSide);
+        if (KingStatus.CHECKMATE.equals(otherKingStatusAfterMove)) {
             setGameDone(true);
         }
 

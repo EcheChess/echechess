@@ -129,7 +129,7 @@ public class CheckAndCheckMateTest {
     private void assertPattern(StandardGameHandlerContext context, String[] patterns, KingStatus status, Side side) {
         for (String pattern : patterns) {
             context.setPieces(pattern);
-            Assert.assertEquals(String.format("The pattern %s has failed !", pattern), status, context.getKingStatus(side));
+            Assert.assertEquals(String.format("The pattern '%s' has failed !", pattern), status, context.getKingStatus(side));
         }
     }
 
@@ -176,7 +176,13 @@ public class CheckAndCheckMateTest {
                 "H8:B_KING;H6:W_KING;E6:W_BISHOP;F6:W_BISHOP", //King and two bishops mate
                 "H8:B_KING;H6:W_KING;G6:W_KNIGHT;F6:W_KNIGHT", //King and two knights mate
                 "D8:B_KING;D7:W_QUEEN;D6:W_KING", //Queen mate
-                "F8:B_ROOK;G8:B_KING;H7:B_PAWN;F7:B_PAWN;E7:W_KNIGHT;C3:W_BISHOP" // Suffocation mate
+                "F8:B_ROOK;G8:B_KING;H7:B_PAWN;F7:B_PAWN;E7:W_KNIGHT;C3:W_BISHOP", // Suffocation mate
+                "D4:B_KING;C4:B_PAWN;C5:B_PAWN;D5:B_PAWN;E5:B_PAWN;E4:B_PAWN;C3:W_PAWN;D3:W_PAWN;E3:W_PAWN;B2:W_PAWN;F2:W_PAWN;C2:W_PAWN;D2:W_PAWN;E2:W_PAWN", //Custom: Pawn
+                "D4:B_KING;C4:B_PAWN;C5:B_PAWN;D5:B_PAWN;E5:B_PAWN;E4:B_PAWN;E2:W_KNIGHT;A2:W_KNIGHT;G2:W_KNIGHT;E1:W_KNIGHT", //Custom: Knight
+                "D4:B_KING;C4:B_PAWN;C5:B_PAWN;D5:B_PAWN;E5:B_PAWN;E4:B_PAWN;A1:W_BISHOP;B1:W_BISHOP;G1:W_BISHOP", //Custom: Bishop
+                "D4:B_KING;C4:B_PAWN;C5:B_PAWN;D5:B_PAWN;E5:B_PAWN;E4:B_PAWN;D1:W_ROOK;A3:W_ROOK", //Custom: Rook
+                "D4:B_KING;C4:B_PAWN;C5:B_PAWN;D5:B_PAWN;E5:B_PAWN;E4:B_PAWN;D2:W_QUEEN", //Custom: Queen
+                "D4:B_KING;C4:B_PAWN;C5:B_PAWN;D5:B_PAWN;E5:B_PAWN;E4:B_PAWN;D2:W_KING;C3:W_PAWN" //Custom: Pawn & King
         };
 
         assertPattern(context, patterns, CHECKMATE, BLACK);

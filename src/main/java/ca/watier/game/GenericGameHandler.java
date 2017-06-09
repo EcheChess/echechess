@@ -17,7 +17,6 @@
 package ca.watier.game;
 
 import ca.watier.enums.*;
-import ca.watier.exceptions.GameException;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
@@ -43,6 +42,7 @@ public class GenericGameHandler {
     protected Side currentAllowedMoveSide = WHITE;
     protected Player playerWhite, playerBlack;
     protected List<Player> observerList;
+    private short blackPlayerPoint = 0, whitePlayerPoint = 0;
     private GameType gameType;
     private boolean isGameDone = false;
 
@@ -52,6 +52,21 @@ public class GenericGameHandler {
         CURRENT_PIECES_LOCATION = GameUtils.getDefaultGame();
         observerList = new ArrayList<>();
         this.CONSTRAINT_SERVICE = constraintService;
+    }
+
+
+    protected void updatePointsForSide(Side side, byte point) {
+        Assert.assertNotNull(side);
+        Assert.assertNumberSuperiorOrEqualsTo(point, (byte) 0);
+
+        switch (side) {
+            case BLACK:
+                blackPlayerPoint += point;
+                break;
+            case WHITE:
+                whitePlayerPoint += point;
+                break;
+        }
     }
 
     /**
@@ -131,7 +146,7 @@ public class GenericGameHandler {
         return null;
     }
 
-    public final boolean setPlayerToSide(Player player, Side side) throws GameException {
+    public final boolean setPlayerToSide(Player player, Side side) {
         Assert.assertNotNull(player, side);
         boolean value;
 

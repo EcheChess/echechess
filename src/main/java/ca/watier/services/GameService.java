@@ -16,20 +16,24 @@
 
 package ca.watier.services;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.GameType;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.game.StandardGameHandler;
+import ca.watier.responses.BooleanResponse;
+import ca.watier.responses.ChessEvent;
+import ca.watier.responses.DualValueResponse;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 import ca.watier.utils.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.*;
+
+import static ca.watier.enums.ChessEventMessage.*;
 
 /**
  * Created by yannick on 4/17/2017.
@@ -38,24 +42,28 @@ import java.util.*;
 @Service
 public class GameService {
     private final static Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
-
     private final ConstraintService constraintService;
+    private final SimpMessagingTemplate template;
 
     @Autowired
-    public GameService(ConstraintService constraintService) {
+    public GameService(ConstraintService constraintService, SimpMessagingTemplate template) {
         this.constraintService = constraintService;
+        this.template = template;
     }
 
     /**
-     * Create a new game, and associate it to tha player
+     * Create a new game, and associate it to the player
      *
      * @param player
      * @param specialGamePieces - If null, create a StandardGameHandler
-     * @return
+     * @param side
+     * @param againstComputer
+     * @param observers
      */
-    public GenericGameHandler createNewGame(Player player, String specialGamePieces) {
-        GameType gameType = GameType.CLASSIC;
+    public GenericGameHandler createNewGame(Player player, String specialGamePieces, Side side, boolean againstComputer, boolean observers) {
+        Assert.assertNotNull(player, side);
 
+        GameType gameType = GameType.CLASSIC;
         GenericGameHandler genericGameHandler;
 
         if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
@@ -74,6 +82,11 @@ public class GameService {
         GAMES_HANDLER_MAP.put(uui, genericGameHandler);
         player.addCreatedGame(uui);
 
+        genericGameHandler.setPlayerToSide(player, side);
+        genericGameHandler.setAllowOtherToJoin(!againstComputer);
+        genericGameHandler.setAllowObservers(observers);
+
+
         return genericGameHandler;
     }
 
@@ -90,14 +103,31 @@ public class GameService {
      * @param player
      * @return - A {@link Pair} Containing if the piece can move, and if the game is ended
      */
-    public Pair<Boolean, Boolean> movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
-        Assert.assertNotNull(from, to);
+    public BooleanResponse movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
+        Assert.assertNotNull(from, to, player);
         Assert.assertNotEmpty(uuid);
+
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
 
-        return new Pair<>(gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player)), gameFromUuid.isGameDone());
+        if (!gameFromUuid.hasPlayer(player)) {
+            return new BooleanResponse(false);
+        }
+
+        boolean isMoved = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
+
+        if (gameFromUuid.isGameDone()) {
+            fireGameChessEvent(uuid, GAME_WON_EVENT_MOVE, "The game is ended !");
+        }
+
+        if (isMoved) {
+            Side playerSide = getPlayerSide(uuid, player);
+            fireGameChessEvent(uuid, MOVE, String.format("%s player moved %s to %s", playerSide, from, to));
+            fireSideChessEvent(uuid, Side.getOtherPlayerSide(playerSide), PLAYER_TURN, "It's your turn !");
+        }
+
+        return new BooleanResponse(isMoved);
     }
 
     /**
@@ -113,6 +143,9 @@ public class GameService {
         return GAMES_HANDLER_MAP.get(key);
     }
 
+    private void fireGameChessEvent(String uuid, ChessEventMessage evtMessage, String message) {
+        template.convertAndSend("/topic/" + uuid, new ChessEvent(evtMessage, message));
+    }
 
     /**
      * Get the side of the player for the associated game
@@ -126,6 +159,20 @@ public class GameService {
         GenericGameHandler standardGameHandler = GAMES_HANDLER_MAP.get(UUID.fromString(uuid));
         Assert.assertNotNull(standardGameHandler);
         return standardGameHandler.getPlayerSide(player);
+    }
+
+    private void fireSideChessEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
+        Assert.assertNotNull(side, evtMessage);
+        Assert.assertNotEmpty(uuid);
+        Assert.assertNotEmpty(message);
+
+        template.convertAndSend("/topic/" + uuid + '/' + side, new ChessEvent(evtMessage, message));
+    }
+
+    private void firePrivateChessEvent(ChessEventMessage evtMessage, String message) {
+        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+
+        template.convertAndSend("/topic/" + sessionId, new ChessEvent(evtMessage, message));
     }
 
     /**
@@ -142,6 +189,12 @@ public class GameService {
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Assert.assertNotNull(gameFromUuid);
+
+
+        if (!gameFromUuid.hasPlayer(player)) {
+            return null;
+        }
+
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
         List<String> values = new ArrayList<>();
@@ -166,4 +219,63 @@ public class GameService {
         return values;
     }
 
+    public BooleanResponse joinGame(String uuid, Side side, Player player) {
+        Assert.assertNotNull(side, player);
+        Assert.assertNotEmpty(uuid);
+
+        boolean joined = false;
+        GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
+
+        UUID gameUuid = UUID.fromString(uuid);
+        if (gameFromUuid != null && (gameFromUuid.isAllowOtherToJoin() || gameFromUuid.isAllowObservers()) &&
+                !player.getCreatedGameList().contains(gameUuid) && !player.getJoinedGameList().contains(gameUuid)) {
+            player.addJoinedGame(gameUuid);
+            joined = gameFromUuid.setPlayerToSide(player, side);
+        }
+
+        if (joined) {
+            fireGameChessEvent(uuid, PLAYER_JOINED, String.format("New player joined the %s side", side));
+        }
+
+        return new BooleanResponse(joined, "");
+    }
+
+    public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
+        Assert.assertNotNull(player);
+        Assert.assertNotEmpty(uuid);
+
+        GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
+        List<DualValueResponse> values = null;
+
+        if (gameFromUuid != null) {
+            values = new ArrayList<>();
+
+            if ((!gameFromUuid.isAllowObservers() || !gameFromUuid.isAllowOtherToJoin()) && !gameFromUuid.hasPlayer(player)) {
+                return null;
+            }
+
+            for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : gameFromUuid.getPiecesLocation().entrySet()) {
+                values.add(new DualValueResponse(casePositionPiecesEntry.getKey(), casePositionPiecesEntry.getValue(), ""));
+            }
+        }
+
+        return values;
+    }
+
+    public BooleanResponse setSideOfPlayer(Player player, Side side, String uuid) {
+
+        GenericGameHandler game = getGameFromUuid(uuid);
+        boolean isGameExist = game != null;
+        boolean response = false;
+
+        if (isGameExist) {
+            response = game.setPlayerToSide(player, side);
+        }
+
+        return new BooleanResponse(isGameExist && response);
+    }
+
+    public SimpMessagingTemplate getTemplate() {
+        return template;
+    }
 }
