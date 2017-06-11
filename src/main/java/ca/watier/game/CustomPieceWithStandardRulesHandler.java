@@ -19,6 +19,7 @@ package ca.watier.game;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.services.ConstraintService;
+import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 
 import java.util.Map;
@@ -28,8 +29,12 @@ import java.util.Map;
  */
 public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
 
+    public CustomPieceWithStandardRulesHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
+        super(constraintService, playerWhoCreatedGame);
+    }
+
     public CustomPieceWithStandardRulesHandler(ConstraintService constraintService) {
-        super(constraintService);
+        super(constraintService, new Player());
     }
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {

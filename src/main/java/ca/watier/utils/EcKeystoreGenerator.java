@@ -82,8 +82,6 @@ public class EcKeystoreGenerator {
         BigInteger serialNumber = new BigInteger(SERIAL_BYTES_LENGTH, secureRandom);
         DateTime startDate = new DateTime();
         DateTime endDate = startDate.plusMonths(3);
-
-
         SubjectPublicKeyInfo infos = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
         X509v1CertificateBuilder certBuilder = new X509v1CertificateBuilder(xName, serialNumber, startDate.toDate(), endDate.toDate(), xName, infos);
 

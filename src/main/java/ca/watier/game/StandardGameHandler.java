@@ -18,6 +18,7 @@ package ca.watier.game;
 
 import ca.watier.enums.*;
 import ca.watier.services.ConstraintService;
+import ca.watier.sessions.Player;
 import ca.watier.utils.*;
 
 import java.util.ArrayList;
@@ -31,8 +32,8 @@ import static ca.watier.enums.KingStatus.*;
  */
 public class StandardGameHandler extends GenericGameHandler {
 
-    public StandardGameHandler(ConstraintService constraintService) {
-        super(constraintService);
+    public StandardGameHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
+        super(constraintService, playerWhoCreatedGame);
     }
 
     @Override

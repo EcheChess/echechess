@@ -23,9 +23,9 @@ import ca.watier.enums.ChessEventMessage;
  */
 public class ChessEvent {
     private ChessEventMessage event;
-    private String message;
+    private Object message;
 
-    public ChessEvent(ChessEventMessage event, String message) {
+    public ChessEvent(ChessEventMessage event, Object message) {
         this.event = event;
         this.message = message;
     }
@@ -34,7 +34,7 @@ public class ChessEvent {
         return event;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 }

@@ -17,6 +17,7 @@
 package ca.watier.game;
 
 import ca.watier.enums.*;
+import ca.watier.responses.GameScoreResponse;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
@@ -35,6 +36,7 @@ import static ca.watier.enums.Side.WHITE;
 public class GenericGameHandler {
     protected final ConstraintService CONSTRAINT_SERVICE;
     private final Set<SpecialGameRules> SPECIAL_GAME_RULES;
+    private final Player playerWhoCreatedGame;
     protected Map<CasePosition, Pieces> CURRENT_PIECES_LOCATION;
     protected String uuid;
     protected boolean allowOtherToJoin = false;
@@ -47,11 +49,12 @@ public class GenericGameHandler {
     private boolean isGameDone = false;
 
 
-    public GenericGameHandler(ConstraintService constraintService) {
+    public GenericGameHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
         SPECIAL_GAME_RULES = new HashSet<>();
         CURRENT_PIECES_LOCATION = GameUtils.getDefaultGame();
         observerList = new ArrayList<>();
         this.CONSTRAINT_SERVICE = constraintService;
+        this.playerWhoCreatedGame = playerWhoCreatedGame;
     }
 
 
@@ -360,5 +363,13 @@ public class GenericGameHandler {
 
     public Set<SpecialGameRules> getSpecialGameRules() {
         return Collections.unmodifiableSet(SPECIAL_GAME_RULES);
+    }
+
+    public GameScoreResponse getGameScore() {
+        return new GameScoreResponse(whitePlayerPoint, blackPlayerPoint);
+    }
+
+    public Player getPlayerWhoCreatedGame() {
+        return playerWhoCreatedGame;
     }
 }

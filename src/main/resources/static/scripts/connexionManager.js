@@ -29,7 +29,7 @@ class ConnexionManager {
 
         wsMainClient = Stomp.over(new SockJS('/gs-guide-websocket'));
         wsMainClient.connect({}, function () {
-            wsMainClient.subscribe('/topic/' + getCookieValueByName('sessionId'), function (greeting) {
+            wsMainClient.subscribe('/topic/', function (greeting) {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;
                 let message = parsed.message;
@@ -65,7 +65,7 @@ class ConnexionManager {
         });
     }
 
-    static connect(uuid, renderBoard, writeToGameLog) {
+    static connectBothPlayerEvent(uuid, renderBoard, writeToGameLog) {
         if (wsClient) {
             wsClient.unsubscribe();
         }
@@ -91,6 +91,8 @@ class ConnexionManager {
                     case 'GAME_WON_EVENT_MOVE':
                         writeToGameLog(message, chessEvent);
                         break;
+                    case 'SCORE_UPDATE':
+                        updateScore(message);
                 }
             });
         });

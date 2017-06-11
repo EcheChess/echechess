@@ -17,50 +17,32 @@
 package ca.watier.responses;
 
 /**
- * Created by yannick on 4/23/2017.
+ * Created by yannick on 6/9/2017.
  */
-public class BooleanResponse {
-    private boolean response;
-    private String message;
+public class GameScoreResponse {
+    private short whitePlayerPoint, blackPlayerPoint;
 
-    public BooleanResponse(boolean response, String message) {
-        this.response = response;
-        this.message = message;
+    public GameScoreResponse(short whitePlayerPoint, short blackPlayerPoint) {
+        this.whitePlayerPoint = whitePlayerPoint;
+        this.blackPlayerPoint = blackPlayerPoint;
     }
 
-    public BooleanResponse(boolean response) {
-        this.response = response;
+    public short getWhitePlayerPoint() {
+        return whitePlayerPoint;
     }
 
-    public boolean isResponse() {
-        return response;
+    public short getBlackPlayerPoint() {
+        return blackPlayerPoint;
     }
 
-    public void setResponse(boolean response) {
-        this.response = response;
-    }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    /**
-     * Compare only the boolean value, the message is irrelevant
-     *
-     * @param o
-     * @return
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        BooleanResponse that = (BooleanResponse) o;
+        GameScoreResponse response = (GameScoreResponse) o;
 
-        return response == that.response;
+        return whitePlayerPoint == response.whitePlayerPoint && blackPlayerPoint == response.blackPlayerPoint;
     }
 }

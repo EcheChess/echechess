@@ -14,11 +14,19 @@
  *    limitations under the License.
  */
 
-package ca.watier.enums;
+package ca.watier.services;
+
+import ca.watier.enums.ChessEventMessage;
+import ca.watier.enums.Side;
 
 /**
- * Created by yannick on 5/1/2017.
+ * Created by yannick on 6/10/2017.
  */
-public enum ChessEventMessage {
-    MOVE, PLAYER_TURN, PLAYER_JOINED, GAME_WON, GAME_WON_EVENT_MOVE, PLAYER_KING_CHECK, SCORE_UPDATE, TRY_JOIN_GAME
+public interface WebSocketService {
+    void fireSideChessEvent(String uuid, Side side, ChessEventMessage evtMessage, String message);
+
+    void firePrivateChessEvent(ChessEventMessage evtMessage, String message);
+
+    void fireGameChessEvent(String uuid, ChessEventMessage evtMessage, Object message);
 }
+

@@ -20,7 +20,7 @@
 let currentUuid = null;
 let lastSelectedBoardSquareHelper = null;
 let helperSetItemMap = [];
-const BASE_API = "https://localhost:8443";
+const BASE_API = "https://" + window.location.hostname + ":8443";
 
 $(document).ready(function () {
     initUiTriggers();
@@ -28,7 +28,7 @@ $(document).ready(function () {
 
     $("#createGame").click(function () {
         currentUuid = createNewGame();
-        ConnexionManager.connect(currentUuid, renderBoard, writeToGameLog);
+        ConnexionManager.connectBothPlayerEvent(currentUuid, renderBoard, writeToGameLog);
         ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
 
         $('#uuid').text(currentUuid);
@@ -53,7 +53,7 @@ $(document).ready(function () {
                 alertify.error("Unable to join the game: " + response.message, 6);
             }
 
-            ConnexionManager.connect(currentUuid, renderBoard, writeToGameLog);
+            ConnexionManager.connectBothPlayerEvent(currentUuid, renderBoard, writeToGameLog);
             renderBoard();
             ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
         }
@@ -105,6 +105,12 @@ function setHelperBoardEvents() {
         "<button id='helperActionRemovePiece' class='ui red basic button'>Empty the case</button>" +
         "</div>"
     });
+}
+
+
+function updateScore(message) {
+    $("#whitePlayerScore").text(message.whitePlayerPoint);
+    $("#blackPlayerScore").text(message.blackPlayerPoint);
 }
 
 function writeToSpecialGameInput(tempStrucks) {
