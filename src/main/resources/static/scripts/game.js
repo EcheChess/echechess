@@ -17,21 +17,29 @@
 /**
  * Created by yannick on 4/18/2017.
  */
-let currentUuid = null;
+let currentGameUuid = null;
+let currentUiUuid = null;
 let lastSelectedBoardSquareHelper = null;
 let helperSetItemMap = [];
 const BASE_API = "https://" + window.location.hostname + ":8443";
 
 $(document).ready(function () {
+
+    //fetch the uuid associated with this id
+    currentUiUuid = jsonFromRequest("GET", '/api/ui/id/1').response;
+
+    //Start to send ping to the server
+    ConnexionManager.connectPingEvent();
+
     initUiTriggers();
-    drawBoard(null, "#board");
+    drawBoard(null, "#board"); //Draw an empty board
 
     $("#createGame").click(function () {
-        currentUuid = createNewGame();
-        ConnexionManager.connectBothPlayerEvent(currentUuid, renderBoard, writeToGameLog);
-        ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
+        currentGameUuid = createNewGame();
+        ConnexionManager.connectBothPlayerEvent(currentGameUuid, renderBoard, writeToGameLog);
+        ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
 
-        $('#uuid').text(currentUuid);
+        $('#uuid').text(currentGameUuid);
         renderBoard();
     });
 
@@ -39,23 +47,23 @@ $(document).ready(function () {
         let enteredUuid = $("#joinGame").val();
 
         if (enteredUuid !== '' && enteredUuid.length === 36) {
-            currentUuid = enteredUuid;
+            currentGameUuid = enteredUuid;
 
-            let side = $("#changeSide").find("option:selected").val();
-            let response = jsonFromRequest("POST", '/game/join', {
+            let side = $("#chooseSideJoinGame").find("option:selected").val();
+            let response = jsonFromRequest("POST", '/api/game/join/1', {
                 side: side,
-                uuid: currentUuid
+                uuid: currentGameUuid,
             }).response;
 
             if (response) {
-                alertify.success("Joined game " + currentUuid, 6);
+                alertify.success("Joined game " + currentGameUuid, 6);
             } else {
                 alertify.error("Unable to join the game: " + response.message, 6);
             }
 
-            ConnexionManager.connectBothPlayerEvent(currentUuid, renderBoard, writeToGameLog);
+            ConnexionManager.connectBothPlayerEvent(currentGameUuid, renderBoard, writeToGameLog);
             renderBoard();
-            ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
+            ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
         }
     });
 
@@ -257,15 +265,15 @@ function initUiTriggers() {
     });
 
     $changeSide.change(function () {
-        if (currentUuid) {
-            let response = jsonFromRequest("POST", '/game/side', {
+        if (currentGameUuid) {
+            let response = jsonFromRequest("POST", '/api/game/side/1', {
                 side: $(this).find("option:selected").val(),
-                uuid: currentUuid
+                uuid: currentGameUuid
             }).response;
 
             if (response) {
                 alertify.success("Side changed with success !", 6);
-                ConnexionManager.connectSideEvent(currentUuid, writeToGameLog);
+                ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
             } else {
                 alertify.error("Unable to change side !", 6);
             }
@@ -302,23 +310,36 @@ function initUiTriggers() {
 function jsonFromRequest(type, url, data) {
     let value = null;
 
-    $.ajax({
-        url: BASE_API + url,
-        type: type,
-        data: data,
-        async: false,
-        cache: false,
-        timeout: 30000,
-        success: function (json) {
-            value = json;
-        }
-    });
+    if (data) {
+        $.ajax({
+            url: BASE_API + url,
+            type: type,
+            data: data,
+            async: false,
+            cache: false,
+            timeout: 30000,
+            success: function (json) {
+                value = json;
+            }
+        });
+    } else {
+        $.ajax({
+            url: BASE_API + url,
+            type: type,
+            async: false,
+            cache: false,
+            timeout: 30000,
+            success: function (json) {
+                value = json;
+            }
+        });
+    }
 
     return value;
 }
 
 function createNewGame() {
-    return jsonFromRequest('POST', '/game/create', {
+    return jsonFromRequest('POST', '/api/game/create/1', {
         side: $("#changeSide").find("option:selected").val(),
         againstComputer: $("#againstComputer").checkbox('is checked'),
         observers: $("#allowOtherObserver").checkbox('is checked'),
@@ -328,12 +349,12 @@ function createNewGame() {
 
 function renderBoard() {
 
-    if (!currentUuid) {
+    if (!currentGameUuid) {
         return;
     }
 
-    let piecesLocation = jsonFromRequest('GET', '/game/pieces', {
-        uuid: currentUuid
+    let piecesLocation = jsonFromRequest('GET', '/api/game/pieces/1', {
+        uuid: currentGameUuid
     });
 
     drawBoard(piecesLocation, "#board");
@@ -354,10 +375,10 @@ function renderBoard() {
             let from = $(sourceEvt).attr("data-case-id");
             let to = $(this).attr("data-case-id");
 
-            let response = jsonFromRequest('POST', '/game/move', {
+            let response = jsonFromRequest('POST', '/api/game/move/1', {
                 from: from,
                 to: to,
-                uuid: currentUuid
+                uuid: currentGameUuid
             }).response;
 
             if (response) {
@@ -379,9 +400,9 @@ function renderBoard() {
     let $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
 
     $boardCaseWithPieceSelector.mouseover(function () {
-        let piecesLocation = jsonFromRequest('GET', '/game/moves', {
+        let piecesLocation = jsonFromRequest('GET', '/api/game/moves/1', {
             from: $(this).parent().attr("data-case-id"),
-            uuid: currentUuid
+            uuid: currentGameUuid
         });
 
         if (piecesLocation) {

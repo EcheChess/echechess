@@ -92,8 +92,8 @@
             </div>
             <div class="ui segment">
                 <select id="changeSide">
-                    <option value="BLACK">Black</option>
                     <option value="WHITE" selected>White</option>
+                    <option value="BLACK">Black</option>
                     <option value="OBSERVER">Observer</option>
                 </select>
                 <label for="changeSide">side and</label>
@@ -122,6 +122,11 @@
                     Join a game
                 </div>
                 <input placeholder="Game ID" type="text" name="gameIdJoinGame" id="joinGame">
+                <select id="chooseSideJoinGame" class="ui compact">
+                    <option value="WHITE">White</option>
+                    <option value="BLACK" selected>Black</option>
+                    <option value="OBSERVER">Observer</option>
+                </select>
                 <button class="ui button" id="joinGameButton">OK</button>
             </div>
         </div>

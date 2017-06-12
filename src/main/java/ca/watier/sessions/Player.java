@@ -16,6 +16,8 @@
 
 package ca.watier.sessions;
 
+import ca.watier.utils.Assert;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,15 +31,23 @@ public class Player implements Serializable {
     private static final long serialVersionUID = 296605081563013686L;
     private List<UUID> createdGameList = new ArrayList<>();
     private List<UUID> joinedGameList = new ArrayList<>();
+    private List<UUID> uiSessionList = new ArrayList<>();
+    private String lastAccededUi;
 
     public void addCreatedGame(UUID uuid) {
+        Assert.assertNotNull(uuid);
         createdGameList.add(uuid);
     }
 
     public void addJoinedGame(UUID uuid) {
+        Assert.assertNotNull(uuid);
         joinedGameList.add(uuid);
     }
 
+    public void addUiSession(UUID uuid) {
+        Assert.assertNotNull(uuid);
+        uiSessionList.add(uuid);
+    }
 
     public List<UUID> getCreatedGameList() {
         return Collections.unmodifiableList(createdGameList);
@@ -47,4 +57,11 @@ public class Player implements Serializable {
         return Collections.unmodifiableList(joinedGameList);
     }
 
+    public List<UUID> getUiSessionList() {
+        return Collections.unmodifiableList(uiSessionList);
+    }
+
+    public void setLastAccessedUi(String lastAccededUi) {
+        this.lastAccededUi = lastAccededUi;
+    }
 }

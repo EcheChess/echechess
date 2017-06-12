@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier;
+package ca.watier.services;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;

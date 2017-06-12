@@ -16,6 +16,7 @@
 
 package ca.watier;
 
+import ca.watier.sessions.Player;
 import ca.watier.utils.EcKeystoreGenerator;
 import ca.watier.utils.EcKeystoreGenerator.KeystorePasswordHolder;
 import org.eclipse.jetty.http.HttpVersion;
@@ -26,18 +27,24 @@ import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.jetty.JettyEmbeddedServletContainerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.security.KeyStore;
+import java.util.UUID;
 
+import static ca.watier.utils.CacheConstants.CACHE_UI_SESSION_EXPIRY;
 import static ca.watier.utils.EcKeystoreGenerator.PRNG;
 import static ca.watier.utils.EcKeystoreGenerator.PROVIDER_NAME;
+import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -48,6 +55,12 @@ public class EchechessApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(EchechessApplication.class, args);
+    }
+
+    @Bean
+    public CacheConfigurationBuilder<UUID, Player> uuidPlayerCacheConfiguration() {
+        return newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
+                .withExpiry(CACHE_UI_SESSION_EXPIRY);
     }
 
     @Configuration

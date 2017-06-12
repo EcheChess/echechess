@@ -18,12 +18,10 @@ package ca.watier.controllers;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Side;
-import ca.watier.exceptions.GameException;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.services.GameService;
-import ca.watier.sessions.Player;
 import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -39,7 +37,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/game")
+@RequestMapping("/api/game")
 public class GameController {
     private final GameService gameService;
 
@@ -57,7 +55,7 @@ public class GameController {
      * @param session
      * @return
      */
-    @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/create/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public GenericGameHandler createNewGame(Side side, boolean againstComputer, boolean observers, String specialGamePieces, HttpSession session) {
         return gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces, side, againstComputer, observers);
     }
@@ -72,7 +70,7 @@ public class GameController {
      * @param session
      * @return
      */
-    @RequestMapping(path = "/move", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/move/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public BooleanResponse movePieceOfPlayer(CasePosition from, CasePosition to, String uuid, HttpSession session) {
         return gameService.movePiece(from, to, uuid, SessionUtils.getPlayer(session));
     }
@@ -85,9 +83,9 @@ public class GameController {
      * @param session
      * @return
      */
-    @RequestMapping(path = "/moves", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/moves/1", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<String> getMovesOfAPiece(CasePosition from, String uuid, HttpSession session) {
-        return  gameService.getAllAvailableMoves(from, uuid, SessionUtils.getPlayer(session));
+        return gameService.getAllAvailableMoves(from, uuid, SessionUtils.getPlayer(session));
     }
 
     /**
@@ -97,7 +95,7 @@ public class GameController {
      * @param session
      * @return
      */
-    @RequestMapping(path = "/pieces", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/pieces/1", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<DualValueResponse> getPieceLocations(String uuid, HttpSession session) {
         return gameService.getPieceLocations(uuid, SessionUtils.getPlayer(session));
     }
@@ -110,7 +108,7 @@ public class GameController {
      * @param session
      * @return
      */
-    @RequestMapping(path = "/join", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/join/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public BooleanResponse joinGame(String uuid, Side side, HttpSession session) {
         return gameService.joinGame(uuid, side, SessionUtils.getPlayer(session));
     }
@@ -123,9 +121,8 @@ public class GameController {
      * @param session
      * @return
      */
-    @RequestMapping(path = "/side", method = RequestMethod.POST)
+    @RequestMapping(path = "/side/1", method = RequestMethod.POST)
     public BooleanResponse setSideOfPlayer(Side side, String uuid, HttpSession session) {
         return gameService.setSideOfPlayer(SessionUtils.getPlayer(session), side, uuid);
     }
-
 }

@@ -17,9 +17,12 @@
 /**
  * Created by yannick on 5/28/2017.
  */
+const websocketPath = '/websocket';
 let wsClient = null;
 let wsClientColor = null;
 let wsMainClient = null;
+let wsPingClient = null;
+
 
 class ConnexionManager {
     static connectMainEvent(uuid, writeToGameLog) {
@@ -27,7 +30,7 @@ class ConnexionManager {
             wsMainClient.unsubscribe();
         }
 
-        wsMainClient = Stomp.over(new SockJS('/gs-guide-websocket'));
+        wsMainClient = Stomp.over(new SockJS(websocketPath));
         wsMainClient.connect({}, function () {
             wsMainClient.subscribe('/topic/', function (greeting) {
                 let parsed = JSON.parse(greeting.body);
@@ -43,13 +46,30 @@ class ConnexionManager {
         });
     }
 
+    static connectPingEvent() {
+        if (wsPingClient) {
+            wsPingClient.unsubscribe();
+        }
+
+        wsPingClient = Stomp.over(new SockJS(websocketPath));
+        wsPingClient.connect({}, function () {
+            window.setInterval(function(){
+                ConnexionManager.sendPing();
+            }, 5000);
+        });
+    }
+
+    static sendPing() {
+        wsPingClient.send("/app/api/ui/ping", {}, JSON.stringify({'uuid': currentUiUuid}));
+    }
+
 
     static connectSideEvent(uuid, writeToGameLog) {
         if (wsClientColor) {
             wsClientColor.unsubscribe();
         }
 
-        wsClientColor = Stomp.over(new SockJS('/gs-guide-websocket'));
+        wsClientColor = Stomp.over(new SockJS(websocketPath));
         wsClientColor.connect({}, function () {
             wsClientColor.subscribe('/topic/' + uuid + '/' + $("#changeSide").find("option:selected").val(), function (greeting) {
                 let parsed = JSON.parse(greeting.body);
@@ -70,7 +90,7 @@ class ConnexionManager {
             wsClient.unsubscribe();
         }
 
-        wsClient = Stomp.over(new SockJS('/gs-guide-websocket'));
+        wsClient = Stomp.over(new SockJS(websocketPath));
         wsClient.connect({}, function () {
             wsClient.subscribe('/topic/' + uuid, function (greeting) {
                 let parsed = JSON.parse(greeting.body);
