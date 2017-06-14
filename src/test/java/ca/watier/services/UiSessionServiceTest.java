@@ -16,6 +16,7 @@
 
 package ca.watier.services;
 
+import ca.watier.impl.WebSocketServiceTestImpl;
 import ca.watier.sessions.Player;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;
@@ -38,7 +39,7 @@ public class UiSessionServiceTest {
 
     @Before
     public void setup() throws Exception {
-        service = new UiSessionService(newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
+        service = new UiSessionService(new WebSocketServiceTestImpl(), newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
                 .withExpiry(Expirations.timeToIdleExpiration(new Duration(5, TimeUnit.SECONDS))));
     }
 

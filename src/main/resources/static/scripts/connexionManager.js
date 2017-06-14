@@ -25,21 +25,31 @@ let wsPingClient = null;
 
 
 class ConnexionManager {
-    static connectMainEvent(uuid, writeToGameLog) {
+    static connectUiEvent(uuid) {
         if (wsMainClient) {
             wsMainClient.unsubscribe();
         }
 
         wsMainClient = Stomp.over(new SockJS(websocketPath));
         wsMainClient.connect({}, function () {
-            wsMainClient.subscribe('/topic/', function (greeting) {
+            wsMainClient.subscribe('/topic/' + uuid, function (greeting) {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;
                 let message = parsed.message;
 
+
                 switch (chessEvent) {
-                    case 'PLAYER_TURN':
-                        writeToGameLog(message, chessEvent);
+                    case 'UI_SESSION_EXPIRED':
+                        window.setInterval(function () {
+                            location.reload();
+                        }, 10 * 1000);
+                        alertify.error(message, 0);
+                        break;
+                    case 'PLAYER_JOINED':
+                        alertify.success(message, 6);
+                        break;
+                    case 'TRY_JOIN_GAME':
+                        alertify.error(message, 0);
                         break;
                 }
             });
@@ -53,16 +63,15 @@ class ConnexionManager {
 
         wsPingClient = Stomp.over(new SockJS(websocketPath));
         wsPingClient.connect({}, function () {
-            window.setInterval(function(){
+            window.setInterval(function () {
                 ConnexionManager.sendPing();
-            }, 5000);
+            }, 25 * 1000);
         });
     }
 
     static sendPing() {
         wsPingClient.send("/app/api/ui/ping", {}, JSON.stringify({'uuid': currentUiUuid}));
     }
-
 
     static connectSideEvent(uuid, writeToGameLog) {
         if (wsClientColor) {
@@ -71,7 +80,7 @@ class ConnexionManager {
 
         wsClientColor = Stomp.over(new SockJS(websocketPath));
         wsClientColor.connect({}, function () {
-            wsClientColor.subscribe('/topic/' + uuid + '/' + $("#changeSide").find("option:selected").val(), function (greeting) {
+            wsClientColor.subscribe('/topic/' + uuid + '/' + selectedColor, function (greeting) {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;
                 let message = parsed.message;
@@ -85,7 +94,7 @@ class ConnexionManager {
         });
     }
 
-    static connectBothPlayerEvent(uuid, renderBoard, writeToGameLog) {
+    static connectGameEvent(uuid, renderBoard, writeToGameLog) {
         if (wsClient) {
             wsClient.unsubscribe();
         }

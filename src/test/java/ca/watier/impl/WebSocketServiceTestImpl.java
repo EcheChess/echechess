@@ -35,17 +35,17 @@ public class WebSocketServiceTestImpl implements WebSocketService {
     }
 
     @Override
-    public void fireSideChessEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
+    public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
         messages.add(message);
     }
 
     @Override
-    public void firePrivateChessEvent(ChessEventMessage evtMessage, String message) {
+    public void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message) {
         messages.add(message);
     }
 
     @Override
-    public void fireGameChessEvent(String uuid, ChessEventMessage evtMessage, Object message) {
+    public void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message) {
         messages.add(message);
     }
 

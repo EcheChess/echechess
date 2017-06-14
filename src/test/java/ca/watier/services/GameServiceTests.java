@@ -22,9 +22,6 @@ import ca.watier.game.GenericGameHandler;
 import ca.watier.impl.WebSocketServiceTestImpl;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.GameScoreResponse;
-import ca.watier.services.ConstraintService;
-import ca.watier.services.GameService;
-import ca.watier.services.WebSocketService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.GameUtils;
 import org.junit.Assert;
@@ -235,31 +232,39 @@ public class GameServiceTests {
         GenericGameHandler game1 = gameService.createNewGame(player1, "", WHITE, false, true);
         String uuidGame1 = game1.getUuid();
 
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, WHITE, player2)); //Unable to join, the WHITE is already taken
-        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, BLACK, player2)); // Valid choice
-        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, OBSERVER, playerObserver)); // Valid choice
-        assertThat(messages).containsOnly("New player joined the BLACK side", "New player joined the OBSERVER side");
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // Valid choice
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        assertThat(messages).containsOnly(
+                "New player joined the BLACK side",
+                "Joining the game " + uuidGame1, //Black player
+                "New player joined the OBSERVER side",
+                "Joining the game " + uuidGame1 //Observer
+        );
 
         //Not supposed to be able to choose the other color, but able to join as observer
         currentWebSocketService.clearMessages();
         GenericGameHandler game2 = gameService.createNewGame(player1, "", WHITE, true, true);
         String uuidGame2 = game2.getUuid();
 
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, WHITE, player2)); //Unable to join, the WHITE is already taken
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, BLACK, player2)); // AI, cannot join
-        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, OBSERVER, playerObserver)); // Valid choice
-        assertThat(messages).containsOnly("You are not authorized to join this game !", //Private message
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        assertThat(messages).containsOnly(
                 "You are not authorized to join this game !", //Private message
-                "New player joined the OBSERVER side");
+                "You are not authorized to join this game !", //Private message
+                "New player joined the OBSERVER side",
+                "Joining the game " + uuidGame2 //Observer
+        );
 
         //Not supposed to be able join
         currentWebSocketService.clearMessages();
         GenericGameHandler game3 = gameService.createNewGame(player1, "", WHITE, true, false);
         String uuidGame3 = game3.getUuid();
 
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, WHITE, player2)); //Unable to join, the WHITE is already taken
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, BLACK, player2)); // AI, cannot join
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, OBSERVER, playerObserver)); //Cannot join observers
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); //Cannot join observers
 
         assertThat(messages).containsOnly("You are not authorized to join this game !"); //Private message (x3)
     }

@@ -14,18 +14,26 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
-
-import org.ehcache.expiry.Duration;
-import org.ehcache.expiry.Expirations;
-import org.ehcache.expiry.Expiry;
-
-import java.util.concurrent.TimeUnit;
+package ca.watier.pojos;
 
 /**
- * Created by yannick on 6/11/2017.
+ * Created by yannick on 6/12/2017.
  */
-public class CacheConstants {
-    public static final String CACHE_UI_SESSION_NAME = "uiCache";
-    public static final Expiry<Object, Object> CACHE_UI_SESSION_EXPIRY = Expirations.timeToLiveExpiration(new Duration(5, TimeUnit.MINUTES));
+public class Ping {
+    private String uuid;
+
+    public Ping() {
+    }
+
+    public Ping(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 }

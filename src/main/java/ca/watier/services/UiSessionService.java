@@ -16,6 +16,7 @@
 
 package ca.watier.services;
 
+import ca.watier.enums.ChessEventMessage;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 import org.ehcache.Cache;
@@ -28,6 +29,8 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 import static ca.watier.utils.CacheConstants.CACHE_UI_SESSION_NAME;
+import static ca.watier.utils.Constants.REQUESTED_SESSION_ALREADY_DEFINED;
+import static ca.watier.utils.Constants.THE_CLIENT_LOST_THE_CONNECTION;
 
 /**
  * Created by yannick on 6/11/2017.
@@ -37,28 +40,36 @@ import static ca.watier.utils.CacheConstants.CACHE_UI_SESSION_NAME;
 public class UiSessionService {
 
     private final Cache<UUID, Player> CACHE_UI;
+    private final WebSocketService webSocketService;
 
     @Autowired
-    public UiSessionService(CacheConfigurationBuilder<UUID, Player> uuidPlayerCacheConfiguration) {
+    public UiSessionService(WebSocketService webSocketService, CacheConfigurationBuilder<UUID, Player> uuidPlayerCacheConfiguration) {
         CacheManager CACHE_MANAGER = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache(CACHE_UI_SESSION_NAME, uuidPlayerCacheConfiguration)
                 .build();
 
         CACHE_MANAGER.init();
         CACHE_UI = CACHE_MANAGER.getCache(CACHE_UI_SESSION_NAME, UUID.class, Player.class);
+        this.webSocketService = webSocketService;
     }
 
     public String createNewSession(Player player) {
         String uuidAsString = null;
         UUID uuid = UUID.randomUUID();
 
-        if (!CACHE_UI.containsKey(uuid)) {
+        if (!isUiSessionActive(uuid)) {
             uuidAsString = uuid.toString();
             player.addUiSession(uuid);
             CACHE_UI.put(uuid, player);
+        } else {
+            webSocketService.fireUiEvent(uuid.toString(), ChessEventMessage.UI_SESSION_ALREADY_INITIALIZED, REQUESTED_SESSION_ALREADY_DEFINED);
         }
 
         return uuidAsString;
+    }
+
+    public boolean isUiSessionActive(UUID uuid) {
+        return CACHE_UI.containsKey(uuid);
     }
 
     public void refresh(String uuid) {
@@ -67,6 +78,8 @@ public class UiSessionService {
 
         if (player != null) {
             player.setLastAccessedUi(uuid);
+        } else {
+            webSocketService.fireUiEvent(uuid, ChessEventMessage.UI_SESSION_EXPIRED, THE_CLIENT_LOST_THE_CONNECTION);
         }
     }
 

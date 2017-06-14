@@ -109,8 +109,8 @@ public class GameController {
      * @return
      */
     @RequestMapping(path = "/join/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public BooleanResponse joinGame(String uuid, Side side, HttpSession session) {
-        return gameService.joinGame(uuid, side, SessionUtils.getPlayer(session));
+    public BooleanResponse joinGame(String uuid, Side side, String uiUuid, HttpSession session) {
+        return gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session));
     }
 
     /**

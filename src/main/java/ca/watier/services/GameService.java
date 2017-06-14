@@ -27,6 +27,7 @@ import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
+import ca.watier.utils.Constants;
 import ca.watier.utils.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static ca.watier.enums.ChessEventMessage.*;
+import static ca.watier.enums.ChessEventMessage.PLAYER_TURN;
+import static ca.watier.utils.Constants.*;
 
 /**
  * Created by yannick on 4/17/2017.
@@ -116,17 +119,18 @@ public class GameService {
 
         boolean isMoved = false;
 
+        Side playerSide = getPlayerSide(uuid, player);
+
         if (gameFromUuid.isGameDone()) {
-            webSocketService.fireGameChessEvent(uuid, GAME_WON_EVENT_MOVE, "The game is ended !");
+            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
         } else {
             isMoved = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
         }
 
         if (isMoved) {
-            Side playerSide = getPlayerSide(uuid, player);
-            webSocketService.fireGameChessEvent(uuid, MOVE, String.format("%s player moved %s to %s", playerSide, from, to));
-            webSocketService.fireSideChessEvent(uuid, Side.getOtherPlayerSide(playerSide), PLAYER_TURN, "It's your turn !");
-            webSocketService.fireGameChessEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
+            webSocketService.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
+            webSocketService.fireSideEvent(uuid, Side.getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
+            webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
         }
 
         return new BooleanResponse(isMoved);
@@ -202,7 +206,7 @@ public class GameService {
         return values;
     }
 
-    public BooleanResponse joinGame(String uuid, Side side, Player player) {
+    public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
         Assert.assertNotNull(side, player);
         Assert.assertNotEmpty(uuid);
 
@@ -213,22 +217,33 @@ public class GameService {
             return new BooleanResponse(false);
         }
 
-        String message = "";
 
-        if (gameFromUuid.isAllowOtherToJoin() || (gameFromUuid.isAllowObservers() && Side.OBSERVER.equals(side))) {
-            UUID gameUuid = UUID.fromString(uuid);
-            if (!player.getCreatedGameList().contains(gameUuid) && !player.getJoinedGameList().contains(gameUuid)) {
-                joined = gameFromUuid.setPlayerToSide(player, side);
-            }
+        boolean allowObservers = gameFromUuid.isAllowObservers();
+        boolean allowOtherToJoin = gameFromUuid.isAllowOtherToJoin();
 
-            if (joined) {
-                webSocketService.fireGameChessEvent(uuid, PLAYER_JOINED, String.format("New player joined the %s side", side));
-                player.addJoinedGame(gameUuid);
-            }
 
-        } else {
-            webSocketService.firePrivateChessEvent(TRY_JOIN_GAME, "You are not authorized to join this game !");
+        if (!allowOtherToJoin && !allowObservers) {
+            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
+            return new BooleanResponse(false);
+        } else if (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) {
+            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
+            return new BooleanResponse(false);
+        } else if (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side))) {
+            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
+            return new BooleanResponse(false);
         }
+
+        UUID gameUuid = UUID.fromString(uuid);
+        if (!player.getCreatedGameList().contains(gameUuid) && !player.getJoinedGameList().contains(gameUuid)) {
+            joined = gameFromUuid.setPlayerToSide(player, side);
+        }
+
+        if (joined) {
+            webSocketService.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
+            webSocketService.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
+            player.addJoinedGame(gameUuid);
+        }
+
 
         return new BooleanResponse(joined);
     }

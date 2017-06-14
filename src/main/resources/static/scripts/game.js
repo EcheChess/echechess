@@ -21,12 +21,17 @@ let currentGameUuid = null;
 let currentUiUuid = null;
 let lastSelectedBoardSquareHelper = null;
 let helperSetItemMap = [];
+let selectedColor = null;
 const BASE_API = "https://" + window.location.hostname + ":8443";
+
 
 $(document).ready(function () {
 
     //fetch the uuid associated with this id
     currentUiUuid = jsonFromRequest("GET", '/api/ui/id/1').response;
+
+    //Listen for the events
+    ConnexionManager.connectUiEvent(currentUiUuid);
 
     //Start to send ping to the server
     ConnexionManager.connectPingEvent();
@@ -36,7 +41,7 @@ $(document).ready(function () {
 
     $("#createGame").click(function () {
         currentGameUuid = createNewGame();
-        ConnexionManager.connectBothPlayerEvent(currentGameUuid, renderBoard, writeToGameLog);
+        ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
         ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
 
         $('#uuid').text(currentGameUuid);
@@ -50,18 +55,13 @@ $(document).ready(function () {
             currentGameUuid = enteredUuid;
 
             let side = $("#chooseSideJoinGame").find("option:selected").val();
-            let response = jsonFromRequest("POST", '/api/game/join/1', {
+            selectedColor = side;
+            jsonFromRequest("POST", '/api/game/join/1', {
                 side: side,
                 uuid: currentGameUuid,
-            }).response;
+            });
 
-            if (response) {
-                alertify.success("Joined game " + currentGameUuid, 6);
-            } else {
-                alertify.error("Unable to join the game: " + response.message, 6);
-            }
-
-            ConnexionManager.connectBothPlayerEvent(currentGameUuid, renderBoard, writeToGameLog);
+            ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
             renderBoard();
             ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
         }
@@ -272,10 +272,7 @@ function initUiTriggers() {
             }).response;
 
             if (response) {
-                alertify.success("Side changed with success !", 6);
                 ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
-            } else {
-                alertify.error("Unable to change side !", 6);
             }
         }
     });
@@ -309,38 +306,34 @@ function initUiTriggers() {
 
 function jsonFromRequest(type, url, data) {
     let value = null;
+    const apiRequestStruct = {
+        url: BASE_API + url,
+        type: type,
+        async: false,
+        cache: false,
+        timeout: 30000,
+        success: function (json) {
+            value = json;
+        }
+    };
 
     if (data) {
-        $.ajax({
-            url: BASE_API + url,
-            type: type,
-            data: data,
-            async: false,
-            cache: false,
-            timeout: 30000,
-            success: function (json) {
-                value = json;
-            }
-        });
+        data.uiUuid = currentUiUuid;
+        apiRequestStruct.data = data;
     } else {
-        $.ajax({
-            url: BASE_API + url,
-            type: type,
-            async: false,
-            cache: false,
-            timeout: 30000,
-            success: function (json) {
-                value = json;
-            }
-        });
+        apiRequestStruct.uiUuid = currentUiUuid;
     }
+
+    $.ajax(apiRequestStruct);
 
     return value;
 }
 
 function createNewGame() {
+    const side = $("#changeSide").find("option:selected").val();
+    selectedColor = side;
     return jsonFromRequest('POST', '/api/game/create/1', {
-        side: $("#changeSide").find("option:selected").val(),
+        side: side,
         againstComputer: $("#againstComputer").checkbox('is checked'),
         observers: $("#allowOtherObserver").checkbox('is checked'),
         specialGamePieces: $("#specialGamePieces").val()

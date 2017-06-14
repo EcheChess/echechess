@@ -16,6 +16,7 @@
 
 package ca.watier.controllers;
 
+import ca.watier.pojos.Ping;
 import ca.watier.responses.StringResponse;
 import ca.watier.services.UiSessionService;
 import ca.watier.utils.SessionUtils;
@@ -56,7 +57,7 @@ public class UiController {
 
     @MessageMapping("/api/ui/ping")
     @SendTo("/topic/ping")
-    public void ping(String uuid) throws Exception {
-        uiSessionService.refresh(uuid);
+    public void ping(Ping uuid) throws Exception {
+        uiSessionService.refresh(uuid.getUuid());
     }
 }

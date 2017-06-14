@@ -14,8 +14,9 @@
  *    limitations under the License.
  */
 
-package ca.watier.sessions;
+package ca.watier.server;
 
+import ca.watier.sessions.Player;
 import ca.watier.utils.Constants;
 import org.springframework.stereotype.Component;
 

@@ -23,7 +23,6 @@ import ca.watier.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
 
 /**
  * Created by yannick on 6/10/2017.
@@ -39,7 +38,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         this.template = template;
     }
 
-    public void fireSideChessEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
+    public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
         Assert.assertNotNull(side, evtMessage);
         Assert.assertNotEmpty(uuid);
         Assert.assertNotEmpty(message);
@@ -47,14 +46,12 @@ public class WebSocketServiceImpl implements WebSocketService {
         template.convertAndSend("/topic/" + uuid + '/' + side, new ChessEvent(evtMessage, message));
     }
 
-    public void firePrivateChessEvent(ChessEventMessage evtMessage, String message) {
-        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-
-        template.convertAndSend("/topic/" + sessionId, new ChessEvent(evtMessage, message));
+    public void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message) {
+        template.convertAndSend("/topic/" + uiUuid, new ChessEvent(evtMessage, message));
     }
 
 
-    public void fireGameChessEvent(String uuid, ChessEventMessage evtMessage, Object message) {
+    public void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message) {
         template.convertAndSend("/topic/" + uuid, new ChessEvent(evtMessage, message));
     }
 }

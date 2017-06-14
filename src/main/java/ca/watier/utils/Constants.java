@@ -21,4 +21,12 @@ package ca.watier.utils;
  */
 public class Constants {
     public static final String PLAYER = "SESSION_PLAYER_ID";
+    public static final String THE_CLIENT_LOST_THE_CONNECTION = "The client lost the connection, refreshing the page in 10 seconds";
+    public static final String NOT_AUTHORIZED_TO_JOIN = "You are not authorized to join this game !";
+    public static final String NEW_PLAYER_JOINED_SIDE = "New player joined the %s side";
+    public static final String PLAYER_TURN = "It's your turn !";
+    public static final String PLAYER_MOVE = "%s player moved %s to %s";
+    public static final String GAME_ENDED = "The game is ended !";
+    public static final String REQUESTED_SESSION_ALREADY_DEFINED = "The requested session id is already defined !";
+    public static final String JOINING_GAME = "Joining the game %s";
 }
