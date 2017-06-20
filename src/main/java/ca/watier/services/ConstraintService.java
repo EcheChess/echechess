@@ -22,9 +22,10 @@ import ca.watier.enums.MoveMode;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.utils.Assert;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -34,7 +35,8 @@ import java.util.Map;
 @Service
 public class ConstraintService {
 
-    private static final Map<Pieces, MoveConstraint> MOVE_CONSTRAINT_MAP = new HashMap<>();
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ConstraintService.class);
+    private static final Map<Pieces, MoveConstraint> MOVE_CONSTRAINT_MAP = new EnumMap<>(Pieces.class);
 
     static {
         for (Pieces piece : Pieces.values()) {
@@ -44,7 +46,7 @@ public class ConstraintService {
             try {
                 MOVE_CONSTRAINT_MAP.put(piece, pieceMoveConstraintClass.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+                LOGGER.error(e.toString(), e);
             }
         }
     }

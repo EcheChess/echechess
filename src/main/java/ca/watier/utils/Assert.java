@@ -44,6 +44,9 @@ public class Assert {
     private static final String ERROR_VALUE_MUST_BE_BETWEEN = "%s MUST be between %s and %s";
     private static final String ERROR_OBJECTS_ARE_NOT_EQUALS = "The %s are not equals !";
 
+    private Assert() {
+    }
+
     /**
      * Check if the string are equals
      *
@@ -57,6 +60,7 @@ public class Assert {
         }
         assertNotNull(first, second);
 
+        assert first != null;
         if (!first.equals(second)) {
             throw new AssertionError(String.format(ERROR_OBJECTS_ARE_NOT_EQUALS, "strings"));
         }
@@ -89,8 +93,7 @@ public class Assert {
      * @throws IllegalArgumentException
      */
     public static void assertNotEquals(String first, String second) throws AssertionError {
-
-        if (first == null && second == null || (first != null && first.equals(second)) || (second != null && second.equals(first))) {
+        if ((first == null && second == null) || (first != null && first.equals(second))) {
             throw new AssertionError(String.format(ERROR_OBJECTS_ARE_EQUALS, "strings"));
         }
     }

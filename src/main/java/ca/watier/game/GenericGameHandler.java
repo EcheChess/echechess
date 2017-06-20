@@ -34,20 +34,19 @@ import static ca.watier.enums.Side.WHITE;
  * Created by yannick on 5/5/2017.
  */
 public class GenericGameHandler {
-    protected final ConstraintService CONSTRAINT_SERVICE;
+    private final ConstraintService CONSTRAINT_SERVICE;
     private final Set<SpecialGameRules> SPECIAL_GAME_RULES;
     private final Player playerWhoCreatedGame;
     protected Map<CasePosition, Pieces> CURRENT_PIECES_LOCATION;
     protected String uuid;
-    protected boolean allowOtherToJoin = false;
-    protected boolean allowObservers = false;
-    protected Side currentAllowedMoveSide = WHITE;
+    private KingStatus blackKingStatus, whiteKingStatus;
+    private boolean allowOtherToJoin = false;
+    private boolean allowObservers = false;
+    private Side currentAllowedMoveSide = WHITE;
     protected Player playerWhite, playerBlack;
-    protected List<Player> observerList;
+    private List<Player> observerList;
     private short blackPlayerPoint = 0, whitePlayerPoint = 0;
     private GameType gameType;
-    private boolean isGameDone = false;
-
 
     public GenericGameHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
         SPECIAL_GAME_RULES = new HashSet<>();
@@ -69,6 +68,7 @@ public class GenericGameHandler {
             case WHITE:
                 whitePlayerPoint += point;
                 break;
+                default: break;
         }
     }
 
@@ -114,15 +114,6 @@ public class GenericGameHandler {
 
     public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) {
         return true;
-    }
-
-
-    public boolean isGameDone() {
-        return isGameDone;
-    }
-
-    public void setGameDone(boolean gameDone) {
-        isGameDone = gameDone;
     }
 
     protected final void changeAllowedMoveSide() {
@@ -371,5 +362,17 @@ public class GenericGameHandler {
 
     public Player getPlayerWhoCreatedGame() {
         return playerWhoCreatedGame;
+    }
+
+    public boolean isGameDone() {
+        return KingStatus.CHECKMATE.equals(whiteKingStatus) || KingStatus.CHECKMATE.equals(blackKingStatus);
+    }
+
+    protected void setBlackKingStatus(KingStatus blackKingStatus) {
+        this.blackKingStatus = blackKingStatus;
+    }
+
+    protected void setWhiteKingStatus(KingStatus whiteKingStatus) {
+        this.whiteKingStatus = whiteKingStatus;
     }
 }

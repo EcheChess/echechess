@@ -35,6 +35,12 @@ public class GameScoreResponse {
         return blackPlayerPoint;
     }
 
+    @Override
+    public int hashCode() {
+        int result = (int) whitePlayerPoint;
+        result = 31 * result + (int) blackPlayerPoint;
+        return result;
+    }
 
     @Override
     public boolean equals(Object o) {

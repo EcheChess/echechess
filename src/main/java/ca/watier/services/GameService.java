@@ -222,13 +222,9 @@ public class GameService {
         boolean allowOtherToJoin = gameFromUuid.isAllowOtherToJoin();
 
 
-        if (!allowOtherToJoin && !allowObservers) {
-            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
-            return new BooleanResponse(false);
-        } else if (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) {
-            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
-            return new BooleanResponse(false);
-        } else if (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side))) {
+        if ((!allowOtherToJoin && !allowObservers) ||
+                (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
+                (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
             webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
             return new BooleanResponse(false);
         }
@@ -254,11 +250,11 @@ public class GameService {
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
-        if (gameFromUuid == null || !gameFromUuid.hasPlayer(player)) {
-            return null;
-        }
-
         List<DualValueResponse> values = new ArrayList<>();
+
+        if (gameFromUuid == null || !gameFromUuid.hasPlayer(player)) {
+            return values;
+        }
 
         for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : gameFromUuid.getPiecesLocation().entrySet()) {
             values.add(new DualValueResponse(casePositionPiecesEntry.getKey(), casePositionPiecesEntry.getValue(), ""));

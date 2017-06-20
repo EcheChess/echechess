@@ -189,13 +189,6 @@ public class GameServiceTests {
                 "BLACK player moved H7 to H5",
                 "It's your turn !",  //To the white player
                 EMPTY_GAME_SCORE_RESPONSE);
-
-        currentWebSocketService.clearMessages();
-
-        gameFromUuid.setGameDone(true);
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.movePiece(G2, G4, uuid, player1));
-        assertThat(messages).containsOnly("The game is ended !");
-
     }
 
     @Test
@@ -283,6 +276,6 @@ public class GameServiceTests {
         assertThat(gameService.getPieceLocations(uuid, player2)).isNotEmpty();
 
 
-        assertThat(gameService.getPieceLocations(uuid, playerNotInGame)).isNull();
+        assertThat(gameService.getPieceLocations(uuid, playerNotInGame)).isEmpty();
     }
 }

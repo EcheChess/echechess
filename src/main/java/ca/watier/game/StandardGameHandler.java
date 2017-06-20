@@ -77,8 +77,16 @@ public class StandardGameHandler extends GenericGameHandler {
 
         Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
         KingStatus otherKingStatusAfterMove = getKingStatus(otherPlayerSide);
-        if (KingStatus.CHECKMATE.equals(otherKingStatusAfterMove)) {
-            setGameDone(true);
+
+        switch (playerSide) {
+            case WHITE:
+                setWhiteKingStatus(kingStatusAfterMove);
+                setBlackKingStatus(otherKingStatusAfterMove);
+                break;
+            case BLACK:
+                setWhiteKingStatus(otherKingStatusAfterMove);
+                setBlackKingStatus(kingStatusAfterMove);
+                break;
         }
 
         return isMoved;

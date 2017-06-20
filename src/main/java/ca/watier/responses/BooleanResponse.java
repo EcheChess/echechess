@@ -48,6 +48,13 @@ public class BooleanResponse {
         this.message = message;
     }
 
+    @Override
+    public int hashCode() {
+        int result = (response ? 1 : 0);
+        result = 31 * result + message.hashCode();
+        return result;
+    }
+
     /**
      * Compare only the boolean value, the message is irrelevant
      *

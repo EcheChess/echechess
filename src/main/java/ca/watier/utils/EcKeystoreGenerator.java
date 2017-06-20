@@ -29,6 +29,7 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.joda.time.DateTime;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.security.*;
@@ -40,6 +41,7 @@ import java.security.cert.X509Certificate;
 public class EcKeystoreGenerator {
     public static final String PROVIDER_NAME = BouncyCastleProvider.PROVIDER_NAME;
     public static final String PRNG = "SHA1PRNG";
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EcKeystoreGenerator.class);
     private static final String KEYPAIR_SIGNING_ALG = "ECDSA";
     private static final String EC_CURVE = "secp384r1";
     private static final short SERIAL_BYTES_LENGTH = 1024;
@@ -89,7 +91,7 @@ public class EcKeystoreGenerator {
         try {
             signer = new JcaContentSignerBuilder("SHA512withECDSA").build(privateKey);
         } catch (OperatorCreationException e1) {
-            e1.printStackTrace();
+            LOGGER.error(e1.toString(), e1);
             return null;
         }
 
@@ -127,7 +129,7 @@ public class EcKeystoreGenerator {
             keyGenerator = KeyPairGenerator.getInstance(KEYPAIR_SIGNING_ALG, PROVIDER_NAME);
             keyGenerator.initialize(ECNamedCurveTable.getParameterSpec(EC_CURVE), secureRandom);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e1) {
-            e1.printStackTrace();
+            LOGGER.error(e1.toString(), e1);
         }
 
         return keyGenerator != null ? keyGenerator.generateKeyPair() : null;

@@ -47,9 +47,9 @@ public class MathUtils extends BaseUtils {
 
         //(x−a)^2 + (y−b)^2 = r^2
         int xFrom = from.getX();
-        double partOne = Math.pow(to.getX() - xFrom, 2);
+        double partOne = Math.pow((double) to.getX() - xFrom, 2);
         int yFrom = from.getY();
-        double partTwo = Math.pow(to.getY() - yFrom, 2);
+        double partTwo = Math.pow((double) to.getY() - yFrom, 2);
         double disRadius = Math.pow(getDistanceBetweenPositions(xFrom, yFrom, xRadius, yRadius), 2);
 
         return Precision.equals(partOne + partTwo, disRadius, EPS);
@@ -271,8 +271,8 @@ public class MathUtils extends BaseUtils {
     public static Float getSlopeFromPosition(CasePosition from, CasePosition to) {
         Assert.assertNotNull(from, to);
 
-        float xDiff = from.getX() - to.getX();
-        float yDiff = from.getY() - to.getY();
+        float xDiff = (float) from.getX() - to.getX();
+        float yDiff = (float) from.getY() - to.getY();
 
         if (xDiff == 0) {
             return null;
