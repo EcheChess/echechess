@@ -72,11 +72,11 @@ public class GameService {
         if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(constraintService, player);
+            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(constraintService);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
-            genericGameHandler = new StandardGameHandler(constraintService, player);
+            genericGameHandler = new StandardGameHandler(constraintService);
         }
 
         UUID uui = UUID.randomUUID();

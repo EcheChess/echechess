@@ -19,7 +19,6 @@ package ca.watier.game;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.services.ConstraintService;
-import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 
 import java.util.Map;
@@ -28,13 +27,10 @@ import java.util.Map;
  * Created by yannick on 5/22/2017.
  */
 public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
-
-    public CustomPieceWithStandardRulesHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
-        super(constraintService, playerWhoCreatedGame);
-    }
+    public static final String THE_NUMBER_OF_PARAMETER_IS_INCORRECT = "The number of parameter is incorrect !";
 
     public CustomPieceWithStandardRulesHandler(ConstraintService constraintService) {
-        super(constraintService, new Player());
+        super(constraintService);
     }
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {
@@ -50,7 +46,7 @@ public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
             String[] values = section.split(":");
 
             if (values.length != 2) {
-                break;
+                throw new UnsupportedOperationException(THE_NUMBER_OF_PARAMETER_IS_INCORRECT);
             }
 
             CURRENT_PIECES_LOCATION.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));

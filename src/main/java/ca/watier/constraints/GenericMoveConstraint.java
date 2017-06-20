@@ -44,9 +44,7 @@ public class GenericMoveConstraint implements MoveConstraint {
 
         Direction[] directions = pattern.getDirections();
 
-        if (directions == null) {
-            return false;
-        }
+        assert directions != null;
 
         List<Direction> directionList = Arrays.asList(directions);
 

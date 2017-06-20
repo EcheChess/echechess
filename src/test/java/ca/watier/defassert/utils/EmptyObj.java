@@ -14,13 +14,20 @@
  *    limitations under the License.
  */
 
-package ca.watier.exceptions;
+package ca.watier.defassert.utils;
 
 /**
- * Created by yannick on 5/7/2017.
+ * Created by yannick on 2/27/2017.
  */
-public class GameException extends Exception {
-    public GameException(String s) {
-        super(s);
+public class EmptyObj {
+
+    public boolean isEmpty;
+
+    public EmptyObj(boolean isEmpty) {
+        this.isEmpty = isEmpty;
+    }
+
+    public Boolean isEmpty() {
+        return isEmpty;
     }
 }

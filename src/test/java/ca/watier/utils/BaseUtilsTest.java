@@ -16,11 +16,20 @@
 
 package ca.watier.utils;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
- * Created by yannick on 4/27/2017.
+ * Created by yannick on 6/20/2017.
  */
-public class BaseUtils {
-    public static int getSafeInteger(Integer value) {
-        return value == null ? 0 : value;
+public class BaseUtilsTest {
+    @Test
+    public void getSafeInteger() throws Exception {
+        assertEquals(10, BaseUtils.getSafeInteger(10));
+        assertEquals(20, BaseUtils.getSafeInteger(20));
+        assertEquals(30, BaseUtils.getSafeInteger(30));
+        assertEquals(40, BaseUtils.getSafeInteger(40));
+        assertEquals(0, BaseUtils.getSafeInteger(null));
     }
 }

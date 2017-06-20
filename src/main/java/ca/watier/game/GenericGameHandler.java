@@ -36,24 +36,22 @@ import static ca.watier.enums.Side.WHITE;
 public class GenericGameHandler {
     private final ConstraintService CONSTRAINT_SERVICE;
     private final Set<SpecialGameRules> SPECIAL_GAME_RULES;
-    private final Player playerWhoCreatedGame;
     protected Map<CasePosition, Pieces> CURRENT_PIECES_LOCATION;
     protected String uuid;
+    protected Player playerWhite, playerBlack;
     private KingStatus blackKingStatus, whiteKingStatus;
     private boolean allowOtherToJoin = false;
     private boolean allowObservers = false;
     private Side currentAllowedMoveSide = WHITE;
-    protected Player playerWhite, playerBlack;
     private List<Player> observerList;
     private short blackPlayerPoint = 0, whitePlayerPoint = 0;
     private GameType gameType;
 
-    public GenericGameHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
+    public GenericGameHandler(ConstraintService constraintService) {
         SPECIAL_GAME_RULES = new HashSet<>();
         CURRENT_PIECES_LOCATION = GameUtils.getDefaultGame();
         observerList = new ArrayList<>();
         this.CONSTRAINT_SERVICE = constraintService;
-        this.playerWhoCreatedGame = playerWhoCreatedGame;
     }
 
 
@@ -68,7 +66,8 @@ public class GenericGameHandler {
             case WHITE:
                 whitePlayerPoint += point;
                 break;
-                default: break;
+            default:
+                break;
         }
     }
 
@@ -233,7 +232,7 @@ public class GenericGameHandler {
     public final Map<CasePosition, Pieces> getPiecesLocation(Side side) {
         Assert.assertNotNull(side);
 
-        Map<CasePosition, Pieces> values = new HashMap<>();
+        Map<CasePosition, Pieces> values = new EnumMap<>(CasePosition.class);
 
         for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : CURRENT_PIECES_LOCATION.entrySet()) {
             CasePosition key = casePositionPiecesEntry.getKey();
@@ -298,18 +297,6 @@ public class GenericGameHandler {
         return playerBlack;
     }
 
-    private boolean isPlayerAllowed(Player player) {
-        return playerWhite == null || playerBlack == null;
-    }
-
-    public boolean isWhiteSet() {
-        return playerWhite != null;
-    }
-
-    public boolean isBlackSet() {
-        return playerBlack != null;
-    }
-
     public boolean isAllowOtherToJoin() {
         return allowOtherToJoin;
     }
@@ -334,15 +321,6 @@ public class GenericGameHandler {
         this.uuid = uuid;
     }
 
-    @Override
-    public String toString() {
-        return "StandardGameHandler{" +
-                "playerWhite=" + playerWhite +
-                ", playerBlack=" + playerBlack +
-                ", observerList=" + observerList +
-                '}';
-    }
-
     public void addSpecialRule(SpecialGameRules... rules) {
         Assert.assertNotEmpty(rules);
         SPECIAL_GAME_RULES.addAll(Arrays.asList(rules));
@@ -358,10 +336,6 @@ public class GenericGameHandler {
 
     public GameScoreResponse getGameScore() {
         return new GameScoreResponse(whitePlayerPoint, blackPlayerPoint);
-    }
-
-    public Player getPlayerWhoCreatedGame() {
-        return playerWhoCreatedGame;
     }
 
     public boolean isGameDone() {

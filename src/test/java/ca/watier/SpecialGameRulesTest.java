@@ -44,7 +44,7 @@ public class SpecialGameRulesTest {
 
     @Test
     public void noPlayerTurnTest() {
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService, new Player());
+        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
 
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 

@@ -32,8 +32,8 @@ import static ca.watier.enums.KingStatus.*;
  */
 public class StandardGameHandler extends GenericGameHandler {
 
-    public StandardGameHandler(ConstraintService constraintService, Player playerWhoCreatedGame) {
-        super(constraintService, playerWhoCreatedGame);
+    public StandardGameHandler(ConstraintService constraintService) {
+        super(constraintService);
     }
 
     @Override

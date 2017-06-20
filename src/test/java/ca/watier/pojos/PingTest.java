@@ -14,13 +14,28 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.pojos;
+
+import ca.watier.utils.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Created by yannick on 4/27/2017.
+ * Created by yannick on 6/20/2017.
  */
-public class BaseUtils {
-    public static int getSafeInteger(Integer value) {
-        return value == null ? 0 : value;
+public class PingTest {
+
+    public static final String SUPER_UUID = "SUPER_UUID";
+    private Ping ping;
+
+    @Before
+    public void setUp() throws Exception {
+        ping = new Ping(SUPER_UUID);
     }
+
+    @Test
+    public void getUuid() throws Exception {
+        Assert.assertEquals(SUPER_UUID, ping.getUuid());
+    }
+
 }

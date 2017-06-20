@@ -14,13 +14,28 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.responses;
+
+import ca.watier.utils.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Created by yannick on 4/27/2017.
+ * Created by yannick on 6/20/2017.
  */
-public class BaseUtils {
-    public static int getSafeInteger(Integer value) {
-        return value == null ? 0 : value;
+public class StringResponseTest {
+
+    public static final String RESPONSE = "response";
+    private StringResponse stringResponse;
+
+    @Before
+    public void setUp() throws Exception {
+        stringResponse = new StringResponse(RESPONSE);
     }
+
+    @Test
+    public void getResponse() throws Exception {
+        Assert.assertEquals(RESPONSE, stringResponse.getResponse());
+    }
+
 }

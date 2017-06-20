@@ -32,7 +32,6 @@ public class Player implements Serializable {
     private List<UUID> createdGameList = new ArrayList<>();
     private List<UUID> joinedGameList = new ArrayList<>();
     private List<UUID> uiSessionList = new ArrayList<>();
-    private String lastAccededUi;
 
     public void addCreatedGame(UUID uuid) {
         Assert.assertNotNull(uuid);
@@ -55,13 +54,5 @@ public class Player implements Serializable {
 
     public List<UUID> getJoinedGameList() {
         return Collections.unmodifiableList(joinedGameList);
-    }
-
-    public List<UUID> getUiSessionList() {
-        return Collections.unmodifiableList(uiSessionList);
-    }
-
-    public void setLastAccessedUi(String lastAccededUi) {
-        this.lastAccededUi = lastAccededUi;
     }
 }

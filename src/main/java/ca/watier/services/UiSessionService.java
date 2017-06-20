@@ -76,9 +76,7 @@ public class UiSessionService {
         Assert.assertNotEmpty(uuid);
         Player player = CACHE_UI.get(UUID.fromString(uuid));
 
-        if (player != null) {
-            player.setLastAccessedUi(uuid);
-        } else {
+        if (player == null) {
             webSocketService.fireUiEvent(uuid, ChessEventMessage.UI_SESSION_EXPIRED, THE_CLIENT_LOST_THE_CONNECTION);
         }
     }

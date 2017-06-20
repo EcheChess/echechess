@@ -14,13 +14,32 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.constraints;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * Created by yannick on 4/27/2017.
+ * Created by yannick on 6/20/2017.
  */
-public class BaseUtils {
-    public static int getSafeInteger(Integer value) {
-        return value == null ? 0 : value;
+public class GenericMoveConstraintTest {
+
+
+    private GenericMoveConstraint genericMoveConstraint;
+
+    @Before
+    public void setUp() throws Exception {
+        genericMoveConstraint = new GenericMoveConstraint(null);
+    }
+
+    /**
+     * Only to assert that the pattern cannot be null (return false if so)
+     *
+     * @throws Exception
+     */
+    @Test
+    public void isMoveValid() throws Exception {
+        Assert.assertFalse(genericMoveConstraint.isMoveValid(null, null, null, null, null));
     }
 }
