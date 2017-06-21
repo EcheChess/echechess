@@ -18,7 +18,6 @@ package ca.watier.game;
 
 import ca.watier.enums.*;
 import ca.watier.services.ConstraintService;
-import ca.watier.sessions.Player;
 import ca.watier.utils.*;
 
 import java.util.ArrayList;

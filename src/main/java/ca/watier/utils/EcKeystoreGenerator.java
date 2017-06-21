@@ -45,6 +45,7 @@ public class EcKeystoreGenerator {
     private static final String KEYPAIR_SIGNING_ALG = "ECDSA";
     private static final String EC_CURVE = "secp384r1";
     private static final short SERIAL_BYTES_LENGTH = 1024;
+    public static final String ALIAS = "alias";
     private static SecureRandom secureRandom = null;
 
 
@@ -103,7 +104,7 @@ public class EcKeystoreGenerator {
             keyStore = KeyStore.getInstance("JKS");
             keyStore.load(null, null);
 
-            keyStore.setKeyEntry("alias", pair.getPrivate(), password.toCharArray(), new java.security.cert.Certificate[]{cert});
+            keyStore.setKeyEntry(ALIAS, pair.getPrivate(), password.toCharArray(), new java.security.cert.Certificate[]{cert});
         } catch (final Exception e) {
             throw new IllegalStateException("Errors during assembling root CA.", e);
         }

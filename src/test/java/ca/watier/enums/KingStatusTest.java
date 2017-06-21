@@ -14,30 +14,23 @@
  *    limitations under the License.
  */
 
-package ca.watier.pojos;
+package ca.watier.enums;
 
-import ca.watier.utils.Assert;
-import org.junit.Before;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Created by yannick on 6/20/2017.
  */
-public class PingTest {
-
-    public static final String SUPER_UUID = "SUPER_UUID";
-    public static final String NEW_UUID = "NEW_UUID";
-    private Ping ping;
-
-    @Before
-    public void setUp() throws Exception {
-        ping = new Ping(SUPER_UUID);
-    }
+public class KingStatusTest {
 
     @Test
-    public void getUuid() throws Exception {
-        Assert.assertEquals(SUPER_UUID, ping.getUuid());
-        ping.setUuid(NEW_UUID);
-        Assert.assertEquals(NEW_UUID, ping.getUuid());
+    public void isCheckOrCheckMate() throws Exception {
+
+        Assert.assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECKMATE));
+        Assert.assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECK));
+        Assert.assertFalse(KingStatus.isCheckOrCheckMate(KingStatus.OK));
     }
+
 }
