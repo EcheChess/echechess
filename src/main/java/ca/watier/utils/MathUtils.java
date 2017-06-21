@@ -29,9 +29,12 @@ import static ca.watier.enums.Direction.*;
 /**
  * Created by yannick on 4/25/2017.
  */
-public class MathUtils extends BaseUtils {
+public class MathUtils implements BaseUtils {
 
-    public static final double EPS = 1E-5;
+    private static final double EPS = 1E-5;
+
+    private MathUtils() {
+    }
 
     /**
      * Check if the position is on the perimeter of the circle
@@ -210,11 +213,11 @@ public class MathUtils extends BaseUtils {
             }
         } else if (xTo < xFrom && yTo < yFrom) {
             direction = SOUTH_WEST;
-        } else if (xTo < xFrom && yTo > yFrom) {
+        } else if (xTo < xFrom) {
             direction = NORTH_WEST;
-        } else if (xTo > xFrom && yTo < yFrom) {
+        } else if (yTo < yFrom) {
             direction = SOUTH_EAST;
-        } else if (xTo > xFrom && yTo > yFrom) {
+        } else {
             direction = NORTH_EAST;
         }
 
@@ -299,7 +302,7 @@ public class MathUtils extends BaseUtils {
 
         Float slopeFromPosition = getSlopeFromPosition(from, to);
 
-        if (slopeFromPosition == null) { //Vertical, y++
+        if (slopeFromPosition == null) { //Vertical
             int lesserY = (yFrom < yTo) ? yFrom : yTo;
             int greaterY = (yFrom > yTo) ? yFrom : yTo;
 
@@ -309,7 +312,7 @@ public class MathUtils extends BaseUtils {
                     positions.add(casePositionByCoor);
                 }
             }
-        } else if (slopeFromPosition == 0) { //Horizontal, x++
+        } else if (slopeFromPosition == 0) { //Horizontal
             int lesserX = (xFrom < xTo) ? xFrom : xTo;
             int greaterX = (xFrom > xTo) ? xFrom : xTo;
 
@@ -321,7 +324,8 @@ public class MathUtils extends BaseUtils {
                 }
             }
         } else { //Diagonal
-            CasePosition leftPosition, rightPosition;
+            CasePosition leftPosition;
+            CasePosition rightPosition;
 
             if (xFrom < xTo) {
                 leftPosition = from;

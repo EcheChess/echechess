@@ -24,9 +24,8 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Side;
 import ca.watier.enums.SpecialGameRules;
-import ca.watier.game.StandardGameHandler;
+import ca.watier.game.GenericGameHandler;
 import ca.watier.services.ConstraintService;
-import ca.watier.sessions.Player;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +43,7 @@ public class SpecialGameRulesTest {
 
     @Test
     public void noPlayerTurnTest() {
-        StandardGameHandler gameHandler = new StandardGameHandler(constraintService);
+        GenericGameHandler gameHandler = new GenericGameHandler(constraintService);
 
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 

@@ -29,4 +29,7 @@ public class Constants {
     public static final String GAME_ENDED = "The game is ended !";
     public static final String REQUESTED_SESSION_ALREADY_DEFINED = "The requested session id is already defined !";
     public static final String JOINING_GAME = "Joining the game %s";
+
+    private Constants() {
+    }
 }

@@ -26,6 +26,10 @@ import java.util.concurrent.TimeUnit;
  * Created by yannick on 6/11/2017.
  */
 public class CacheConstants {
+
     public static final String CACHE_UI_SESSION_NAME = "uiCache";
     public static final Expiry<Object, Object> CACHE_UI_SESSION_EXPIRY = Expirations.timeToLiveExpiration(new Duration(5, TimeUnit.MINUTES));
+
+    private CacheConstants() {
+    }
 }

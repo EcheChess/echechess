@@ -42,6 +42,7 @@ public class UiSessionHandlerInterceptor extends HandlerInterceptorAdapter {
         this.webSocketService = webSocketService;
     }
 
+    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         boolean isAllowed = false;
 

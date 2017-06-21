@@ -37,6 +37,9 @@ public class SessionListener implements HttpSessionListener {
         session.setAttribute(Constants.PLAYER, new Player());
     }
 
+
+    //Methods should not be empty
+    @java.lang.SuppressWarnings("squid:S1186")
     @Override
     public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
     }

@@ -41,13 +41,12 @@ import java.security.cert.X509Certificate;
 public class EcKeystoreGenerator {
     public static final String PROVIDER_NAME = BouncyCastleProvider.PROVIDER_NAME;
     public static final String PRNG = "SHA1PRNG";
+    public static final String ALIAS = "alias";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EcKeystoreGenerator.class);
     private static final String KEYPAIR_SIGNING_ALG = "ECDSA";
     private static final String EC_CURVE = "secp384r1";
     private static final short SERIAL_BYTES_LENGTH = 1024;
-    public static final String ALIAS = "alias";
     private static SecureRandom secureRandom = null;
-
 
     static {
         if (Security.getProvider(PROVIDER_NAME) == null) {
@@ -59,6 +58,9 @@ public class EcKeystoreGenerator {
         } catch (NoSuchAlgorithmException e2) {
             secureRandom = new SecureRandom();
         }
+    }
+
+    private EcKeystoreGenerator() {
     }
 
     public static KeystorePasswordHolder createKeystore() {

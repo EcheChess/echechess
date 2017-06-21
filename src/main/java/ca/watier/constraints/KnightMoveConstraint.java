@@ -46,10 +46,8 @@ public class KnightMoveConstraint implements MoveConstraint {
 
         boolean canAttack = true;
 
-        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
-            if (hittingPiece != null) {
-                canAttack = !side.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
-            }
+        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode) && hittingPiece != null) {
+            canAttack = !side.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
         }
 
         return canAttack && MathUtils.isPositionOnCirclePerimeter(from, to, from.getX() + KNIGHT_RADIUS_EQUATION, from.getY()) &&

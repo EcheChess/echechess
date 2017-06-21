@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Created by yannick on 5/22/2017.
  */
-public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
+public class CustomPieceWithStandardRulesHandler extends GenericGameHandler {
     public static final String THE_NUMBER_OF_PARAMETER_IS_INCORRECT = "The number of parameter is incorrect !";
 
     public CustomPieceWithStandardRulesHandler(ConstraintService constraintService) {
@@ -34,13 +34,13 @@ public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
     }
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {
-        CURRENT_PIECES_LOCATION = positionPieces;
+        positionPiecesMap = positionPieces;
     }
 
     public void setPieces(String specialGamePieces) {
         Assert.assertNotEmpty(specialGamePieces);
 
-        CURRENT_PIECES_LOCATION.clear();
+        positionPiecesMap.clear();
 
         for (String section : specialGamePieces.split(";")) {
             String[] values = section.split(":");
@@ -49,7 +49,7 @@ public class CustomPieceWithStandardRulesHandler extends StandardGameHandler {
                 throw new UnsupportedOperationException(THE_NUMBER_OF_PARAMETER_IS_INCORRECT);
             }
 
-            CURRENT_PIECES_LOCATION.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
+            positionPiecesMap.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
         }
     }
 }

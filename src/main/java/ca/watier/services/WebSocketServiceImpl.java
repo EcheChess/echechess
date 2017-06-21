@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WebSocketServiceImpl implements WebSocketService {
 
+    private static final String TOPIC = "/topic/";
     private final SimpMessagingTemplate template;
 
     @Autowired
@@ -43,15 +44,15 @@ public class WebSocketServiceImpl implements WebSocketService {
         Assert.assertNotEmpty(uuid);
         Assert.assertNotEmpty(message);
 
-        template.convertAndSend("/topic/" + uuid + '/' + side, new ChessEvent(evtMessage, message));
+        template.convertAndSend(TOPIC + uuid + '/' + side, new ChessEvent(evtMessage, message));
     }
 
     public void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message) {
-        template.convertAndSend("/topic/" + uiUuid, new ChessEvent(evtMessage, message));
+        template.convertAndSend(TOPIC + uiUuid, new ChessEvent(evtMessage, message));
     }
 
 
     public void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message) {
-        template.convertAndSend("/topic/" + uuid, new ChessEvent(evtMessage, message));
+        template.convertAndSend(TOPIC + uuid, new ChessEvent(evtMessage, message));
     }
 }

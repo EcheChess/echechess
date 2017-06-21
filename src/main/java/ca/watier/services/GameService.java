@@ -22,7 +22,6 @@ import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.game.GenericGameHandler;
-import ca.watier.game.StandardGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.sessions.Player;
@@ -58,7 +57,7 @@ public class GameService {
      * Create a new game, and associate it to the player
      *
      * @param player
-     * @param specialGamePieces - If null, create a StandardGameHandler
+     * @param specialGamePieces - If null, create a {@link GenericGameHandler}
      * @param side
      * @param againstComputer
      * @param observers
@@ -76,7 +75,7 @@ public class GameService {
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
-            genericGameHandler = new StandardGameHandler(constraintService);
+            genericGameHandler = new GenericGameHandler(constraintService);
         }
 
         UUID uui = UUID.randomUUID();

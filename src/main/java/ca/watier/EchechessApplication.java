@@ -29,6 +29,7 @@ import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -52,6 +53,7 @@ public class EchechessApplication {
     private static final int SECURE_PORT = 8443;
     private static final int WEB_PORT = 8080;
     private static final KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER = EcKeystoreGenerator.createKeystore();
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EchechessApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(EchechessApplication.class, args);
@@ -71,14 +73,14 @@ public class EchechessApplication {
             //Add a plain HTTP connector and a WebAppContext config to force redirect from http->https
             containerFactory.addConfigurations(new HttpToHttpsJettyConfiguration());
             containerFactory.addServerCustomizers(server -> {
-                HttpConfiguration https_config = new HttpConfiguration();
-                https_config.addCustomizer(new SecureRequestCustomizer());
-                https_config.setSecureScheme("https");
-                https_config.setSecurePort(SECURE_PORT);
+                HttpConfiguration httpsConfig = new HttpConfiguration();
+                httpsConfig.addCustomizer(new SecureRequestCustomizer());
+                httpsConfig.setSecureScheme("https");
+                httpsConfig.setSecurePort(SECURE_PORT);
 
-                HttpConfiguration http_config = new HttpConfiguration();
-                http_config.addCustomizer(new SecureRequestCustomizer());
-                http_config.setSecurePort(SECURE_PORT);
+                HttpConfiguration httpConfig = new HttpConfiguration();
+                httpConfig.addCustomizer(new SecureRequestCustomizer());
+                httpConfig.setSecurePort(SECURE_PORT);
 
                 SslContextFactory sslContextFactory = new SslContextFactory();
                 sslContextFactory.setKeyStoreProvider(PROVIDER_NAME);
@@ -86,14 +88,14 @@ public class EchechessApplication {
                 sslContextFactory.setIncludeProtocols("TLSv1.2");
 
                 if (CURRENT_KEYSTORE_HOLDER == null) {
-                    System.out.println("INVALID KEYSTORE HOLDER (NULL)");
+                    LOGGER.error("INVALID KEYSTORE HOLDER (NULL)");
                     System.exit(1);
                 }
 
                 KeyStore keyStore = CURRENT_KEYSTORE_HOLDER.getKeyStore();
 
                 if (keyStore == null) {
-                    System.out.println("INVALID KEYSTORE (NULL)");
+                    LOGGER.error("INVALID KEYSTORE (NULL)");
                     System.exit(1);
                 }
 
@@ -105,10 +107,10 @@ public class EchechessApplication {
                         "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
                 );
 
-                ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));
+                ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
                 http.setPort(WEB_PORT);
 
-                ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(https_config));
+                ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
                 https.setPort(SECURE_PORT);
                 https.setIdleTimeout(500000);
 

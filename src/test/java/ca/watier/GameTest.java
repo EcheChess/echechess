@@ -22,6 +22,9 @@ import ca.watier.services.ConstraintService;
 /**
  * Created by yannick on 5/30/2017.
  */
+
+//TestCases should contain tests
+@java.lang.SuppressWarnings("squid:S2187")
 public class GameTest {
     protected static final Side WHITE = Side.WHITE;
     protected static final Side BLACK = Side.BLACK;

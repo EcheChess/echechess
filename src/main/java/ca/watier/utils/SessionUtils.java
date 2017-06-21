@@ -23,7 +23,10 @@ import javax.servlet.http.HttpSession;
 /**
  * Created by yannick on 4/23/2017.
  */
-public class SessionUtils extends BaseUtils {
+public class SessionUtils implements BaseUtils {
+
+    private SessionUtils() {
+    }
 
     /**
      * Fetch the player from the HttpSession, the session cannot be null, same for the player

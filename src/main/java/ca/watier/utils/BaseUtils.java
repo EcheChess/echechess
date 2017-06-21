@@ -19,8 +19,8 @@ package ca.watier.utils;
 /**
  * Created by yannick on 4/27/2017.
  */
-public class BaseUtils {
-    public static int getSafeInteger(Integer value) {
+public interface BaseUtils {
+    static int getSafeInteger(Integer value) {
         return value == null ? 0 : value;
     }
 }

@@ -57,7 +57,7 @@ public class UiController {
 
     @MessageMapping("/api/ui/ping")
     @SendTo("/topic/ping")
-    public void ping(Ping uuid) throws Exception {
+    public void ping(Ping uuid) {
         uiSessionService.refresh(uuid.getUuid());
     }
 }

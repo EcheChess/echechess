@@ -33,7 +33,8 @@ public enum CasePosition {
     A2(-4, -2), B2(-3, -2), C2(-2, -2), D2(-1, -2), E2(0, -2), F2(1, -2), G2(2, -2), H2(3, -2),
     A1(-4, -3), B1(-3, -3), C1(-2, -3), D1(-1, -3), E1(0, -3), F1(1, -3), G1(2, -3), H1(3, -3);
 
-    private final int x, y;
+    private final int x;
+    private final int y;
 
     CasePosition(int x, int y) {
         this.x = x;

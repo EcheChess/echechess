@@ -33,9 +33,9 @@ public class PawnMoveConstraint implements MoveConstraint {
     public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
         Assert.assertNotNull(from, to, side);
 
-        Direction direction = Direction.NORTH,
-                directionAttack1 = Direction.NORTH_WEST,
-                directionAttack2 = Direction.NORTH_EAST;
+        Direction direction = Direction.NORTH;
+        Direction directionAttack1 = Direction.NORTH_WEST;
+        Direction directionAttack2 = Direction.NORTH_EAST;
 
         //Pre checks, MUST BE FIRST
         if (Side.BLACK.equals(side)) {

@@ -548,7 +548,7 @@ public class AssertTest {
     @Test
     public void assertIsNull() throws Exception {
         try {
-            Assert.assertNull(null);
+            Assert.assertNull();
         } catch (AssertionError iae) {
             org.junit.Assert.fail();
         }
@@ -638,7 +638,7 @@ public class AssertTest {
         }
 
         try {
-            Assert.assertNotNull(null);
+            Assert.assertNotNull();
             org.junit.Assert.fail();
         } catch (AssertionError ignored) {
         }

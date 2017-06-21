@@ -20,7 +20,8 @@ package ca.watier.responses;
  * Created by yannick on 6/9/2017.
  */
 public class GameScoreResponse {
-    private short whitePlayerPoint, blackPlayerPoint;
+    private short whitePlayerPoint;
+    private short blackPlayerPoint;
 
     public GameScoreResponse(short whitePlayerPoint, short blackPlayerPoint) {
         this.whitePlayerPoint = whitePlayerPoint;

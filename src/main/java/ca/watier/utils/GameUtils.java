@@ -21,16 +21,16 @@ import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by yannick on 4/23/2017.
  */
-public class GameUtils extends BaseUtils {
+public class GameUtils implements BaseUtils {
 
-    private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new HashMap<>();
+    private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new EnumMap<>(CasePosition.class);
 
     static {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.A1, Pieces.W_ROOK);
@@ -68,13 +68,16 @@ public class GameUtils extends BaseUtils {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.H7, Pieces.B_PAWN);
     }
 
+    private GameUtils() {
+    }
+
     /**
      * Create a new HashMap containing the default game
      *
      * @return
      */
     public static Map<CasePosition, Pieces> getDefaultGame() {
-        Map<CasePosition, Pieces> game = new HashMap<>();
+        Map<CasePosition, Pieces> game = new EnumMap<>(CasePosition.class);
         game.putAll(DEFAULT_GAME_TEMPLATE);
         return game;
     }

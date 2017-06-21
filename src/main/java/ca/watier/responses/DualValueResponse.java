@@ -20,7 +20,8 @@ package ca.watier.responses;
  * Created by yannick on 4/23/2017.
  */
 public class DualValueResponse {
-    private Object value1, value2;
+    private Object value1;
+    private Object value2;
     private String message;
 
     public DualValueResponse(Object value1, Object value2, String message) {

@@ -64,7 +64,7 @@ public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHand
     public void movePieceTo(CasePosition from, CasePosition to) {
         Assert.assertNotNull(from, to);
 
-        Pieces pieces = CURRENT_PIECES_LOCATION.get(from);
+        Pieces pieces = positionPiecesMap.get(from);
         Assert.assertNotNull(pieces);
 
         movePieceTo(from, to, pieces);
@@ -73,6 +73,6 @@ public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHand
     public void removePieceAt(CasePosition position) {
         Assert.assertNotNull(position);
 
-        CURRENT_PIECES_LOCATION.remove(position);
+        positionPiecesMap.remove(position);
     }
 }
