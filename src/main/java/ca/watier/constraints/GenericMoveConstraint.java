@@ -17,6 +17,8 @@
 package ca.watier.constraints;
 
 import ca.watier.enums.*;
+import ca.watier.game.GenericGameHandler;
+import ca.watier.interfaces.MoveConstraint;
 import ca.watier.utils.Assert;
 import ca.watier.utils.GameUtils;
 import ca.watier.utils.MathUtils;
@@ -37,7 +39,7 @@ public class GenericMoveConstraint implements MoveConstraint {
     }
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
+    public boolean isMoveValid(CasePosition from, CasePosition to, GenericGameHandler gameHandler, MoveMode moveMode) {
         if (pattern == null) {
             return false;
         }
@@ -48,8 +50,12 @@ public class GenericMoveConstraint implements MoveConstraint {
 
         List<Direction> directionList = Arrays.asList(directions);
 
-        Assert.assertNotNull(from, to, side);
-        Pieces pieces = positionPiecesMap.get(to);
+        Assert.assertNotNull(from, to);
+
+        Map<CasePosition, Pieces> positionPiecesMap = gameHandler.getPiecesLocation();
+        Pieces pieceTo = positionPiecesMap.get(to);
+        Pieces pieceFrom = positionPiecesMap.get(from);
+        Side sideFrom = pieceFrom.getSide();
 
         Direction directionFromPosition = MathUtils.getDirectionFromPosition(from, to);
 
@@ -62,8 +68,8 @@ public class GenericMoveConstraint implements MoveConstraint {
         if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
             isMoveValid &= !GameUtils.isOtherPiecesBetweenTarget(from, to, positionPiecesMap);
 
-            if (pieces != null) {
-                isMoveValid &= !side.equals(pieces.getSide()) && !Pieces.isKing(pieces);
+            if (pieceTo != null) {
+                isMoveValid &= !sideFrom.equals(pieceTo.getSide()) && !Pieces.isKing(pieceTo);
             }
         } else if (MoveMode.IS_KING_CHECK_MODE.equals(moveMode)) {
 
@@ -75,7 +81,7 @@ public class GenericMoveConstraint implements MoveConstraint {
             boolean isKingDirectOnTheAttackingPiece = false;
 
             List<CasePosition> piecesBetweenPosition = GameUtils.getPiecesBetweenPosition(from, to, positionPiecesMap);
-            CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(Side.getOtherPlayerSide(side)), positionPiecesMap);
+            CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(Side.getOtherPlayerSide(sideFrom)), positionPiecesMap);
 
             if (piecesBetweenPosition.contains(kingPosition)) { //If the king is on the path, check if he's covered by another piece
                 isKingDirectOnTheAttackingPiece = GameUtils.getPiecesBetweenPosition(from, kingPosition, positionPiecesMap).isEmpty();

@@ -18,7 +18,7 @@ package ca.watier.configuration;
 
 import ca.watier.server.UiSessionHandlerInterceptor;
 import ca.watier.services.UiSessionService;
-import ca.watier.services.WebSocketService;
+import ca.watier.interfaces.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

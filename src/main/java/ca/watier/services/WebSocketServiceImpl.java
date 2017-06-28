@@ -18,6 +18,7 @@ package ca.watier.services;
 
 import ca.watier.enums.ChessEventMessage;
 import ca.watier.enums.Side;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.ChessEvent;
 import ca.watier.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;

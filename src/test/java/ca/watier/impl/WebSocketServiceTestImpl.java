@@ -18,7 +18,7 @@ package ca.watier.impl;
 
 import ca.watier.enums.ChessEventMessage;
 import ca.watier.enums.Side;
-import ca.watier.services.WebSocketService;
+import ca.watier.interfaces.WebSocketService;
 
 import java.util.ArrayList;
 import java.util.List;

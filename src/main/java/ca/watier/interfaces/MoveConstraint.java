@@ -14,33 +14,22 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.interfaces;
 
-import ca.watier.interfaces.BaseUtils;
-import ca.watier.sessions.Player;
-
-import javax.servlet.http.HttpSession;
+import ca.watier.enums.CasePosition;
+import ca.watier.enums.MoveMode;
+import ca.watier.game.GenericGameHandler;
 
 /**
  * Created by yannick on 4/23/2017.
  */
-public class SessionUtils implements BaseUtils {
-
-    private SessionUtils() {
-    }
-
+public interface MoveConstraint {
     /**
-     * Fetch the player from the HttpSession, the session cannot be null, same for the player
-     *
-     * @param session
+     * @param from
+     * @param to
+     * @param gameHandler
+     * @param moveMode - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    public static Player getPlayer(HttpSession session) {
-
-        Assert.assertNotNull(session);
-        Player player = (Player) session.getAttribute(Constants.PLAYER);
-        Assert.assertNotNull(player);
-
-        return player;
-    }
+    boolean isMoveValid(CasePosition from, CasePosition to, GenericGameHandler gameHandler, MoveMode moveMode);
 }

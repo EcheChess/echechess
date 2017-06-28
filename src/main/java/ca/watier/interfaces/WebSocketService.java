@@ -14,26 +14,19 @@
  *    limitations under the License.
  */
 
-package ca.watier.constraints;
+package ca.watier.interfaces;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.MoveMode;
-import ca.watier.enums.Pieces;
+import ca.watier.enums.ChessEventMessage;
 import ca.watier.enums.Side;
 
-import java.util.Map;
-
 /**
- * Created by yannick on 4/23/2017.
+ * Created by yannick on 6/10/2017.
  */
-public interface MoveConstraint {
-    /**
-     * @param from
-     * @param to
-     * @param side
-     * @param positionPiecesMap
-     * @param moveMode - Gives the full move of the piece, ignoring the other pieces
-     * @return
-     */
-    boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode);
+public interface WebSocketService {
+    void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message);
+
+    void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message);
+
+    void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message);
 }
+

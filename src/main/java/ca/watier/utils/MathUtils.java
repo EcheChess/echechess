@@ -18,6 +18,7 @@ package ca.watier.utils;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Direction;
+import ca.watier.interfaces.BaseUtils;
 import org.apache.commons.math3.util.Precision;
 
 import java.util.ArrayList;

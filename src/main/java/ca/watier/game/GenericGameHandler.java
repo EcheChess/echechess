@@ -24,6 +24,7 @@ import ca.watier.utils.*;
 
 import java.util.*;
 
+import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.KingStatus.*;
 import static ca.watier.enums.Side.BLACK;
 import static ca.watier.enums.Side.WHITE;
@@ -35,6 +36,7 @@ public class GenericGameHandler {
     private final ConstraintService CONSTRAINT_SERVICE;
     private final Set<SpecialGameRules> SPECIAL_GAME_RULES;
     protected Map<CasePosition, Pieces> positionPiecesMap;
+    protected Map<Pieces, Boolean> movedPiecesMap;
     protected String uuid;
     protected Player playerWhite;
     protected Player playerBlack;
@@ -51,6 +53,7 @@ public class GenericGameHandler {
     public GenericGameHandler(ConstraintService constraintService) {
         SPECIAL_GAME_RULES = new HashSet<>();
         positionPiecesMap = GameUtils.getDefaultGame();
+        movedPiecesMap = GameUtils.initNewMovedPieceMap();
         observerList = new ArrayList<>();
         this.CONSTRAINT_SERVICE = constraintService;
     }
@@ -60,10 +63,9 @@ public class GenericGameHandler {
      *
      * @param from
      * @param playerSide
-     * @param ignoreOtherPieces - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    public List<CasePosition> getAllAvailableMoves(CasePosition from, Side playerSide, boolean ignoreOtherPieces) {
+    public List<CasePosition> getAllAvailableMoves(CasePosition from, Side playerSide) {
         List<CasePosition> positions = new ArrayList<>();
 
         Pieces pieces = positionPiecesMap.get(from);
@@ -73,8 +75,7 @@ public class GenericGameHandler {
         }
 
         for (CasePosition position : CasePosition.values()) {
-            if (!from.equals(position) && ignoreOtherPieces ?
-                    isPieceMovableToWithIgnoreOtherPieces(from, position, playerSide) :
+            if (!from.equals(position) &&
                     isPieceMovableTo(from, position, playerSide)) {
                 positions.add(position);
             }
@@ -83,71 +84,118 @@ public class GenericGameHandler {
         return positions;
     }
 
-    public final boolean isPieceMovableToWithIgnoreOtherPieces(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, positionPiecesMap, MoveMode.NORMAL_OR_ATTACK_MOVE);
-    }
-
+    /**
+     * Check if the piece can be moved to the selected position
+     *
+     * @param from
+     * @param to
+     * @param playerSide
+     * @return
+     */
     public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, positionPiecesMap, MoveMode.NORMAL_OR_ATTACK_MOVE);
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, this, MoveMode.NORMAL_OR_ATTACK_MOVE);
     }
 
+
+    /**
+     * Get an unmodifiable {@link Map} of the current game
+     *
+     * @return
+     */
     public Map<CasePosition, Pieces> getPiecesLocation() {
         return Collections.unmodifiableMap(positionPiecesMap);
     }
 
+    /**
+     * Move a piece to a selected position
+     *
+     * @param from
+     * @param to
+     * @param playerSide
+     * @return
+     */
     public boolean movePiece(CasePosition from, CasePosition to, Side playerSide) {
-        Assert.assertNotNull(from, to);
+        Assert.assertNotNull(from, to, playerSide);
 
+        MoveType moveType = CONSTRAINT_SERVICE.getMoveType(from, to, this);
         Pieces piecesFrom = positionPiecesMap.get(from);
         Pieces piecesTo = positionPiecesMap.get(to);
         boolean isEatingPiece = piecesTo != null;
         Assert.assertNotNull(piecesFrom);
+        Side sideFrom = piecesFrom.getSide();
+        boolean isMoved = true;
 
-        if (!isPieceMovableTo(from, to, playerSide)) {
-            return false;
-        }
-
-        boolean isMoved = false;
-
-        boolean isPlayerTurn = isPlayerTurn(playerSide);
-        if (isPlayerTurn) {
-            movePieceTo(from, to, piecesFrom);
-            isMoved = true;
-        }
-
-        KingStatus kingStatusAfterMove = getKingStatus(playerSide);
-
-        if (KingStatus.isCheckOrCheckMate(kingStatusAfterMove)) { //Cannot move, revert
-            movePieceTo(to, from, piecesFrom);
-
-            if (isEatingPiece) {
-                positionPiecesMap.put(to, piecesTo); //reset the attacked piece
+        if (MoveType.NORMAL.equals(moveType)) {
+            if (!isPlayerTurn(playerSide) || !isPieceMovableTo(from, to, playerSide) || !sideFrom.equals(playerSide)) {
+                return false;
             }
 
-            isMoved = false;
-        } else if (isPlayerTurn) {
+            movePieceTo(from, to, piecesFrom);
+            KingStatus kingStatusAfterMove = getKingStatus(playerSide);
+
+            if (KingStatus.isCheckOrCheckMate(kingStatusAfterMove)) { //Cannot move, revert
+                movePieceTo(to, from, piecesFrom);
+
+                if (isEatingPiece) {
+                    positionPiecesMap.put(to, piecesTo); //reset the attacked piece
+                }
+
+                isMoved = false;
+            } else {
+                changeAllowedMoveSide();
+            }
+
+            if (isMoved && isEatingPiece) { //Count the point for the piece
+                updatePointsForSide(playerSide, piecesTo.getPoint());
+            }
+
+            if (isMoved) {
+                movedPiecesMap.put(piecesFrom, true);
+            }
+
+            Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
+            KingStatus otherKingStatusAfterMove = getKingStatus(otherPlayerSide);
+
+            switch (playerSide) {
+                case WHITE:
+                    setWhiteKingStatus(kingStatusAfterMove);
+                    setBlackKingStatus(otherKingStatusAfterMove);
+                    break;
+                case BLACK:
+                    setWhiteKingStatus(otherKingStatusAfterMove);
+                    setBlackKingStatus(kingStatusAfterMove);
+                    break;
+                default:
+                    break;
+            }
+        } else if (MoveType.CASTLING.equals(moveType)) {
+            /*
+                If queen side, move rook to D1 / D8 and king to C1 / C8
+                Otherwise, move rook to F1 / F8 and king to G1 / G8
+             */
+            boolean isQueenSide = Direction.WEST.equals(MathUtils.getDirectionFromPosition(from, to));
+            CasePosition kingPosition = null;
+            CasePosition rookPosition = null;
+
+            switch (sideFrom) {
+                case BLACK:
+                    kingPosition = (isQueenSide ? C8 : G8);
+                    rookPosition = (isQueenSide ? D8 : F8);
+                    break;
+                case WHITE:
+                    kingPosition = (isQueenSide ? C1 : G1);
+                    rookPosition = (isQueenSide ? D1 : F1);
+                    break;
+                case OBSERVER:
+                default:
+                    break;
+            }
+
+            movePieceTo(from, kingPosition, piecesFrom);
+            movePieceTo(to, rookPosition, piecesTo);
             changeAllowedMoveSide();
         }
 
-        if (isMoved && isEatingPiece) { //Count the point for the piece
-            updatePointsForSide(playerSide, piecesTo.getPoint());
-        }
-
-        Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
-        KingStatus otherKingStatusAfterMove = getKingStatus(otherPlayerSide);
-
-        switch (playerSide) {
-            case WHITE:
-                setWhiteKingStatus(kingStatusAfterMove);
-                setBlackKingStatus(otherKingStatusAfterMove);
-                break;
-            case BLACK:
-                setWhiteKingStatus(otherKingStatusAfterMove);
-                setBlackKingStatus(kingStatusAfterMove);
-                break;
-            default:
-                break;
-        }
 
         return isMoved;
     }
@@ -302,7 +350,7 @@ public class GenericGameHandler {
                     continue;
                 }
 
-                if (CONSTRAINT_SERVICE.isPieceMovableTo(key, position, pieceSide, positionPiecesMap, MoveMode.IS_KING_CHECK_MODE)) {
+                if (CONSTRAINT_SERVICE.isPieceMovableTo(key, position, pieceSide, this, MoveMode.IS_KING_CHECK_MODE)) {
                     values.put(position, new Pair<>(key, value));
                 }
             }
@@ -348,7 +396,7 @@ public class GenericGameHandler {
         return values;
     }
 
-    private boolean isKingCheckAtPosition(CasePosition currentPosition, Side playerSide) {
+    public boolean isKingCheckAtPosition(CasePosition currentPosition, Side playerSide) {
         Assert.assertNotNull(currentPosition, playerSide);
 
         if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
@@ -488,6 +536,12 @@ public class GenericGameHandler {
         SPECIAL_GAME_RULES.addAll(Arrays.asList(rules));
     }
 
+    public boolean isPieceMoved(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return movedPiecesMap.get(piece);
+    }
+
     public List<Player> getObserverList() {
         return Collections.unmodifiableList(observerList);
     }
@@ -502,5 +556,11 @@ public class GenericGameHandler {
 
     public boolean isGameDone() {
         return KingStatus.CHECKMATE.equals(whiteKingStatus) || KingStatus.CHECKMATE.equals(blackKingStatus);
+    }
+
+    public Pieces getPiece(CasePosition position) {
+        Assert.assertNotNull(position);
+
+        return positionPiecesMap.get(position);
     }
 }

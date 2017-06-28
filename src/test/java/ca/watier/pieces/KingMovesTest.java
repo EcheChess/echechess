@@ -20,7 +20,9 @@ import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
+import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -33,11 +35,21 @@ import static ca.watier.enums.Pieces.B_PAWN;
 import static ca.watier.enums.Pieces.W_KING;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by yannick on 5/8/2017.
  */
 public class KingMovesTest extends GameTest {
+
+
+    private CustomPieceWithStandardRulesHandler gameHandler;
+
+    @Before
+    public void setUp() throws Exception {
+        gameHandler = new CustomPieceWithStandardRulesHandler(constraintService);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
+    }
 
     @Test
     public void moveTest() {
@@ -64,5 +76,104 @@ public class KingMovesTest extends GameTest {
             Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
         }
 
+    }
+
+    @Test
+    public void validPathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;A1:W_ROOK");
+
+        Assert.assertTrue(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertTrue(gameHandler.movePiece(E8, H8, BLACK)); //Normal castling
+
+        assertThat(gameHandler.getPiecesLocation()).isNotNull().containsKeys(A8, F8, G8, C1, D1, H1);
+    }
+
+
+    @Test
+    public void attackedBothPathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A1:W_ROOK;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;B2:B_ROOK;G7:W_ROOK;C7:W_ROOK;F2:B_ROOK");
+
+        Assert.assertFalse(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E1, H1, WHITE)); //Normal castling
+        Assert.assertFalse(gameHandler.movePiece(E8, H8, BLACK)); //Normal castling
+        Assert.assertFalse(gameHandler.movePiece(E8, A8, BLACK)); //Queen side
+    }
+
+
+    @Test
+    public void attackedQueenSidePathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A1:W_ROOK;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;B2:B_ROOK;E2:W_PAWN;F2:W_PAWN;G2:W_PAWN;H2:W_PAWN;E7:B_PAWN;F7:B_PAWN;G7:B_PAWN;H7:B_PAWN;B7:W_ROOK");
+
+        Assert.assertFalse(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E8, A8, BLACK)); //Queen side
+        Assert.assertTrue(gameHandler.movePiece(E1, H1, WHITE)); //Normal castling
+        Assert.assertTrue(gameHandler.movePiece(E8, H8, BLACK)); //Normal castling
+
+        Assert.assertEquals(Pieces.W_KING, gameHandler.getPiece(G1));
+        Assert.assertEquals(Pieces.W_ROOK, gameHandler.getPiece(F1));
+        Assert.assertEquals(Pieces.B_KING, gameHandler.getPiece(G8));
+        Assert.assertEquals(Pieces.B_ROOK, gameHandler.getPiece(F8));
+    }
+
+
+    @Test
+    public void checkAtBeginningPositionQueenSidePathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A1:W_ROOK;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;F2:W_PAWN;G2:W_PAWN;H2:W_PAWN;F7:B_PAWN;G7:B_PAWN;H7:B_PAWN;E4:B_ROOK;E5:W_ROOK");
+
+        Assert.assertFalse(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E8, A8, BLACK)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E1, H1, WHITE)); //Normal castling
+        Assert.assertFalse(gameHandler.movePiece(E8, H8, BLACK)); //Normal castling
+    }
+
+
+    @Test
+    public void checkAtEndingPositionQueenSidePathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A1:W_ROOK;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;E2:W_PAWN;F2:W_PAWN;G2:W_PAWN;H2:W_PAWN;E7:B_PAWN;F7:B_PAWN;G7:B_PAWN;H7:B_PAWN;C7:W_ROOK;C2:B_ROOK");
+
+        Assert.assertFalse(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E8, A8, BLACK)); //Queen side
+        Assert.assertTrue(gameHandler.movePiece(E1, H1, WHITE)); //Normal castling
+        Assert.assertTrue(gameHandler.movePiece(E8, H8, BLACK)); //Normal castling
+
+        Assert.assertEquals(Pieces.W_KING, gameHandler.getPiece(G1));
+        Assert.assertEquals(Pieces.W_ROOK, gameHandler.getPiece(F1));
+        Assert.assertEquals(Pieces.B_KING, gameHandler.getPiece(G8));
+        Assert.assertEquals(Pieces.B_ROOK, gameHandler.getPiece(F8));
+    }
+
+    @Test
+    public void blockingPieceQueenSidePathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A1:W_ROOK;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;E2:W_PAWN;F2:W_PAWN;G2:W_PAWN;H2:W_PAWN;E7:B_PAWN;F7:B_PAWN;G7:B_PAWN;H7:B_PAWN;D8:B_PAWN;D1:W_PAWN");
+
+
+        Assert.assertFalse(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E8, A8, BLACK)); //Queen side
+        Assert.assertTrue(gameHandler.movePiece(E1, H1, WHITE)); //Normal castling
+        Assert.assertTrue(gameHandler.movePiece(E8, H8, BLACK)); //Normal castling
+
+        Assert.assertEquals(Pieces.W_KING, gameHandler.getPiece(G1));
+        Assert.assertEquals(Pieces.W_ROOK, gameHandler.getPiece(F1));
+        Assert.assertEquals(Pieces.B_KING, gameHandler.getPiece(G8));
+        Assert.assertEquals(Pieces.B_ROOK, gameHandler.getPiece(F8));
+    }
+
+
+    @Test
+    public void movedPiecesQueenSidePathCastlingTest() {
+        gameHandler.setPieces("E8:B_KING;E1:W_KING;A1:W_ROOK;A8:B_ROOK;H8:B_ROOK;H1:W_ROOK;E2:W_PAWN;F2:W_PAWN;G2:W_PAWN;H2:W_PAWN;E7:B_PAWN;F7:B_PAWN;G7:B_PAWN;H7:B_PAWN");
+
+        //Move the white king
+        gameHandler.movePiece(E1, D2, WHITE);
+        //Move the white king to the original position
+        gameHandler.movePiece(D2, E1, WHITE);
+
+        //Move the black rook
+        gameHandler.movePiece(A8, A7, BLACK);
+        //Move the black rook to the original position
+        gameHandler.movePiece(A7, A8, BLACK);
+
+        Assert.assertFalse(gameHandler.movePiece(E1, A1, WHITE)); //Queen side
+        Assert.assertFalse(gameHandler.movePiece(E8, A8, BLACK)); //Queen side
     }
 }

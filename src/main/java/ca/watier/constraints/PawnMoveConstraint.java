@@ -17,8 +17,10 @@
 package ca.watier.constraints;
 
 import ca.watier.enums.*;
+import ca.watier.game.GenericGameHandler;
+import ca.watier.interfaces.BaseUtils;
+import ca.watier.interfaces.MoveConstraint;
 import ca.watier.utils.Assert;
-import ca.watier.utils.BaseUtils;
 import ca.watier.utils.GameUtils;
 import ca.watier.utils.MathUtils;
 
@@ -30,20 +32,24 @@ import java.util.Map;
 public class PawnMoveConstraint implements MoveConstraint {
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
-        Assert.assertNotNull(from, to, side);
+    public boolean isMoveValid(CasePosition from, CasePosition to, GenericGameHandler gameHandler, MoveMode moveMode) {
+        Assert.assertNotNull(from, to);
 
         Direction direction = Direction.NORTH;
         Direction directionAttack1 = Direction.NORTH_WEST;
         Direction directionAttack2 = Direction.NORTH_EAST;
 
+        Pieces pieceFrom = gameHandler.getPiece(from);
+        Side sideFrom = pieceFrom.getSide();
+
         //Pre checks, MUST BE FIRST
-        if (Side.BLACK.equals(side)) {
+        if (Side.BLACK.equals(sideFrom)) {
             direction = Direction.SOUTH;
             directionAttack1 = Direction.SOUTH_WEST;
             directionAttack2 = Direction.SOUTH_EAST;
         }
 
+        Map<CasePosition, Pieces> positionPiecesMap = gameHandler.getPiecesLocation();
         Pieces hittingPiece = positionPiecesMap.get(to);
         int nbCaseBetweenPositions = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to));
         Direction directionFromPosition = MathUtils.getDirectionFromPosition(from, to);
@@ -70,7 +76,7 @@ public class PawnMoveConstraint implements MoveConstraint {
                 return false;
             }
 
-            isMoveValid = hittingPiece != null && !hittingPiece.getSide().equals(side) && !Pieces.isKing(hittingPiece) &&
+            isMoveValid = hittingPiece != null && !hittingPiece.getSide().equals(sideFrom) && !Pieces.isKing(hittingPiece) &&
                     isAttackMove;
 
         } else if (MoveMode.IS_KING_CHECK_MODE.equals(moveMode)) {

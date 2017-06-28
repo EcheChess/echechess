@@ -22,6 +22,7 @@ import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.game.GenericGameHandler;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.sessions.Player;
@@ -196,7 +197,7 @@ public class GameService {
         List<CasePosition> positions =
                 Pieces.isKing(pieces) ?
                         gameFromUuid.getPositionKingCanMove(playerSide) :
-                        gameFromUuid.getAllAvailableMoves(from, playerSide, false);
+                        gameFromUuid.getAllAvailableMoves(from, playerSide);
 
         for (CasePosition casePosition : positions) {
             values.add(casePosition.name());

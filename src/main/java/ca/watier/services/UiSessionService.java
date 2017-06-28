@@ -17,6 +17,7 @@
 package ca.watier.services;
 
 import ca.watier.enums.ChessEventMessage;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 import org.ehcache.Cache;

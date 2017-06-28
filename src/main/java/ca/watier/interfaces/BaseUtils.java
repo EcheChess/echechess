@@ -14,33 +14,13 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
-
-import ca.watier.interfaces.BaseUtils;
-import ca.watier.sessions.Player;
-
-import javax.servlet.http.HttpSession;
+package ca.watier.interfaces;
 
 /**
- * Created by yannick on 4/23/2017.
+ * Created by yannick on 4/27/2017.
  */
-public class SessionUtils implements BaseUtils {
-
-    private SessionUtils() {
-    }
-
-    /**
-     * Fetch the player from the HttpSession, the session cannot be null, same for the player
-     *
-     * @param session
-     * @return
-     */
-    public static Player getPlayer(HttpSession session) {
-
-        Assert.assertNotNull(session);
-        Player player = (Player) session.getAttribute(Constants.PLAYER);
-        Assert.assertNotNull(player);
-
-        return player;
+public interface BaseUtils {
+    static int getSafeInteger(Integer value) {
+        return value == null ? 0 : value;
     }
 }

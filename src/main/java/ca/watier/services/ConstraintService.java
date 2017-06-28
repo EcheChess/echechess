@@ -17,10 +17,10 @@
 package ca.watier.services;
 
 import ca.watier.constraints.*;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.MoveMode;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
+import ca.watier.game.GenericGameHandler;
+import ca.watier.interfaces.MoveConstraint;
+import ca.watier.interfaces.SpecialMoveConstraint;
 import ca.watier.utils.Assert;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -92,13 +92,14 @@ public class ConstraintService {
      * @param from
      * @param to
      * @param playerSide
-     * @param piecesLocation
-     * @param moveMode       - Gives the full move of the piece, ignoring the other pieces
+     * @param gameHandler
+     * @param moveMode    - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
-    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, Map<CasePosition, Pieces> piecesLocation, MoveMode moveMode) {
-        Assert.assertNotNull(from, to, playerSide, piecesLocation);
-        Pieces fromPiece = piecesLocation.get(from);
+    public boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide, GenericGameHandler gameHandler, MoveMode moveMode) {
+        Assert.assertNotNull(from, to, playerSide);
+        Pieces fromPiece = gameHandler.getPiece(from);
+
 
         if (Side.OBSERVER.equals(playerSide) || !fromPiece.getSide().equals(playerSide)) {
             return false;
@@ -108,6 +109,21 @@ public class ConstraintService {
 
         Assert.assertNotNull(moveConstraint);
 
-        return moveConstraint.isMoveValid(from, to, playerSide, piecesLocation, moveMode);
+        return moveConstraint.isMoveValid(from, to, gameHandler, moveMode);
+    }
+
+
+    public MoveType getMoveType(CasePosition from, CasePosition to, GenericGameHandler gameHandler) {
+        Assert.assertNotNull(from, to, gameHandler);
+        MoveType value = MoveType.NORMAL;
+
+        Pieces fromPiece = gameHandler.getPiece(from);
+        MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
+
+        if (moveConstraint instanceof SpecialMoveConstraint) {
+            value = ((SpecialMoveConstraint) moveConstraint).getMoveType(from, to, gameHandler);
+        }
+
+        return value;
     }
 }

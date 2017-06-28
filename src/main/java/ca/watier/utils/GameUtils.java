@@ -19,6 +19,7 @@ package ca.watier.utils;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
+import ca.watier.interfaces.BaseUtils;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -72,7 +73,7 @@ public class GameUtils implements BaseUtils {
     }
 
     /**
-     * Create a new HashMap containing the default game
+     * Create a new EnumMap containing the default game
      *
      * @return
      */
@@ -81,6 +82,17 @@ public class GameUtils implements BaseUtils {
         game.putAll(DEFAULT_GAME_TEMPLATE);
         return game;
     }
+
+    public static Map<Pieces, Boolean> initNewMovedPieceMap() {
+        Map<Pieces, Boolean> values = new EnumMap<>(Pieces.class);
+
+        for (Pieces piece : Pieces.values()) {
+            values.put(piece, false);
+        }
+
+        return values;
+    }
+
 
     /**
      * Check if it's the default position for the piece (based on the default game)

@@ -75,16 +75,27 @@ public enum Pieces {
         return BLACK.equals(playerSide) ? B_KING : W_KING;
     }
 
+    public static boolean isRook(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return W_ROOK.equals(piece) || B_ROOK.equals(piece);
+    }
+
+    public static boolean isSameSide(Pieces first, Pieces second) {
+        Assert.assertNotNull(first, second);
+        return first.getSide().equals(second.getSide());
+    }
+
+    public Side getSide() {
+        return side;
+    }
+
     public char getUnicodeIcon() {
         return unicodeIcon;
     }
 
     public String getName() {
         return name;
-    }
-
-    public Side getSide() {
-        return side;
     }
 
     public byte getPoint() {

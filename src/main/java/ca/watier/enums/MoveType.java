@@ -14,13 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.enums;
 
 /**
- * Created by yannick on 4/27/2017.
+ * Created by yannick on 6/28/2017.
  */
-public interface BaseUtils {
-    static int getSafeInteger(Integer value) {
-        return value == null ? 0 : value;
-    }
+public enum MoveType {
+    NORMAL, CASTLING, EN_PASSANT
 }

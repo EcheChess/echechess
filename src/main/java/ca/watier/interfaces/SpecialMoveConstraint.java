@@ -14,19 +14,15 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.interfaces;
 
-import ca.watier.enums.ChessEventMessage;
-import ca.watier.enums.Side;
+import ca.watier.enums.CasePosition;
+import ca.watier.enums.MoveType;
+import ca.watier.game.GenericGameHandler;
 
 /**
- * Created by yannick on 6/10/2017.
+ * Created by yannick on 6/28/2017.
  */
-public interface WebSocketService {
-    void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message);
-
-    void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message);
-
-    void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message);
+public interface SpecialMoveConstraint {
+    MoveType getMoveType(CasePosition from, CasePosition to, GenericGameHandler gameHandler);
 }
-

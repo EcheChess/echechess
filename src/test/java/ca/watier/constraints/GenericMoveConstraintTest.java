@@ -40,6 +40,6 @@ public class GenericMoveConstraintTest {
      */
     @Test
     public void isMoveValid() throws Exception {
-        Assert.assertFalse(genericMoveConstraint.isMoveValid(null, null, null, null, null));
+        Assert.assertFalse(genericMoveConstraint.isMoveValid(null, null, null, null));
     }
 }

@@ -20,6 +20,7 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.impl.WebSocketServiceTestImpl;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.GameScoreResponse;
 import ca.watier.sessions.Player;

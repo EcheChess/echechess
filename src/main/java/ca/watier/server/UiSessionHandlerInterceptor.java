@@ -18,7 +18,7 @@ package ca.watier.server;
 
 import ca.watier.enums.ChessEventMessage;
 import ca.watier.services.UiSessionService;
-import ca.watier.services.WebSocketService;
+import ca.watier.interfaces.WebSocketService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 

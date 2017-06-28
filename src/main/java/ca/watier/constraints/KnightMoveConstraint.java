@@ -17,6 +17,8 @@
 package ca.watier.constraints;
 
 import ca.watier.enums.*;
+import ca.watier.game.GenericGameHandler;
+import ca.watier.interfaces.MoveConstraint;
 import ca.watier.utils.Assert;
 import ca.watier.utils.MathUtils;
 
@@ -40,14 +42,17 @@ public class KnightMoveConstraint implements MoveConstraint {
     }
 
     @Override
-    public boolean isMoveValid(CasePosition from, CasePosition to, Side side, Map<CasePosition, Pieces> positionPiecesMap, MoveMode moveMode) {
-        Assert.assertNotNull(from, to, side);
+    public boolean isMoveValid(CasePosition from, CasePosition to, GenericGameHandler gameHandler, MoveMode moveMode) {
+        Assert.assertNotNull(from, to);
+        Map<CasePosition, Pieces> positionPiecesMap = gameHandler.getPiecesLocation();
         Pieces hittingPiece = positionPiecesMap.get(to);
+        Pieces pieceFrom = positionPiecesMap.get(from);
+        Side sideFrom = pieceFrom.getSide();
 
         boolean canAttack = true;
 
         if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode) && hittingPiece != null) {
-            canAttack = !side.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
+            canAttack = !sideFrom.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
         }
 
         return canAttack && MathUtils.isPositionOnCirclePerimeter(from, to, from.getX() + KNIGHT_RADIUS_EQUATION, from.getY()) &&
