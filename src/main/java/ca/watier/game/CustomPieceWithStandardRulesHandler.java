@@ -21,6 +21,7 @@ import ca.watier.enums.Pieces;
 import ca.watier.services.ConstraintService;
 import ca.watier.utils.Assert;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -34,13 +35,13 @@ public class CustomPieceWithStandardRulesHandler extends GenericGameHandler {
     }
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {
-        positionPiecesMap = positionPieces;
+        setPositionPiecesMap(positionPieces);
     }
 
     public void setPieces(String specialGamePieces) {
         Assert.assertNotEmpty(specialGamePieces);
 
-        positionPiecesMap.clear();
+        Map<CasePosition, Pieces> positionPieces = new EnumMap<>(CasePosition.class);
 
         for (String section : specialGamePieces.split(";")) {
             String[] values = section.split(":");
@@ -49,7 +50,9 @@ public class CustomPieceWithStandardRulesHandler extends GenericGameHandler {
                 throw new UnsupportedOperationException(THE_NUMBER_OF_PARAMETER_IS_INCORRECT);
             }
 
-            positionPiecesMap.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
+            positionPieces.put(CasePosition.valueOf(values[0]), Pieces.valueOf(values[1]));
         }
+
+        setPositionPiecesMap(positionPieces);
     }
 }

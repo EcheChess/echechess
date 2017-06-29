@@ -57,7 +57,7 @@ public class PawnMoveConstraint implements MoveConstraint {
 
         boolean isFrontMove = direction.equals(directionFromPosition);
         boolean isNbOfCaseIsOne = nbCaseBetweenPositions == 1;
-        boolean normalMove = (GameUtils.isDefaultPosition(from, positionPiecesMap.get(from)) &&
+        boolean normalMove = (GameUtils.isDefaultPosition(from, positionPiecesMap.get(from), gameHandler) &&
                 nbCaseBetweenPositions == 2 || isNbOfCaseIsOne) && isFrontMove && !otherPiecesBetweenTarget;
 
 

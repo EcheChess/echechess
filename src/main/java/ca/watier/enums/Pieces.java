@@ -28,13 +28,13 @@ import static ca.watier.enums.Side.WHITE;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Pieces {
-    W_KING("White King", '♔', WHITE, (byte) -128), //TODO: Castling
+    W_KING("White King", '♔', WHITE, (byte) -128),
     W_QUEEN("White Queen ", '♕', WHITE, (byte) 9),
     W_ROOK("White Rook", '♖', WHITE, (byte) 5),
     W_BISHOP("White Bishop", '♗', WHITE, (byte) 3),
     W_KNIGHT("White Knight", '♘', WHITE, (byte) 3),
     W_PAWN("White Pawn", '♙', WHITE, (byte) 1),
-    B_KING("Black King", '♚', BLACK, (byte) -128), //TODO: Castling
+    B_KING("Black King", '♚', BLACK, (byte) -128),
     B_QUEEN("Black Queen ", '♛', BLACK, (byte) 9),
     B_ROOK("Black Rook", '♜', BLACK, (byte) 5),
     B_BISHOP("Black Bishop", '♝', BLACK, (byte) 3),

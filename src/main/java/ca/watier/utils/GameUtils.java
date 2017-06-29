@@ -19,6 +19,7 @@ package ca.watier.utils;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Direction;
 import ca.watier.enums.Pieces;
+import ca.watier.game.GameBoard;
 import ca.watier.interfaces.BaseUtils;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.Map;
 public class GameUtils implements BaseUtils {
 
     private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new EnumMap<>(CasePosition.class);
+    private static final Map<CasePosition, Boolean> DEFAULT_GAME_MOVED_TEMPLATE = new EnumMap<>(CasePosition.class);
 
     static {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.A1, Pieces.W_ROOK);
@@ -67,6 +69,40 @@ public class GameUtils implements BaseUtils {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.F7, Pieces.B_PAWN);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.G7, Pieces.B_PAWN);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.H7, Pieces.B_PAWN);
+
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.A1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.B1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.C1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.D1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.E1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.F1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.G1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.H1, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.A2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.B2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.C2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.D2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.E2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.F2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.G2, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.H2, false);
+
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.A8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.B8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.C8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.D8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.E8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.F8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.G8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.H8, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.A7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.B7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.C7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.D7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.E7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.F7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.G7, false);
+        DEFAULT_GAME_MOVED_TEMPLATE.put(CasePosition.H7, false);
     }
 
     private GameUtils() {
@@ -83,27 +119,35 @@ public class GameUtils implements BaseUtils {
         return game;
     }
 
-    public static Map<Pieces, Boolean> initNewMovedPieceMap() {
-        Map<Pieces, Boolean> values = new EnumMap<>(Pieces.class);
 
-        for (Pieces piece : Pieces.values()) {
-            values.put(piece, false);
+    /**
+     * Init an {@link EnumMap} based of a board
+     *
+     * @param positionPiecesMap
+     * @return
+     */
+    public static Map<CasePosition, Boolean> initNewMovedPieceMap(Map<CasePosition, Pieces> positionPiecesMap) {
+        Assert.assertNotEmpty(positionPiecesMap);
+
+        Map<CasePosition, Boolean> values = new EnumMap<>(CasePosition.class);
+        for (CasePosition position : positionPiecesMap.keySet()) {
+            values.put(position, false);
         }
 
         return values;
     }
 
-
     /**
-     * Check if it's the default position for the piece (based on the default game)
+     * Check if it's the default position for the piece
      *
      * @param position
      * @param pieces
+     * @param gameBoard
      * @return
      */
-    public static boolean isDefaultPosition(CasePosition position, Pieces pieces) {
+    public static boolean isDefaultPosition(CasePosition position, Pieces pieces, GameBoard gameBoard) {
         Assert.assertNotNull(position, pieces);
-        return pieces.equals(DEFAULT_GAME_TEMPLATE.get(position));
+        return pieces.equals(gameBoard.getDefaultPositions().get(position));
     }
 
     /**

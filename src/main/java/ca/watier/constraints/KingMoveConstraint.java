@@ -42,19 +42,12 @@ public class KingMoveConstraint implements MoveConstraint, SpecialMoveConstraint
         Pieces pieceFrom = gameHandler.getPiece(from);
         Side sideFrom = pieceFrom.getSide();
 
-
-        boolean isMoveValid = true;
-        if (MoveType.NORMAL.equals(getMoveType(from, to, gameHandler))) {
-            boolean checkHit = true;
-            if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
-                checkHit = hittingPiece == null || !sideFrom.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
-            }
-
-            isMoveValid = (BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to)) == 1) && checkHit;
+        boolean checkHit = true;
+        if (MoveMode.NORMAL_OR_ATTACK_MOVE.equals(moveMode)) {
+            checkHit = hittingPiece == null || !sideFrom.equals(hittingPiece.getSide()) && !Pieces.isKing(hittingPiece);
         }
 
-
-        return isMoveValid;
+        return (BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to)) == 1) && checkHit;
     }
 
 
@@ -66,7 +59,7 @@ public class KingMoveConstraint implements MoveConstraint, SpecialMoveConstraint
            Neither the king nor the chosen rook has previously moved.
            There are no pieces between the king and the chosen rook.
            The king is not currently in check.
-           The king does not pass through a square that is attacked by an enemy piece. //TODO0
+           The king does not pass through a square that is attacked by an enemy piece.
            The king does not end up in check. (True of any legal move.)
     */
     @Override
@@ -106,7 +99,7 @@ public class KingMoveConstraint implements MoveConstraint, SpecialMoveConstraint
                     break;
             }
 
-            boolean isPieceAreNotMoved = !gameHandler.isPieceMoved(pieceFrom) && !gameHandler.isPieceMoved(pieceTo);
+            boolean isPieceAreNotMoved = !gameHandler.isPieceMoved(from) && !gameHandler.isPieceMoved(to);
             boolean isNoPieceBetweenKingAndRook = piecesBetweenKingAndRook.isEmpty();
             boolean isNoPieceAttackingBetweenKingAndRook = gameHandler.getPiecesThatCanHitPosition(Side.getOtherPlayerSide(sideFrom),
                     positionsBetweenKingAndRook.toArray(new CasePosition[positionsBetweenKingAndRook.size()])).isEmpty();

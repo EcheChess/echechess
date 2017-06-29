@@ -32,11 +32,9 @@ import static ca.watier.enums.Side.WHITE;
 /**
  * Created by yannick on 5/5/2017.
  */
-public class GenericGameHandler {
+public class GenericGameHandler extends GameBoard {
     private final ConstraintService CONSTRAINT_SERVICE;
     private final Set<SpecialGameRules> SPECIAL_GAME_RULES;
-    protected Map<CasePosition, Pieces> positionPiecesMap;
-    protected Map<Pieces, Boolean> movedPiecesMap;
     protected String uuid;
     protected Player playerWhite;
     protected Player playerBlack;
@@ -52,8 +50,6 @@ public class GenericGameHandler {
 
     public GenericGameHandler(ConstraintService constraintService) {
         SPECIAL_GAME_RULES = new HashSet<>();
-        positionPiecesMap = GameUtils.getDefaultGame();
-        movedPiecesMap = GameUtils.initNewMovedPieceMap();
         observerList = new ArrayList<>();
         this.CONSTRAINT_SERVICE = constraintService;
     }
@@ -67,8 +63,7 @@ public class GenericGameHandler {
      */
     public List<CasePosition> getAllAvailableMoves(CasePosition from, Side playerSide) {
         List<CasePosition> positions = new ArrayList<>();
-
-        Pieces pieces = positionPiecesMap.get(from);
+        Pieces pieces = getPiece(from);
 
         if (pieces == null || !pieces.getSide().equals(playerSide)) {
             return positions;
@@ -98,15 +93,6 @@ public class GenericGameHandler {
 
 
     /**
-     * Get an unmodifiable {@link Map} of the current game
-     *
-     * @return
-     */
-    public Map<CasePosition, Pieces> getPiecesLocation() {
-        return Collections.unmodifiableMap(positionPiecesMap);
-    }
-
-    /**
      * Move a piece to a selected position
      *
      * @param from
@@ -118,8 +104,8 @@ public class GenericGameHandler {
         Assert.assertNotNull(from, to, playerSide);
 
         MoveType moveType = CONSTRAINT_SERVICE.getMoveType(from, to, this);
-        Pieces piecesFrom = positionPiecesMap.get(from);
-        Pieces piecesTo = positionPiecesMap.get(to);
+        Pieces piecesFrom = getPiece(from);
+        Pieces piecesTo = getPiece(to);
         boolean isEatingPiece = piecesTo != null;
         Assert.assertNotNull(piecesFrom);
         Side sideFrom = piecesFrom.getSide();
@@ -137,7 +123,7 @@ public class GenericGameHandler {
                 movePieceTo(to, from, piecesFrom);
 
                 if (isEatingPiece) {
-                    positionPiecesMap.put(to, piecesTo); //reset the attacked piece
+                    setPiecePosition(piecesTo, to); //reset the attacked piece
                 }
 
                 isMoved = false;
@@ -147,10 +133,6 @@ public class GenericGameHandler {
 
             if (isMoved && isEatingPiece) { //Count the point for the piece
                 updatePointsForSide(playerSide, piecesTo.getPoint());
-            }
-
-            if (isMoved) {
-                movedPiecesMap.put(piecesFrom, true);
             }
 
             Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
@@ -209,20 +191,6 @@ public class GenericGameHandler {
     }
 
     /**
-     * Change a piece position, there's no check/constraint(s) on this method (Direct access to the Map)
-     *
-     * @param from
-     * @param to
-     * @param piece
-     */
-    protected void movePieceTo(CasePosition from, CasePosition to, Pieces piece) {
-        Assert.assertNotNull(from, to, piece);
-
-        positionPiecesMap.remove(from);
-        positionPiecesMap.put(to, piece);
-    }
-
-    /**
      * 1) Check if the king can move / kill to escape.
      * 2) If not, try to liberate a case around the king, by killing / blocking the piece with an ally piece (if only one that can hit this target).
      * 3) If not, the king is checkmate.
@@ -233,7 +201,7 @@ public class GenericGameHandler {
     public KingStatus getKingStatus(Side playerSide) {
         KingStatus kingStatus = OK;
 
-        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), positionPiecesMap);
+        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), getPiecesLocation());
 
         if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
             return kingStatus;
@@ -277,7 +245,7 @@ public class GenericGameHandler {
 
                 for (CasePosition casePosition : MathUtils.getPositionsBetweenTwoPosition(enemyPosition, kingPosition)) { //For each position between the king and the enemy, we try to block it
                     for (CasePosition position : getPiecesLocation(playerSide).keySet()) { //Try to find if one of our piece can block the target
-                        if (Pieces.isKing(positionPiecesMap.get(position))) {
+                        if (Pieces.isKing(getPiece(position))) {
                             continue;
                         }
 
@@ -341,7 +309,7 @@ public class GenericGameHandler {
         MultiArrayMap<CasePosition, Pair<CasePosition, Pieces>> values = new MultiArrayMap<>();
 
         for (CasePosition position : positions) {
-            for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : positionPiecesMap.entrySet()) {
+            for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : getPiecesLocation().entrySet()) {
                 CasePosition key = casePositionPiecesEntry.getKey();
                 Pieces value = casePositionPiecesEntry.getValue();
 
@@ -361,7 +329,7 @@ public class GenericGameHandler {
 
     public List<CasePosition> getPositionKingCanMove(Side playerSide) {
         Assert.assertNotNull(playerSide);
-        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), positionPiecesMap);
+        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), getPiecesLocation());
 
         List<CasePosition> values = new ArrayList<>();
         List<CasePosition> caseAround = MathUtils.getAllPositionsAroundPosition(kingPosition);
@@ -384,7 +352,7 @@ public class GenericGameHandler {
 
         Map<CasePosition, Pieces> values = new EnumMap<>(CasePosition.class);
 
-        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : positionPiecesMap.entrySet()) {
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : getPiecesLocation().entrySet()) {
             CasePosition key = casePositionPiecesEntry.getKey();
             Pieces value = casePositionPiecesEntry.getValue();
 
@@ -536,12 +504,6 @@ public class GenericGameHandler {
         SPECIAL_GAME_RULES.addAll(Arrays.asList(rules));
     }
 
-    public boolean isPieceMoved(Pieces piece) {
-        Assert.assertNotNull(piece);
-
-        return movedPiecesMap.get(piece);
-    }
-
     public List<Player> getObserverList() {
         return Collections.unmodifiableList(observerList);
     }
@@ -556,11 +518,5 @@ public class GenericGameHandler {
 
     public boolean isGameDone() {
         return KingStatus.CHECKMATE.equals(whiteKingStatus) || KingStatus.CHECKMATE.equals(blackKingStatus);
-    }
-
-    public Pieces getPiece(CasePosition position) {
-        Assert.assertNotNull(position);
-
-        return positionPiecesMap.get(position);
     }
 }
