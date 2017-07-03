@@ -75,6 +75,17 @@ public enum Pieces {
         return BLACK.equals(playerSide) ? B_KING : W_KING;
     }
 
+
+    public static Pieces getPawnBySide(Side playerSide) {
+        Assert.assertNotNull(playerSide);
+
+        if (Side.OBSERVER.equals(playerSide)) {
+            return null;
+        }
+
+        return BLACK.equals(playerSide) ? B_PAWN : W_PAWN;
+    }
+
     public static boolean isRook(Pieces piece) {
         Assert.assertNotNull(piece);
 
@@ -88,6 +99,12 @@ public enum Pieces {
 
     public Side getSide() {
         return side;
+    }
+
+    public static boolean isPawn(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return W_PAWN.equals(piece) || B_PAWN.equals(piece);
     }
 
     public char getUnicodeIcon() {

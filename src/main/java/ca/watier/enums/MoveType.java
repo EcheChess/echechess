@@ -20,5 +20,9 @@ package ca.watier.enums;
  * Created by yannick on 6/28/2017.
  */
 public enum MoveType {
-    NORMAL, CASTLING, EN_PASSANT
+    NORMAL, CASTLING, EN_PASSANT;
+
+    public static boolean isSpecialMove(MoveType moveType) {
+        return !NORMAL.equals(moveType);
+    }
 }

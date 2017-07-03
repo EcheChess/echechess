@@ -23,13 +23,14 @@ package ca.watier;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Side;
-import ca.watier.enums.SpecialGameRules;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
+import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -53,7 +54,7 @@ public class SpecialGameRulesTest {
         Assert.assertTrue(gameHandler.movePiece(H7, H6, BLACK)); //Black move
         Assert.assertFalse(gameHandler.movePiece(H6, H5, WHITE)); //Black move again, supposed to fail
 
-        gameHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+        gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         //With the rule
         Assert.assertTrue(gameHandler.movePiece(G2, G4, WHITE)); //White move
@@ -74,9 +75,23 @@ public class SpecialGameRulesTest {
         Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(WHITE));
 
         //With the rule
-        gameHandler.addSpecialRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE);
+        gameHandler.addSpecialRule(NO_CHECK_OR_CHECKMATE);
 
         Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+    }
+
+    @Test
+    public void addAndRemoveRuleTest() {
+        String positionPieces = "A8:B_KING;E1:W_KING;E3:B_QUEEN;D3:B_QUEEN;F3:B_QUEEN";
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
+        assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
+
+        gameHandler.addSpecialRule(NO_CHECK_OR_CHECKMATE, NO_PLAYER_TURN);
+        assertThat(gameHandler.getSpecialGameRules()).containsOnly(NO_CHECK_OR_CHECKMATE, NO_PLAYER_TURN);
+
+        gameHandler.removeSpecialRule(NO_PLAYER_TURN);
+        assertThat(gameHandler.getSpecialGameRules()).containsOnly(NO_CHECK_OR_CHECKMATE);
+
     }
 
 }

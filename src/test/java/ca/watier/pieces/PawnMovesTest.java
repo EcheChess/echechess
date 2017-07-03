@@ -21,7 +21,9 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
+import ca.watier.responses.GameScoreResponse;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -37,15 +39,21 @@ import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
  */
 public class PawnMovesTest extends GameTest {
 
+
+    private StandardGameHandlerContext context;
+
+    @Before
+    public void setUp() throws Exception {
+        context = new StandardGameHandlerContext(constraintService);
+        context.addSpecialRule(NO_PLAYER_TURN);
+    }
+
     /**
      * In this test, the white king should not be checked by the pawn
      */
     @Test
     public void check_with_pawns_front_move_two_position_Test() {
-        String positionPieces = "B7:B_PAWN;B8:B_KING;B5:W_KING";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
+        context.setPieces("B7:B_PAWN;B8:B_KING;B5:W_KING");
         Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
     }
 
@@ -55,10 +63,7 @@ public class PawnMovesTest extends GameTest {
      */
     @Test
     public void check_with_pawns_front_move_one_position_Test() {
-        String positionPieces = "B7:B_PAWN;B8:B_KING;B6:W_KING";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
-        context.addSpecialRule(NO_PLAYER_TURN);
-
+        context.setPieces("B7:B_PAWN;B8:B_KING;B6:W_KING");
         Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
     }
 
@@ -81,38 +86,38 @@ public class PawnMovesTest extends GameTest {
         pieces.put(B7, B_PAWN);
         pieces.put(F7, B_PAWN);
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
-        gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
+        context.setPieces(pieces);
+        context.addSpecialRule(NO_CHECK_OR_CHECKMATE);
 
         //Cannot move (blocked in front)
-        Assert.assertFalse(gameHandler.movePiece(H2, H4, WHITE)); // 2 cases
-        Assert.assertFalse(gameHandler.movePiece(H2, H3, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(H7, H5, BLACK)); // 2 cases
-        Assert.assertFalse(gameHandler.movePiece(H7, H6, BLACK));
+        Assert.assertFalse(context.movePiece(H2, H4, WHITE)); // 2 cases
+        Assert.assertFalse(context.movePiece(H2, H3, WHITE));
+        Assert.assertFalse(context.movePiece(H7, H5, BLACK)); // 2 cases
+        Assert.assertFalse(context.movePiece(H7, H6, BLACK));
 
         //Can move
-        Assert.assertTrue(gameHandler.movePiece(A2, A4, WHITE)); // 2 cases
-        Assert.assertTrue(gameHandler.movePiece(B2, B3, WHITE));
-        Assert.assertTrue(gameHandler.movePiece(A7, A5, BLACK)); // 2 cases
-        Assert.assertTrue(gameHandler.movePiece(B7, B6, BLACK));
+        Assert.assertTrue(context.movePiece(A2, A4, WHITE)); // 2 cases
+        Assert.assertTrue(context.movePiece(B2, B3, WHITE));
+        Assert.assertTrue(context.movePiece(A7, A5, BLACK)); // 2 cases
+        Assert.assertTrue(context.movePiece(B7, B6, BLACK));
 
         //Cannot move by 2 position (not on the starting position)
-        Assert.assertFalse(gameHandler.movePiece(B3, B5, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(B6, B4, WHITE));
+        Assert.assertFalse(context.movePiece(B3, B5, WHITE));
+        Assert.assertFalse(context.movePiece(B6, B4, WHITE));
 
         //Can move by one position
-        Assert.assertTrue(gameHandler.movePiece(B3, B4, WHITE));
-        Assert.assertTrue(gameHandler.movePiece(B6, B5, BLACK));
+        Assert.assertTrue(context.movePiece(B3, B4, WHITE));
+        Assert.assertTrue(context.movePiece(B6, B5, BLACK));
 
         //cannot move diagonally (without attack)
-        Assert.assertFalse(gameHandler.movePiece(F2, E3, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(F2, G3, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(F2, D4, WHITE)); // 2 cases
-        Assert.assertFalse(gameHandler.movePiece(F2, H4, WHITE)); // 2 cases
-        Assert.assertFalse(gameHandler.movePiece(F7, E6, BLACK));
-        Assert.assertFalse(gameHandler.movePiece(F7, G6, BLACK));
-        Assert.assertFalse(gameHandler.movePiece(F7, D5, WHITE)); // 2 cases
-        Assert.assertFalse(gameHandler.movePiece(F7, H5, WHITE)); // 2 cases
+        Assert.assertFalse(context.movePiece(F2, E3, WHITE));
+        Assert.assertFalse(context.movePiece(F2, G3, WHITE));
+        Assert.assertFalse(context.movePiece(F2, D4, WHITE)); // 2 cases
+        Assert.assertFalse(context.movePiece(F2, H4, WHITE)); // 2 cases
+        Assert.assertFalse(context.movePiece(F7, E6, BLACK));
+        Assert.assertFalse(context.movePiece(F7, G6, BLACK));
+        Assert.assertFalse(context.movePiece(F7, D5, WHITE)); // 2 cases
+        Assert.assertFalse(context.movePiece(F7, H5, WHITE)); // 2 cases
 
         //Kill in all direction
         pieces.clear();
@@ -126,10 +131,29 @@ public class PawnMovesTest extends GameTest {
         pieces.put(C2, W_PAWN);
         pieces.put(G2, W_PAWN);
 
-        Assert.assertTrue(gameHandler.movePiece(D5, C6, WHITE));
-        Assert.assertTrue(gameHandler.movePiece(D3, C2, BLACK));
-        Assert.assertTrue(gameHandler.movePiece(F5, G6, WHITE));
-        Assert.assertTrue(gameHandler.movePiece(F3, G2, BLACK));
+        Assert.assertTrue(context.movePiece(D5, C6, WHITE));
+        Assert.assertTrue(context.movePiece(D3, C2, BLACK));
+        Assert.assertTrue(context.movePiece(F5, G6, WHITE));
+        Assert.assertTrue(context.movePiece(F3, G2, BLACK));
+    }
 
+    @Test
+    public void enPassantBlackSide() {
+        context.movePiece(H2, H4, WHITE);
+        context.movePiece(H4, H5, WHITE);
+        context.movePiece(G7, G5, BLACK); //Move by 2
+        Assert.assertTrue(context.movePiece(H5, G6, WHITE)); // En passant on the black pawn
+        Assert.assertEquals(Pieces.W_PAWN, context.getPiece(G6));
+        Assert.assertEquals(new GameScoreResponse((short) 1, (short) 0), context.getGameScore());
+    }
+
+    @Test
+    public void enPassantWhiteSide() {
+        context.movePiece(G7, G5, BLACK);
+        context.movePiece(G5, G4, BLACK);
+        context.movePiece(H2, H4, WHITE);
+        Assert.assertTrue(context.movePiece(G4, H3, BLACK)); // En passant on the white pawn
+        Assert.assertEquals(Pieces.B_PAWN, context.getPiece(H3));
+        Assert.assertEquals(new GameScoreResponse((short) 0, (short) 1), context.getGameScore());
     }
 }

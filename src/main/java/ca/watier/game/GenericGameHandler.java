@@ -70,8 +70,10 @@ public class GenericGameHandler extends GameBoard {
         }
 
         for (CasePosition position : CasePosition.values()) {
-            if (!from.equals(position) &&
-                    isPieceMovableTo(from, position, playerSide)) {
+
+            boolean isSpecialMove = MoveType.isSpecialMove(CONSTRAINT_SERVICE.getMoveType(from, position, this));
+
+            if (isSpecialMove || !from.equals(position) && isPieceMovableTo(from, position, playerSide)) {
                 positions.add(position);
             }
         }
@@ -104,6 +106,7 @@ public class GenericGameHandler extends GameBoard {
         Assert.assertNotNull(from, to, playerSide);
 
         MoveType moveType = CONSTRAINT_SERVICE.getMoveType(from, to, this);
+        Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
         Pieces piecesFrom = getPiece(from);
         Pieces piecesTo = getPiece(to);
         boolean isEatingPiece = piecesTo != null;
@@ -123,7 +126,7 @@ public class GenericGameHandler extends GameBoard {
                 movePieceTo(to, from, piecesFrom);
 
                 if (isEatingPiece) {
-                    setPiecePosition(piecesTo, to); //reset the attacked piece
+                    setPiecePosition(piecesTo, from, to); //reset the attacked piece
                 }
 
                 isMoved = false;
@@ -135,7 +138,6 @@ public class GenericGameHandler extends GameBoard {
                 updatePointsForSide(playerSide, piecesTo.getPoint());
             }
 
-            Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
             KingStatus otherKingStatusAfterMove = getKingStatus(otherPlayerSide);
 
             switch (playerSide) {
@@ -176,8 +178,15 @@ public class GenericGameHandler extends GameBoard {
             movePieceTo(from, kingPosition, piecesFrom);
             movePieceTo(to, rookPosition, piecesTo);
             changeAllowedMoveSide();
-        }
+        } else if (MoveType.EN_PASSANT.equals(moveType)) {
+            movePieceTo(from, to, piecesFrom);
+            changeAllowedMoveSide();
 
+            CasePosition enemyPawnPosition = MathUtils.getNearestPositionFromDirection(to, otherPlayerSide.equals(Side.BLACK) ? Direction.SOUTH : Direction.NORTH);
+            Pieces enemyPawnToEat = getPiece(enemyPawnPosition);
+            updatePointsForSide(playerSide, enemyPawnToEat.getPoint());
+            removePieceAt(enemyPawnPosition);
+        }
 
         return isMoved;
     }
@@ -201,7 +210,7 @@ public class GenericGameHandler extends GameBoard {
     public KingStatus getKingStatus(Side playerSide) {
         KingStatus kingStatus = OK;
 
-        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), getPiecesLocation());
+        CasePosition kingPosition = GameUtils.getSinglePiecePosition(Pieces.getKingBySide(playerSide), getPiecesLocation());
 
         if (isGameHaveRule(SpecialGameRules.NO_CHECK_OR_CHECKMATE)) {
             return kingStatus;
@@ -329,7 +338,7 @@ public class GenericGameHandler extends GameBoard {
 
     public List<CasePosition> getPositionKingCanMove(Side playerSide) {
         Assert.assertNotNull(playerSide);
-        CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(playerSide), getPiecesLocation());
+        CasePosition kingPosition = GameUtils.getSinglePiecePosition(Pieces.getKingBySide(playerSide), getPiecesLocation());
 
         List<CasePosition> values = new ArrayList<>();
         List<CasePosition> caseAround = MathUtils.getAllPositionsAroundPosition(kingPosition);
@@ -338,6 +347,15 @@ public class GenericGameHandler extends GameBoard {
                 values.add(position);
             }
         }
+
+        //Add the position, if the castling is authorized on the rook
+        Pieces rook = Side.WHITE.equals(playerSide) ? Pieces.W_ROOK : Pieces.B_ROOK;
+        for (CasePosition rookPosition : GameUtils.getPiecesPosition(rook, getPiecesLocation())) {
+            if (MoveType.CASTLING.equals(CONSTRAINT_SERVICE.getMoveType(kingPosition, rookPosition, this))) {
+                values.add(rookPosition);
+            }
+        }
+
         return values;
     }
 
@@ -502,6 +520,11 @@ public class GenericGameHandler extends GameBoard {
     public void addSpecialRule(SpecialGameRules... rules) {
         Assert.assertNotEmpty(rules);
         SPECIAL_GAME_RULES.addAll(Arrays.asList(rules));
+    }
+
+    public void removeSpecialRule(SpecialGameRules... rules) {
+        Assert.assertNotEmpty(rules);
+        SPECIAL_GAME_RULES.removeAll(Arrays.asList(rules));
     }
 
     public List<Player> getObserverList() {

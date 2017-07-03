@@ -23,4 +23,8 @@ public interface BaseUtils {
     static int getSafeInteger(Integer value) {
         return value == null ? 0 : value;
     }
+
+    static boolean getSafeBoolean(Boolean value) {
+        return value != null && value;
+    }
 }

@@ -356,4 +356,31 @@ public class MathUtils implements BaseUtils {
 
         return positions;
     }
+
+    /**
+     * Check if the position is vertical
+     *
+     * @param first
+     * @param second
+     * @return
+     */
+    public static boolean isPositionVertical(CasePosition first, CasePosition second) {
+        Assert.assertNotNull(first, second);
+
+        return first.getX() == second.getX();
+    }
+
+
+    /**
+     * Check if the position is horizontal
+     *
+     * @param first
+     * @param second
+     * @return
+     */
+    public static boolean isPositionHorizontal(CasePosition first, CasePosition second) {
+        Assert.assertNotNull(first, second);
+
+        return first.getY() == second.getY();
+    }
 }

@@ -122,6 +122,10 @@ public class ConstraintService {
 
         if (moveConstraint instanceof SpecialMoveConstraint) {
             value = ((SpecialMoveConstraint) moveConstraint).getMoveType(from, to, gameHandler);
+
+            if (value == null) {
+                value = MoveType.NORMAL;
+            }
         }
 
         return value;

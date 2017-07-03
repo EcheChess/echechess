@@ -81,7 +81,7 @@ public class GenericMoveConstraint implements MoveConstraint {
             boolean isKingDirectOnTheAttackingPiece = false;
 
             List<CasePosition> piecesBetweenPosition = GameUtils.getPiecesBetweenPosition(from, to, positionPiecesMap);
-            CasePosition kingPosition = GameUtils.getPosition(Pieces.getKingBySide(Side.getOtherPlayerSide(sideFrom)), positionPiecesMap);
+            CasePosition kingPosition = GameUtils.getSinglePiecePosition(Pieces.getKingBySide(Side.getOtherPlayerSide(sideFrom)), positionPiecesMap);
 
             if (piecesBetweenPosition.contains(kingPosition)) { //If the king is on the path, check if he's covered by another piece
                 isKingDirectOnTheAttackingPiece = GameUtils.getPiecesBetweenPosition(from, kingPosition, positionPiecesMap).isEmpty();

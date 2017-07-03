@@ -18,15 +18,34 @@ package ca.watier.utils;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
 
+import static ca.watier.enums.Pieces.W_KING;
+import static ca.watier.enums.Pieces.W_PAWN;
+import static ca.watier.enums.Pieces.W_ROOK;
+
 /**
  * Created by yannick on 4/28/2017.
  */
 public class GameUtilsTest {
+    @Test
+    public void getPiecesPosition1() throws Exception {
+
+    }
+
+    @Test
+    public void getPiecesPosition() throws Exception {
+        Map<CasePosition, Pieces> pieces = GameUtils.getDefaultGame();
+
+        Assertions.assertThat(GameUtils.getPiecesPosition(W_PAWN, pieces)).isNotEmpty().hasSize(8);
+        Assertions.assertThat(GameUtils.getPiecesPosition(W_ROOK, pieces)).isNotEmpty().hasSize(2);
+        Assertions.assertThat(GameUtils.getPiecesPosition(W_KING, pieces)).isNotEmpty().hasSize(1);
+    }
+
     @Test
     public void isOtherPiecesBetweenTarget() throws Exception {
 

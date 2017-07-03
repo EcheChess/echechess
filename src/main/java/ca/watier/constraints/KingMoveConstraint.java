@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.interfaces.BaseUtils.getSafeBoolean;
 
 /**
  * Created by yannick on 4/23/2017.
@@ -99,7 +100,7 @@ public class KingMoveConstraint implements MoveConstraint, SpecialMoveConstraint
                     break;
             }
 
-            boolean isPieceAreNotMoved = !gameHandler.isPieceMoved(from) && !gameHandler.isPieceMoved(to);
+            boolean isPieceAreNotMoved = !getSafeBoolean(gameHandler.isPieceMoved(from)) && !getSafeBoolean(gameHandler.isPieceMoved(to));
             boolean isNoPieceBetweenKingAndRook = piecesBetweenKingAndRook.isEmpty();
             boolean isNoPieceAttackingBetweenKingAndRook = gameHandler.getPiecesThatCanHitPosition(Side.getOtherPlayerSide(sideFrom),
                     positionsBetweenKingAndRook.toArray(new CasePosition[positionsBetweenKingAndRook.size()])).isEmpty();

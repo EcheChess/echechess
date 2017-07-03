@@ -137,6 +137,46 @@ public class GameUtils implements BaseUtils {
         return values;
     }
 
+
+    /**
+     * Init an {@link EnumMap} based of a board, return the pawns only
+     *
+     * @param positionPiecesMap
+     * @return
+     */
+    public static Map<CasePosition, Boolean> initPawnMap(Map<CasePosition, Pieces> positionPiecesMap) {
+        Assert.assertNotEmpty(positionPiecesMap);
+
+        Map<CasePosition, Boolean> values = new EnumMap<>(CasePosition.class);
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : positionPiecesMap.entrySet()) {
+            if (Pieces.isPawn(casePositionPiecesEntry.getValue())) {
+                values.put(casePositionPiecesEntry.getKey(), false);
+            }
+        }
+
+        return values;
+    }
+
+
+    /**
+     * Init an {@link EnumMap} based of a board
+     *
+     * @param positionPiecesMap
+     * @return
+     */
+    public static Map<CasePosition, Integer> initTurnMap(Map<CasePosition, Pieces> positionPiecesMap) {
+        Assert.assertNotEmpty(positionPiecesMap);
+
+        Map<CasePosition, Integer> values = new EnumMap<>(CasePosition.class);
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : positionPiecesMap.entrySet()) {
+            values.put(casePositionPiecesEntry.getKey(), 0);
+        }
+
+        return values;
+    }
+
     /**
      * Check if it's the default position for the piece
      *
@@ -199,13 +239,13 @@ public class GameUtils implements BaseUtils {
     }
 
     /**
-     * Gets the position of a piece
+     * Gets the position of a piece (first found)
      *
      * @param pieces
      * @param positionPiecesMap
      * @return
      */
-    public static CasePosition getPosition(Pieces pieces, Map<CasePosition, Pieces> positionPiecesMap) {
+    public static CasePosition getSinglePiecePosition(Pieces pieces, Map<CasePosition, Pieces> positionPiecesMap) {
         Assert.assertNotNull(pieces);
         CasePosition position = null;
 
@@ -217,5 +257,27 @@ public class GameUtils implements BaseUtils {
         }
 
         return position;
+    }
+
+
+    /**
+     * Gets the position of a piece
+     *
+     * @param pieces
+     * @param positionPiecesMap
+     * @return
+     */
+    public static List<CasePosition> getPiecesPosition(Pieces pieces, Map<CasePosition, Pieces> positionPiecesMap) {
+        Assert.assertNotNull(pieces);
+        Assert.assertNotEmpty(positionPiecesMap);
+        List<CasePosition> positions = new ArrayList<>();
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : positionPiecesMap.entrySet()) {
+            if (pieces.equals(casePositionPiecesEntry.getValue())) {
+                positions.add(casePositionPiecesEntry.getKey());
+            }
+        }
+
+        return positions;
     }
 }

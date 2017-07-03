@@ -2,6 +2,10 @@ language: java
 jdk:
   - oraclejdk8
 
+branches:
+  only:
+  - master
+
 addons:
   sonarqube:
     organization: "doi9t-github"

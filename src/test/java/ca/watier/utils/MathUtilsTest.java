@@ -30,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by yannick on 4/25/2017.
  */
 public class MathUtilsTest {
+
+
     private static final Direction NORTH = Direction.NORTH;
     private static final Direction NORTH_WEST = Direction.NORTH_WEST;
     private static final Direction WEST = Direction.WEST;
@@ -40,6 +42,22 @@ public class MathUtilsTest {
     private static final Direction NORTH_EAST = Direction.NORTH_EAST;
     private static final CasePosition D_5 = D5;
     private static final float DELTA_SLOPE_TEST = 0f;
+
+    @Test
+    public void isPositionVertical() throws Exception {
+        Assert.assertTrue(MathUtils.isPositionVertical(A8, A1));
+        Assert.assertTrue(MathUtils.isPositionVertical(A1, A8));
+        Assert.assertTrue(MathUtils.isPositionVertical(A4, A6));
+        Assert.assertFalse(MathUtils.isPositionVertical(A4, B4));
+    }
+
+    @Test
+    public void isPositionHorizontal() throws Exception {
+        Assert.assertTrue(MathUtils.isPositionHorizontal(B1, A1));
+        Assert.assertTrue(MathUtils.isPositionHorizontal(A8, B8));
+        Assert.assertTrue(MathUtils.isPositionHorizontal(A6, B6));
+        Assert.assertFalse(MathUtils.isPositionHorizontal(A4, A2));
+    }
 
     @Test
     public void getPositionsBetweenTwoPosition() throws Exception {

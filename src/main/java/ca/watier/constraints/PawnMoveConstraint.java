@@ -20,6 +20,7 @@ import ca.watier.enums.*;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.interfaces.BaseUtils;
 import ca.watier.interfaces.MoveConstraint;
+import ca.watier.interfaces.SpecialMoveConstraint;
 import ca.watier.utils.Assert;
 import ca.watier.utils.GameUtils;
 import ca.watier.utils.MathUtils;
@@ -29,7 +30,7 @@ import java.util.Map;
 /**
  * Created by yannick on 4/23/2017.
  */
-public class PawnMoveConstraint implements MoveConstraint {
+public class PawnMoveConstraint implements MoveConstraint, SpecialMoveConstraint {
 
     @Override
     public boolean isMoveValid(CasePosition from, CasePosition to, GenericGameHandler gameHandler, MoveMode moveMode) {
@@ -60,7 +61,6 @@ public class PawnMoveConstraint implements MoveConstraint {
         boolean normalMove = (GameUtils.isDefaultPosition(from, positionPiecesMap.get(from), gameHandler) &&
                 nbCaseBetweenPositions == 2 || isNbOfCaseIsOne) && isFrontMove && !otherPiecesBetweenTarget;
 
-
         if (directionFromPosition == null) {
             return false;
         }
@@ -85,4 +85,40 @@ public class PawnMoveConstraint implements MoveConstraint {
 
         return isMoveValid && isNbOfCaseIsOne;
     }
+
+    @Override
+    public MoveType getMoveType(CasePosition from, CasePosition to, GenericGameHandler gameHandler) {
+        Assert.assertNotNull(from, to, gameHandler);
+
+        MoveType value = MoveType.NORMAL;
+        Pieces pieceFrom = gameHandler.getPiece(from);
+
+        if (Pieces.isPawn(pieceFrom)) {
+            Side currentSide = pieceFrom.getSide();
+            Side otherSide = Side.getOtherPlayerSide(currentSide);
+            CasePosition enemyPawnPosition = MathUtils.getNearestPositionFromDirection(to, otherSide.equals(Side.BLACK) ? Direction.SOUTH : Direction.NORTH);
+
+            if (enemyPawnPosition != null) {
+                Pieces enemyPawn = gameHandler.getPiece(enemyPawnPosition);
+
+                if (enemyPawn != null && !Pieces.isSameSide(pieceFrom, enemyPawn) && Pieces.isPawn(enemyPawn)) {
+                    boolean pawnUsedSpecialMove = gameHandler.isPawnUsedSpecialMove(enemyPawnPosition);
+                    Integer pieceTurnEnemyPawn = gameHandler.getPieceTurn(enemyPawnPosition);
+
+                    if (pieceTurnEnemyPawn != null) {
+                        int nbTotalMove = gameHandler.getNbTotalMove();
+                        boolean isLastMove = (nbTotalMove - pieceTurnEnemyPawn) == 1;
+                        boolean isMoveOneCase = BaseUtils.getSafeInteger(MathUtils.getDistanceBetweenPositionsWithCommonDirection(from, to)) == 1;
+
+                        if (isLastMove && isMoveOneCase && pawnUsedSpecialMove) {
+                            value = MoveType.EN_PASSANT;
+                        }
+                    }
+                }
+            }
+        }
+
+        return value;
+    }
+
 }
