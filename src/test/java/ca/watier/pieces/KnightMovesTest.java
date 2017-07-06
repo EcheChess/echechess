@@ -47,7 +47,7 @@ public class KnightMovesTest extends GameTest {
 
         Map<CasePosition, Pieces> pieces = new HashMap<>();
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         // Not allowed moves

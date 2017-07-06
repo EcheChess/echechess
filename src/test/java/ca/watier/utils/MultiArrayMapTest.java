@@ -33,7 +33,7 @@ public class MultiArrayMapTest {
 
     @Before
     public void setUp() throws Exception {
-        map = new MultiArrayMap<Integer, String>();
+        map = new MultiArrayMap<>();
     }
 
     @Test
@@ -128,4 +128,50 @@ public class MultiArrayMapTest {
 
         Assert.assertTrue("The map doesn't contains the newer values !", map.get(20) == null);
     }
+
+    @Test
+    public void containsValueTest() throws Exception {
+        map.put(10, "10");
+        assertThat(map.containsValue("10")).containsOnly(10);
+    }
+
+
+    @Test
+    public void containsKeyTest() throws Exception {
+        map.put(10, "10");
+
+        Assert.assertTrue(map.containsKey(10));
+    }
+
+    @Test
+    public void clearTest() throws Exception {
+        map.put(10, "10");
+        map.clear();
+        Assert.assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void keySetTest() throws Exception {
+        map.put(10, "10");
+        map.put(20, "10");
+        assertThat(map.keySet()).containsOnly(10, 20);
+    }
+
+
+    @Test
+    public void valuesTest() throws Exception {
+        map.put(10, "10");
+        map.put(10, "10.1");
+        map.put(10, "10.2");
+        map.put(10, "10.3");
+        map.put(10, "10.4");
+        map.put(20, "20");
+        map.put(30, "30");
+        map.put(40, "40");
+        map.put(40, "40.1");
+        map.put(40, "40.2");
+
+        assertThat(map.values()).containsOnly("10", "10.1", "10.2", "10.3", "10.4", "20", "30", "40", "40.1", "40.2");
+    }
+
 }

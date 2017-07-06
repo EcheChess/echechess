@@ -20,7 +20,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Months;
 import org.junit.Test;
 
-import javax.security.auth.x500.X500Principal;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.*;

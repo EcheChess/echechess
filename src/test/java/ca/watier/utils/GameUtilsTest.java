@@ -24,9 +24,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static ca.watier.enums.Pieces.W_KING;
-import static ca.watier.enums.Pieces.W_PAWN;
-import static ca.watier.enums.Pieces.W_ROOK;
+import static ca.watier.enums.Pieces.*;
 
 /**
  * Created by yannick on 4/28/2017.

@@ -34,7 +34,7 @@ public class GameBoardTest extends GameTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new StandardGameHandlerContext(constraintService);
+        context = new StandardGameHandlerContext(CONSTRAINT_SERVICE);
         context.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
     }
 

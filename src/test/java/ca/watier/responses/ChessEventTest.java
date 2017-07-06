@@ -21,9 +21,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static ca.watier.enums.ChessEventMessage.GAME_WON;
-import static org.junit.Assert.*;
-
 /**
  * Created by yannick on 6/20/2017.
  */

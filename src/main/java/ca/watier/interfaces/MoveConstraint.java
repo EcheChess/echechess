@@ -28,7 +28,7 @@ public interface MoveConstraint {
      * @param from
      * @param to
      * @param gameHandler
-     * @param moveMode - Gives the full move of the piece, ignoring the other pieces
+     * @param moveMode    - Gives the full move of the piece, ignoring the other pieces
      * @return
      */
     boolean isMoveValid(CasePosition from, CasePosition to, GenericGameHandler gameHandler, MoveMode moveMode);

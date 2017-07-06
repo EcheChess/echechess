@@ -207,6 +207,14 @@ public class GenericGameHandler extends GameBoard {
         return currentAllowedMoveSide.equals(sideFrom);
     }
 
+    protected final void changeAllowedMoveSide() {
+        if (BLACK.equals(currentAllowedMoveSide)) {
+            currentAllowedMoveSide = WHITE;
+        } else {
+            currentAllowedMoveSide = BLACK;
+        }
+    }
+
     /**
      * 1) Check if the king can move / kill to escape.
      * 2) If not, try to liberate a case around the king, by killing / blocking the piece with an ally piece (if only one that can hit this target).
@@ -274,14 +282,6 @@ public class GenericGameHandler extends GameBoard {
         }
 
         return kingStatus;
-    }
-
-    protected final void changeAllowedMoveSide() {
-        if (BLACK.equals(currentAllowedMoveSide)) {
-            currentAllowedMoveSide = WHITE;
-        } else {
-            currentAllowedMoveSide = BLACK;
-        }
     }
 
     protected void updatePointsForSide(Side side, byte point) {

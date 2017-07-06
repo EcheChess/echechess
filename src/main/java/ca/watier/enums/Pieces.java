@@ -75,17 +75,6 @@ public enum Pieces {
         return BLACK.equals(playerSide) ? B_KING : W_KING;
     }
 
-
-    public static Pieces getPawnBySide(Side playerSide) {
-        Assert.assertNotNull(playerSide);
-
-        if (Side.OBSERVER.equals(playerSide)) {
-            return null;
-        }
-
-        return BLACK.equals(playerSide) ? B_PAWN : W_PAWN;
-    }
-
     public static boolean isRook(Pieces piece) {
         Assert.assertNotNull(piece);
 

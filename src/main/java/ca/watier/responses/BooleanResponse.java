@@ -23,9 +23,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class BooleanResponse {
     @JsonIgnore
-    public final static BooleanResponse NO = new BooleanResponse(false);
+    public static final BooleanResponse NO = new BooleanResponse(false);
     @JsonIgnore
-    public final static BooleanResponse YES = new BooleanResponse(true);
+    public static final BooleanResponse YES = new BooleanResponse(true);
 
     private boolean response;
     private String message;

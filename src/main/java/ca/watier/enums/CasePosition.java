@@ -16,7 +16,6 @@
 
 package ca.watier.enums;
 
-import ca.watier.utils.MultiArrayMap;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**

@@ -28,5 +28,5 @@ import ca.watier.services.ConstraintService;
 public class GameTest {
     protected static final Side WHITE = Side.WHITE;
     protected static final Side BLACK = Side.BLACK;
-    protected static final ConstraintService constraintService = new ConstraintService();
+    protected static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
 }

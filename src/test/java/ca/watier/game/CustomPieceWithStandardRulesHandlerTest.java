@@ -16,10 +16,14 @@
 
 package ca.watier.game;
 
-import ca.watier.services.ConstraintService;
+import ca.watier.GameTest;
+import ca.watier.enums.Pieces;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
 import static ca.watier.game.CustomPieceWithStandardRulesHandler.THE_NUMBER_OF_PARAMETER_IS_INCORRECT;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -27,10 +31,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by yannick on 6/20/2017.
  */
-public class CustomPieceWithStandardRulesHandlerTest {
+public class CustomPieceWithStandardRulesHandlerTest extends GameTest {
 
     private static final Class<UnsupportedOperationException> UNSUPPORTED_OPERATION_EXCEPTION_CLASS = UnsupportedOperationException.class;
-    private static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
     private CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler;
 
     @Before
@@ -51,5 +54,20 @@ public class CustomPieceWithStandardRulesHandlerTest {
         } catch (UnsupportedOperationException ex) {
             fail();
         }
+    }
+
+    @Test
+    public void movePieceRevertWhenCheck() {
+        customPieceWithStandardRulesHandler.setPieces("E1:W_KING;E8:B_KING;E7:B_ROOK;E2:W_ROOK;C2:B_PAWN;C7:W_PAWN");
+
+        //Cannot move the rook, the king is check
+        Assert.assertEquals(MOVE_NOT_ALLOWED, customPieceWithStandardRulesHandler.movePiece(E2, C2, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, customPieceWithStandardRulesHandler.movePiece(E7, C7, WHITE));
+
+        //Make sure that the attacked pawn was reverted (not deleted from the map)
+        Assert.assertEquals(Pieces.B_PAWN, customPieceWithStandardRulesHandler.getPiece(C2));
+        Assert.assertEquals(Pieces.W_PAWN, customPieceWithStandardRulesHandler.getPiece(C7));
+
+
     }
 }

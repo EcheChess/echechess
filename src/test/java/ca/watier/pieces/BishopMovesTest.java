@@ -51,7 +51,7 @@ public class BishopMovesTest extends GameTest {
         pieces.put(F5, W_PAWN);
         pieces.put(F3, W_PAWN);
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, pieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         //Cannot move (blocked in all ways)
