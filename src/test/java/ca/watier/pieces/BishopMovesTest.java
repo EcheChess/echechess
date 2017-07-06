@@ -19,6 +19,7 @@ package ca.watier.pieces;
 import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.MoveType;
 import ca.watier.enums.Pieces;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,10 +55,10 @@ public class BishopMovesTest extends GameTest {
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         //Cannot move (blocked in all ways)
-        Assert.assertFalse(gameHandler.movePiece(E4, C6, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, G6, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, C2, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, G2, WHITE));
+        Assert.assertEquals(MoveType.MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, C6, WHITE));
+        Assert.assertEquals(MoveType.MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, G6, WHITE));
+        Assert.assertEquals(MoveType.MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, C2, WHITE));
+        Assert.assertEquals(MoveType.MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, G2, WHITE));
 
 
         //Kill in all direction
@@ -69,7 +70,7 @@ public class BishopMovesTest extends GameTest {
             pieces.put(A6, B_ROOK);
             pieces.put(C6, B_ROOK);
 
-            Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
+            Assert.assertEquals(MoveType.NORMAL_MOVE, gameHandler.movePiece(B7, position, WHITE));
         }
     }
 }

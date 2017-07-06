@@ -25,8 +25,12 @@ import ca.watier.enums.Side;
 public interface WebSocketService {
     void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message);
 
+    void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj);
+
     void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message);
 
     void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message);
+
+    void fireGameEvent(String uuid, ChessEventMessage refreshBoard);
 }
 

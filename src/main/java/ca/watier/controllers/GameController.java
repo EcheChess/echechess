@@ -88,6 +88,20 @@ public class GameController {
         return gameService.getAllAvailableMoves(from, uuid, SessionUtils.getPlayer(session));
     }
 
+
+    /**
+     * Used for the pawn promotion
+     *
+     * @param uuid
+     * @param session
+     * @return
+     */
+    @RequestMapping(path = "/piece/pawn/promotion/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public BooleanResponse pawnPromotion(CasePosition to, String uuid, String piece, HttpSession session) {
+        return gameService.upgradePiece(to, uuid, piece, SessionUtils.getPlayer(session));
+    }
+
+
     /**
      * Gets the pieces location
      *

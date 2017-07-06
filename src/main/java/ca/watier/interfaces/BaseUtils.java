@@ -16,6 +16,9 @@
 
 package ca.watier.interfaces;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by yannick on 4/27/2017.
  */
@@ -26,5 +29,9 @@ public interface BaseUtils {
 
     static boolean getSafeBoolean(Boolean value) {
         return value != null && value;
+    }
+
+    static <T> List<T> getSafeList(List<T> list) {
+        return list != null ? list : new ArrayList<>();
     }
 }

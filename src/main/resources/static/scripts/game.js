@@ -22,6 +22,7 @@ let currentUiUuid = null;
 let lastSelectedBoardSquareHelper = null;
 let helperSetItemMap = [];
 let selectedColor = null;
+let currentPawnPromotion = null;
 const BASE_API = "https://" + window.location.hostname + ":8443";
 
 
@@ -198,6 +199,16 @@ function initUiTriggers() {
     let $gameType = $('#gameType');
     let $specialGameLabel = $('#specialGamePiecesLabel');
     let $specialGame = $('#specialGamePieces');
+
+    $(document).on("click", "#buttonSendChoicePawnPromotion", function () {
+        $('#modalPawnPromotion').modal('hide');
+
+        jsonFromRequest("POST", '/api/game/piece/pawn/promotion/1', {
+            to: currentPawnPromotion,
+            uuid: currentGameUuid,
+            piece: $("#dropdownPawnPromo").val()
+        });
+    });
 
     $("#divSpecialGamePieces").popup({
         hoverable: true,

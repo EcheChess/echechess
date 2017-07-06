@@ -20,9 +20,7 @@ import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.Side;
 import ca.watier.interfaces.BaseUtils;
-import ca.watier.utils.Assert;
-import ca.watier.utils.GameUtils;
-import ca.watier.utils.MathUtils;
+import ca.watier.utils.*;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -38,21 +36,20 @@ public abstract class GameBoard {
 
     //The pieces position on the board
     private Map<CasePosition, Pieces> positionPiecesMap;
-
     //Used to check if the piece have moved
     private Map<CasePosition, Boolean> isPiecesMovedMap;
-
     //Used to check if the pawn used it's special ability to move by two case
     private Map<CasePosition, Boolean> isPawnUsedSpecialMoveMap;
-
     //Used to track the turn that the piece have moved
     private Map<CasePosition, Integer> turnNumberPieceMap;
-
-
+    //Used to track the pawn promotions
+    private MultiArrayMap<Side, Pair<CasePosition, CasePosition>> pawnPromotionMap;
     //Used to track the number of turn of each player
     private int blackTurnNumber;
     private int whiteTurnNumber;
     private int totalMove = 0;
+
+    private boolean isGamePaused = false;
 
     public GameBoard() {
         defaultPositions = new EnumMap<>(CasePosition.class);
@@ -61,6 +58,7 @@ public abstract class GameBoard {
         isPiecesMovedMap = GameUtils.initNewMovedPieceMap(positionPiecesMap);
         isPawnUsedSpecialMoveMap = GameUtils.initPawnMap(positionPiecesMap);
         turnNumberPieceMap = GameUtils.initTurnMap(positionPiecesMap);
+        pawnPromotionMap = new MultiArrayMap<>();
     }
 
     /**
@@ -70,6 +68,17 @@ public abstract class GameBoard {
      */
     public final Map<CasePosition, Pieces> getPiecesLocation() {
         return Collections.unmodifiableMap(positionPiecesMap);
+    }
+
+
+    public final void addPawnPromotion(CasePosition from, CasePosition to, Side side) {
+        Assert.assertNotNull(from, to, side);
+
+        if (Side.OBSERVER.equals(side)) {
+            return;
+        }
+
+        pawnPromotionMap.put(side, new Pair<>(from, to));
     }
 
     /**
@@ -230,7 +239,6 @@ public abstract class GameBoard {
         return Collections.unmodifiableMap(defaultPositions);
     }
 
-
     public final void setPositionPiecesMap(Map<CasePosition, Pieces> positionPiecesMap) {
         Assert.assertNotEmpty(positionPiecesMap);
 
@@ -251,5 +259,50 @@ public abstract class GameBoard {
 
     public int getNbTotalMove() {
         return totalMove;
+    }
+
+    public final boolean upgradePiece(CasePosition to, Pieces pieces, Side playerSide) {
+        Assert.assertNotNull(pieces, playerSide);
+
+        Pair<CasePosition, CasePosition> pair = null;
+        for (Pair<CasePosition, CasePosition> casePositionCasePositionPair : BaseUtils.getSafeList(pawnPromotionMap.get(playerSide))) {
+            CasePosition toValue = casePositionCasePositionPair.getSecondValue();
+
+            if (to.equals(toValue)) {
+                pair = casePositionCasePositionPair;
+                break;
+            }
+        }
+
+        boolean isPresent = pair != null;
+        if (isPresent) {
+            removePawnPromotion(pair, playerSide);
+            CasePosition currentPawnFromPosition = pair.getFirstValue();
+
+            positionPiecesMap.remove(currentPawnFromPosition); //remove the pawn
+            positionPiecesMap.put(to, pieces); // add the wanted piece
+            isGamePaused = false;
+        }
+
+
+        return isPresent;
+    }
+
+    private void removePawnPromotion(Pair<CasePosition, CasePosition> pair, Side side) {
+        Assert.assertNotNull(pair, side);
+
+        if (Side.OBSERVER.equals(side)) {
+            return;
+        }
+
+        pawnPromotionMap.removeFromList(side, pair);
+    }
+
+    public boolean isGamePaused() {
+        return isGamePaused;
+    }
+
+    public void setGamePaused(boolean gamePaused) {
+        isGamePaused = gamePaused;
     }
 }

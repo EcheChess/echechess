@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
+import static ca.watier.enums.MoveType.NORMAL_MOVE;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
@@ -55,7 +57,7 @@ public class KnightMovesTest extends GameTest {
             gameHandler.setPieces(pieces);
 
             if (!allowedMoves.contains(position) && !position.equals(E4)) {
-                Assert.assertFalse(gameHandler.movePiece(E4, position, WHITE));
+                Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, position, WHITE));
             }
         }
 
@@ -65,15 +67,15 @@ public class KnightMovesTest extends GameTest {
             pieces.put(E4, W_KNIGHT);
             gameHandler.setPieces(pieces);
 
-            Assert.assertTrue(gameHandler.movePiece(E4, position, WHITE));
+            Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(E4, position, WHITE));
         }
 
         //Cannot attack a friendly or a king
         pieces.put(A8, W_KNIGHT);
         pieces.put(C7, B_KING);
         pieces.put(B6, W_KING);
-        Assert.assertFalse(gameHandler.movePiece(A8, C7, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(A8, B6, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(A8, C7, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(A8, B6, WHITE));
 
     }
 }

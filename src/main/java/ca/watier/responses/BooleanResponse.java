@@ -16,10 +16,17 @@
 
 package ca.watier.responses;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Created by yannick on 4/23/2017.
  */
 public class BooleanResponse {
+    @JsonIgnore
+    public final static BooleanResponse NO = new BooleanResponse(false);
+    @JsonIgnore
+    public final static BooleanResponse YES = new BooleanResponse(true);
+
     private boolean response;
     private String message;
 
@@ -30,6 +37,10 @@ public class BooleanResponse {
 
     public BooleanResponse(boolean response) {
         this.response = response;
+    }
+
+    public static BooleanResponse getResponse(boolean is) {
+        return is ? YES : NO;
     }
 
     public boolean isResponse() {
@@ -51,7 +62,7 @@ public class BooleanResponse {
     @Override
     public int hashCode() {
         int result = (response ? 1 : 0);
-        result = 31 * result + message.hashCode();
+        result = 31 * result + (message != null ? message.hashCode() : "".hashCode());
         return result;
     }
 

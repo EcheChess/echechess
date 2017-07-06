@@ -115,7 +115,7 @@ public class ConstraintService {
 
     public MoveType getMoveType(CasePosition from, CasePosition to, GenericGameHandler gameHandler) {
         Assert.assertNotNull(from, to, gameHandler);
-        MoveType value = MoveType.NORMAL;
+        MoveType value = MoveType.NORMAL_MOVE;
 
         Pieces fromPiece = gameHandler.getPiece(from);
         MoveConstraint moveConstraint = MOVE_CONSTRAINT_MAP.get(fromPiece);
@@ -124,7 +124,7 @@ public class ConstraintService {
             value = ((SpecialMoveConstraint) moveConstraint).getMoveType(from, to, gameHandler);
 
             if (value == null) {
-                value = MoveType.NORMAL;
+                value = MoveType.NORMAL_MOVE;
             }
         }
 

@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
+import static ca.watier.enums.MoveType.NORMAL_MOVE;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
@@ -59,14 +61,14 @@ public class QueenMovesTest extends GameTest {
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         //Cannot move (blocked in all ways)
-        Assert.assertFalse(gameHandler.movePiece(E4, E2, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, E6, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, C4, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, G2, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, G2, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, G6, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, C6, WHITE));
-        Assert.assertFalse(gameHandler.movePiece(E4, C2, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, E2, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, E6, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, C4, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, G2, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, G2, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, G6, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, C6, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, C2, WHITE));
 
 
         //Kill in all direction
@@ -82,7 +84,7 @@ public class QueenMovesTest extends GameTest {
             pieces.put(C7, B_ROOK);
             pieces.put(A7, B_ROOK);
 
-            Assert.assertTrue(gameHandler.movePiece(B7, position, WHITE));
+            Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(B7, position, WHITE));
         }
 
     }

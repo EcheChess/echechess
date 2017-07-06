@@ -67,7 +67,7 @@ public class KingMoveConstraint implements MoveConstraint, SpecialMoveConstraint
     public MoveType getMoveType(CasePosition from, CasePosition to, GenericGameHandler gameHandler) {
         Assert.assertNotNull(from, to, gameHandler);
 
-        MoveType moveType = MoveType.NORMAL;
+        MoveType moveType = MoveType.NORMAL_MOVE;
         Pieces pieceFrom = gameHandler.getPiece(from);
         Side sideFrom = pieceFrom.getSide();
         Pieces pieceTo = gameHandler.getPiece(to);

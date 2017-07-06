@@ -40,6 +40,11 @@ public class WebSocketServiceTestImpl implements WebSocketService {
     }
 
     @Override
+    public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj) {
+        messages.add(message);
+    }
+
+    @Override
     public void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message) {
         messages.add(message);
     }
@@ -47,6 +52,11 @@ public class WebSocketServiceTestImpl implements WebSocketService {
     @Override
     public void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message) {
         messages.add(message);
+    }
+
+    @Override
+    public void fireGameEvent(String uuid, ChessEventMessage refreshBoard) {
+        messages.add(refreshBoard);
     }
 
     public List<Object> getMessages() {

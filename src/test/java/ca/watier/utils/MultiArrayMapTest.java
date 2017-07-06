@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2016 Yannick Watier
+ *    Copyright 2014 - 2017 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package ca.watier.utils;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -27,56 +28,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Yannick on 5/4/2016.
  */
 public class MultiArrayMapTest {
-    @Test
-    public void clear() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
-        map.put(10, "10");
-        map.put(20, "20");
-        map.put(30, "30");
-        map.put(40, "40");
-        map.clear();
 
-        Assert.assertTrue(map.isEmpty());
+    private MultiArrayMap<Integer, String> map;
+
+    @Before
+    public void setUp() throws Exception {
+        map = new MultiArrayMap<Integer, String>();
     }
 
     @Test
-    public void keySet() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
+    public void removeFromList() throws Exception {
         map.put(10, "10");
         map.put(20, "20");
+        map.put(20, "21");
+        map.put(20, "22");
         map.put(30, "30");
         map.put(40, "40");
-
-        assertThat(map.keySet()).containsOnly(10, 20, 30, 40);
-    }
-
-    @Test
-    public void containsKey() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
-        map.put(10, "10");
-        map.put(20, "20");
-        map.put(30, "30");
-        map.put(40, "40");
-
-        assertThat(map.containsKey(10)).isTrue();
-        assertThat(map.containsKey(50)).isFalse();
-    }
-
-    @Test
-    public void containsValue() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
-        map.put(10, "10");
-        map.put(20, "20");
-        map.put(30, "30");
-        map.put(40, "40");
-
-        assertThat(map.containsValue("10")).isNotEmpty().containsOnly(10);
-        assertThat(map.containsValue("50")).isEmpty();
+        assertThat(map.get(20)).containsOnly("20", "21", "22");
+        map.removeFromList(20, "21");
+        assertThat(map.get(20)).containsOnly("20", "22");
     }
 
     @Test
     public void addItemTest() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
         map.put(10, "10");
         map.put(20, "20");
         map.put(30, "30");
@@ -88,7 +62,6 @@ public class MultiArrayMapTest {
 
     @Test
     public void addItemWithSameKeyTest() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
         map.put(10, "10");
         map.put(10, "10.1");
         map.put(10, "10.2");
@@ -112,7 +85,6 @@ public class MultiArrayMapTest {
 
     @Test
     public void mergeTest() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
         map.put(10, "10");
         map.put(20, "20");
         map.put(30, "30");
@@ -127,15 +99,11 @@ public class MultiArrayMapTest {
         map.putAll(map2);
 
         Assert.assertTrue("The map doesn't contains the newer values !", map.size() == 8);
-
-        assertThat(map.values()).containsOnly("10", "20", "30", "40", "50", "60", "70", "80");
-        assertThat(map2.values()).containsOnly("50", "60", "70", "80");
         System.out.println("mergeTest() = " + map);
     }
 
     @Test
     public void removeItemTest() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
         map.put(10, "10");
         map.put(10, "10.1");
         map.put(10, "10.2");
@@ -156,7 +124,6 @@ public class MultiArrayMapTest {
 
     @Test
     public void valueNotPresentTest() throws Exception {
-        MultiArrayMap<Integer, String> map = new MultiArrayMap<Integer, String>();
         map.put(10, "10");
 
         Assert.assertTrue("The map doesn't contains the newer values !", map.get(20) == null);

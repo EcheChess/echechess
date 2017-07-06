@@ -16,10 +16,7 @@
 
 package ca.watier.services;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.GameType;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.interfaces.WebSocketService;
@@ -29,6 +26,7 @@ import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
 import ca.watier.utils.Constants;
 import ca.watier.utils.Pair;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +42,7 @@ import static ca.watier.utils.Constants.*;
 
 @Service
 public class GameService {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
     private final Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
     private final ConstraintService constraintService;
     private final WebSocketService webSocketService;
@@ -111,20 +110,22 @@ public class GameService {
         Assert.assertNotEmpty(uuid);
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
+        Side playerSide = getPlayerSide(uuid, player);
         Assert.assertNotNull(gameFromUuid);
 
-        if (!gameFromUuid.hasPlayer(player)) {
-            return new BooleanResponse(false);
+        if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused()) {
+            return BooleanResponse.NO;
+        } else if (gameFromUuid.isGameDone()) {
+            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+            return BooleanResponse.NO;
         }
 
-        boolean isMoved = false;
+        MoveType moveType = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
+        boolean isMoved = MoveType.isMoved(moveType);
 
-        Side playerSide = getPlayerSide(uuid, player);
-
-        if (gameFromUuid.isGameDone()) {
-            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
-        } else {
-            isMoved = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
+        if (MoveType.PAWN_PROMOTION.equals(moveType)) {
+            webSocketService.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
+            webSocketService.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
         }
 
         if (isMoved) {
@@ -133,7 +134,7 @@ public class GameService {
             webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
         }
 
-        return new BooleanResponse(isMoved);
+        return BooleanResponse.getResponse(isMoved);
     }
 
     /**
@@ -214,19 +215,17 @@ public class GameService {
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
         if (gameFromUuid == null) {
-            return new BooleanResponse(false);
+            return BooleanResponse.NO;
         }
-
 
         boolean allowObservers = gameFromUuid.isAllowObservers();
         boolean allowOtherToJoin = gameFromUuid.isAllowOtherToJoin();
-
 
         if ((!allowOtherToJoin && !allowObservers) ||
                 (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
                 (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
             webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
-            return new BooleanResponse(false);
+            return BooleanResponse.NO;
         }
 
         UUID gameUuid = UUID.fromString(uuid);
@@ -240,8 +239,7 @@ public class GameService {
             player.addJoinedGame(gameUuid);
         }
 
-
-        return new BooleanResponse(joined);
+        return BooleanResponse.getResponse(joined);
     }
 
     public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
@@ -273,6 +271,55 @@ public class GameService {
             response = game.setPlayerToSide(player, side);
         }
 
-        return new BooleanResponse(isGameExist && response);
+        return BooleanResponse.getResponse(isGameExist && response);
+    }
+
+    /**
+     * Used when we need to upgrade a piece in the board (example: pawn promotion)
+     *
+     * @param uuid
+     * @param piece
+     * @param player
+     * @return
+     */
+    public BooleanResponse upgradePiece(CasePosition to, String uuid, String piece, Player player) {
+        Assert.assertNotNull(to, player);
+        Assert.assertNotEmpty(uuid);
+        Assert.assertNotEmpty(piece);
+
+        GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
+        Side playerSide = gameFromUuid.getPlayerSide(player);
+
+        String finalPieceName = null;
+
+        switch (playerSide) {
+            case WHITE:
+                finalPieceName = "W_" + piece.toUpperCase();
+                break;
+            case BLACK:
+                finalPieceName = "B_" + piece.toUpperCase();
+                break;
+            case OBSERVER:
+            default:
+                break;
+        }
+
+
+        boolean isChanged = false;
+
+        Assert.assertNotEmpty(finalPieceName);
+
+        try {
+            isChanged = gameFromUuid.upgradePiece(to, Pieces.valueOf(finalPieceName), playerSide);
+
+            if (isChanged) { //Refresh the boards
+                webSocketService.fireGameEvent(uuid, REFRESH_BOARD);
+            }
+
+        } catch (IllegalArgumentException ex) {
+            LOGGER.error(ex.toString(), ex);
+        }
+
+        return BooleanResponse.getResponse(isChanged);
     }
 }

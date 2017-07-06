@@ -14,17 +14,20 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.interfaces;
 
-import ca.watier.interfaces.BaseUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 /**
- * Created by yannick on 6/20/2017.
+ * Created by yannick on 7/5/2017.
  */
 public class BaseUtilsTest {
+
     @Test
     public void getSafeInteger() throws Exception {
         assertEquals(10, BaseUtils.getSafeInteger(10));
@@ -32,5 +35,23 @@ public class BaseUtilsTest {
         assertEquals(30, BaseUtils.getSafeInteger(30));
         assertEquals(40, BaseUtils.getSafeInteger(40));
         assertEquals(0, BaseUtils.getSafeInteger(null));
+    }
+
+    @Test
+    public void getSafeBoolean() throws Exception {
+        assertTrue(BaseUtils.getSafeBoolean(true));
+        assertFalse(BaseUtils.getSafeBoolean(false));
+        assertFalse(BaseUtils.getSafeBoolean(null));
+    }
+
+    @Test
+    public void getSafeList() throws Exception {
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+
+        assertThat(BaseUtils.getSafeList(list)).containsOnly(1, 2, 3);
+        assertThat(BaseUtils.getSafeList(null)).isEmpty();
     }
 }

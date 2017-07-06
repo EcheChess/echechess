@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.*;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
@@ -89,35 +90,36 @@ public class PawnMovesTest extends GameTest {
         context.setPieces(pieces);
         context.addSpecialRule(NO_CHECK_OR_CHECKMATE);
 
+
         //Cannot move (blocked in front)
-        Assert.assertFalse(context.movePiece(H2, H4, WHITE)); // 2 cases
-        Assert.assertFalse(context.movePiece(H2, H3, WHITE));
-        Assert.assertFalse(context.movePiece(H7, H5, BLACK)); // 2 cases
-        Assert.assertFalse(context.movePiece(H7, H6, BLACK));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(H2, H4, WHITE)); // 2 cases
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(H2, H3, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(H7, H5, BLACK)); // 2 cases
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(H7, H6, BLACK));
 
         //Can move
-        Assert.assertTrue(context.movePiece(A2, A4, WHITE)); // 2 cases
-        Assert.assertTrue(context.movePiece(B2, B3, WHITE));
-        Assert.assertTrue(context.movePiece(A7, A5, BLACK)); // 2 cases
-        Assert.assertTrue(context.movePiece(B7, B6, BLACK));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(A2, A4, WHITE)); // 2 cases
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(B2, B3, WHITE));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(A7, A5, BLACK)); // 2 cases
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(B7, B6, BLACK));
 
         //Cannot move by 2 position (not on the starting position)
-        Assert.assertFalse(context.movePiece(B3, B5, WHITE));
-        Assert.assertFalse(context.movePiece(B6, B4, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(B3, B5, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(B6, B4, WHITE));
 
         //Can move by one position
-        Assert.assertTrue(context.movePiece(B3, B4, WHITE));
-        Assert.assertTrue(context.movePiece(B6, B5, BLACK));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(B3, B4, WHITE));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(B6, B5, BLACK));
 
         //cannot move diagonally (without attack)
-        Assert.assertFalse(context.movePiece(F2, E3, WHITE));
-        Assert.assertFalse(context.movePiece(F2, G3, WHITE));
-        Assert.assertFalse(context.movePiece(F2, D4, WHITE)); // 2 cases
-        Assert.assertFalse(context.movePiece(F2, H4, WHITE)); // 2 cases
-        Assert.assertFalse(context.movePiece(F7, E6, BLACK));
-        Assert.assertFalse(context.movePiece(F7, G6, BLACK));
-        Assert.assertFalse(context.movePiece(F7, D5, WHITE)); // 2 cases
-        Assert.assertFalse(context.movePiece(F7, H5, WHITE)); // 2 cases
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F2, E3, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F2, G3, WHITE));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F2, D4, WHITE)); // 2 cases
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F2, H4, WHITE)); // 2 cases
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F7, E6, BLACK));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F7, G6, BLACK));
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F7, D5, WHITE)); // 2 cases
+        Assert.assertEquals(MOVE_NOT_ALLOWED, context.movePiece(F7, H5, WHITE)); // 2 cases
 
         //Kill in all direction
         pieces.clear();
@@ -131,10 +133,10 @@ public class PawnMovesTest extends GameTest {
         pieces.put(C2, W_PAWN);
         pieces.put(G2, W_PAWN);
 
-        Assert.assertTrue(context.movePiece(D5, C6, WHITE));
-        Assert.assertTrue(context.movePiece(D3, C2, BLACK));
-        Assert.assertTrue(context.movePiece(F5, G6, WHITE));
-        Assert.assertTrue(context.movePiece(F3, G2, BLACK));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(D5, C6, WHITE));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(D3, C2, BLACK));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(F5, G6, WHITE));
+        Assert.assertEquals(NORMAL_MOVE, context.movePiece(F3, G2, BLACK));
     }
 
     @Test
@@ -142,8 +144,8 @@ public class PawnMovesTest extends GameTest {
         context.movePiece(H2, H4, WHITE);
         context.movePiece(H4, H5, WHITE);
         context.movePiece(G7, G5, BLACK); //Move by 2
-        Assert.assertTrue(context.movePiece(H5, G6, WHITE)); // En passant on the black pawn
-        Assert.assertEquals(Pieces.W_PAWN, context.getPiece(G6));
+        Assert.assertEquals(EN_PASSANT, context.movePiece(H5, G6, WHITE)); // En passant on the black pawn
+        Assert.assertEquals(W_PAWN, context.getPiece(G6));
         Assert.assertEquals(new GameScoreResponse((short) 1, (short) 0), context.getGameScore());
     }
 
@@ -152,8 +154,8 @@ public class PawnMovesTest extends GameTest {
         context.movePiece(G7, G5, BLACK);
         context.movePiece(G5, G4, BLACK);
         context.movePiece(H2, H4, WHITE);
-        Assert.assertTrue(context.movePiece(G4, H3, BLACK)); // En passant on the white pawn
-        Assert.assertEquals(Pieces.B_PAWN, context.getPiece(H3));
+        Assert.assertEquals(EN_PASSANT, context.movePiece(G4, H3, BLACK)); // En passant on the white pawn
+        Assert.assertEquals(B_PAWN, context.getPiece(H3));
         Assert.assertEquals(new GameScoreResponse((short) 0, (short) 1), context.getGameScore());
     }
 }

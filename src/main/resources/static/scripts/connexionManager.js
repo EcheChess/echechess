@@ -37,7 +37,6 @@ class ConnexionManager {
                 let chessEvent = parsed.event;
                 let message = parsed.message;
 
-
                 switch (chessEvent) {
                     case 'UI_SESSION_EXPIRED':
                         window.setInterval(function () {
@@ -84,10 +83,17 @@ class ConnexionManager {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;
                 let message = parsed.message;
+                let obj = parsed.obj;
 
                 switch (chessEvent) {
                     case 'PLAYER_TURN':
                         writeToGameLog(message, chessEvent);
+                        break;
+                    case 'PAWN_PROMOTION':
+                        currentPawnPromotion = message;
+                        $('#modalPawnPromotion').modal({
+                            closable: false
+                        }).modal('show');
                         break;
                 }
             });
@@ -122,6 +128,13 @@ class ConnexionManager {
                         break;
                     case 'SCORE_UPDATE':
                         updateScore(message);
+                        break;
+                    case 'REFRESH_BOARD':
+                        renderBoard();
+                        break;
+                    case 'PAWN_PROMOTION':
+                        alertify.warning(message);
+                        break;
                 }
             });
         });

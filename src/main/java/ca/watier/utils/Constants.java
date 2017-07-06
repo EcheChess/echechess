@@ -26,6 +26,7 @@ public class Constants {
     public static final String NEW_PLAYER_JOINED_SIDE = "New player joined the %s side";
     public static final String PLAYER_TURN = "It's your turn !";
     public static final String PLAYER_MOVE = "%s player moved %s to %s";
+    public static final String GAME_PAUSED_PAWN_PROMOTION = "The game will continue after the %s player choose his piece";
     public static final String GAME_ENDED = "The game is ended !";
     public static final String REQUESTED_SESSION_ALREADY_DEFINED = "The requested session id is already defined !";
     public static final String JOINING_GAME = "Joining the game %s";

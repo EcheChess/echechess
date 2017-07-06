@@ -29,6 +29,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
+import static ca.watier.enums.MoveType.NORMAL_MOVE;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,16 +51,16 @@ public class SpecialGameRulesTest {
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
         //No rules
-        Assert.assertTrue(gameHandler.movePiece(H2, H4, WHITE)); //White move
-        Assert.assertFalse(gameHandler.movePiece(H4, H5, WHITE)); //White move again, supposed to fail
-        Assert.assertTrue(gameHandler.movePiece(H7, H6, BLACK)); //Black move
-        Assert.assertFalse(gameHandler.movePiece(H6, H5, WHITE)); //Black move again, supposed to fail
+        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(H2, H4, WHITE)); //White move
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(H4, H5, WHITE)); //White move again, supposed to fail
+        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(H7, H6, BLACK)); //Black move
+        Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(H6, H5, WHITE)); //Black move again, supposed to fail
 
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         //With the rule
-        Assert.assertTrue(gameHandler.movePiece(G2, G4, WHITE)); //White move
-        Assert.assertTrue(gameHandler.movePiece(G4, G5, WHITE)); //White move again, supposed to pass (with the rule only)
+        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(G2, G4, WHITE)); //White move
+        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(G4, G5, WHITE)); //White move again, supposed to pass (with the rule only)
 
     }
 

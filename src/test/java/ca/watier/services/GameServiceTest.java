@@ -17,6 +17,8 @@
 package ca.watier.services;
 
 import ca.watier.enums.CasePosition;
+import ca.watier.enums.ChessEventMessage;
+import ca.watier.enums.MoveType;
 import ca.watier.enums.Pieces;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.impl.WebSocketServiceTestImpl;
@@ -25,6 +27,7 @@ import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.GameScoreResponse;
 import ca.watier.sessions.Player;
 import ca.watier.utils.GameUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +35,7 @@ import org.junit.Test;
 import java.util.*;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.ChessEventMessage.REFRESH_BOARD;
 import static ca.watier.enums.GameType.CLASSIC;
 import static ca.watier.enums.GameType.SPECIAL;
 import static ca.watier.enums.Pieces.B_KING;
@@ -40,9 +44,9 @@ import static ca.watier.enums.Side.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class GameServiceTests {
-
+public class GameServiceTest {
     private static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
@@ -55,6 +59,24 @@ public class GameServiceTests {
         currentWebSocketService = new WebSocketServiceTestImpl();
         gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService);
     }
+
+
+    @Test
+    public void upgradePiece() throws Exception {
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+        Player player1 = new Player();
+        GenericGameHandler gameUuid = gameService.createNewGame(player1, "G7:W_PAWN;G2:B_PAWN;A8:W_KING;A1:B_KING", WHITE, false, false);
+        Assert.assertEquals(MoveType.PAWN_PROMOTION, gameUuid.movePiece(G7, G8, WHITE));
+
+        String uuid = gameUuid.getUuid();
+        Assert.assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.upgradePiece(G8, uuid, "queene", player1)); //invalid piece
+        assertTrue(gameUuid.isGamePaused());
+        Assert.assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.upgradePiece(G8, uuid, "queen", player1));
+        Assert.assertFalse(gameUuid.isGamePaused());
+
+        Assertions.assertThat(currentWebSocketService.getMessages()).containsOnly(REFRESH_BOARD);
+    }
+
 
     @Test
     public void setSideOfPlayerTest() {
@@ -77,14 +99,14 @@ public class GameServiceTests {
         //Check if the player1 is set to black
         assertEquals(player1, normalGameHandler.getPlayerBlack());
         assertEquals(null, normalGameHandler.getPlayerWhite());
-        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         gameService.setSideOfPlayer(player1, WHITE, uuid);
 
         //Check if the player1 is set to white (was black before)
         assertEquals(null, normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
-        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //compare the service vs player1 data
         assertEquals(allIdGamesFromGameService, gameListIdFromPlayer);
@@ -97,14 +119,14 @@ public class GameServiceTests {
         //Check if the player1 is still associated to black, player2 not set yet
         assertEquals(null, normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
-        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //Try to associate the black to the player 2 (not set yet)
         gameService.setSideOfPlayer(player2, BLACK, uuid);
 
         assertEquals(player2, normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
-        Assert.assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //Change both of the player to observers
         gameService.setSideOfPlayer(player1, OBSERVER, uuid);
@@ -112,7 +134,7 @@ public class GameServiceTests {
 
         assertEquals(null, normalGameHandler.getPlayerBlack());
         assertEquals(null, normalGameHandler.getPlayerWhite());
-        Assert.assertTrue(normalGameHandler.getObserverList().containsAll(asList(player1, player2)));
+        assertTrue(normalGameHandler.getObserverList().containsAll(asList(player1, player2)));
     }
 
     @Test
@@ -160,7 +182,7 @@ public class GameServiceTests {
         Player player2 = new Player();
         Player playerNotInGame = new Player();
 
-        GenericGameHandler gameFromUuid = gameService.createNewGame(player1, "", WHITE, false, false);
+        GenericGameHandler gameFromUuid = gameService.createNewGame(player1, "H2:W_PAWN;H7:B_PAWN;E2:W_PAWN;H1:W_KING;H8:B_KING;A7:W_PAWN;A2:B_PAWN", WHITE, false, false);
         String uuid = gameFromUuid.getUuid();
         gameFromUuid.setPlayerToSide(player2, BLACK);
 
@@ -177,6 +199,25 @@ public class GameServiceTests {
         //Valid move for the black player
         assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.movePiece(H7, H5, uuid, player2));
 
+        gameFromUuid.setGamePaused(true);
+
+        //Unable to move, because the game is paused
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.movePiece(E2, E4, uuid, player1));
+        gameFromUuid.setGamePaused(false);
+
+        //Can move, the game is not paused
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.movePiece(E2, E4, uuid, player1));
+
+
+        //Valid move for the black player (Pawn promotion)
+        assertTrue(gameService.movePiece(A2, A1, uuid, player2).isResponse());
+        gameService.upgradePiece(A1, uuid, "knight", player2);
+
+        //Valid move for the white player (Pawn promotion)
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.movePiece(A7, A8, uuid, player1));
+        gameService.upgradePiece(A8, uuid, "knight", player1);
+
+
         List<Object> messages = currentWebSocketService.getMessages();
 
         /*
@@ -185,11 +226,26 @@ public class GameServiceTests {
 
         assertThat(messages).containsOnly(
                 "WHITE player moved H2 to H4",
-                "It's your turn !", //To the black player
+                "It's your turn !",
                 EMPTY_GAME_SCORE_RESPONSE,
                 "BLACK player moved H7 to H5",
-                "It's your turn !",  //To the white player
-                EMPTY_GAME_SCORE_RESPONSE);
+                "It's your turn !",
+                EMPTY_GAME_SCORE_RESPONSE,
+                "WHITE player moved E2 to E4",
+                "It's your turn !",
+                EMPTY_GAME_SCORE_RESPONSE,
+                "A1",
+                "The game will continue after the BLACK player choose his piece",
+                "BLACK player moved A2 to A1",
+                "It's your turn !",
+                EMPTY_GAME_SCORE_RESPONSE,
+                ChessEventMessage.REFRESH_BOARD,
+                "A8",
+                "The game will continue after the WHITE player choose his piece",
+                "WHITE player moved A7 to A8",
+                "It's your turn !",
+                EMPTY_GAME_SCORE_RESPONSE,
+                ChessEventMessage.REFRESH_BOARD);
     }
 
     @Test

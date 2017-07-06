@@ -27,7 +27,7 @@ public class MultiArrayMap<K, V> {
     private final Map<K, List<V>> containerMap;
 
     public MultiArrayMap() {
-        containerMap = new HashMap<>();
+        containerMap = new HashMap<K, List<V>>();
     }
 
     public int size() {
@@ -43,7 +43,7 @@ public class MultiArrayMap<K, V> {
      * @return A Set of key(s) where the item has been found, an empty Set otherwise
      */
     public Set<K> containsValue(V item) {
-        Set<K> value = new HashSet<>();
+        Set<K> value = new HashSet<K>();
 
         for (Map.Entry<K, List<V>> kListEntry : containerMap.entrySet()) {
             if (kListEntry.getValue().contains(item)) {
@@ -75,7 +75,7 @@ public class MultiArrayMap<K, V> {
         List<V> associationList;
 
         if (!containerMap.containsKey(key)) {
-            associationList = new ArrayList<>();
+            associationList = new ArrayList<V>();
             containerMap.put(key, associationList);
         } else {
             associationList = containerMap.get(key);
@@ -90,6 +90,21 @@ public class MultiArrayMap<K, V> {
      */
     public List<V> remove(K key) {
         return Collections.unmodifiableList(containerMap.remove(key));
+    }
+
+    /**
+     * @param key   - The key of the values
+     * @param value - The value to be removed
+     * @return
+     */
+    public List<V> removeFromList(K key, V value) {
+        List<V> values = containerMap.get(key);
+
+        if (values != null && !values.isEmpty()) {
+            values.remove(value);
+        }
+
+        return values;
     }
 
     /**
@@ -125,7 +140,7 @@ public class MultiArrayMap<K, V> {
      * @return An unmodifiable Set containing all the values
      */
     public Collection<V> values() {
-        Set<V> values = new HashSet<>();
+        Set<V> values = new HashSet<V>();
 
         for (List<V> value : containerMap.values()) {
             values.addAll(value);

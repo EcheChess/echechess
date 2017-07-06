@@ -97,4 +97,6 @@ public class GameBoardTest extends GameTest {
         assertThat(context.getPieceTurn(G3)).isNull();
         assertThat(context.getPieceTurn(G4)).isEqualTo(1);
     }
+
+
 }

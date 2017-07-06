@@ -48,6 +48,17 @@ public class WebSocketServiceImpl implements WebSocketService {
         template.convertAndSend(TOPIC + uuid + '/' + side, new ChessEvent(evtMessage, message));
     }
 
+    @Override
+    public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj) {
+        Assert.assertNotNull(side, evtMessage);
+        Assert.assertNotEmpty(uuid);
+        Assert.assertNotEmpty(message);
+
+        ChessEvent payload = new ChessEvent(evtMessage, message);
+        payload.setObj(obj);
+        template.convertAndSend(TOPIC + uuid + '/' + side, payload);
+    }
+
     public void fireUiEvent(String uiUuid, ChessEventMessage evtMessage, String message) {
         template.convertAndSend(TOPIC + uiUuid, new ChessEvent(evtMessage, message));
     }
@@ -55,5 +66,10 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     public void fireGameEvent(String uuid, ChessEventMessage evtMessage, Object message) {
         template.convertAndSend(TOPIC + uuid, new ChessEvent(evtMessage, message));
+    }
+
+    @Override
+    public void fireGameEvent(String uuid, ChessEventMessage refreshBoard) {
+        template.convertAndSend(TOPIC + uuid, new ChessEvent(refreshBoard));
     }
 }

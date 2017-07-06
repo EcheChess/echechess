@@ -90,7 +90,7 @@ public class PawnMoveConstraint implements MoveConstraint, SpecialMoveConstraint
     public MoveType getMoveType(CasePosition from, CasePosition to, GenericGameHandler gameHandler) {
         Assert.assertNotNull(from, to, gameHandler);
 
-        MoveType value = MoveType.NORMAL;
+        MoveType value = MoveType.NORMAL_MOVE;
         Pieces pieceFrom = gameHandler.getPiece(from);
 
         if (Pieces.isPawn(pieceFrom)) {
@@ -120,5 +120,4 @@ public class PawnMoveConstraint implements MoveConstraint, SpecialMoveConstraint
 
         return value;
     }
-
 }
