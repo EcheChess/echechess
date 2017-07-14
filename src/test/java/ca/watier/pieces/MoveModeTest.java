@@ -34,16 +34,16 @@ public class MoveModeTest extends GameTest {
     @Test
     public void rook_Test() {
         String positionPieces = "A8:B_ROOK;A7:B_PAWN;A5:W_KING";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(A4, A6, B5, B4);
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE, true));
 
         gameHandler.removePieceAt(A7); //remove the pawn blocking
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(B6, B5, B4);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE, true));
 
     }
 
@@ -51,79 +51,79 @@ public class MoveModeTest extends GameTest {
     @Test
     public void knight_Test() {
         String positionPieces = "D5:W_KING;F6:B_KNIGHT;F3:B_KNIGHT";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(C6, D6, E6, C5, C4);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE, true));
     }
 
 
     @Test
     public void bishop_Test() {
         String positionPieces = "D5:W_KING;C6:B_ROOK;B7:B_BISHOP";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(D4, E4, E5);
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE, true));
 
         gameHandler.removePieceAt(C6); //remove the rook blocking
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(D6, E6, E5, D4, C4, C5);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE, true));
     }
 
 
     @Test
     public void king_Test() {
         String positionPieces = "D5:W_KING;C6:B_KING";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(C4, D4, E4, E5, E6);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE, true));
     }
 
 
     @Test
     public void queen_Test() {
         String positionPieces = "D5:W_KING;C6:W_PAWN;B7:B_QUEEN";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(D6, E6, C5, C4, D4, E4, E5);
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE, true));
 
         gameHandler.removePieceAt(C6); //remove the pawn blocking
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(D6, E6, C5, C4, D4, E5);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE, true));
     }
 
     @Test
     public void pawn_front_Test() {
         String positionPieces = "A5:W_KING;A6:B_PAWN;A7:B_PAWN";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(A4, A6, B4);
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE, true));
 
         gameHandler.removePieceAt(A6); //remove the pawn blocking
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(A4, A6, B4, B5);
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE, true));
 
     }
 
     @Test
     public void pawn_diagonal_Test() {
         String positionPieces = "B7:B_PAWN;C6:W_KING";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(B7, C5, C7, D7, B6, D6, B5, D5);
-        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECK, gameHandler.getKingStatus(WHITE, true));
     }
 }

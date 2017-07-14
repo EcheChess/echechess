@@ -22,7 +22,7 @@ import ca.watier.utils.Assert;
  * Created by yannick on 5/14/2017.
  */
 public enum KingStatus {
-    CHECK, CHECKMATE, OK;
+    CHECK, CHECKMATE, OK, STALEMATE;
 
     public static boolean isCheckOrCheckMate(KingStatus kingStatus) {
         Assert.assertNotNull(kingStatus);

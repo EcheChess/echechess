@@ -110,6 +110,16 @@ public abstract class GameBoard {
     }
 
     /**
+     * Set the specified case at the position, without changing the move state (useful when evaluating)
+     *
+     * @param piece
+     * @param to
+     */
+    public final void setPiecePositionWithoutMoveState(Pieces piece, CasePosition to) {
+        positionPiecesMap.put(to, piece);
+    }
+
+    /**
      * Get the piece at the specific position
      *
      * @param position

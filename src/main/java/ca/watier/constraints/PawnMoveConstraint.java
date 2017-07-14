@@ -101,7 +101,11 @@ public class PawnMoveConstraint implements MoveConstraint, SpecialMoveConstraint
             if (enemyPawnPosition != null) {
                 Pieces enemyPawn = gameHandler.getPiece(enemyPawnPosition);
 
-                if (enemyPawn != null && !Pieces.isSameSide(pieceFrom, enemyPawn) && Pieces.isPawn(enemyPawn)) {
+                if (enemyPawn == null || Pieces.isSameSide(pieceFrom, enemyPawn) || !Ranks.FOUR.equals(Ranks.getRank(enemyPawnPosition, otherSide))) {
+                    return value;
+                }
+
+                if (Ranks.SIX.equals(Ranks.getRank(to, currentSide)) && Pieces.isPawn(enemyPawn)) {
                     boolean pawnUsedSpecialMove = gameHandler.isPawnUsedSpecialMove(enemyPawnPosition);
                     Integer pieceTurnEnemyPawn = gameHandler.getPieceTurn(enemyPawnPosition);
 

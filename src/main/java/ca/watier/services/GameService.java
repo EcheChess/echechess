@@ -24,7 +24,6 @@ import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
-import ca.watier.utils.Constants;
 import ca.watier.utils.Pair;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static ca.watier.enums.ChessEventMessage.*;
-import static ca.watier.enums.ChessEventMessage.PLAYER_TURN;
 import static ca.watier.utils.Constants.*;
 
 /**
@@ -44,13 +42,13 @@ import static ca.watier.utils.Constants.*;
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
     private final Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
-    private final ConstraintService constraintService;
-    private final WebSocketService webSocketService;
+    private final ConstraintService CONSTRAINT_SERVICE;
+    private final WebSocketService WEB_SOCKET_SERVICE;
 
     @Autowired
     public GameService(ConstraintService constraintService, WebSocketService webSocketService) {
-        this.constraintService = constraintService;
-        this.webSocketService = webSocketService;
+        this.CONSTRAINT_SERVICE = constraintService;
+        this.WEB_SOCKET_SERVICE = webSocketService;
     }
 
     /**
@@ -71,11 +69,11 @@ public class GameService {
         if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(constraintService);
+            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
-            genericGameHandler = new GenericGameHandler(constraintService);
+            genericGameHandler = new GenericGameHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         }
 
         UUID uui = UUID.randomUUID();
@@ -116,24 +114,14 @@ public class GameService {
         if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused()) {
             return BooleanResponse.NO;
         } else if (gameFromUuid.isGameDone()) {
-            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+            return BooleanResponse.NO;
+        } else if (KingStatus.STALEMATE.equals(gameFromUuid.getKingStatus(playerSide, true))) {
+            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
             return BooleanResponse.NO;
         }
 
-        MoveType moveType = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
-        boolean isMoved = MoveType.isMoved(moveType);
-
-        if (MoveType.PAWN_PROMOTION.equals(moveType)) {
-            webSocketService.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
-            webSocketService.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
-        }
-
-        if (isMoved) {
-            webSocketService.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
-            webSocketService.fireSideEvent(uuid, Side.getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
-            webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
-        }
-
+        boolean isMoved = MoveType.isMoved(gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player)));
         return BooleanResponse.getResponse(isMoved);
     }
 
@@ -224,7 +212,7 @@ public class GameService {
         if ((!allowOtherToJoin && !allowObservers) ||
                 (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
                 (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
-            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
+            WEB_SOCKET_SERVICE.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
             return BooleanResponse.NO;
         }
 
@@ -234,8 +222,8 @@ public class GameService {
         }
 
         if (joined) {
-            webSocketService.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
-            webSocketService.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
+            WEB_SOCKET_SERVICE.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
+            WEB_SOCKET_SERVICE.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
             player.addJoinedGame(gameUuid);
         }
 
@@ -313,7 +301,7 @@ public class GameService {
             isChanged = gameFromUuid.upgradePiece(to, Pieces.valueOf(finalPieceName), playerSide);
 
             if (isChanged) { //Refresh the boards
-                webSocketService.fireGameEvent(uuid, REFRESH_BOARD);
+                WEB_SOCKET_SERVICE.fireGameEvent(uuid, REFRESH_BOARD);
             }
 
         } catch (IllegalArgumentException ex) {

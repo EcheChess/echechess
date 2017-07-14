@@ -19,6 +19,8 @@ package ca.watier.conditions;
 import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Side;
+import ca.watier.impl.WebSocketServiceTestImpl;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CheckAndCheckMateTest {
 
     private static final Side WHITE = Side.WHITE;
-    private static final ConstraintService constraintService = new ConstraintService();
+    private static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
+    private static final WebSocketService WEB_SOCKET_SERVICE = new WebSocketServiceTestImpl();
 
     /**
      * In this test, the king should be movable only to E5, F5 & F3
@@ -43,10 +46,10 @@ public class CheckAndCheckMateTest {
     @Test
     public void checkFromMixShortAndLongRangeWithPawn_multipleExitTest() {
         String positionPieces = "H8:B_KING;E4:W_KING;B5:B_QUEEN;D5:B_PAWN;D4:B_PAWN;D3:B_PAWN;E5:B_PAWN;E3:B_PAWN;F3:B_PAWN;F4:B_PAWN;F5:B_PAWN";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(CHECK, gameHandler.getKingStatus(WHITE, true));
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(E5, F3, F5);
     }
 
@@ -57,9 +60,9 @@ public class CheckAndCheckMateTest {
     @Test
     public void checkFromMixShortAndLongRangeWithPawn_oneExitTest() {
         String positionPieces = "H8:B_KING;E4:W_KING;B5:B_QUEEN;H5:B_QUEEN;E3:B_PAWN;E5:B_PAWN;D4:B_PAWN;F4:B_PAWN;D5:B_PAWN;F5:B_PAWN;D3:B_PAWN;F3:B_PAWN";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
-        Assert.assertEquals(CHECK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(CHECK, gameHandler.getKingStatus(WHITE, true));
         assertThat(gameHandler.getPositionKingCanMove(WHITE)).containsOnly(E5);
     }
 
@@ -73,12 +76,12 @@ public class CheckAndCheckMateTest {
     public void checkmateFromLongRange_horizontal_Test() {
         String positionPieces = "H8:B_KING;E1:W_KING;H1:B_ROOK;D2:W_PAWN;E2:W_PAWN;F2:W_PAWN";
 
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
         context.movePieceTo(H1, A1);
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
     }
 
 
@@ -91,27 +94,27 @@ public class CheckAndCheckMateTest {
     public void checkmateFromLongRange_vertical_Test() {
         String positionPieces = "H8:B_KING;A4:W_KING;A8:B_ROOK;B3:W_PAWN;B4:W_PAWN;B5:W_PAWN";
 
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
         context.movePieceTo(A8, A1); //Move the rook
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
     }
 
     @Test
     public void longRangeBlocked_Test() {
         String positionPieces = "G8:B_KING;E4:W_KING;D5:W_PAWN;E5:W_PAWN;F5:W_PAWN;D4:B_PAWN;F4:W_PAWN;D3:B_PAWN;E3:B_PAWN;F3:B_PAWN;E1:B_ROOK;A4:B_ROOK;H4:B_ROOK;A8:B_BISHOP;A1:B_BISHOP;H1:B_BISHOP;H7:B_BISHOP";
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(OK, context.getKingStatus(WHITE));
+        Assert.assertEquals(OK, context.getKingStatus(WHITE, true));
     }
 
     @Test
     public void checkBlackKingPattern_check_Test() {
 
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         context.addSpecialRule(NO_PLAYER_TURN);
 
         String[] patterns = new String[]{
@@ -129,14 +132,14 @@ public class CheckAndCheckMateTest {
     private void assertPattern(StandardGameHandlerContext context, String[] patterns, KingStatus status, Side side) {
         for (String pattern : patterns) {
             context.setPieces(pattern);
-            Assert.assertEquals(String.format("The pattern '%s' has failed !", pattern), status, context.getKingStatus(side));
+            Assert.assertEquals(String.format("The pattern '%s' has failed !", pattern), status, context.getKingStatus(side, true));
         }
     }
 
     @Test
     public void checkmateBlackKingPattern_checkmate_Test() {
 
-        StandardGameHandlerContext context = new StandardGameHandlerContext(constraintService);
+        StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         context.addSpecialRule(NO_PLAYER_TURN);
 
         //Thanks to www.serverchess.com/checkmate.htm and https://en.wikipedia.org/wiki/Checkmate_pattern for the patterns !

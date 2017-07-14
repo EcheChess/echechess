@@ -24,7 +24,6 @@ import ca.watier.contexts.StandardGameHandlerContext;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Side;
 import ca.watier.game.GenericGameHandler;
-import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,15 +37,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Those tests are meant to test if the rules doesn't interfere with the original game
  */
-public class SpecialGameRulesTest {
+public class SpecialGameRulesTest extends GameTest {
 
     private static final Side WHITE = Side.WHITE;
     private static final Side BLACK = Side.BLACK;
-    private static final ConstraintService constraintService = new ConstraintService();
 
     @Test
     public void noPlayerTurnTest() {
-        GenericGameHandler gameHandler = new GenericGameHandler(constraintService);
+        GenericGameHandler gameHandler = new GenericGameHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
 
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
@@ -69,23 +67,23 @@ public class SpecialGameRulesTest {
     public void noCheckOrCheckmateTest() {
         String positionPieces = "A8:B_KING;E1:W_KING;E3:B_QUEEN;D3:B_QUEEN;F3:B_QUEEN";
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
 
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
         //No rule
-        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.CHECKMATE, gameHandler.getKingStatus(WHITE, true));
 
         //With the rule
         gameHandler.addSpecialRule(NO_CHECK_OR_CHECKMATE);
 
-        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE));
+        Assert.assertEquals(KingStatus.OK, gameHandler.getKingStatus(WHITE, true));
     }
 
     @Test
     public void addAndRemoveRuleTest() {
         String positionPieces = "A8:B_KING;E1:W_KING;E3:B_QUEEN;D3:B_QUEEN;F3:B_QUEEN";
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(constraintService, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         assertThat(gameHandler.getSpecialGameRules()).isEmpty(); //Make sure there's no rule applied at the beginning, in a standard game
 
         gameHandler.addSpecialRule(NO_CHECK_OR_CHECKMATE, NO_PLAYER_TURN);

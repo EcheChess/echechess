@@ -45,7 +45,7 @@ public class PawnMovesTest extends GameTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new StandardGameHandlerContext(CONSTRAINT_SERVICE);
+        context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         context.addSpecialRule(NO_PLAYER_TURN);
     }
 
@@ -55,7 +55,7 @@ public class PawnMovesTest extends GameTest {
     @Test
     public void check_with_pawns_front_move_two_position_Test() {
         context.setPieces("B7:B_PAWN;B8:B_KING;B5:W_KING");
-        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK, true));
     }
 
 
@@ -65,7 +65,7 @@ public class PawnMovesTest extends GameTest {
     @Test
     public void check_with_pawns_front_move_one_position_Test() {
         context.setPieces("B7:B_PAWN;B8:B_KING;B6:W_KING");
-        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK));
+        Assert.assertEquals(KingStatus.OK, context.getKingStatus(BLACK, true));
     }
 
 

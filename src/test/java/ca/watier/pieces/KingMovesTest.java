@@ -48,7 +48,7 @@ public class KingMovesTest extends GameTest {
 
     @Before
     public void setUp() throws Exception {
-        gameHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE);
+        gameHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
     }
 
@@ -58,7 +58,7 @@ public class KingMovesTest extends GameTest {
         Map<CasePosition, Pieces> pieces = new HashMap<>();
         pieces.put(B7, W_KING);
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, pieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, pieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         //Kill in all direction

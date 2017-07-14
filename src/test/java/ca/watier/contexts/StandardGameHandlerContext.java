@@ -19,6 +19,7 @@ package ca.watier.contexts;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
 import ca.watier.utils.Assert;
@@ -31,8 +32,8 @@ import java.util.UUID;
  */
 public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHandler {
 
-    public StandardGameHandlerContext(ConstraintService constraintService) {
-        super(constraintService);
+    public StandardGameHandlerContext(ConstraintService constraintService, WebSocketService webSocketService) {
+        super(constraintService, webSocketService);
         addBothPlayerToGameAndSetUUID();
     }
 
@@ -45,16 +46,16 @@ public class StandardGameHandlerContext extends CustomPieceWithStandardRulesHand
         playerWhite.addJoinedGame(uuid);
     }
 
-    public StandardGameHandlerContext(ConstraintService constraintService, Map<CasePosition, Pieces> positionPieces) {
-        super(constraintService);
+    public StandardGameHandlerContext(ConstraintService constraintService, WebSocketService webSocketService, Map<CasePosition, Pieces> positionPieces) {
+        super(constraintService, webSocketService);
         Assert.assertNotEmpty(positionPieces);
 
         setPieces(positionPieces);
         addBothPlayerToGameAndSetUUID();
     }
 
-    public StandardGameHandlerContext(ConstraintService constraintService, String positionPieces) {
-        super(constraintService);
+    public StandardGameHandlerContext(ConstraintService constraintService, WebSocketService webSocketService, String positionPieces) {
+        super(constraintService, webSocketService);
         Assert.assertNotEmpty(positionPieces);
 
         setPieces(positionPieces);

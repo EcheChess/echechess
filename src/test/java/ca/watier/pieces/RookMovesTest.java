@@ -39,7 +39,7 @@ public class RookMovesTest extends GameTest {
 
         String positionPieces = "E4:W_ROOK;E5:B_PAWN;E3:B_PAWN;F4:B_PAWN;D4:B_PAWN;H1:W_ROOK;H8:B_ROOK;A8:B_ROOK;A1:B_ROOK;G1:B_ROOK";
 
-        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, positionPieces);
+        StandardGameHandlerContext gameHandler = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         gameHandler.addSpecialRule(NO_PLAYER_TURN, NO_CHECK_OR_CHECKMATE);
 
         //Cannot move (blocked in all ways)

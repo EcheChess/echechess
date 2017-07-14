@@ -18,6 +18,7 @@ package ca.watier.game;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Pieces;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.services.ConstraintService;
 import ca.watier.utils.Assert;
 
@@ -30,8 +31,8 @@ import java.util.Map;
 public class CustomPieceWithStandardRulesHandler extends GenericGameHandler {
     public static final String THE_NUMBER_OF_PARAMETER_IS_INCORRECT = "The number of parameter is incorrect !";
 
-    public CustomPieceWithStandardRulesHandler(ConstraintService constraintService) {
-        super(constraintService);
+    public CustomPieceWithStandardRulesHandler(ConstraintService constraintService, WebSocketService webSocketService) {
+        super(constraintService, webSocketService);
     }
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {

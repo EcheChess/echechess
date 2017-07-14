@@ -17,7 +17,9 @@
 package ca.watier.game;
 
 import ca.watier.GameTest;
+import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
+import ca.watier.enums.SpecialGameRules;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +40,7 @@ public class CustomPieceWithStandardRulesHandlerTest extends GameTest {
 
     @Before
     public void setUp() throws Exception {
-        customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE);
+        customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
     }
 
     @Test
@@ -67,7 +69,49 @@ public class CustomPieceWithStandardRulesHandlerTest extends GameTest {
         //Make sure that the attacked pawn was reverted (not deleted from the map)
         Assert.assertEquals(Pieces.B_PAWN, customPieceWithStandardRulesHandler.getPiece(C2));
         Assert.assertEquals(Pieces.W_PAWN, customPieceWithStandardRulesHandler.getPiece(C7));
+    }
 
+
+    @Test
+    public void getKingStatusStaleMate() {
+        customPieceWithStandardRulesHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(WHITE, true));
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+        /*
+            STALEMATE
+        */
+        customPieceWithStandardRulesHandler.setPieces("H1:W_KING;D5:B_KING;C7:W_ROOK;E7:W_ROOK;B6:W_ROOK;B4:W_ROOK");
+        Assert.assertEquals(KingStatus.STALEMATE, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+        customPieceWithStandardRulesHandler.setPieces("D8:B_KING;D7:W_PAWN;D6:W_KING");
+        Assert.assertEquals(KingStatus.STALEMATE, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+        customPieceWithStandardRulesHandler.setPieces("D8:B_KING;D6:W_KING;D7:W_PAWN;C8:B_PAWN;A8:W_ROOK");
+        Assert.assertEquals(KingStatus.STALEMATE, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+
+        customPieceWithStandardRulesHandler.setPieces("D1:B_KING;C1:B_PAWN;C2:B_PAWN;D2:B_PAWN;E2:B_PAWN;E1:B_PAWN;D8:W_KING;C8:W_PAWN;C7:W_PAWN;D7:W_PAWN;E7:W_PAWN;E8:W_PAWN");
+        Assert.assertEquals(KingStatus.STALEMATE, customPieceWithStandardRulesHandler.getKingStatus(WHITE, true));
+        Assert.assertEquals(KingStatus.STALEMATE, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+
+        /*
+            Not STALEMATE
+         */
+        customPieceWithStandardRulesHandler.setPieces("D8:B_KING;D6:W_KING;D7:W_PAWN;C8:B_PAWN;A8:W_ROOK;E8:B_PAWN");
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+        customPieceWithStandardRulesHandler.setPieces("H1:W_KING;D5:B_KING;C7:W_ROOK;B6:W_ROOK;B4:W_ROOK");
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+        customPieceWithStandardRulesHandler.setPieces("D8:B_KING;D6:W_KING;D7:W_PAWN;C8:B_PAWN");
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
+
+        customPieceWithStandardRulesHandler.setPieces("D1:B_KING;C1:B_PAWN;C2:B_PAWN;D2:B_PAWN;E2:B_PAWN;D8:W_KING;C8:W_PAWN;C7:W_PAWN;D7:W_PAWN;E7:W_PAWN");
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(WHITE, true));
+        Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
 
     }
 }

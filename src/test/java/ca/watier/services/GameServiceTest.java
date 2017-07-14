@@ -26,6 +26,7 @@ import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.GameScoreResponse;
 import ca.watier.sessions.Player;
+import ca.watier.utils.Constants;
 import ca.watier.utils.GameUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
@@ -74,7 +75,13 @@ public class GameServiceTest {
         Assert.assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.upgradePiece(G8, uuid, "queen", player1));
         Assert.assertFalse(gameUuid.isGamePaused());
 
-        Assertions.assertThat(currentWebSocketService.getMessages()).containsOnly(REFRESH_BOARD);
+        Assertions.assertThat(currentWebSocketService.getMessages()).containsOnly(
+                "G8",
+                String.format(Constants.GAME_PAUSED_PAWN_PROMOTION, "WHITE"),
+                "WHITE player moved G7 to G8",
+                "It's your turn !", //Black turn
+                EMPTY_GAME_SCORE_RESPONSE,
+                REFRESH_BOARD);
     }
 
 
@@ -246,6 +253,31 @@ public class GameServiceTest {
                 "It's your turn !",
                 EMPTY_GAME_SCORE_RESPONSE,
                 ChessEventMessage.REFRESH_BOARD);
+    }
+
+
+    @Test
+    public void movePieceStaleMessageTest() {
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Player playerNotInGame = new Player();
+
+        GenericGameHandler gameFromUuid = gameService.createNewGame(player1, "H1:W_KING;D5:B_KING;C7:W_ROOK;E7:W_ROOK;B6:W_ROOK;B4:W_ROOK", WHITE, false, false);
+        String uuid = gameFromUuid.getUuid();
+        gameFromUuid.setPlayerToSide(player2, BLACK);
+
+        Assert.assertTrue(gameService.movePiece(H1, H2, uuid, player1).isResponse());
+        Assert.assertFalse(gameService.movePiece(D5, C5, uuid, player2).isResponse());
+
+        List<Object> messages = currentWebSocketService.getMessages();
+        assertThat(messages).containsOnly(
+                "WHITE player moved H1 to H2",
+                "It's your turn !",
+                EMPTY_GAME_SCORE_RESPONSE,
+                Constants.GAME_ENDED //Due to the black king (stale)
+        );
+
     }
 
     @Test
