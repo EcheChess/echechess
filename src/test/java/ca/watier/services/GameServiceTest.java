@@ -16,6 +16,7 @@
 
 package ca.watier.services;
 
+import ca.watier.GameTest;
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.ChessEventMessage;
 import ca.watier.enums.MoveType;
@@ -47,11 +48,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class GameServiceTest {
+public class GameServiceTest extends GameTest {
     private static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
-    private static final GameScoreResponse EMPTY_GAME_SCORE_RESPONSE = new GameScoreResponse((short) 0, (short) 0);
     private WebSocketService currentWebSocketService;
     private GameService gameService;
 
@@ -275,7 +275,7 @@ public class GameServiceTest {
                 "WHITE player moved H1 to H2",
                 "It's your turn !",
                 EMPTY_GAME_SCORE_RESPONSE,
-                Constants.GAME_ENDED //Due to the black king (stale)
+                Constants.PLAYER_KING_STALEMATE //Due to the black king (stale)
         );
 
     }

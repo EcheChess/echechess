@@ -111,13 +111,13 @@ public class GameService {
         Side playerSide = getPlayerSide(uuid, player);
         Assert.assertNotNull(gameFromUuid);
 
-        if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused()) {
+        if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused() || gameFromUuid.isGameDraw()) {
             return BooleanResponse.NO;
         } else if (gameFromUuid.isGameDone()) {
             WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
             return BooleanResponse.NO;
         } else if (KingStatus.STALEMATE.equals(gameFromUuid.getKingStatus(playerSide, true))) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
             return BooleanResponse.NO;
         }
 

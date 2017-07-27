@@ -19,7 +19,7 @@ package ca.watier.utils;
 /**
  * Created by yannick on 4/17/2017.
  */
-public class Constants {
+public final class Constants {
     public static final String PLAYER = "SESSION_PLAYER_ID";
     public static final String THE_CLIENT_LOST_THE_CONNECTION = "The client lost the connection, refreshing the page in 10 seconds";
     public static final String NOT_AUTHORIZED_TO_JOIN = "You are not authorized to join this game !";
@@ -27,6 +27,9 @@ public class Constants {
     public static final String PLAYER_TURN = "It's your turn !";
     public static final String PLAYER_MOVE = "%s player moved %s to %s";
     public static final String GAME_PAUSED_PAWN_PROMOTION = "The game will continue after the %s player choose his piece";
+    public static final String PLAYER_KING_CHECK = "Your king is checked !";
+    public static final String PLAYER_KING_CHECKMATE = "The %s king is checkmate !";
+    public static final String PLAYER_KING_STALEMATE = "Your king is stalemate (draw) !";
     public static final String GAME_ENDED = "The game is ended !";
     public static final String REQUESTED_SESSION_ALREADY_DEFINED = "The requested session id is already defined !";
     public static final String JOINING_GAME = "Joining the game %s";

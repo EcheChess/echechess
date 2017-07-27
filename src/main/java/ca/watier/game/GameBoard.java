@@ -34,6 +34,7 @@ public abstract class GameBoard {
     //The default position of the board
     private final Map<CasePosition, Pieces> defaultPositions;
 
+
     //The pieces position on the board
     private Map<CasePosition, Pieces> positionPiecesMap;
     //Used to check if the piece have moved
@@ -49,6 +50,7 @@ public abstract class GameBoard {
     private int whiteTurnNumber;
     private int totalMove = 0;
 
+    private boolean isGameDraw = false;
     private boolean isGamePaused = false;
 
     public GameBoard() {
@@ -314,5 +316,9 @@ public abstract class GameBoard {
 
     public void setGamePaused(boolean gamePaused) {
         isGamePaused = gamePaused;
+    }
+
+    public boolean isGameDraw() {
+        return isGameDraw;
     }
 }

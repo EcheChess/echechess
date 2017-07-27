@@ -20,6 +20,8 @@ import ca.watier.GameTest;
 import ca.watier.enums.KingStatus;
 import ca.watier.enums.Pieces;
 import ca.watier.enums.SpecialGameRules;
+import ca.watier.impl.WebSocketServiceTestImpl;
+import ca.watier.utils.Constants;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +30,7 @@ import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
 import static ca.watier.game.CustomPieceWithStandardRulesHandler.THE_NUMBER_OF_PARAMETER_IS_INCORRECT;
 import static junit.framework.TestCase.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -41,6 +44,7 @@ public class CustomPieceWithStandardRulesHandlerTest extends GameTest {
     @Before
     public void setUp() throws Exception {
         customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
+        ((WebSocketServiceTestImpl) WEB_SOCKET_SERVICE).clearMessages();
     }
 
     @Test
@@ -114,4 +118,66 @@ public class CustomPieceWithStandardRulesHandlerTest extends GameTest {
         Assert.assertEquals(KingStatus.OK, customPieceWithStandardRulesHandler.getKingStatus(BLACK, true));
 
     }
+
+    @Test
+    public void getMessageBlackKingCheckMate() {
+        customPieceWithStandardRulesHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+        customPieceWithStandardRulesHandler.setPieces("H8:B_KING;H1:W_KING;B7:W_QUEEN;A7:W_QUEEN");
+
+        customPieceWithStandardRulesHandler.movePiece(A7, A8, WHITE); //Move the White queen to checkmate the black king
+
+        assertThat(((WebSocketServiceTestImpl) WEB_SOCKET_SERVICE).getMessages()).containsOnly(
+                "WHITE player moved A7 to A8",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                String.format(Constants.PLAYER_KING_CHECKMATE, "BLACK")
+        );
+    }
+
+    @Test
+    public void getMessageWhiteKingCheckMate() {
+        customPieceWithStandardRulesHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+        customPieceWithStandardRulesHandler.setPieces("H8:B_KING;H1:W_KING;A2:B_QUEEN;B2:B_QUEEN");
+
+        customPieceWithStandardRulesHandler.movePiece(A2, A1, BLACK); //Move the Black queen to checkmate the white king
+
+        assertThat(((WebSocketServiceTestImpl) WEB_SOCKET_SERVICE).getMessages()).containsOnly(
+                "BLACK player moved A2 to A1",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                String.format(Constants.PLAYER_KING_CHECKMATE, "WHITE")
+        );
+    }
+
+
+    @Test
+    public void getMessageBlackKingCheck() {
+        customPieceWithStandardRulesHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+        customPieceWithStandardRulesHandler.setPieces("H8:B_KING;H1:W_KING;E7:W_QUEEN");
+
+        customPieceWithStandardRulesHandler.movePiece(E7, E8, WHITE); //Move the White queen to checkmate the black king
+
+        assertThat(((WebSocketServiceTestImpl) WEB_SOCKET_SERVICE).getMessages()).containsOnly(
+                "WHITE player moved E7 to E8",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                Constants.PLAYER_KING_CHECK
+        );
+    }
+
+    @Test
+    public void getMessageWhiteKingCheck() {
+        customPieceWithStandardRulesHandler.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
+        customPieceWithStandardRulesHandler.setPieces("H8:B_KING;H1:W_KING;E2:B_QUEEN");
+
+        customPieceWithStandardRulesHandler.movePiece(E2, E1, BLACK); //Move the Black queen to checkmate the white king
+
+        assertThat(((WebSocketServiceTestImpl) WEB_SOCKET_SERVICE).getMessages()).containsOnly(
+                "BLACK player moved E2 to E1",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                Constants.PLAYER_KING_CHECK
+        );
+    }
+
 }

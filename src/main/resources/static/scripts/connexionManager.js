@@ -95,6 +95,10 @@ class ConnexionManager {
                             closable: false
                         }).modal('show');
                         break;
+                    case 'KING_CHECK':
+                        alertify.warning(message);
+                        break;
+
                 }
             });
         });
@@ -134,6 +138,9 @@ class ConnexionManager {
                         break;
                     case 'PAWN_PROMOTION':
                         alertify.warning(message);
+                        break;
+                    case 'KING_CHECKMATE':
+                        alertify.warning(message, 5);
                         break;
                 }
             });

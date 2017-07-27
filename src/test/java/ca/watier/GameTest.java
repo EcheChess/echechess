@@ -19,6 +19,7 @@ package ca.watier;
 import ca.watier.enums.Side;
 import ca.watier.impl.WebSocketServiceTestImpl;
 import ca.watier.interfaces.WebSocketService;
+import ca.watier.responses.GameScoreResponse;
 import ca.watier.services.ConstraintService;
 
 /**
@@ -32,4 +33,5 @@ public class GameTest {
     protected static final Side BLACK = Side.BLACK;
     protected static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
     protected static final WebSocketService WEB_SOCKET_SERVICE = new WebSocketServiceTestImpl();
+    protected static final GameScoreResponse EMPTY_GAME_SCORE_RESPONSE = new GameScoreResponse((short) 0, (short) 0);
 }

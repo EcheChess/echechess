@@ -404,6 +404,7 @@ function renderBoard() {
     let $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
 
     $boardCaseWithPieceSelector.mouseover(function () {
+        //FIXME: The assert fail when we do a castling on the black side, the pieces on the client is not synced with the server
         let piecesLocation = jsonFromRequest('GET', '/api/game/moves/1', {
             from: $(this).parent().attr("data-case-id"),
             uuid: currentGameUuid

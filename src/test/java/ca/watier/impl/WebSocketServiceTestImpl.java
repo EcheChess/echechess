@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class WebSocketServiceTestImpl implements WebSocketService {
 
-    List<Object> messages = new ArrayList<>();
+    private List<Object> messages = new ArrayList<>();
 
     public void clearMessages() {
         messages.clear();
