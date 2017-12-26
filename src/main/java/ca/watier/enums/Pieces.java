@@ -42,8 +42,9 @@ public enum Pieces {
     B_PAWN("Black Pawn", '♟', BLACK, (byte) 1);
 
     private final char unicodeIcon;
-    private final String name;
+    private final String enumName;
     private final Side side;
+    private final String name;
     private byte point;
 
     Pieces(String name, char unicodeIcon, Side side, byte point) {
@@ -51,6 +52,7 @@ public enum Pieces {
         this.unicodeIcon = unicodeIcon;
         this.side = side;
         this.point = point;
+        this.enumName = name();
     }
 
     public static boolean isKing(Pieces piece) {
@@ -106,5 +108,9 @@ public enum Pieces {
 
     public byte getPoint() {
         return point;
+    }
+
+    public String getEnumName() {
+        return enumName;
     }
 }

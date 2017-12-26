@@ -34,7 +34,7 @@ public class MultiArrayMap<K, V> {
         return containerMap.size();
     }
 
-    public boolean containsKey(Object key) {
+    public boolean containsKey(K key) {
         return containerMap.containsKey(key);
     }
 
@@ -43,7 +43,7 @@ public class MultiArrayMap<K, V> {
      * @return A Set of key(s) where the item has been found, an empty Set otherwise
      */
     public Set<K> containsValue(V item) {
-        Set<K> value = new HashSet<K>();
+        Set<K> value = new HashSet<>();
 
         for (Map.Entry<K, List<V>> kListEntry : containerMap.entrySet()) {
             if (kListEntry.getValue().contains(item)) {

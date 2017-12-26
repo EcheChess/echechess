@@ -19,9 +19,13 @@ package ca.watier.utils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v1CertificateBuilder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -88,7 +92,14 @@ public class EcKeystoreGenerator {
         DateTime startDate = new DateTime();
         DateTime endDate = startDate.plusMonths(3);
         SubjectPublicKeyInfo infos = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-        X509v1CertificateBuilder certBuilder = new X509v1CertificateBuilder(xName, serialNumber, startDate.toDate(), endDate.toDate(), xName, infos);
+        X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(xName, serialNumber, startDate.toDate(), endDate.toDate(), xName, infos);
+        try {
+            certBuilder.addExtension(Extension.subjectAlternativeName,
+                    false, new GeneralNames(
+                            new GeneralName(GeneralName.iPAddress, "127.0.0.1")));
+        } catch (CertIOException e) {
+            e.printStackTrace();
+        }
 
         ContentSigner signer;
         try {

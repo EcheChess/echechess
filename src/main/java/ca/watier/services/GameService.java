@@ -60,7 +60,7 @@ public class GameService {
      * @param againstComputer
      * @param observers
      */
-    public GenericGameHandler createNewGame(Player player, String specialGamePieces, Side side, boolean againstComputer, boolean observers) {
+    public UUID createNewGame(Player player, String specialGamePieces, Side side, boolean againstComputer, boolean observers) {
         Assert.assertNotNull(player, side);
 
         GameType gameType = GameType.CLASSIC;
@@ -87,7 +87,7 @@ public class GameService {
         genericGameHandler.setAllowObservers(observers);
 
 
-        return genericGameHandler;
+        return uui;
     }
 
     public Map<UUID, GenericGameHandler> getAllGames() {
@@ -133,9 +133,7 @@ public class GameService {
      */
     public GenericGameHandler getGameFromUuid(String uuid) {
         Assert.assertNotEmpty(uuid);
-        UUID key = UUID.fromString(uuid);
-
-        return GAMES_HANDLER_MAP.get(key);
+        return getGameFromUuid(UUID.fromString(uuid));
     }
 
     /**
@@ -152,6 +150,17 @@ public class GameService {
         return standardGameHandler.getPlayerSide(player);
     }
 
+    /**
+     * Get the game associated to the uuid
+     *
+     * @param uuid
+     * @return
+     */
+    public GenericGameHandler getGameFromUuid(UUID uuid) {
+        Assert.assertNotNull(uuid);
+
+        return GAMES_HANDLER_MAP.get(uuid);
+    }
 
     /**
      * Gets all possible moves for the selected piece

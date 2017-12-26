@@ -348,7 +348,7 @@ function createNewGame() {
         againstComputer: $("#againstComputer").checkbox('is checked'),
         observers: $("#allowOtherObserver").checkbox('is checked'),
         specialGamePieces: $("#specialGamePieces").val()
-    }).uuid;
+    }).response;
 }
 
 function renderBoard() {
@@ -412,7 +412,7 @@ function renderBoard() {
 
         if (piecesLocation) {
             for (let i = 0; i < piecesLocation.length; i++) {
-                $("[data-case-id='" + piecesLocation[i] + "']").addClass("pieceAvailMoves");
+                $(`[data-case-id='${piecesLocation[i]}']`).addClass("pieceAvailMoves");
             }
         }
     });
@@ -453,7 +453,7 @@ function drawBoard(piecesLocation, boardId) {
                 }
             }
 
-            tableInnerHtml += '<td data-case-id="' + caseLetter + numberIdx + '" data-case-x="' + x + '" data-case-y="' + y + '" class="board-square ' + caseColor + '"><span class="board-pieces">' + pieceIcon + '</span></td>';
+            tableInnerHtml += `<td data-case-id="${caseLetter}${numberIdx}" data-case-x="${x}" data-case-y="${y}" class="board-square ${caseColor}"><span class="board-pieces">${pieceIcon}</span></td>`;
             caseColorIndex++;
             letterIdx++;
         }

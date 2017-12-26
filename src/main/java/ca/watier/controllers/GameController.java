@@ -18,10 +18,11 @@ package ca.watier.controllers;
 
 import ca.watier.enums.CasePosition;
 import ca.watier.enums.Side;
-import ca.watier.game.GenericGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
+import ca.watier.responses.StringResponse;
 import ca.watier.services.GameService;
+import ca.watier.utils.Assert;
 import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by yannick on 4/22/2017.
@@ -56,8 +58,11 @@ public class GameController {
      * @return
      */
     @RequestMapping(path = "/create/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public GenericGameHandler createNewGame(Side side, boolean againstComputer, boolean observers, String specialGamePieces, HttpSession session) {
-        return gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces, side, againstComputer, observers);
+    public StringResponse createNewGame(Side side, boolean againstComputer, boolean observers, String specialGamePieces, HttpSession session) {
+        UUID newGame = gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces, side, againstComputer, observers);
+        Assert.assertNotNull(newGame);
+
+        return new StringResponse(newGame.toString());
     }
 
 
