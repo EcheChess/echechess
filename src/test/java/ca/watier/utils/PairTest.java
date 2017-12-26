@@ -29,18 +29,18 @@ public class PairTest {
     private Pair<String, String> pair;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         pair = new Pair<>();
     }
 
     @Test
-    public void getFirstValue() throws Exception {
+    public void getFirstValue() {
         pair.setFirstValue(TEST_FIRST_VALUE);
         org.junit.Assert.assertEquals(TEST_FIRST_VALUE, pair.getFirstValue());
     }
 
     @Test
-    public void setSecondValue() throws Exception {
+    public void setSecondValue() {
         pair.setSecondValue(TEST_SECOND_VALUE);
         org.junit.Assert.assertEquals(TEST_SECOND_VALUE, pair.getSecondValue());
     }

@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class SessionUtilsTest {
     @Test
-    public void getPlayer() throws Exception {
+    public void getPlayer() {
         HttpSession httpSessionWithoutPlayer = new MockHttpSession();
         HttpSession httpSessionWithPlayer = new MockHttpSession();
         httpSessionWithPlayer.setAttribute(Constants.PLAYER, new Player());

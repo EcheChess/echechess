@@ -44,7 +44,7 @@ public class MathUtilsTest {
     private static final float DELTA_SLOPE_TEST = 0f;
 
     @Test
-    public void isPositionVertical() throws Exception {
+    public void isPositionVertical() {
         Assert.assertTrue(MathUtils.isPositionVertical(A8, A1));
         Assert.assertTrue(MathUtils.isPositionVertical(A1, A8));
         Assert.assertTrue(MathUtils.isPositionVertical(A4, A6));
@@ -52,7 +52,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void isPositionHorizontal() throws Exception {
+    public void isPositionHorizontal() {
         Assert.assertTrue(MathUtils.isPositionHorizontal(B1, A1));
         Assert.assertTrue(MathUtils.isPositionHorizontal(A8, B8));
         Assert.assertTrue(MathUtils.isPositionHorizontal(A6, B6));
@@ -60,7 +60,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void getPositionsBetweenTwoPosition() throws Exception {
+    public void getPositionsBetweenTwoPosition() {
         assertThat(MathUtils.getPositionsBetweenTwoPosition(A1, H8)).containsOnly(B2, C3, D4, E5, F6, G7);
         assertThat(MathUtils.getPositionsBetweenTwoPosition(H8, A1)).containsOnly(B2, C3, D4, E5, F6, G7);
         assertThat(MathUtils.getPositionsBetweenTwoPosition(E1, E8)).containsOnly(E2, E3, E4, E5, E6, E7);
@@ -77,7 +77,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void isPositionOnCirclePerimeter_knight() throws Exception {
+    public void isPositionOnCirclePerimeter_knight() {
 
         int x = D_5.getX();
         int y = D_5.getY();
@@ -101,7 +101,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void getDistanceBetweenPositions() throws Exception {
+    public void getDistanceBetweenPositions() {
         Assert.assertNull(MathUtils.getDistanceBetweenPositionsWithCommonDirection(D_5, D_5));
         Assert.assertEquals(Integer.valueOf(7), MathUtils.getDistanceBetweenPositionsWithCommonDirection(H1, H8));
         Assert.assertEquals(Integer.valueOf(4), MathUtils.getDistanceBetweenPositionsWithCommonDirection(H1, H5));
@@ -118,7 +118,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void getNearestPositionFromDirection() throws Exception {
+    public void getNearestPositionFromDirection() {
         Assert.assertEquals(D6, MathUtils.getNearestPositionFromDirection(D_5, Direction.NORTH));
         Assert.assertEquals(D4, MathUtils.getNearestPositionFromDirection(D_5, Direction.SOUTH));
         Assert.assertEquals(C5, MathUtils.getNearestPositionFromDirection(D_5, Direction.WEST));
@@ -144,7 +144,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void getDirectionFromPosition() throws Exception {
+    public void getDirectionFromPosition() {
 
         Assert.assertNull(MathUtils.getDirectionFromPosition(D_5, D_5));
 
@@ -178,7 +178,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void getSlopeFromPosition() throws Exception {
+    public void getSlopeFromPosition() {
         Assert.assertNull(MathUtils.getSlopeFromPosition(D_5, D_5));
         Assert.assertEquals(-1f, MathUtils.getSlopeFromPosition(B8, H2), DELTA_SLOPE_TEST);
         Assert.assertEquals(7 / 3f, MathUtils.getSlopeFromPosition(E1, H8), DELTA_SLOPE_TEST);

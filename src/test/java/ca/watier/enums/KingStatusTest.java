@@ -26,11 +26,10 @@ import org.junit.Test;
 public class KingStatusTest {
 
     @Test
-    public void isCheckOrCheckMate() throws Exception {
+    public void isCheckOrCheckMate() {
 
         Assert.assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECKMATE));
         Assert.assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECK));
         Assert.assertFalse(KingStatus.isCheckOrCheckMate(KingStatus.OK));
     }
-
 }

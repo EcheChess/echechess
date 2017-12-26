@@ -29,7 +29,7 @@ public class GenericMoveConstraintTest {
     private GenericMoveConstraint genericMoveConstraint;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         genericMoveConstraint = new GenericMoveConstraint(null);
     }
 
@@ -39,7 +39,7 @@ public class GenericMoveConstraintTest {
      * @throws Exception
      */
     @Test
-    public void isMoveValid() throws Exception {
+    public void isMoveValid() {
         Assert.assertFalse(genericMoveConstraint.isMoveValid(null, null, null, null));
     }
 }

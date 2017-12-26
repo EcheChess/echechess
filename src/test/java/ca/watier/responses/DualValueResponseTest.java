@@ -31,22 +31,22 @@ public class DualValueResponseTest {
     private DualValueResponse dualValueResponse;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dualValueResponse = new DualValueResponse(FIRST, SECOND, OLD_MESSAGE);
     }
 
     @Test
-    public void getValue1() throws Exception {
+    public void getValue1() {
         Assert.assertEquals(FIRST, (String) dualValueResponse.getValue1());
     }
 
     @Test
-    public void getValue2() throws Exception {
+    public void getValue2() {
         Assert.assertEquals(SECOND, (String) dualValueResponse.getValue2());
     }
 
     @Test
-    public void getMessage() throws Exception {
+    public void getMessage() {
         String message = "A new Message";
         dualValueResponse.setMessage(message);
         Assert.assertEquals(message, dualValueResponse.getMessage());

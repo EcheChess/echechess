@@ -42,7 +42,7 @@ public class CustomPieceWithStandardRulesHandlerTest extends GameTest {
     private CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         ((WebSocketServiceTestImpl) WEB_SOCKET_SERVICE).clearMessages();
     }

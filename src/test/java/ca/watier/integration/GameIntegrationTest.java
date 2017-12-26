@@ -31,7 +31,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;

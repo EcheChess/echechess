@@ -657,7 +657,7 @@ public class AssertTest {
         try {
             Assert.assertType(5);
             fail();
-        } catch (AssertionError iae) {
+        } catch (AssertionError ignored) {
         }
 
         try {
@@ -669,7 +669,7 @@ public class AssertTest {
         try {
             Assert.assertType(20, Double.class);
             fail();
-        } catch (AssertionError iae) {
+        } catch (AssertionError ignored) {
         }
 
         try {

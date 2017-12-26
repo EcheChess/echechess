@@ -29,12 +29,12 @@ public class StringResponseTest {
     private StringResponse stringResponse;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         stringResponse = new StringResponse(RESPONSE);
     }
 
     @Test
-    public void getResponse() throws Exception {
+    public void getResponse() {
         Assert.assertEquals(RESPONSE, stringResponse.getResponse());
     }
 

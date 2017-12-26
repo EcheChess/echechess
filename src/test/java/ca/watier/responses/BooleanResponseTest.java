@@ -29,23 +29,23 @@ public class BooleanResponseTest {
     private BooleanResponse booleanResponse;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         booleanResponse = new BooleanResponse(true, MESSAGE);
     }
 
     @Test
-    public void isResponse() throws Exception {
+    public void isResponse() {
         Assert.assertTrue(booleanResponse.isResponse());
     }
 
     @Test
-    public void setResponse() throws Exception {
+    public void setResponse() {
         booleanResponse.setResponse(false);
         Assert.assertFalse(booleanResponse.isResponse());
     }
 
     @Test
-    public void getMessage() throws Exception {
+    public void getMessage() {
         String message = "A newer message";
         booleanResponse.setMessage(message);
         Assert.assertEquals(message, booleanResponse.getMessage());

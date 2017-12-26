@@ -44,7 +44,7 @@ public class PawnMovesTest extends GameTest {
     private StandardGameHandlerContext context;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         context.addSpecialRule(NO_PLAYER_TURN);
     }

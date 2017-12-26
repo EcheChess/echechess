@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class BaseUtilsTest {
 
     @Test
-    public void getSafeInteger() throws Exception {
+    public void getSafeInteger() {
         assertEquals(10, BaseUtils.getSafeInteger(10));
         assertEquals(20, BaseUtils.getSafeInteger(20));
         assertEquals(30, BaseUtils.getSafeInteger(30));
@@ -38,14 +38,14 @@ public class BaseUtilsTest {
     }
 
     @Test
-    public void getSafeBoolean() throws Exception {
+    public void getSafeBoolean() {
         assertTrue(BaseUtils.getSafeBoolean(true));
         assertFalse(BaseUtils.getSafeBoolean(false));
         assertFalse(BaseUtils.getSafeBoolean(null));
     }
 
     @Test
-    public void getSafeList() throws Exception {
+    public void getSafeList() {
         ArrayList<Integer> list = new ArrayList<>();
         list.add(1);
         list.add(2);

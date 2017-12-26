@@ -30,17 +30,17 @@ public class GameScoreResponseTest {
     private GameScoreResponse gameScoreResponse;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         gameScoreResponse = new GameScoreResponse(WHITE_PLAYER_POINT, BLACK_PLAYER_POINT);
     }
 
     @Test
-    public void getWhitePlayerPoint() throws Exception {
+    public void getWhitePlayerPoint() {
         Assert.assertEquals(WHITE_PLAYER_POINT, gameScoreResponse.getWhitePlayerPoint());
     }
 
     @Test
-    public void getBlackPlayerPoint() throws Exception {
+    public void getBlackPlayerPoint() {
         Assert.assertEquals(BLACK_PLAYER_POINT, gameScoreResponse.getBlackPlayerPoint());
     }
 }

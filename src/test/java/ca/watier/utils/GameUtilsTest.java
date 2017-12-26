@@ -31,12 +31,12 @@ import static ca.watier.enums.Pieces.*;
  */
 public class GameUtilsTest {
     @Test
-    public void getPiecesPosition1() throws Exception {
+    public void getPiecesPosition1() {
 
     }
 
     @Test
-    public void getPiecesPosition() throws Exception {
+    public void getPiecesPosition() {
         Map<CasePosition, Pieces> pieces = GameUtils.getDefaultGame();
 
         Assertions.assertThat(GameUtils.getPiecesPosition(W_PAWN, pieces)).isNotEmpty().hasSize(8);
@@ -45,7 +45,7 @@ public class GameUtilsTest {
     }
 
     @Test
-    public void isOtherPiecesBetweenTarget() throws Exception {
+    public void isOtherPiecesBetweenTarget() {
 
         Map<CasePosition, Pieces> defaultGame = GameUtils.getDefaultGame();
         Assert.assertTrue(GameUtils.isOtherPiecesBetweenTarget(CasePosition.H1, CasePosition.H7, defaultGame));

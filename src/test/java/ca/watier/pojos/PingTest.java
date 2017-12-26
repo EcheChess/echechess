@@ -30,12 +30,12 @@ public class PingTest {
     private Ping ping;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ping = new Ping(SUPER_UUID);
     }
 
     @Test
-    public void getUuid() throws Exception {
+    public void getUuid() {
         Assert.assertEquals(SUPER_UUID, ping.getUuid());
         ping.setUuid(NEW_UUID);
         Assert.assertEquals(NEW_UUID, ping.getUuid());

@@ -38,7 +38,7 @@ public class UiSessionServiceTest {
     private UiSessionService service;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         service = new UiSessionService(new WebSocketServiceTestImpl(), newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
                 .withExpiry(Expirations.timeToIdleExpiration(new Duration(5, TimeUnit.SECONDS))));
     }

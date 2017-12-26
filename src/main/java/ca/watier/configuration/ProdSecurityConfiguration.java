@@ -108,7 +108,7 @@ public class ProdSecurityConfiguration {
     private class HttpToHttpsJettyConfiguration extends AbstractConfiguration {
         // http://wiki.eclipse.org/Jetty/Howto/Configure_SSL#Redirecting_http_requests_to_https
         @Override
-        public void configure(WebAppContext context) throws Exception {
+        public void configure(WebAppContext context) {
             Constraint constraint = new Constraint();
             constraint.setDataConstraint(Constraint.DC_CONFIDENTIAL);
 

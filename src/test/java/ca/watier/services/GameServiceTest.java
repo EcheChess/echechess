@@ -55,14 +55,14 @@ public class GameServiceTest extends GameTest {
     private GameService gameService;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         currentWebSocketService = new WebSocketServiceTestImpl();
         gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService);
     }
 
 
     @Test
-    public void upgradePiece() throws Exception {
+    public void upgradePiece() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
         Player player1 = new Player();
         UUID gameUuid = gameService.createNewGame(player1, "G7:W_PAWN;G2:B_PAWN;A8:W_KING;A1:B_KING", WHITE, false, false);

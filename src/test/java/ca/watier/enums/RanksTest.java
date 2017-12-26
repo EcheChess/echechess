@@ -28,7 +28,7 @@ import static ca.watier.enums.Ranks.*;
  */
 public class RanksTest extends GameTest {
     @Test
-    public void getRankWhite() throws Exception {
+    public void getRankWhite() {
         Assert.assertEquals(ONE, getRank(A1, WHITE));
         Assert.assertEquals(TWO, getRank(B2, WHITE));
         Assert.assertEquals(THREE, getRank(C3, WHITE));
@@ -40,7 +40,7 @@ public class RanksTest extends GameTest {
     }
 
     @Test
-    public void getRankBlack() throws Exception {
+    public void getRankBlack() {
         Assert.assertEquals(ONE, getRank(H8, BLACK));
         Assert.assertEquals(TWO, getRank(G7, BLACK));
         Assert.assertEquals(THREE, getRank(F6, BLACK));

@@ -30,18 +30,18 @@ public class ChessEventTest {
     private ChessEvent chessEvent;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         chessEvent = new ChessEvent(ChessEventMessage.GAME_WON, GAME_WON);
 
     }
 
     @Test
-    public void getEvent() throws Exception {
+    public void getEvent() {
         Assert.assertEquals(ChessEventMessage.GAME_WON, chessEvent.getEvent());
     }
 
     @Test
-    public void getMessage() throws Exception {
+    public void getMessage() {
         Assert.assertEquals(GAME_WON, chessEvent.getMessage());
     }
 

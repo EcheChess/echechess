@@ -27,13 +27,13 @@ import static ca.watier.enums.Side.*;
  */
 public class PiecesTest {
     @Test
-    public void getName() throws Exception {
+    public void getName() {
         Assert.assertEquals("Black King", B_KING.getName());
         Assert.assertEquals("White King", W_KING.getName());
     }
 
     @Test
-    public void isKing() throws Exception {
+    public void isKing() {
         Assert.assertTrue(Pieces.isKing(B_KING));
         Assert.assertTrue(Pieces.isKing(W_KING));
         Assert.assertFalse(Pieces.isKing(W_BISHOP));
@@ -41,7 +41,7 @@ public class PiecesTest {
     }
 
     @Test
-    public void isKnight() throws Exception {
+    public void isKnight() {
         Assert.assertTrue(Pieces.isKnight(B_KNIGHT));
         Assert.assertTrue(Pieces.isKnight(W_KNIGHT));
         Assert.assertFalse(Pieces.isKnight(W_BISHOP));
@@ -49,7 +49,7 @@ public class PiecesTest {
     }
 
     @Test
-    public void getKingBySide() throws Exception {
+    public void getKingBySide() {
         Assert.assertEquals(B_KING, Pieces.getKingBySide(BLACK));
         Assert.assertEquals(W_KING, Pieces.getKingBySide(WHITE));
         Assert.assertNull(Pieces.getKingBySide(OBSERVER));

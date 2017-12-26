@@ -27,8 +27,6 @@ import static ca.watier.enums.MoveType.NORMAL_MOVE;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 
-;
-
 /**
  * Created by yannick on 5/8/2017.
  */

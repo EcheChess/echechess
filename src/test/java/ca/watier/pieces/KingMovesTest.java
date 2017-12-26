@@ -47,7 +47,7 @@ public class KingMovesTest extends GameTest {
     private CustomPieceWithStandardRulesHandler gameHandler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         gameHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         gameHandler.addSpecialRule(NO_PLAYER_TURN);
     }

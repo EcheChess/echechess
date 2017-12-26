@@ -33,13 +33,13 @@ public class GameBoardTest extends GameTest {
     private StandardGameHandlerContext context;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
         context.addSpecialRule(SpecialGameRules.NO_PLAYER_TURN);
     }
 
     @Test
-    public void getBlackTurnNumber() throws Exception {
+    public void getBlackTurnNumber() {
         assertThat(context.getBlackTurnNumber()).isZero();
         context.movePiece(H7, H6, BLACK);
         assertThat(context.getBlackTurnNumber()).isEqualTo(1);
@@ -49,7 +49,7 @@ public class GameBoardTest extends GameTest {
     }
 
     @Test
-    public void getWhiteTurnNumber() throws Exception {
+    public void getWhiteTurnNumber() {
         assertThat(context.getWhiteTurnNumber()).isZero();
         context.movePiece(H2, H3, WHITE);
         assertThat(context.getWhiteTurnNumber()).isEqualTo(1);
@@ -59,7 +59,7 @@ public class GameBoardTest extends GameTest {
     }
 
     @Test
-    public void isPieceMoved() throws Exception {
+    public void isPieceMoved() {
         assertFalse(context.isPieceMoved(G1));
 
         context.movePiece(G1, F3, WHITE);
@@ -69,7 +69,7 @@ public class GameBoardTest extends GameTest {
     }
 
     @Test
-    public void isPawnUsedSpecialMove() throws Exception {
+    public void isPawnUsedSpecialMove() {
         assertFalse(context.isPawnUsedSpecialMove(H2));
         context.movePiece(H2, H4, WHITE);
         assertTrue(context.isPawnUsedSpecialMove(H4));
@@ -81,7 +81,7 @@ public class GameBoardTest extends GameTest {
     }
 
     @Test
-    public void getDefaultPositions() throws Exception {
+    public void getDefaultPositions() {
         assertThat(context.getDefaultPositions()).isEqualTo(context.getPiecesLocation());
         context.movePiece(G2, G3, WHITE);
         assertThat(context.getDefaultPositions()).isNotEqualTo(context.getPiecesLocation());
@@ -89,7 +89,7 @@ public class GameBoardTest extends GameTest {
 
 
     @Test
-    public void getTurnNumberPiece() throws Exception {
+    public void getTurnNumberPiece() {
         assertThat(context.getPieceTurn(G2)).isZero();
         context.movePiece(G2, G3, WHITE);
         assertThat(context.getPieceTurn(G3)).isZero();

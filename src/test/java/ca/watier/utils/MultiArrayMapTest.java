@@ -32,12 +32,12 @@ public class MultiArrayMapTest {
     private MultiArrayMap<Integer, String> map;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         map = new MultiArrayMap<>();
     }
 
     @Test
-    public void removeFromList() throws Exception {
+    public void removeFromList() {
         map.put(10, "10");
         map.put(20, "20");
         map.put(20, "21");
@@ -50,7 +50,7 @@ public class MultiArrayMapTest {
     }
 
     @Test
-    public void addItemTest() throws Exception {
+    public void addItemTest() {
         map.put(10, "10");
         map.put(20, "20");
         map.put(30, "30");
@@ -61,7 +61,7 @@ public class MultiArrayMapTest {
     }
 
     @Test
-    public void addItemWithSameKeyTest() throws Exception {
+    public void addItemWithSameKeyTest() {
         map.put(10, "10");
         map.put(10, "10.1");
         map.put(10, "10.2");
@@ -84,7 +84,7 @@ public class MultiArrayMapTest {
 
 
     @Test
-    public void mergeTest() throws Exception {
+    public void mergeTest() {
         map.put(10, "10");
         map.put(20, "20");
         map.put(30, "30");
@@ -103,7 +103,7 @@ public class MultiArrayMapTest {
     }
 
     @Test
-    public void removeItemTest() throws Exception {
+    public void removeItemTest() {
         map.put(10, "10");
         map.put(10, "10.1");
         map.put(10, "10.2");
@@ -123,35 +123,35 @@ public class MultiArrayMapTest {
     }
 
     @Test
-    public void valueNotPresentTest() throws Exception {
+    public void valueNotPresentTest() {
         map.put(10, "10");
 
         Assert.assertTrue("The map doesn't contains the newer values !", map.get(20) == null);
     }
 
     @Test
-    public void containsValueTest() throws Exception {
+    public void containsValueTest() {
         map.put(10, "10");
         assertThat(map.containsValue("10")).containsOnly(10);
     }
 
 
     @Test
-    public void containsKeyTest() throws Exception {
+    public void containsKeyTest() {
         map.put(10, "10");
 
         Assert.assertTrue(map.containsKey(10));
     }
 
     @Test
-    public void clearTest() throws Exception {
+    public void clearTest() {
         map.put(10, "10");
         map.clear();
         Assert.assertTrue(map.isEmpty());
     }
 
     @Test
-    public void keySetTest() throws Exception {
+    public void keySetTest() {
         map.put(10, "10");
         map.put(20, "10");
         assertThat(map.keySet()).containsOnly(10, 20);
@@ -159,7 +159,7 @@ public class MultiArrayMapTest {
 
 
     @Test
-    public void valuesTest() throws Exception {
+    public void valuesTest() {
         map.put(10, "10");
         map.put(10, "10.1");
         map.put(10, "10.2");
