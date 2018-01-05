@@ -25,7 +25,6 @@ import ca.watier.utils.*;
 
 import java.util.*;
 
-import static ca.watier.enums.CasePosition.*;
 import static ca.watier.enums.ChessEventMessage.*;
 import static ca.watier.enums.ChessEventMessage.PLAYER_TURN;
 import static ca.watier.enums.KingStatus.OK;
@@ -122,23 +121,9 @@ public class GenericGameHandler extends GameBoard {
                 If queen side, move rook to D1 / D8 and king to C1 / C8
                 Otherwise, move rook to F1 / F8 and king to G1 / G8
              */
-            boolean isQueenSide = Direction.WEST.equals(MathUtils.getDirectionFromPosition(from, to));
-            CasePosition kingPosition = null;
-            CasePosition rookPosition = null;
-
-            switch (playerSide) {
-                case BLACK:
-                    kingPosition = (isQueenSide ? C8 : G8);
-                    rookPosition = (isQueenSide ? D8 : F8);
-                    break;
-                case WHITE:
-                    kingPosition = (isQueenSide ? C1 : G1);
-                    rookPosition = (isQueenSide ? D1 : F1);
-                    break;
-                case OBSERVER:
-                default:
-                    break;
-            }
+            CastlingPositionHelper castlingPositionHelper = new CastlingPositionHelper(from, to, playerSide).invoke();
+            CasePosition kingPosition = castlingPositionHelper.getKingPosition();
+            CasePosition rookPosition = castlingPositionHelper.getRookPosition();
 
             movePieceTo(from, kingPosition, piecesFrom);
             movePieceTo(to, rookPosition, piecesTo);
@@ -219,18 +204,6 @@ public class GenericGameHandler extends GameBoard {
         WEB_SOCKET_SERVICE.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
         WEB_SOCKET_SERVICE.fireSideEvent(uuid, Side.getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
         WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, getGameScore());
-    }
-
-    /**
-     * Check if the piece can be moved to the selected position
-     *
-     * @param from
-     * @param to
-     * @param playerSide
-     * @return
-     */
-    public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
-        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, this, MoveMode.NORMAL_OR_ATTACK_MOVE);
     }
 
     /**
@@ -487,6 +460,45 @@ public class GenericGameHandler extends GameBoard {
         return positions;
     }
 
+    /**
+     * Return a list of @{@link Pieces} that can moves to the selected position
+     *
+     * @param position
+     * @param sideToKeep
+     * @return
+     */
+    public List<Pair<CasePosition, Pieces>> getAllPiecesThatCanMoveTo(CasePosition position, Side sideToKeep) {
+
+        List<Pair<CasePosition, Pieces>> values = new ArrayList<>();
+
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : getPiecesLocation().entrySet()) {
+            CasePosition key = casePositionPiecesEntry.getKey();
+            Pieces value = casePositionPiecesEntry.getValue();
+
+            if (!sideToKeep.equals(value.getSide())) {
+                continue;
+            }
+
+            if (isPieceMovableTo(key, position, sideToKeep)) {
+                values.add(new Pair<>(key, value));
+            }
+        }
+
+        return values;
+    }
+
+    /**
+     * Check if the piece can be moved to the selected position
+     *
+     * @param from
+     * @param to
+     * @param playerSide
+     * @return
+     */
+    public final boolean isPieceMovableTo(CasePosition from, CasePosition to, Side playerSide) {
+        return CONSTRAINT_SERVICE.isPieceMovableTo(from, to, playerSide, this, MoveMode.NORMAL_OR_ATTACK_MOVE);
+    }
+
     public final boolean setPlayerToSide(Player player, Side side) {
         Assert.assertNotNull(player, side);
         boolean value;
@@ -631,4 +643,5 @@ public class GenericGameHandler extends GameBoard {
     public boolean isGameDone() {
         return KingStatus.CHECKMATE.equals(whiteKingStatus) || KingStatus.CHECKMATE.equals(blackKingStatus) || isGameDraw();
     }
+
 }

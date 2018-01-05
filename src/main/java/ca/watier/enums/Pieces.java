@@ -98,6 +98,18 @@ public enum Pieces {
         return W_PAWN.equals(piece) || B_PAWN.equals(piece);
     }
 
+    public static boolean isBishop(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return W_BISHOP.equals(piece) || B_BISHOP.equals(piece);
+    }
+
+    public static boolean isQueen(Pieces piece) {
+        Assert.assertNotNull(piece);
+
+        return W_QUEEN.equals(piece) || B_QUEEN.equals(piece);
+    }
+
     public char getUnicodeIcon() {
         return unicodeIcon;
     }
