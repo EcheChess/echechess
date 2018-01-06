@@ -23,7 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +34,7 @@ import static ca.watier.enums.Side.BLACK;
 import static ca.watier.enums.Side.WHITE;
 
 public class PgnParser {
-    public static final MoveToken NORMAL_MOVE = MoveToken.NORMAL_MOVE;
+    public static final PgnMoveToken NORMAL_MOVE = PgnMoveToken.NORMAL_MOVE;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PgnParser.class);
     private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new EnumMap<>(CasePosition.class);
     private final static Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
@@ -130,8 +133,16 @@ public class PgnParser {
     }
 
     private void parseAction(String action) {
-        for (MoveToken moveToken : getPieceMovesFromLetter(action)) {
-            switch (moveToken) {
+
+        PgnEndGameToken endGameTokenByAction = PgnEndGameToken.getEndGameTokenByAction(action);
+        if (PgnEndGameToken.isGameEnded(endGameTokenByAction)) {
+            LOGGER.info(String.format("Game ending code (%s)", endGameTokenByAction));
+            validateGameEnding(endGameTokenByAction);
+            return;
+        }
+
+        for (PgnMoveToken pgnMoveToken : PgnMoveToken.getPieceMovesFromLetter(action)) {
+            switch (pgnMoveToken) {
                 case NORMAL_MOVE:
                     executeMove(action);
                     break;
@@ -146,7 +157,7 @@ public class PgnParser {
                     break;
                 case KINGSIDE_CASTLING:
                 case QUEENSIDE_CASTLING:
-                    executeCastling(action, moveToken);
+                    executeCastling(action, pgnMoveToken);
                     break;
                 case PAWN_PROMOTION:
                     validatePawnPromotion();
@@ -157,47 +168,42 @@ public class PgnParser {
         switchSide();
     }
 
-    private List<MoveToken> getPieceMovesFromLetter(@NotNull String action) {
-        List<MoveToken> moves = new ArrayList<>();
-
-        for (MoveToken moveToken : MoveToken.values()) {
-            for (String current : moveToken.getChars()) {
-                if (action.contains(current)) {
-                    switch (moveToken) { //The moves that contain a "normal move"
-                        case CAPTURE:
-                        case CHECK:
-                        case CHECKMATE:
-                        case PAWN_PROMOTION:
-                            if (!moves.contains(NORMAL_MOVE)) {
-                                moves.add(NORMAL_MOVE);
-                            }
-                            break;
-                    }
-                    moves.add(moveToken);
+    private void validateGameEnding(@NotNull PgnEndGameToken ending) {
+        switch (ending) {
+            case WHITE_WIN:
+                if (!(gameHandler.isGameDone() && KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(BLACK, false)))) {
+                    LOGGER.error("The game is supposed to be won by the WHITE player");
                 }
-            }
+                break;
+            case BLACK_WIN:
+                if (!(gameHandler.isGameDone() && KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(WHITE, false)))) {
+                    LOGGER.error("The game is supposed to be won by the BLACK player");
+                }
+                break;
+            case DRAWN:
+                if (!gameHandler.isGameDraw()) {
+                    LOGGER.error("The game is supposed to be DRAWN");
+                }
+                break;
+            case STILL_IN_PROGRESS:
+            case UNKNOWN:
+                LOGGER.error(String.format("The game ending is not known (%s)", ending));
+                break;
         }
-
-        if (moves.isEmpty()) {
-            moves.add(NORMAL_MOVE);
-        }
-
-        return moves;
     }
 
     private void executeMove(@NotNull String action) {
-
         List<String> casePositions = getPositionsFromAction(action);
-        List<MoveToken> pieceMovesFromLetter = getPieceMovesFromLetter(action);
+        List<PgnMoveToken> pieceMovesFromLetter = PgnMoveToken.getPieceMovesFromLetter(action);
         String position = casePositions.get(0);
         CasePosition casePositionTo = CasePosition.valueOf(position.toUpperCase());
         MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget = new MultiArrayMap<>();
         List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition = gameHandler.getAllPiecesThatCanMoveTo(casePositionTo, currentSide);
         CasePosition casePositionFrom = null;
 
-        boolean isPawnPromotion = pieceMovesFromLetter.contains(MoveToken.PAWN_PROMOTION);
-        PieceFound pieceFound = isPawnPromotion ? PieceFound.PAWN : getPieceFromAction(action);
-        List<Pieces> validPiecesFromAction = pieceFound.getPieces();
+        boolean isPawnPromotion = pieceMovesFromLetter.contains(PgnMoveToken.PAWN_PROMOTION);
+        PgnPieceFound pgnPieceFound = isPawnPromotion ? PgnPieceFound.PAWN : PgnPieceFound.getPieceFromAction(action);
+        List<Pieces> validPiecesFromAction = pgnPieceFound.getPieces();
 
         //Group all similar pieces that can hit the target
         for (int i = 0; i < piecesThatCanHitPosition.size(); i++) {
@@ -228,12 +234,12 @@ public class PgnParser {
         }
 
         if (!similarPieceThatHitTarget.isEmpty()) {
-            int length = action.length();
+            int length = casePositions.size();
             char colOrRow = action.charAt(1);
             mainLoop:
             for (Map.Entry<Pieces, List<Pair<CasePosition, Pieces>>> piecesListEntry : similarPieceThatHitTarget.entrySet()) {
                 for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
-                    if (length == 4) { //Extract the columns or row
+                    if (length == 1) {
                         if (Character.isLetter(colOrRow) && casePositionPiecesPair.getFirstValue().isOnSameColumn(colOrRow)) { //col (letter)
                             casePositionFrom = casePositionPiecesPair.getFirstValue();
                             break mainLoop;
@@ -241,7 +247,9 @@ public class PgnParser {
                             casePositionFrom = casePositionPiecesPair.getFirstValue();
                             break mainLoop;
                         }
-                    } else if (length == 5) {//Extract the full coordinate
+                    } else if (length == 2) { //Extract the full coordinate
+                        throw new NotImplementedException();
+                    } else {
                         throw new NotImplementedException();
                     }
                 }
@@ -252,22 +260,22 @@ public class PgnParser {
                 Pieces pieces = casePositionPiecesPair.getSecondValue();
 
                 //FIXME: Merge in one if ?
-                if (Pieces.isPawn(pieces) && PieceFound.PAWN.equals(pieceFound)) {
+                if (Pieces.isPawn(pieces) && PgnPieceFound.PAWN.equals(pgnPieceFound)) {
                     casePositionFrom = casePosition;
                     break;
-                } else if (Pieces.isBishop(pieces) && PieceFound.BISHOP.equals(pieceFound)) {
+                } else if (Pieces.isBishop(pieces) && PgnPieceFound.BISHOP.equals(pgnPieceFound)) {
                     casePositionFrom = casePosition;
                     break;
-                } else if (Pieces.isKing(pieces) && PieceFound.KING.equals(pieceFound)) {
+                } else if (Pieces.isKing(pieces) && PgnPieceFound.KING.equals(pgnPieceFound)) {
                     casePositionFrom = casePosition;
                     break;
-                } else if (Pieces.isKnight(pieces) && PieceFound.KNIGHT.equals(pieceFound)) {
+                } else if (Pieces.isKnight(pieces) && PgnPieceFound.KNIGHT.equals(pgnPieceFound)) {
                     casePositionFrom = casePosition;
                     break;
-                } else if (Pieces.isQueen(pieces) && PieceFound.QUEEN.equals(pieceFound)) {
+                } else if (Pieces.isQueen(pieces) && PgnPieceFound.QUEEN.equals(pgnPieceFound)) {
                     casePositionFrom = casePosition;
                     break;
-                } else if (Pieces.isRook(pieces) && PieceFound.ROOK.equals(pieceFound)) {
+                } else if (Pieces.isRook(pieces) && PgnPieceFound.ROOK.equals(pgnPieceFound)) {
                     casePositionFrom = casePosition;
                     break;
                 }
@@ -278,7 +286,7 @@ public class PgnParser {
         MoveType moveType = gameHandler.movePiece(casePositionFrom, casePositionTo, currentSide);
 
         if (MoveType.PAWN_PROMOTION.equals(moveType)) {
-            PieceFound pieceFromAction = getPieceFromAction(action);
+            PgnPieceFound pieceFromAction = PgnPieceFound.getPieceFromAction(action);
             Pieces pieceBySide = pieceFromAction.getPieceBySide(currentSide);
             gameHandler.upgradePiece(casePositionTo, pieceBySide, currentSide);
         } else if (!(MoveType.NORMAL_MOVE.equals(moveType) || MoveType.CAPTURE.equals(moveType))) {  //Issue with the move / case
@@ -311,7 +319,7 @@ public class PgnParser {
         }
     }
 
-    private void executeCastling(@NotNull String action, MoveToken moveToken) {
+    private void executeCastling(@NotNull String action, PgnMoveToken pgnMoveToken) {
         Map<CasePosition, Pieces> piecesLocation = gameHandler.getPiecesLocation(currentSide);
         List<CasePosition> rookPositions = new ArrayList<>();
         CasePosition kingPosition = null;
@@ -373,84 +381,5 @@ public class PgnParser {
             casePositions.add(currentPosition);
         }
         return casePositions;
-    }
-
-    private PieceFound getPieceFromAction(@NotNull String action) {
-        PieceFound pieceFoundFromLetter = PieceFound.PAWN;
-
-        for (byte b : action.getBytes()) {
-            PieceFound currentPieceFound = PieceFound.getPieceFromLetter((char) b);
-
-            if (!PieceFound.PAWN.equals(currentPieceFound)) {
-                pieceFoundFromLetter = currentPieceFound;
-                break;
-            }
-        }
-
-        return pieceFoundFromLetter;
-    }
-
-    private enum MoveToken {
-        CAPTURE("x"), CHECK("+"), CHECKMATE("#", "++"), PAWN_PROMOTION("="), KINGSIDE_CASTLING("O-O"), QUEENSIDE_CASTLING("O-O-O"), NORMAL_MOVE("\0");
-        private List<String> chars = new ArrayList<>();
-
-        MoveToken(@NotNull String... chars) {
-            if (chars.length > 0) {
-                this.chars.addAll(Arrays.asList(chars));
-            }
-        }
-
-        public List<String> getChars() {
-            return chars;
-        }
-    }
-
-    private enum PieceFound {
-        QUEEN('Q', Pieces.B_QUEEN, Pieces.W_QUEEN),
-        BISHOP('B', Pieces.B_BISHOP, Pieces.W_BISHOP),
-        KING('K', Pieces.W_KING, Pieces.B_KING),
-        ROOK('R', Pieces.B_ROOK, Pieces.W_ROOK),
-        KNIGHT('N', Pieces.B_KNIGHT, Pieces.W_KNIGHT),
-        PAWN('\0', Pieces.B_PAWN, Pieces.W_PAWN);
-
-        private char letter;
-        private List<Pieces> pieces = new ArrayList<>();
-
-        PieceFound(char letter, Pieces... pieces) {
-            this.letter = letter;
-
-            if (pieces != null) {
-                this.pieces.addAll(Arrays.asList(pieces));
-            }
-        }
-
-        public static PieceFound getPieceFromLetter(char letter) {
-            for (PieceFound pieceFound : PieceFound.values()) {
-                if (pieceFound.getLetter() == letter) {
-                    return pieceFound;
-                }
-            }
-
-            return PieceFound.PAWN;
-        }
-
-        public char getLetter() {
-            return letter;
-        }
-
-        public Pieces getPieceBySide(Side side) {
-            Pieces value = null;
-            for (Pieces piece : pieces) {
-                if (piece.getSide() == side) {
-                    value = piece;
-                    break;
-                }
-            }
-            return value;
-        }
-
-        public List<Pieces> getPieces() {
-            return pieces;
-        }
     }
 }

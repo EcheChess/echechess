@@ -101,15 +101,15 @@ public enum CasePosition {
         return values;
     }
 
+    public int getRow() {
+        return row;
+    }
+
     public boolean isOnSameColumn(char value) {
         return this.col == value;
     }
 
-    public boolean isOnSameRow(int value) {
-        return this.row == value;
-    }
-
-    public int getRow() {
-        return row;
+    public boolean isOnSameRow(char value) {
+        return this.row == Character.getNumericValue(value);
     }
 }
