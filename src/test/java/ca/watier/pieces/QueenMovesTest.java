@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.CAPTURE;
 import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
-import static ca.watier.enums.MoveType.NORMAL_MOVE;
 import static ca.watier.enums.Pieces.*;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
@@ -84,7 +84,7 @@ public class QueenMovesTest extends GameTest {
             pieces.put(C7, B_ROOK);
             pieces.put(A7, B_ROOK);
 
-            Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(B7, position, WHITE));
+            Assert.assertEquals(CAPTURE, gameHandler.movePiece(B7, position, WHITE));
         }
 
     }

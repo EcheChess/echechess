@@ -22,8 +22,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static ca.watier.enums.CasePosition.*;
+import static ca.watier.enums.MoveType.CAPTURE;
 import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
-import static ca.watier.enums.MoveType.NORMAL_MOVE;
 import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
 import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
 
@@ -47,10 +47,10 @@ public class RookMovesTest extends GameTest {
         Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, H4, WHITE));
 
         //Kill in all direction
-        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(H1, H8, WHITE));
-        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(H8, A8, WHITE));
-        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(A8, A1, WHITE));
-        Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(A1, G1, WHITE));
+        Assert.assertEquals(CAPTURE, gameHandler.movePiece(H1, H8, WHITE));
+        Assert.assertEquals(CAPTURE, gameHandler.movePiece(H8, A8, WHITE));
+        Assert.assertEquals(CAPTURE, gameHandler.movePiece(A8, A1, WHITE));
+        Assert.assertEquals(CAPTURE, gameHandler.movePiece(A1, G1, WHITE));
 
         //cannot move diagonally
         Assert.assertEquals(MOVE_NOT_ALLOWED, gameHandler.movePiece(E4, D5, WHITE));

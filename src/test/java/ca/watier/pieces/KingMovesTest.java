@@ -74,7 +74,7 @@ public class KingMovesTest extends GameTest {
             pieces.put(C7, B_PAWN);
             pieces.put(A7, B_PAWN);
 
-            Assert.assertEquals(NORMAL_MOVE, gameHandler.movePiece(B7, position, WHITE));
+            Assert.assertEquals(CAPTURE, gameHandler.movePiece(B7, position, WHITE));
         }
 
     }

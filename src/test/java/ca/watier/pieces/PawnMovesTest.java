@@ -133,10 +133,10 @@ public class PawnMovesTest extends GameTest {
         pieces.put(C2, W_PAWN);
         pieces.put(G2, W_PAWN);
 
-        Assert.assertEquals(NORMAL_MOVE, context.movePiece(D5, C6, WHITE));
-        Assert.assertEquals(NORMAL_MOVE, context.movePiece(D3, C2, BLACK));
-        Assert.assertEquals(NORMAL_MOVE, context.movePiece(F5, G6, WHITE));
-        Assert.assertEquals(NORMAL_MOVE, context.movePiece(F3, G2, BLACK));
+        Assert.assertEquals(CAPTURE, context.movePiece(D5, C6, WHITE));
+        Assert.assertEquals(CAPTURE, context.movePiece(D3, C2, BLACK));
+        Assert.assertEquals(CAPTURE, context.movePiece(F5, G6, WHITE));
+        Assert.assertEquals(CAPTURE, context.movePiece(F3, G2, BLACK));
     }
 
     @Test

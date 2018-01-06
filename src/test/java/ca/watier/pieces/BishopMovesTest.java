@@ -70,7 +70,7 @@ public class BishopMovesTest extends GameTest {
             pieces.put(A6, B_ROOK);
             pieces.put(C6, B_ROOK);
 
-            Assert.assertEquals(MoveType.NORMAL_MOVE, gameHandler.movePiece(B7, position, WHITE));
+            Assert.assertEquals(MoveType.CAPTURE, gameHandler.movePiece(B7, position, WHITE));
         }
     }
 }

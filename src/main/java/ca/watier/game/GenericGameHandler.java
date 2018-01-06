@@ -18,6 +18,7 @@ package ca.watier.game;
 
 import ca.watier.enums.*;
 import ca.watier.interfaces.WebSocketService;
+import ca.watier.pojos.MoveHistory;
 import ca.watier.responses.GameScoreResponse;
 import ca.watier.services.ConstraintService;
 import ca.watier.sessions.Player;
@@ -49,6 +50,7 @@ public class GenericGameHandler extends GameBoard {
     private boolean allowObservers = false;
     private Side currentAllowedMoveSide = WHITE;
     private List<Player> observerList;
+    private List<MoveHistory> moveHistoryList;
     private short blackPlayerPoint = 0;
     private short whitePlayerPoint = 0;
     private GameType gameType;
@@ -56,9 +58,11 @@ public class GenericGameHandler extends GameBoard {
     public GenericGameHandler(ConstraintService constraintService, WebSocketService webSocketService) {
         SPECIAL_GAME_RULES = new HashSet<>();
         observerList = new ArrayList<>();
+        moveHistoryList = new ArrayList<>();
         this.CONSTRAINT_SERVICE = constraintService;
         this.WEB_SOCKET_SERVICE = webSocketService;
     }
+
 
     /**
      * Move a piece to a selected position
@@ -69,6 +73,19 @@ public class GenericGameHandler extends GameBoard {
      * @return
      */
     public MoveType movePiece(CasePosition from, CasePosition to, Side playerSide) {
+        MoveHistory moveHistory = new MoveHistory(from, to, playerSide);
+
+        MoveType moveType = movePiece(from, to, playerSide, moveHistory);
+        moveHistory.setMoveType(moveType);
+        moveHistoryList.add(moveHistory);
+        return moveType;
+    }
+
+    public List<MoveHistory> getMoveHistory() {
+        return moveHistoryList;
+    }
+
+    private MoveType movePiece(CasePosition from, CasePosition to, Side playerSide, MoveHistory moveHistory) {
         Assert.assertNotNull(from, to, playerSide);
 
         Side otherPlayerSide = Side.getOtherPlayerSide(playerSide);
@@ -114,6 +131,7 @@ public class GenericGameHandler extends GameBoard {
 
                 if (isEatingPiece) { //Count the point for the piece
                     updatePointsForSide(playerSide, piecesTo.getPoint());
+                    moveType = MoveType.CAPTURE;
                 }
             }
         } else if (MoveType.CASTLING.equals(moveType)) {
@@ -156,6 +174,8 @@ public class GenericGameHandler extends GameBoard {
             sendMovedMessages(from, to, playerSide);
         }
 
+        moveHistory.setCurrentKingStatus(currentKingStatus);
+        moveHistory.setOtherKingStatus(otherKingStatusAfterMove);
         sendCheckOrCheckmateMessages(currentKingStatus, otherKingStatusAfterMove, playerSide);
 
         return moveType;
@@ -185,11 +205,8 @@ public class GenericGameHandler extends GameBoard {
     }
 
     protected final boolean isPlayerTurn(Side sideFrom) {
-        if (isGameHaveRule(SpecialGameRules.NO_PLAYER_TURN)) {
-            return true;
-        }
+        return isGameHaveRule(SpecialGameRules.NO_PLAYER_TURN) || currentAllowedMoveSide.equals(sideFrom);
 
-        return currentAllowedMoveSide.equals(sideFrom);
     }
 
     protected final void changeAllowedMoveSide() {

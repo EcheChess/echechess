@@ -20,11 +20,11 @@ package ca.watier.enums;
  * Created by yannick on 6/28/2017.
  */
 public enum MoveType {
-    NORMAL_MOVE, MOVE_NOT_ALLOWED, CASTLING, EN_PASSANT,
+    NORMAL_MOVE, CAPTURE, MOVE_NOT_ALLOWED, CASTLING, EN_PASSANT,
     PAWN_PROMOTION; //PAWN_PROMOTION count as a move, but need to pause the game, and wait for the player too choose the promotion
 
     public static boolean isMoved(MoveType moveType) {
-        return NORMAL_MOVE.equals(moveType) || PAWN_PROMOTION.equals(moveType) || isSpecialMove(moveType);
+        return NORMAL_MOVE.equals(moveType) || CAPTURE.equals(moveType) || PAWN_PROMOTION.equals(moveType) || isSpecialMove(moveType);
     }
 
     public static boolean isSpecialMove(MoveType moveType) {

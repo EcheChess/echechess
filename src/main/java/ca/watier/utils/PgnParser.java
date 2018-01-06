@@ -16,16 +16,13 @@
 
 package ca.watier.utils;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.KingStatus;
-import ca.watier.enums.Pieces;
-import ca.watier.enums.Side;
+import ca.watier.enums.*;
 import ca.watier.game.GenericGameHandler;
+import ca.watier.pojos.MoveHistory;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +31,7 @@ import static ca.watier.enums.Side.BLACK;
 import static ca.watier.enums.Side.WHITE;
 
 public class PgnParser {
+    public static final MoveToken NORMAL_MOVE = MoveToken.NORMAL_MOVE;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PgnParser.class);
     private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new EnumMap<>(CasePosition.class);
     private final static Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
@@ -124,19 +122,21 @@ public class PgnParser {
                     parseAction(action);
                 }
             }
+
+            //FIXME: Reset the gameHandler
         }
 
         return "";
     }
 
     private void parseAction(String action) {
-        for (MoveType moveType : getPieceMovesFromLetter(action)) {
-            switch (moveType) {
+        for (MoveToken moveToken : getPieceMovesFromLetter(action)) {
+            switch (moveToken) {
                 case NORMAL_MOVE:
                     executeMove(action);
                     break;
                 case CAPTURE:
-                    validateCapture(action);
+                    validateCapture();
                     break;
                 case CHECK:
                     validateCheck();
@@ -146,10 +146,10 @@ public class PgnParser {
                     break;
                 case KINGSIDE_CASTLING:
                 case QUEENSIDE_CASTLING:
-                    executeCastling(action, moveType);
+                    executeCastling(action, moveToken);
                     break;
                 case PAWN_PROMOTION:
-                    executePawnPromotion(action);
+                    validatePawnPromotion();
                     break;
             }
         }
@@ -157,27 +157,29 @@ public class PgnParser {
         switchSide();
     }
 
-    private List<MoveType> getPieceMovesFromLetter(@NotNull String action) {
-        List<MoveType> moves = new ArrayList<>();
+    private List<MoveToken> getPieceMovesFromLetter(@NotNull String action) {
+        List<MoveToken> moves = new ArrayList<>();
 
-        for (MoveType moveType : MoveType.values()) {
-            for (String current : moveType.getChars()) {
+        for (MoveToken moveToken : MoveToken.values()) {
+            for (String current : moveToken.getChars()) {
                 if (action.contains(current)) {
-                    switch (moveType) { //The moves that contain a "normal move"
+                    switch (moveToken) { //The moves that contain a "normal move"
                         case CAPTURE:
                         case CHECK:
                         case CHECKMATE:
                         case PAWN_PROMOTION:
-                            moves.add(MoveType.NORMAL_MOVE);
+                            if (!moves.contains(NORMAL_MOVE)) {
+                                moves.add(NORMAL_MOVE);
+                            }
                             break;
                     }
-                    moves.add(moveType);
+                    moves.add(moveToken);
                 }
             }
         }
 
         if (moves.isEmpty()) {
-            moves.add(MoveType.NORMAL_MOVE);
+            moves.add(NORMAL_MOVE);
         }
 
         return moves;
@@ -186,13 +188,15 @@ public class PgnParser {
     private void executeMove(@NotNull String action) {
 
         List<String> casePositions = getPositionsFromAction(action);
-
+        List<MoveToken> pieceMovesFromLetter = getPieceMovesFromLetter(action);
         String position = casePositions.get(0);
         CasePosition casePositionTo = CasePosition.valueOf(position.toUpperCase());
         MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget = new MultiArrayMap<>();
         List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition = gameHandler.getAllPiecesThatCanMoveTo(casePositionTo, currentSide);
         CasePosition casePositionFrom = null;
-        PieceFound pieceFound = getPieceFromAction(action);
+
+        boolean isPawnPromotion = pieceMovesFromLetter.contains(MoveToken.PAWN_PROMOTION);
+        PieceFound pieceFound = isPawnPromotion ? PieceFound.PAWN : getPieceFromAction(action);
         List<Pieces> validPiecesFromAction = pieceFound.getPieces();
 
         //Group all similar pieces that can hit the target
@@ -271,18 +275,29 @@ public class PgnParser {
         }
 
         LOGGER.debug(String.format("MOVE %s to %s (%s)", casePositionFrom, casePositionTo, currentSide));
-        if (!(ca.watier.enums.MoveType.NORMAL_MOVE.equals(gameHandler.movePiece(casePositionFrom, casePositionTo, currentSide)))) {  //Issue with the move / case
+        MoveType moveType = gameHandler.movePiece(casePositionFrom, casePositionTo, currentSide);
+
+        if (MoveType.PAWN_PROMOTION.equals(moveType)) {
+            PieceFound pieceFromAction = getPieceFromAction(action);
+            Pieces pieceBySide = pieceFromAction.getPieceBySide(currentSide);
+            gameHandler.upgradePiece(casePositionTo, pieceBySide, currentSide);
+        } else if (!(MoveType.NORMAL_MOVE.equals(moveType) || MoveType.CAPTURE.equals(moveType))) {  //Issue with the move / case
             LOGGER.error(String.format("Unable to move at the selected position %s for the current color %s !", position, currentSide));
         }
     }
 
-    private void validateCapture(String action) {
-        throw new NotImplementedException();
+    private void validateCapture() {
+        List<MoveHistory> moveHistory = gameHandler.getMoveHistory();
+        MoveHistory lastMoveHistory = moveHistory.get(moveHistory.size() - 1);
+
+        if (!MoveType.CAPTURE.equals(lastMoveHistory.getMoveType())) {
+            throw new IllegalStateException("The capture is not in the history!");
+        }
     }
 
     private void validateCheck() {
         if (!KingStatus.CHECK.equals(gameHandler.getKingStatus(otherSide, false))) {
-            throw new InvalidParameterException("The other player king is not check!");
+            throw new IllegalStateException("The other player king is not check!");
         } else {
             LOGGER.debug(String.format("%s is CHECK", otherSide));
         }
@@ -290,13 +305,13 @@ public class PgnParser {
 
     private void validateCheckMate() {
         if (!KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(otherSide, false))) {
-            throw new InvalidParameterException("The other player king is not check!");
+            throw new IllegalStateException("The other player king is not check!");
         } else {
             LOGGER.debug(String.format("%s is CHECKMATE", otherSide));
         }
     }
 
-    private void executeCastling(@NotNull String action, MoveType moveType) {
+    private void executeCastling(@NotNull String action, MoveToken moveToken) {
         Map<CasePosition, Pieces> piecesLocation = gameHandler.getPiecesLocation(currentSide);
         List<CasePosition> rookPositions = new ArrayList<>();
         CasePosition kingPosition = null;
@@ -330,8 +345,13 @@ public class PgnParser {
         }
     }
 
-    private void executePawnPromotion(@NotNull String action) {
-        throw new NotImplementedException();
+    private void validatePawnPromotion() {
+        List<MoveHistory> moveHistory = gameHandler.getMoveHistory();
+        MoveHistory lastMoveHistory = moveHistory.get(moveHistory.size() - 1);
+
+        if (!MoveType.PAWN_PROMOTION.equals(lastMoveHistory.getMoveType())) {
+            throw new IllegalStateException("The pawn promotion is not in the history!");
+        }
     }
 
     private void switchSide() {
@@ -370,11 +390,11 @@ public class PgnParser {
         return pieceFoundFromLetter;
     }
 
-    private enum MoveType {
+    private enum MoveToken {
         CAPTURE("x"), CHECK("+"), CHECKMATE("#", "++"), PAWN_PROMOTION("="), KINGSIDE_CASTLING("O-O"), QUEENSIDE_CASTLING("O-O-O"), NORMAL_MOVE("\0");
         private List<String> chars = new ArrayList<>();
 
-        MoveType(@NotNull String... chars) {
+        MoveToken(@NotNull String... chars) {
             if (chars.length > 0) {
                 this.chars.addAll(Arrays.asList(chars));
             }
@@ -416,6 +436,17 @@ public class PgnParser {
 
         public char getLetter() {
             return letter;
+        }
+
+        public Pieces getPieceBySide(Side side) {
+            Pieces value = null;
+            for (Pieces piece : pieces) {
+                if (piece.getSide() == side) {
+                    value = piece;
+                    break;
+                }
+            }
+            return value;
         }
 
         public List<Pieces> getPieces() {
