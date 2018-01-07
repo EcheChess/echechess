@@ -480,24 +480,41 @@ public class GenericGameHandler extends GameBoard {
     /**
      * Return a list of @{@link Pieces} that can moves to the selected position
      *
-     * @param position
+     * @param to
      * @param sideToKeep
      * @return
      */
-    public List<Pair<CasePosition, Pieces>> getAllPiecesThatCanMoveTo(CasePosition position, Side sideToKeep) {
+    public List<Pair<CasePosition, Pieces>> getAllPiecesThatCanMoveTo(CasePosition to, Side sideToKeep) {
 
         List<Pair<CasePosition, Pieces>> values = new ArrayList<>();
 
         for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : getPiecesLocation().entrySet()) {
-            CasePosition key = casePositionPiecesEntry.getKey();
-            Pieces value = casePositionPiecesEntry.getValue();
+            CasePosition from = casePositionPiecesEntry.getKey();
+            Pieces piecesFrom = casePositionPiecesEntry.getValue();
 
-            if (!sideToKeep.equals(value.getSide())) {
+            if (!sideToKeep.equals(piecesFrom.getSide())) {
                 continue;
             }
 
-            if (isPieceMovableTo(key, position, sideToKeep)) {
-                values.add(new Pair<>(key, value));
+            if (isPieceMovableTo(from, to, sideToKeep)) {
+                if (Pieces.isKing(piecesFrom) && !isKingCheckAtPosition(to, sideToKeep)) {
+                    values.add(new Pair<>(from, piecesFrom));
+                } else {
+                    Pieces piecesTo = getPiece(to);
+                    setPiecePositionWithoutMoveState(piecesFrom, to);
+                    removePieceAt(from);
+                    boolean checkOrCheckMate = KingStatus.isCheckOrCheckMate(getKingStatus(sideToKeep, true));
+                    setPiecePositionWithoutMoveState(piecesFrom, from);
+                    removePieceAt(to);
+
+                    if (piecesTo != null) {
+                        setPiecePositionWithoutMoveState(piecesTo, to);
+                    }
+
+                    if (!checkOrCheckMate) {
+                        values.add(new Pair<>(from, piecesFrom));
+                    }
+                }
             }
         }
 

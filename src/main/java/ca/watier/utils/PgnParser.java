@@ -18,7 +18,9 @@ package ca.watier.utils;
 
 import ca.watier.enums.*;
 import ca.watier.game.GenericGameHandler;
+import ca.watier.interfaces.WebSocketService;
 import ca.watier.pojos.MoveHistory;
+import ca.watier.services.ConstraintService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -75,19 +77,29 @@ public class PgnParser {
         DEFAULT_GAME_TEMPLATE.put(CasePosition.H7, Pieces.B_PAWN);
     }
 
+    private final List<GenericGameHandler> handlerList = new ArrayList<>();
+    private final ConstraintService constraintService;
+    private final WebSocketService webSocketService;
+
     private GenericGameHandler gameHandler;
     private Side currentSide = WHITE;
     private Side otherSide = BLACK;
 
-    public PgnParser(@NotNull GenericGameHandler gameHandler) {
-        this.gameHandler = gameHandler;
+
+    public PgnParser(@NotNull ConstraintService constraintService, @NotNull WebSocketService webSocketService) {
+        this.constraintService = constraintService;
+        this.webSocketService = webSocketService;
     }
 
-    public String parse(@NotNull String rawText) {
+    public List<GenericGameHandler> parse(@NotNull String rawText) {
         String[] headersAndGames = rawText.replace("\r\n", "\n").split("\n\n");
         int nbOfGames = headersAndGames.length / 2;
+        int currentIdx = 1;
 
         for (int i = 0; i < nbOfGames; i = i + 2) {
+            LOGGER.debug(String.format("***********************(%s)***********************", currentIdx));
+            currentIdx++;
+
             String rawHeaders = headersAndGames[i];
             String[] currentHeaders = rawHeaders.split("\n");
             String rawCurrentGame = headersAndGames[i + 1];
@@ -98,38 +110,27 @@ public class PgnParser {
                 continue;
             }
 
+            resetSide();
+            gameHandler = new GenericGameHandler(constraintService, webSocketService);
+            handlerList.add(gameHandler);
+
             for (String currentToken : tokens) {
+                currentToken = currentToken.trim();
+
                 String[] actions = currentToken.split(" ");
-
-                /*
-                        Q:  Queen
-                        B:  Bishop
-                        K:  King
-                        R:  Rook
-                        N:  Knight
-
-                        O-O:        kingside castling
-                        O-O-O:      queenside castling
-
-                        x:          capture move
-                        +:          checking move
-                        # or ++:    checkmating move
-
-                        White wins:             1-0
-                        Black wins:             0-1
-                        drawn game:             1/2-1/2
-                        game still in progress: *
-                */
 
                 for (String action : actions) {
                     parseAction(action);
                 }
             }
-
-            //FIXME: Reset the gameHandler
         }
 
-        return "";
+        return handlerList;
+    }
+
+    public void resetSide() {
+        currentSide = WHITE;
+        otherSide = BLACK;
     }
 
     private void parseAction(String action) {
@@ -143,6 +144,16 @@ public class PgnParser {
 
         for (PgnMoveToken pgnMoveToken : PgnMoveToken.getPieceMovesFromLetter(action)) {
             switch (pgnMoveToken) {
+                case KINGSIDE_CASTLING_CHECK:
+                case QUEENSIDE_CASTLING_CHECK:
+                    executeCastling(pgnMoveToken);
+                    validateCheck();
+                    break;
+                case KINGSIDE_CASTLING_CHECKMATE:
+                case QUEENSIDE_CASTLING_CHECKMATE:
+                    executeCastling(pgnMoveToken);
+                    validateCheckMate();
+                    break;
                 case NORMAL_MOVE:
                     executeMove(action);
                     break;
@@ -157,7 +168,7 @@ public class PgnParser {
                     break;
                 case KINGSIDE_CASTLING:
                 case QUEENSIDE_CASTLING:
-                    executeCastling(action, pgnMoveToken);
+                    executeCastling(pgnMoveToken);
                     break;
                 case PAWN_PROMOTION:
                     validatePawnPromotion();
@@ -189,6 +200,43 @@ public class PgnParser {
             case UNKNOWN:
                 LOGGER.error(String.format("The game ending is not known (%s)", ending));
                 break;
+        }
+    }
+
+    private void executeCastling(PgnMoveToken pgnMoveToken) {
+        Map<CasePosition, Pieces> piecesLocation = gameHandler.getPiecesLocation(currentSide);
+        CasePosition kingPosition = null;
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : piecesLocation.entrySet()) {
+            CasePosition key = casePositionPiecesEntry.getKey();
+            Pieces value = casePositionPiecesEntry.getValue();
+
+            if (Pieces.isKing(value)) {
+                kingPosition = key;
+            }
+        }
+
+        CasePosition selectedRookPosition = PgnMoveToken.getCastlingRookPosition(pgnMoveToken, currentSide);
+
+        if (ca.watier.enums.MoveType.CASTLING.equals(gameHandler.movePiece(kingPosition, selectedRookPosition, currentSide))) {
+            LOGGER.debug(String.format("Castling: King -> %s | Rook %s | (%s)", kingPosition, selectedRookPosition, currentSide));
+        } else { //Issue with the move / case
+            LOGGER.error(String.format("Unable to cast at the selected position %s for the current color %s !", selectedRookPosition, currentSide));
+        }
+    }
+
+    private void validateCheck() {
+        if (!KingStatus.CHECK.equals(gameHandler.getKingStatus(otherSide, false))) {
+            throw new IllegalStateException("The other player king is not check!");
+        } else {
+            LOGGER.debug(String.format("%s is CHECK", otherSide));
+        }
+    }
+
+    private void validateCheckMate() {
+        if (!KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(otherSide, false))) {
+            throw new IllegalStateException("The other player king is not check!");
+        } else {
+            LOGGER.debug(String.format("%s is CHECKMATE", otherSide));
         }
     }
 
@@ -235,7 +283,7 @@ public class PgnParser {
 
         if (!similarPieceThatHitTarget.isEmpty()) {
             int length = casePositions.size();
-            char colOrRow = action.charAt(1);
+            char colOrRow = findFirstColOrRowInAction(action);
             mainLoop:
             for (Map.Entry<Pieces, List<Pair<CasePosition, Pieces>>> piecesListEntry : similarPieceThatHitTarget.entrySet()) {
                 for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
@@ -282,7 +330,7 @@ public class PgnParser {
             }
         }
 
-        LOGGER.debug(String.format("MOVE %s to %s (%s)", casePositionFrom, casePositionTo, currentSide));
+        LOGGER.debug(String.format("MOVE %s to %s (%s) | action -> %s", casePositionFrom, casePositionTo, currentSide, action));
         MoveType moveType = gameHandler.movePiece(casePositionFrom, casePositionTo, currentSide);
 
         if (MoveType.PAWN_PROMOTION.equals(moveType)) {
@@ -300,56 +348,6 @@ public class PgnParser {
 
         if (!MoveType.CAPTURE.equals(lastMoveHistory.getMoveType())) {
             throw new IllegalStateException("The capture is not in the history!");
-        }
-    }
-
-    private void validateCheck() {
-        if (!KingStatus.CHECK.equals(gameHandler.getKingStatus(otherSide, false))) {
-            throw new IllegalStateException("The other player king is not check!");
-        } else {
-            LOGGER.debug(String.format("%s is CHECK", otherSide));
-        }
-    }
-
-    private void validateCheckMate() {
-        if (!KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(otherSide, false))) {
-            throw new IllegalStateException("The other player king is not check!");
-        } else {
-            LOGGER.debug(String.format("%s is CHECKMATE", otherSide));
-        }
-    }
-
-    private void executeCastling(@NotNull String action, PgnMoveToken pgnMoveToken) {
-        Map<CasePosition, Pieces> piecesLocation = gameHandler.getPiecesLocation(currentSide);
-        List<CasePosition> rookPositions = new ArrayList<>();
-        CasePosition kingPosition = null;
-        CasePosition selectedRookPosition = null;
-        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : piecesLocation.entrySet()) {
-            CasePosition key = casePositionPiecesEntry.getKey();
-            Pieces value = casePositionPiecesEntry.getValue();
-
-            if (Pieces.isKing(value)) {
-                kingPosition = key;
-            } else if (Pieces.isRook(value)) {
-                rookPositions.add(key);
-            }
-        }
-
-        //Find the rook position
-        for (CasePosition position : rookPositions) {
-            boolean isQueenSide = CastlingPositionHelper.isQueenSide(kingPosition, position);
-
-            if ("O-O".equals(action) && !isQueenSide) { //kingside castling (right)
-                selectedRookPosition = position;
-                break;
-            } else if ("O-O-O".equals(action) && isQueenSide) { //queenside castling (left)
-                selectedRookPosition = position;
-                break;
-            }
-        }
-
-        if (!(ca.watier.enums.MoveType.CASTLING.equals(gameHandler.movePiece(kingPosition, selectedRookPosition, currentSide)))) {  //Issue with the move / case
-            LOGGER.error(String.format("Unable to cast at the selected position %s for the current color %s !", selectedRookPosition, currentSide));
         }
     }
 
@@ -381,5 +379,21 @@ public class PgnParser {
             casePositions.add(currentPosition);
         }
         return casePositions;
+    }
+
+    private char findFirstColOrRowInAction(@NotNull String action) {
+        char value = '\0';
+
+        for (char c : action.toCharArray()) {
+            if (Character.isDigit(c) && (Character.getNumericValue(c) >= 1 && Character.getNumericValue(c) <= 8)) {
+                value = c;
+                break;
+            } else if ((Character.isLetter(c) && Character.isLowerCase(c)) && (c >= 'a' && c <= 'h')) {
+                value = c;
+                break;
+            }
+        }
+
+        return value;
     }
 }

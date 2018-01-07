@@ -16,9 +16,9 @@
 
 package ca.watier;
 
-import ca.watier.game.GenericGameHandler;
 import ca.watier.utils.PgnParser;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,10 +28,9 @@ public class PgnTest extends GameTest {
 
     @Test
     public void pgnTest1() throws IOException {
-        GenericGameHandler gameHandler = new GenericGameHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
-        PgnParser pgnParser = new PgnParser(gameHandler);
+        PgnParser pgnParser = new PgnParser(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
+        String gamesAsFile = IOUtils.toString(PgnTest.class.getResourceAsStream("/puzzles.pgn"), Charset.forName("UTF-8"));
 
-        String gamesAsFile = IOUtils.toString(PgnTest.class.getResourceAsStream("/puzzle.pgn"), Charset.forName("UTF-8"));
-        System.out.println(pgnParser.parse(gamesAsFile));
+        Assertions.assertThat(pgnParser.parse(gamesAsFile)).isNotEmpty();
     }
 }

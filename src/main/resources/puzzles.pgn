@@ -1,0 +1,314 @@
+[Event "Chessboard Editor at Apronus.com"]
+[Site "http://www.apronus.com/chess/puzzle/editor.php"]
+[Date "2017.12.27"]
+[Round "-"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1.f4 d5 2.e3 Nf6 3.b3 e6 4.Bb2 Be7 5.Bd3 b6 6.Nc3 Bb7 7.Nf3 Nbd7 8.O-O O-O 9.Ne2
+c5 10.Ng3 Qc7 11.Ne5 Nxe5 12.Bxe5 Qc6 13.Qe2 a6 14.Nh5 Nxh5 15.Bxh7+ Kxh7
+16.Qxh5+ Kg8 17.Bxg7 Kxg7 18.Qg4+ Kh7 19.Rf3 e5 20.Rh3+ Qh6 21.Rxh6+ Kxh6 22.Qd7
+Bf6 23.Qxb7 Kg7 24.Rf1 Rab8 25.Qd7 Rfd8 26.Qg4+ Kf8 27.fxe5 Bg7 28.e6 Rb7 29.Qg6
+f6 30.Rxf6+ Bxf6 31.Qxf6+ Ke8 32.Qh8+ Ke7 33.Qg7+ Kxe6 34.Qxb7 Rd6 35.Qxa6 d4
+36.exd4 cxd4 37.h4 d3 38.Qxd3 Rd7 39.h5 Rd6 40.h6 Rd5 41.h7 Rd6 42.h8=Q Rd5
+43.g3 Rd6 44.g4 Rd5 45.g5 Rd6 46.g6 Rd5 47.g7 Rd6 48.g8=Q+ Kd7 49.Qdc3 Ke7
+50.Qgc8 Rd5 51.Q8c7+ Ke6 52.Qe3+ Re5 53.d3 Re4 54.Qxe4# *
+
+[Event "?"]
+[Site "?"]
+[Date "1904.??.??"]
+[Round "?"]
+[White "Giese"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C33"]
+
+1.e4 e5 2.f4 exf4 3.Bc4 d5 4.Bxd5 Qh4+ 5.Kf1 g5 6.Nc3 Ne7 7.d4 Bg7 8.Nf3
+Qh5 9.h4 h6 10.e5 Nbc6 11.Kg1 g4 12.Ne1 Bf5 13.Bxc6+ Nxc6 14.Ne2 Be4 15.
+Bxf4 Qf5 16.Qd2 O-O-O 17.Ng3 Qh7 18.Qe2 Nxd4 19.Qc4 Bc6 20.c3 Ne6 21.Qf1
+h5 22.Bg5 Bxe5 23.Bxd8 Bxg3 24.Bf6 Qe4 25.Nd3 Nf4 26.Rh3 Qe3+ 27.Nf2 Nxh3+
+28.gxh3 Bh2+ 29.Kxh2 Qf4+ 30.Kg1 Qg3+ 31.Qg2 Qxg2# 0-1
+
+[Event "?"]
+[Site "Russia"]
+[Date "1907.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Tenner"]
+[Result "1-0"]
+[ECO "C28k"]
+
+1.e4 e5 2.Nc3 Nc6 3.Bc4 Nf6 4.d3 Bc5 5.f4 d6 6.Nf3 Bg4 7.Na4 exf4 8.Nxc5
+dxc5 9.Bxf4 Nh5 10.Be3 Ne5 11.Nxe5 Bxd1 12.Bxf7+ Ke7 13.Bxc5+ Kf6 14.O-O+
+Kxe5 15.Rf5# 1-0
+
+[Event "?"]
+[Site "cr 1906-07"]
+[Date "1907.??.??"]
+[Round "?"]
+[White "Viakhirev Apollon"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C28p"]
+
+1.e4 e5 2.Nc3 Nf6 3.Bc4 Nc6 4.d3 Bb4 5.Ne2 d5 6.exd5 Nxd5 7.Bxd5 Qxd5 8.
+O-O Qd8 9.Ng3 O-O 10.f4 f5 11.Nce2 Qh4 12.Kh1 Bd6 13.d4 e4 14.c4 Rf6 15.c5
+Rh6 16.h3 Bf8 17.Qb3+ Kh8 18.Qc3 Ne7 19.Be3 Be6 20.Bf2 Qf6 21.a3 Bd5 22.
+Be3 Ng6 23.b4 Nh4 24.Kg1 Nf3+ 25.Kf2 Qh4 26.b5 Rg6 27.Rfc1 Be7 28.Kf1 Rxg3
+29.Nxg3 Qxg3 30.Bf2 Qh2 31.gxf3 exf3 32.Rc2 Re8 33.Be3 Qh1+ 34.Bg1 Bh4 35.
+Rh2 Qg2+ 36.Rxg2 fxg2# 0-1
+
+[Event "?"]
+[Site "Moscow m (02)"]
+[Date "1908.??.??"]
+[Round "?"]
+[White "Blumenfeld, Beniamin M"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C41f"]
+
+1.e4 e5 2.Nf3 d6 3.d4 Nd7 4.b3 c6 5.Bb2 Qc7 6.Nbd2 Ne7 7.Be2 Ng6 8.O-O Be7
+9.a4 O-O 10.Nc4 Rd8 11.Qc1 Nf4 12.Re1 Nxe2+ 13.Rxe2 f6 14.Nh4 Nf8 15.Ne3
+Ne6 16.dxe5 dxe5 17.Nhf5 Bb4 18.c3 Nf4 19.Rd2 Bxf5 20.Nxf5 Bc5 21.b4 Bf8
+22.Rxd8 Rxd8 23.Qc2 Qd7 24.Rf1 Qd3 25.Qb3+ Kh8 26.Ng3 h5 27.Bc1 h4 28.Bxf4
+exf4 29.Nf5 h3 30.Qe6 hxg2 31.Kxg2 f3+ 32.Kg1 Qxf1+ 33.Kxf1 Rd1# 0-1
+
+[Event "?"]
+[Site "Carlsbad CZE"]
+[Date "1911.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Johner"]
+[Result "0-1"]
+[ECO "C31"]
+
+1.e4 e5 2.f4 d5 3.exd5 c6 4.Qe2 cxd5 5.fxe5 Nc6 6.c3 d4 7.Nf3 Nge7 8.d3
+Ng6 9.Qe4 Bc5 10.Nbd2 O-O 11.Nb3 f5 12.Qe2 Bb6 13.Bg5 Qd7 14.Qd2 f4 15.
+cxd4 Nxd4 16.Nbxd4 Bxd4 17.Qb4 Be3 18.d4 Qg4 19.Bh4 Nxh4 20.Bc4+ Be6 21.
+Bxe6+ Qxe6 22.Nxh4 Qg4 23.Nf3 Qxg2 24.Rf1 Rac8 25.Nd2 Rfd8 26.Nc4 f3 27.
+Rxf3 Qxf3 28.Nd6 Qf2+ 29.Kd1 Qf1+ 30.Qe1 Qd3+ 31.Qd2 Qxd2# 0-1
+
+[Event "?"]
+[Site "Cologne GER"]
+[Date "1911.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Tenner Oscar"]
+[Result "1-0"]
+[ECO "C28k"]
+
+1.e4 e5 2.f4 Bc5 3.Nf3 d6 4.Nc3 Nf6 5.Bc4 Nc6 6.d3 Bg4 7.Na4 exf4 8.Bxf4
+Nh5 9.Nxc5 dxc5 10.Be3 Ne5 11.Nxe5 Bxd1 12.Bxf7+ Ke7 13.Bxc5+ Kf6 14.O-O+
+Kxe5 15.Rf5# 1-0
+
+[Event "?"]
+[Site "Koln"]
+[Date "1911.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Tenner Oscar"]
+[Result "1-0"]
+[ECO "C28k"]
+
+1.e4 e5 2.f4 Bc5 3.Nf3 d6 4.Bc4 Nc6 5.d3 Nf6 6.Nc3 Bg4 7.Na4 exf4 8.Nxc5
+dxc5 9.Bxf4 Nh5 10.Be3 Ne5 11.Nxe5 Bxd1 12.Bxf7+ Ke7 13.Bxc5+ Kf6 14.O-O+
+Kxe5 15.Rf5# 1-0
+
+[Event "?"]
+[Site "St Petersburg RUS"]
+[Date "1912.??.??"]
+[Round "?"]
+[White "Potemkin P"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "B20"]
+
+1.e4 c5 2.g3 g6 3.Bg2 Bg7 4.Ne2 Nc6 5.c3 Nf6 6.Na3 d5 7.exd5 Nxd5 8.Nc2
+O-O 9.d4 cxd4 10.cxd4 Bg4 11.f3 Bf5 12.Ne3 Qa5+ 13.Kf2 Ndb4 14.Nxf5 Qxf5
+15.g4 Nd3+ 16.Kg3 Nxd4 17.gxf5 Nxf5+ 18.Kg4 h5+ 19.Kh3 Nf2# 0-1
+
+[Event "?"]
+[Site "Stockholm (03)"]
+[Date "1912.??.??"]
+[Round "?"]
+[White "Fridlizius J"]
+[Black "Alekhine, Alexander A"]
+[Result "1-0"]
+[ECO "C77h"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.Nc3 Bc5 6.O-O b5 7.Bb3 d6 8.d3 Bg4
+9.Be3 Nd4 10.Bxd4 Bxd4 11.h3 h5 12.Qe2 Nd7 13.Nd1 Nf8 14.c3 Ba7 15.Ne3 Bd7
+16.d4 Ng6 17.Qd2 Bc6 18.Nd5 Rc8 19.Rad1 O-O 20.Kh2 Bb7 21.Rg1 c6 22.Ne3
+Qf6 23.Nf5 d5 24.Ng3 h4 25.Nh5 Qd6 26.Qg5 exd4+ 27.e5 Qe6 28.cxd4 c5 29.
+Nxh4 cxd4 30.Rge1 Bb8 31.f4 Qe7 32.Nf6+ gxf6 33.exf6 Bxf4+ 34.Qxf4 Qxe1
+35.Nxg6 Qe4 36.Ne7+ Kh8 37.Rxd4 Qh7 38.Qh4 Rc4 39.Bxc4 dxc4 40.Qxh7+ Kxh7
+41.Rh4# 1-0
+
+[Event "?"]
+[Site "Vilna, #15"]
+[Date "1912.??.??"]
+[Round "?"]
+[White "Lowenfisch H"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C77q"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.Qe2 Be7 6.c3 d6 7.h3 Bd7 8.d3 O-O
+9.Bc2 Kh8 10.O-O Ng8 11.Re1 Qe8 12.d4 f6 13.Nbd2 g5 14.d5 Nd8 15.g4 h5 16.
+Nh2 Nh6 17.Ndf1 c6 18.Ng3 cxd5 19.exd5 Qf7 20.Nf5 Nxf5 21.Bxf5 Bxf5 22.
+gxf5 Qh7 23.Qe4 Nf7 24.Nf1 Nh6 25.Ne3 Rg8 26.Kg2 Bd8 27.a4 a5 28.b4 axb4
+29.cxb4 Bb6 30.Nc4 Bd4 31.Bb2 Rac8 32.Rac1 Rxc4 33.Rxc4 Bxb2 34.Qc2 Nxf5
+35.Rc7 Qg6 36.Rc8 g4 37.Rxg8+ Kxg8 38.Qxb2 gxh3+ 39.Kxh3 Qg4+ 40.Kh2 Nh4
+41.f4 Nf3+ 42.Kh1 Qh3+ 43.Qh2 Qxh2# 0-1
+
+
+[Event "?"]
+[Site "Kazan RUS"]
+[Date "1913.??.??"]
+[Round "?"]
+[White "Ado/Konstansky"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "D40i"]
+
+1.d4 Nf6 2.Nf3 c5 3.e3 e6 4.c4 d5 5.Nc3 Nc6 6.a3 Bd6 7.dxc5 Bxc5 8.b4 Bd6
+9.Bb2 a5 10.b5 Ne5 11.cxd5 exd5 12.Be2 Be6 13.Qd4 Ng6 14.Rd1 Qe7 15.e4 Bc5
+16.Qa4 Nf4 17.Rd2 Nxg2+ 18.Kf1 Bh3 19.Ng5 Ne3+ 20.Ke1 Bg2 21.Rg1 Nd7 22.
+fxe3 Qxg5 23.Rxd5 Qh4+ 24.Kd1 Nb6 25.Re5+ Kf8 26.Qb3 Rd8+ 27.Kc2 a4 28.Qa2
+Bxe3 29.Rd1 Rxd1 30.Nxd1 Bxe4+ 31.Kc3 Qe1# 0-1
+
+[Event "?"]
+[Site "Paris FRA"]
+[Date "1913.??.??"]
+[Round "?"]
+[White "Rodzynski"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C50d"]
+
+1.e4 e5 2.Nf3 d6 3.Bc4 Nc6 4.c3 Bg4 5.Qb3 Qd7 6.Ng5 Nh6 7.Bxf7+ Nxf7 8.
+Nxf7 Qxf7 9.Qxb7 Kd7 10.Qxa8 Qc4 11.f3 Bxf3 12.gxf3 Nd4 13.d3 Qxd3 14.cxd4
+Be7 15.Qxh8 Bh4# 0-1
+
+[Event "?"]
+[Site "Paris FRA"]
+[Date "1913.??.??"]
+[Round "?"]
+[White "Rodzynski"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C50d"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 d6 4.c3 Bg4 5.Qb3 Qd7 6.Ng5 Nh6 7.Bxf7+ Nxf7 8.
+Nxf7 Qxf7 9.Qxb7 Kd7 10.Qxa8 Qc4 11.f3 Bxf3 12.gxf3 Nd4 13.d3 Qxd3 14.cxd4
+Be7 15.Qxh8 Bh4# 0-1
+
+[Event "?"]
+[Site "Paris Quad"]
+[Date "1914.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Hallegua B"]
+[Result "1-0"]
+[ECO "A84"]
+
+1.c4 f5 2.d4 e6 3.Nc3 Bb4 4.e4 fxe4 5.Qg4 Qe7 6.Bg5 Nf6 7.Bxf6 Qxf6 8.Qxe4
+O-O 9.Nf3 Nc6 10.Bd3 g6 11.O-O Bxc3 12.bxc3 d6 13.Rae1 Bd7 14.c5 Rae8 15.
+cxd6 cxd6 16.Qg4 Nd8 17.Ng5 Bc6 18.f4 Kg7 19.Re3 Re7 20.Rh3 h5 21.Qd1 e5
+22.Nh7 Kxh7 23.fxe5 Qxf1+ 24.Bxf1 dxe5 25.d5 Bd7 26.Rh4 e4 27.Be2 Rf5 28.
+Qd4 Rfe5 29.Rf4 b6 30.Rf8 Re8 31.Rxe8 Rxe8 32.Qf6 Bf5 33.d6 Ne6 34.d7 Rh8
+35.Qe7+ Kh6 36.h3 Rh7 37.d8=Q Nxd8 38.Qxd8 Rd7 39.Qh8+ Kg5 40.Kf2 h4 41.g3
+hxg3+ 42.Kxg3 Be6 43.h4+ Kf5 44.Bg4# 1-0
+
+[Event "?"]
+[Site "St Petersburg-2"]
+[Date "1914.??.??"]
+[Round "?"]
+[White "Marshall, Frank J"]
+[Black "Alekhine, Alexander A"]
+[Result "0-1"]
+[ECO "C15e"]
+
+1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.Bd3 Nf6 5.Bg5 c5 6.e5 h6 7.Bd2 cxd4 8.Nb5
+Bxd2+ 9.Qxd2 Nfd7 10.Nd6+ Kf8 11.Qf4 f6 12.exf6 gxf6 13.Nxc8 e5 14.Qf3 e4
+15.Bxe4 dxe4 16.Qa3+ Kg7 17.Nd6 Nc6 18.O-O-O Nde5 19.Ne2 d3 20.f4 exf3 21.
+gxf3 Qa5 22.Rhg1+ Kh7 23.Rxd3 Rhg8 24.Rb3 Rxg1+ 25.Nxg1 Qe1# 0-1
+
+[Event "?"]
+[Site "Serpukhov"]
+[Date "1915.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Litov"]
+[Result "1-0"]
+[ECO "C38"]
+
+1.e4 e5 2.f4 exf4 3.Nf3 g5 4.Bc4 Bg7 5.d4 d6 6.h4 h6 7.hxg5 hxg5 8.Rxh8
+Bxh8 9.c3 Nc6 10.Qd3 Qe7 11.Na3 a6 12.Bd2 Bd7 13.O-O-O Na5 14.Re1 Nxc4 15.
+Qxc4 O-O-O 16.b4 f6 17.b5 axb5 18.Nxb5 Bxb5 19.Qxb5 c6 20.Qa5 Kb8 21.Kc2
+Qd7 22.Rb1 Ne7 23.Rb3 Nc8 24.c4 b6 25.Qa6 Qb7 26.Qa3 Re8 27.Kd3 Kc7 28.c5
+dxc5 29.dxc5 b5 30.Nd4 Qa7 31.Ba5+ Kd7 32.Rxb5 Qa6 33.Bc3 Qxa3 34.Rb7+ Kd8
+35.Nxc6# 1-0
+
+[Event "?"]
+[Site "Tarnopol"]
+[Date "1916.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Feldt"]
+[Result "1-0"]
+[ECO "C11a"]
+
+1.e4 e6 2.d4 d5 3.Nc3 Nf6 4.exd5 Nxd5 5.Ne4 f5 6.Ng5 Be7 7.N5f3 c6 8.Ne5
+O-O 9.Ngf3 b6 10.Bd3 Bb7 11.O-O Re8 12.c4 Nf6 13.Bf4 Nbd7 14.Qe2 c5 15.Nf7
+Kxf7 16.Qxe6+ Kg6 17.g4 Be4 18.Nh4# 1-0
+
+[Event "?"]
+[Site "Moscow RUS"]
+[Date "1918.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Rabinovich Abram"]
+[Result "1-0"]
+[ECO "C42m"]
+
+1.e4 e5 2.Nf3 Nf6 3.Nxe5 d6 4.Nf3 Nxe4 5.Nc3 d5 6.Qe2 Be7 7.Nxe4 dxe4 8.
+Qxe4 O-O 9.Bc4 Bd6 10.O-O Re8 11.Qd3 Nc6 12.b3 Qf6 13.Bb2 Qxb2 14.Ng5 Be6
+15.Bxe6 fxe6 16.Qxh7+ Kf8 17.Rae1 Qf6 18.Qh5 Kg8 19.Re3 Bf4 20.Qh7+ Kf8
+21.Qh8+ Ke7 22.Rxe6+ Qxe6 23.Qxg7+ Kd6 24.Nxe6 Rxe6 25.d4 Rae8 26.c4 R8e7
+27.Qf8 Re4 28.Qf5 Rxd4 29.c5# 1-0
+
+[Event "?"]
+[Site "Odessa UKR"]
+[Date "1918.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Verlinsky, Boris M"]
+[Result "1-0"]
+[ECO "C68g"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Bxc6 dxc6 5.Nc3 Bc5 6.d3 Qe7 7.Be3 Bg4 8.h3
+Bh5 9.g4 Bg6 10.Qd2 O-O-O 11.Bxc5 Qxc5 12.Qe3 Qxe3+ 13.fxe3 f6 14.O-O-O c5
+15.Nd5 c6 16.Nb6+ Kc7 17.Nc4 b5 18.Ncd2 Ne7 19.b3 h5 20.g5 Rc8 21.gxf6
+gxf6 22.Rhg1 Rhg8 23.Kb2 Kd7 24.a4 Ke6 25.Ra1 f5 26.Ng5+ Kd6 27.axb5 axb5
+28.exf5 Bxf5 29.Nde4+ Bxe4 30.Nxe4+ Ke6 31.Nxc5+ Kd5 32.Rxg8 Nxg8 33.b4
+Nf6 34.e4+ Kd6 35.Ra7 Rg8 36.Rf7 Rg6 37.h4 Rh6 38.c4 Rg6 39.Nb7+ Ke6 40.
+Nd8+ Kd6 41.c5# 1-0
+
+[Event "?"]
+[Site "Odessa UKR"]
+[Date "1918.??.??"]
+[Round "?"]
+[White "Alekhine, Alexander A"]
+[Black "Verlinsky, Boris M"]
+[Result "1-0"]
+[ECO "C68g"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Bxc6 dxc6 5.Nc3 Bc5 6.d3 Qe7 7.Be3 Bg4 8.h3
+Bh5 9.g4 Bg6 10.Qd2 O-O-O 11.Bxc5 Qxc5 12.Qe3 Qxe3+ 13.fxe3 f6 14.O-O-O c5
+15.Nd5 c6 16.Nb6+ Kc7 17.Nc4 b5 18.Ncd2 Ne7 19.b3 h5 20.g5 Rdf8 21.gxf6
+gxf6 22.Rhg1 Rhg8 23.Kb2 Kd7 24.a4 Ke6 25.Ra1 f5 26.Ng5+ Kd6 27.axb5 axb5
+28.exf5 Bxf5 29.Nde4+ Bxe4 30.Nxe4+ Ke6 31.Nxc5+ Kd5 32.Rxg8 Nxg8 33.b4
+Nf6 34.e4+ Kd6 35.Ra7 Rg8 36.Rf7 Rg6 37.h4 Rh6 38.c4 Rg6 39.Nb7+ Ke6 40.
+Nd8+ Kd6 41.c5# 1-0

@@ -23,8 +23,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static ca.watier.enums.CasePosition.*;
+
 public enum PgnMoveToken {
-    CAPTURE("x"), CHECK("+"), CHECKMATE("#", "++"), PAWN_PROMOTION("="), KINGSIDE_CASTLING("O-O"), QUEENSIDE_CASTLING("O-O-O"), NORMAL_MOVE("\0");
+    CAPTURE("x"),
+    CHECK("+"),
+    CHECKMATE("#", "++"),
+    PAWN_PROMOTION("="),
+    KINGSIDE_CASTLING("O-O"),
+    QUEENSIDE_CASTLING("O-O-O"),
+    KINGSIDE_CASTLING_CHECK("O-O+"),
+    QUEENSIDE_CASTLING_CHECK("O-O-O+"),
+    KINGSIDE_CASTLING_CHECKMATE("O-O#"),
+    QUEENSIDE_CASTLING_CHECKMATE("O-O-O#"),
+    NORMAL_MOVE("\0");
+
     private List<String> chars = new ArrayList<>();
 
     PgnMoveToken(@NotNull String... chars) {
@@ -36,26 +49,40 @@ public enum PgnMoveToken {
     public static List<PgnMoveToken> getPieceMovesFromLetter(@NotNull String action) {
         List<PgnMoveToken> moves = new ArrayList<>();
 
-        for (PgnMoveToken pgnMoveToken : values()) {
-            for (String current : pgnMoveToken.getChars()) {
-                if (action.contains(current)) {
-                    switch (pgnMoveToken) { //The moves that contain a "normal move"
-                        case CAPTURE:
-                        case CHECK:
-                        case CHECKMATE:
-                        case PAWN_PROMOTION:
-                            if (!moves.contains(PgnParser.NORMAL_MOVE)) {
-                                moves.add(PgnParser.NORMAL_MOVE);
-                            }
-                            break;
+        if (QUEENSIDE_CASTLING.getChars().contains(action)) {  //The Queen side casting token contains also the king side (O-O in O-O-O...)
+            moves.add(QUEENSIDE_CASTLING);
+        } else if (KINGSIDE_CASTLING.getChars().contains(action)) {
+            moves.add(KINGSIDE_CASTLING);
+        } else if (QUEENSIDE_CASTLING_CHECK.getChars().contains(action)) {
+            moves.add(QUEENSIDE_CASTLING_CHECK);
+        } else if (KINGSIDE_CASTLING_CHECK.getChars().contains(action)) {
+            moves.add(KINGSIDE_CASTLING_CHECK);
+        } else if (QUEENSIDE_CASTLING_CHECKMATE.getChars().contains(action)) {
+            moves.add(QUEENSIDE_CASTLING_CHECKMATE);
+        } else if (KINGSIDE_CASTLING_CHECKMATE.getChars().contains(action)) {
+            moves.add(KINGSIDE_CASTLING_CHECKMATE);
+        } else {
+            for (PgnMoveToken pgnMoveToken : values()) {
+                for (String current : pgnMoveToken.getChars()) {
+                    if (action.contains(current)) {
+                        switch (pgnMoveToken) { //The moves that contain a "normal move"
+                            case CAPTURE:
+                            case CHECK:
+                            case CHECKMATE:
+                            case PAWN_PROMOTION:
+                                if (!moves.contains(PgnParser.NORMAL_MOVE)) {
+                                    moves.add(PgnParser.NORMAL_MOVE);
+                                }
+                                break;
+                        }
+                        moves.add(pgnMoveToken);
                     }
-                    moves.add(pgnMoveToken);
                 }
             }
-        }
 
-        if (moves.isEmpty()) {
-            moves.add(PgnParser.NORMAL_MOVE);
+            if (moves.isEmpty()) {
+                moves.add(PgnParser.NORMAL_MOVE);
+            }
         }
 
         return moves;
@@ -63,5 +90,42 @@ public enum PgnMoveToken {
 
     public List<String> getChars() {
         return chars;
+    }
+
+    public static CasePosition getCastlingRookPosition(PgnMoveToken pgnMoveToken, Side playerSide) {
+        if (!PgnMoveToken.isCastling(pgnMoveToken)) {
+            return null;
+        }
+
+        CasePosition value = null;
+        boolean isQueenSide = PgnMoveToken.isQueenSideCastling(pgnMoveToken);
+
+
+        switch (playerSide) {
+            case BLACK:
+                value = (isQueenSide ? A8 : H8);
+                break;
+            case WHITE:
+                value = (isQueenSide ? A1 : H1);
+                break;
+        }
+
+        return value;
+    }
+
+    private static boolean isCastling(PgnMoveToken pgnMoveToken) {
+        return isQueenSideCastling(pgnMoveToken) || isKingSideCastling(pgnMoveToken);
+    }
+
+    private static boolean isQueenSideCastling(PgnMoveToken pgnMoveToken) {
+        return PgnMoveToken.QUEENSIDE_CASTLING.equals(pgnMoveToken) ||
+                PgnMoveToken.QUEENSIDE_CASTLING_CHECK.equals(pgnMoveToken) ||
+                PgnMoveToken.QUEENSIDE_CASTLING_CHECKMATE.equals(pgnMoveToken);
+    }
+
+    private static boolean isKingSideCastling(PgnMoveToken pgnMoveToken) {
+        return PgnMoveToken.KINGSIDE_CASTLING.equals(pgnMoveToken) ||
+                PgnMoveToken.KINGSIDE_CASTLING_CHECK.equals(pgnMoveToken) ||
+                PgnMoveToken.KINGSIDE_CASTLING_CHECKMATE.equals(pgnMoveToken);
     }
 }
