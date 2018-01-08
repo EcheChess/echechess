@@ -23,7 +23,6 @@ import ca.watier.pojos.MoveHistory;
 import ca.watier.services.ConstraintService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -311,9 +310,9 @@ public class PgnParser {
                             break mainLoop;
                         }
                     } else if (length == 2) { //Extract the full coordinate
-                        throw new InvalidStateException("The full coordinate is not implemented yet");
+                        throw new IllegalStateException("The full coordinate is not implemented yet");
                     } else {
-                        throw new InvalidStateException("Invalid type of positioning");
+                        throw new IllegalStateException("Invalid type of positioning");
                     }
                 }
             }
