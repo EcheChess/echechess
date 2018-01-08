@@ -61,7 +61,7 @@ public class EcKeystoreGenerator {
         }
 
         try {
-            secureRandom = SecureRandom.getInstance("SHA1PRNG");
+            secureRandom = SecureRandom.getInstance(PRNG);
         } catch (NoSuchAlgorithmException e2) {
             secureRandom = new SecureRandom();
         }

@@ -23,7 +23,7 @@ import ca.watier.pojos.MoveHistory;
 import ca.watier.services.ConstraintService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -101,13 +101,16 @@ public class PgnParser {
         int currentIdx = 1;
 
         for (int i = 0; i < nbOfGames; i = i + 2) {
-            String rawHeaders = headersAndGames[i];
-            String[] currentHeaders = rawHeaders.split("\n");
+
+            //FIXME: Will be used later ?
+//            String rawHeaders = headersAndGames[i];
+//            String[] currentHeaders = rawHeaders.split("\n");
+
             String rawCurrentGame = headersAndGames[i + 1];
             String currentGame = rawCurrentGame.substring(2, rawCurrentGame.length()).replace("\n", " ");
 
             LOGGER.debug("=================================================");
-            LOGGER.debug(String.format("***%s***", currentIdx));
+            LOGGER.debug("***{}***", currentIdx);
             LOGGER.debug(currentGame);
             LOGGER.debug("=================================================");
 
@@ -146,7 +149,7 @@ public class PgnParser {
 
         PgnEndGameToken endGameTokenByAction = PgnEndGameToken.getEndGameTokenByAction(action);
         if (PgnEndGameToken.isGameEnded(endGameTokenByAction)) {
-            LOGGER.info(String.format("Game ending code (%s)", endGameTokenByAction));
+            LOGGER.info("Game ending code ({})", endGameTokenByAction);
             validateGameEnding(endGameTokenByAction);
             return;
         }
@@ -210,7 +213,7 @@ public class PgnParser {
                 break;
             case STILL_IN_PROGRESS:
             case UNKNOWN:
-                LOGGER.error(String.format("The game ending is not known (%s)", ending));
+                LOGGER.error("The game ending is not known ({})", ending);
                 break;
         }
     }
@@ -230,9 +233,9 @@ public class PgnParser {
         CasePosition selectedRookPosition = PgnMoveToken.getCastlingRookPosition(pgnMoveToken, currentSide);
 
         if (ca.watier.enums.MoveType.CASTLING.equals(gameHandler.movePiece(kingPosition, selectedRookPosition, currentSide))) {
-            LOGGER.debug(String.format("Castling: King -> %s | Rook %s | (%s)", kingPosition, selectedRookPosition, currentSide));
+            LOGGER.debug("Castling: King -> {} | Rook {} | ({})", kingPosition, selectedRookPosition, currentSide);
         } else { //Issue with the move / case
-            LOGGER.error(String.format("Unable to cast at the selected position %s for the current color %s !", selectedRookPosition, currentSide));
+            LOGGER.error("Unable to cast at the selected position {} for the current color {} !", selectedRookPosition, currentSide);
         }
     }
 
@@ -240,7 +243,7 @@ public class PgnParser {
         if (!KingStatus.CHECK.equals(gameHandler.getKingStatus(otherSide, false))) {
             throw new IllegalStateException("The other player king is not check!");
         } else {
-            LOGGER.debug(String.format("%s is CHECK", otherSide));
+            LOGGER.debug("{} is CHECK", otherSide);
         }
     }
 
@@ -248,7 +251,7 @@ public class PgnParser {
         if (!KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(otherSide, false))) {
             throw new IllegalStateException("The other player king is not check!");
         } else {
-            LOGGER.debug(String.format("%s is CHECKMATE", otherSide));
+            LOGGER.debug("{} is CHECKMATE", otherSide);
         }
     }
 
@@ -302,17 +305,15 @@ public class PgnParser {
                 for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
                     if (length == 1) {
                         CasePosition firstValue = casePositionPiecesPair.getFirstValue();
-                        if (Character.isLetter(colOrRow) && firstValue.isOnSameColumn(colOrRow)) { //col (letter)
-                            from = firstValue;
-                            break mainLoop;
-                        } else if (Character.isDigit(colOrRow) && firstValue.isOnSameRow(colOrRow)) { //row (number)
+                        if ((Character.isLetter(colOrRow) && firstValue.isOnSameColumn(colOrRow)) ||   //col (letter)
+                                (Character.isDigit(colOrRow) && firstValue.isOnSameRow(colOrRow))) {  //row (number)
                             from = firstValue;
                             break mainLoop;
                         }
                     } else if (length == 2) { //Extract the full coordinate
-                        throw new NotImplementedException();
+                        throw new InvalidStateException("The full coordinate is not implemented yet");
                     } else {
-                        throw new NotImplementedException();
+                        throw new InvalidStateException("Invalid type of positioning");
                     }
                 }
             }
@@ -334,7 +335,7 @@ public class PgnParser {
             }
         }
 
-        LOGGER.debug(String.format("MOVE %s to %s (%s) | action -> %s", from, to, currentSide, action));
+        LOGGER.debug("MOVE {} to {} ({}) | action -> {}", from, to, currentSide, action);
         MoveType moveType = gameHandler.movePiece(from, to, currentSide);
 
         if (MoveType.PAWN_PROMOTION.equals(moveType)) {
@@ -342,7 +343,7 @@ public class PgnParser {
             Pieces pieceBySide = pieceFromAction.getPieceBySide(currentSide);
             gameHandler.upgradePiece(to, pieceBySide, currentSide);
         } else if (!(MoveType.NORMAL_MOVE.equals(moveType) || MoveType.CAPTURE.equals(moveType) || MoveType.EN_PASSANT.equals(moveType))) {  //Issue with the move / case
-            LOGGER.error(String.format("Unable to move at the selected position %s for the current color %s !", position, currentSide));
+            LOGGER.error("Unable to move at the selected position {} for the current color {} !", position, currentSide);
         }
     }
 

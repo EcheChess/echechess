@@ -36,7 +36,9 @@ public enum CasePosition {
     A2(-4, -2, 'a', 2), B2(-3, -2, 'b', 2), C2(-2, -2, 'c', 2), D2(-1, -2, 'd', 2), E2(0, -2, 'e', 2), F2(1, -2, 'f', 2), G2(2, -2, 'g', 2), H2(3, -2, 'h', 2),
     A1(-4, -3, 'a', 1), B1(-3, -3, 'b', 1), C1(-2, -3, 'c', 1), D1(-1, -3, 'd', 1), E1(0, -3, 'e', 1), F1(1, -3, 'f', 1), G1(2, -3, 'g', 1), H1(3, -3, 'h', 1);
 
-    private final int x, y, row;
+    private final int x;
+    private final int y;
+    private final int row;
     private final char col;
 
     CasePosition(int x, int y, char col, int row) {
