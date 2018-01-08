@@ -42,6 +42,9 @@ import java.security.cert.X509Certificate;
 /**
  * Created by yannick on 6/5/2017.
  */
+
+//IP addresses should not be hardcoded
+@java.lang.SuppressWarnings("squid:S1313") //The IP is for the local machine
 public class EcKeystoreGenerator {
     public static final String PROVIDER_NAME = BouncyCastleProvider.PROVIDER_NAME;
     public static final String PRNG = "SHA1PRNG";
@@ -98,7 +101,7 @@ public class EcKeystoreGenerator {
                     false, new GeneralNames(
                             new GeneralName(GeneralName.iPAddress, "127.0.0.1")));
         } catch (CertIOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
 
         ContentSigner signer;

@@ -301,11 +301,12 @@ public class PgnParser {
             for (Map.Entry<Pieces, List<Pair<CasePosition, Pieces>>> piecesListEntry : similarPieceThatHitTarget.entrySet()) {
                 for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
                     if (length == 1) {
-                        if (Character.isLetter(colOrRow) && casePositionPiecesPair.getFirstValue().isOnSameColumn(colOrRow)) { //col (letter)
-                            from = casePositionPiecesPair.getFirstValue();
+                        CasePosition firstValue = casePositionPiecesPair.getFirstValue();
+                        if (Character.isLetter(colOrRow) && firstValue.isOnSameColumn(colOrRow)) { //col (letter)
+                            from = firstValue;
                             break mainLoop;
-                        } else if (Character.isDigit(colOrRow) && casePositionPiecesPair.getFirstValue().isOnSameRow(colOrRow)) { //row (number)
-                            from = casePositionPiecesPair.getFirstValue();
+                        } else if (Character.isDigit(colOrRow) && firstValue.isOnSameRow(colOrRow)) { //row (number)
+                            from = firstValue;
                             break mainLoop;
                         }
                     } else if (length == 2) { //Extract the full coordinate
@@ -320,24 +321,14 @@ public class PgnParser {
                 CasePosition casePosition = casePositionPiecesPair.getFirstValue();
                 Pieces pieces = casePositionPiecesPair.getSecondValue();
 
-                //FIXME: Merge in one if ?
-                if (Pieces.isPawn(pieces) && PgnPieceFound.PAWN.equals(pgnPieceFound)) {
+                if ((Pieces.isPawn(pieces) && PgnPieceFound.PAWN.equals(pgnPieceFound)) ||
+                        (Pieces.isBishop(pieces) && PgnPieceFound.BISHOP.equals(pgnPieceFound)) ||
+                        (Pieces.isKing(pieces) && PgnPieceFound.KING.equals(pgnPieceFound)) ||
+                        (Pieces.isKnight(pieces) && PgnPieceFound.KNIGHT.equals(pgnPieceFound)) ||
+                        (Pieces.isQueen(pieces) && PgnPieceFound.QUEEN.equals(pgnPieceFound)) ||
+                        (Pieces.isRook(pieces) && PgnPieceFound.ROOK.equals(pgnPieceFound))) {
                     from = casePosition;
-                    break;
-                } else if (Pieces.isBishop(pieces) && PgnPieceFound.BISHOP.equals(pgnPieceFound)) {
-                    from = casePosition;
-                    break;
-                } else if (Pieces.isKing(pieces) && PgnPieceFound.KING.equals(pgnPieceFound)) {
-                    from = casePosition;
-                    break;
-                } else if (Pieces.isKnight(pieces) && PgnPieceFound.KNIGHT.equals(pgnPieceFound)) {
-                    from = casePosition;
-                    break;
-                } else if (Pieces.isQueen(pieces) && PgnPieceFound.QUEEN.equals(pgnPieceFound)) {
-                    from = casePosition;
-                    break;
-                } else if (Pieces.isRook(pieces) && PgnPieceFound.ROOK.equals(pgnPieceFound)) {
-                    from = casePosition;
+
                     break;
                 }
             }
@@ -404,10 +395,14 @@ public class PgnParser {
         char value = '\0';
 
         for (char c : action.toCharArray()) {
-            if (Character.isDigit(c) && (Character.getNumericValue(c) >= 1 && Character.getNumericValue(c) <= 8)) {
-                value = c;
-                break;
-            } else if ((Character.isLetter(c) && Character.isLowerCase(c)) && (c >= 'a' && c <= 'h')) {
+            if (Character.isDigit(c)) {
+                int numericValue = Character.getNumericValue(c);
+
+                if (numericValue >= 1 && numericValue <= 8) {
+                    value = c;
+                    break;
+                }
+            } else if (Character.isLetter(c) && Character.isLowerCase(c) && (c >= 'a' && c <= 'h')) {
                 value = c;
                 break;
             }
