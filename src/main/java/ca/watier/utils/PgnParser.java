@@ -39,9 +39,13 @@ public class PgnParser {
     public static final PgnMoveToken NORMAL_MOVE = PgnMoveToken.NORMAL_MOVE;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PgnParser.class);
     private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new EnumMap<>(CasePosition.class);
+    private static final List<PgnMoveToken> PAWN_PROMOTION_WITH_CAPTURE_TOKENS = new ArrayList<>();
     private final static Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
 
     static {
+        PAWN_PROMOTION_WITH_CAPTURE_TOKENS.add(PgnMoveToken.PAWN_PROMOTION);
+        PAWN_PROMOTION_WITH_CAPTURE_TOKENS.add(PgnMoveToken.CAPTURE);
+
         DEFAULT_GAME_TEMPLATE.put(CasePosition.A1, Pieces.W_ROOK);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.B1, Pieces.W_KNIGHT);
         DEFAULT_GAME_TEMPLATE.put(CasePosition.C1, Pieces.W_BISHOP);
@@ -93,17 +97,22 @@ public class PgnParser {
 
     public List<GenericGameHandler> parse(@NotNull String rawText) {
         String[] headersAndGames = rawText.replace("\r\n", "\n").split("\n\n");
-        int nbOfGames = headersAndGames.length / 2;
+        int nbOfGames = headersAndGames.length;
         int currentIdx = 1;
 
         for (int i = 0; i < nbOfGames; i = i + 2) {
-            LOGGER.debug(String.format("***********************(%s)***********************", currentIdx));
-            currentIdx++;
-
             String rawHeaders = headersAndGames[i];
             String[] currentHeaders = rawHeaders.split("\n");
             String rawCurrentGame = headersAndGames[i + 1];
             String currentGame = rawCurrentGame.substring(2, rawCurrentGame.length()).replace("\n", " ");
+
+            LOGGER.debug("=================================================");
+            LOGGER.debug(String.format("***%s***", currentIdx));
+            LOGGER.debug(currentGame);
+            LOGGER.debug("=================================================");
+
+            currentIdx++;
+
             String[] tokens = currentGame.split("\\s+\\d+\\.");
 
             if (tokens.length == 0) {
@@ -142,7 +151,10 @@ public class PgnParser {
             return;
         }
 
-        for (PgnMoveToken pgnMoveToken : PgnMoveToken.getPieceMovesFromLetter(action)) {
+        List<PgnMoveToken> pieceMovesFromLetter = PgnMoveToken.getPieceMovesFromLetter(action);
+        boolean pawnPromotionWithCapture = pieceMovesFromLetter.containsAll(PAWN_PROMOTION_WITH_CAPTURE_TOKENS);
+
+        for (PgnMoveToken pgnMoveToken : pieceMovesFromLetter) {
             switch (pgnMoveToken) {
                 case KINGSIDE_CASTLING_CHECK:
                 case QUEENSIDE_CASTLING_CHECK:
@@ -171,7 +183,7 @@ public class PgnParser {
                     executeCastling(pgnMoveToken);
                     break;
                 case PAWN_PROMOTION:
-                    validatePawnPromotion();
+                    validatePawnPromotion(pawnPromotionWithCapture);
                     break;
             }
         }
@@ -244,14 +256,15 @@ public class PgnParser {
         List<String> casePositions = getPositionsFromAction(action);
         List<PgnMoveToken> pieceMovesFromLetter = PgnMoveToken.getPieceMovesFromLetter(action);
         String position = casePositions.get(0);
-        CasePosition casePositionTo = CasePosition.valueOf(position.toUpperCase());
+        CasePosition to = CasePosition.valueOf(position.toUpperCase());
         MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget = new MultiArrayMap<>();
-        List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition = gameHandler.getAllPiecesThatCanMoveTo(casePositionTo, currentSide);
-        CasePosition casePositionFrom = null;
+        List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition = gameHandler.getAllPiecesThatCanMoveTo(to, currentSide);
+        CasePosition from = null;
 
         boolean isPawnPromotion = pieceMovesFromLetter.contains(PgnMoveToken.PAWN_PROMOTION);
         PgnPieceFound pgnPieceFound = isPawnPromotion ? PgnPieceFound.PAWN : PgnPieceFound.getPieceFromAction(action);
         List<Pieces> validPiecesFromAction = pgnPieceFound.getPieces();
+
 
         //Group all similar pieces that can hit the target
         for (int i = 0; i < piecesThatCanHitPosition.size(); i++) {
@@ -289,10 +302,10 @@ public class PgnParser {
                 for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
                     if (length == 1) {
                         if (Character.isLetter(colOrRow) && casePositionPiecesPair.getFirstValue().isOnSameColumn(colOrRow)) { //col (letter)
-                            casePositionFrom = casePositionPiecesPair.getFirstValue();
+                            from = casePositionPiecesPair.getFirstValue();
                             break mainLoop;
                         } else if (Character.isDigit(colOrRow) && casePositionPiecesPair.getFirstValue().isOnSameRow(colOrRow)) { //row (number)
-                            casePositionFrom = casePositionPiecesPair.getFirstValue();
+                            from = casePositionPiecesPair.getFirstValue();
                             break mainLoop;
                         }
                     } else if (length == 2) { //Extract the full coordinate
@@ -309,35 +322,35 @@ public class PgnParser {
 
                 //FIXME: Merge in one if ?
                 if (Pieces.isPawn(pieces) && PgnPieceFound.PAWN.equals(pgnPieceFound)) {
-                    casePositionFrom = casePosition;
+                    from = casePosition;
                     break;
                 } else if (Pieces.isBishop(pieces) && PgnPieceFound.BISHOP.equals(pgnPieceFound)) {
-                    casePositionFrom = casePosition;
+                    from = casePosition;
                     break;
                 } else if (Pieces.isKing(pieces) && PgnPieceFound.KING.equals(pgnPieceFound)) {
-                    casePositionFrom = casePosition;
+                    from = casePosition;
                     break;
                 } else if (Pieces.isKnight(pieces) && PgnPieceFound.KNIGHT.equals(pgnPieceFound)) {
-                    casePositionFrom = casePosition;
+                    from = casePosition;
                     break;
                 } else if (Pieces.isQueen(pieces) && PgnPieceFound.QUEEN.equals(pgnPieceFound)) {
-                    casePositionFrom = casePosition;
+                    from = casePosition;
                     break;
                 } else if (Pieces.isRook(pieces) && PgnPieceFound.ROOK.equals(pgnPieceFound)) {
-                    casePositionFrom = casePosition;
+                    from = casePosition;
                     break;
                 }
             }
         }
 
-        LOGGER.debug(String.format("MOVE %s to %s (%s) | action -> %s", casePositionFrom, casePositionTo, currentSide, action));
-        MoveType moveType = gameHandler.movePiece(casePositionFrom, casePositionTo, currentSide);
+        LOGGER.debug(String.format("MOVE %s to %s (%s) | action -> %s", from, to, currentSide, action));
+        MoveType moveType = gameHandler.movePiece(from, to, currentSide);
 
         if (MoveType.PAWN_PROMOTION.equals(moveType)) {
             PgnPieceFound pieceFromAction = PgnPieceFound.getPieceFromAction(action);
             Pieces pieceBySide = pieceFromAction.getPieceBySide(currentSide);
-            gameHandler.upgradePiece(casePositionTo, pieceBySide, currentSide);
-        } else if (!(MoveType.NORMAL_MOVE.equals(moveType) || MoveType.CAPTURE.equals(moveType))) {  //Issue with the move / case
+            gameHandler.upgradePiece(to, pieceBySide, currentSide);
+        } else if (!(MoveType.NORMAL_MOVE.equals(moveType) || MoveType.CAPTURE.equals(moveType) || MoveType.EN_PASSANT.equals(moveType))) {  //Issue with the move / case
             LOGGER.error(String.format("Unable to move at the selected position %s for the current color %s !", position, currentSide));
         }
     }
@@ -345,15 +358,21 @@ public class PgnParser {
     private void validateCapture() {
         List<MoveHistory> moveHistory = gameHandler.getMoveHistory();
         MoveHistory lastMoveHistory = moveHistory.get(moveHistory.size() - 1);
+        MoveType moveType = lastMoveHistory.getMoveType();
 
-        if (!MoveType.CAPTURE.equals(lastMoveHistory.getMoveType())) {
+        if (!(MoveType.CAPTURE.equals(moveType) || MoveType.EN_PASSANT.equals(moveType))) {
             throw new IllegalStateException("The capture is not in the history!");
         }
     }
 
-    private void validatePawnPromotion() {
+    private void validatePawnPromotion(boolean pawnPromotionWithCapture) {
         List<MoveHistory> moveHistory = gameHandler.getMoveHistory();
-        MoveHistory lastMoveHistory = moveHistory.get(moveHistory.size() - 1);
+
+        //In case of a capture and a pawn promotion in the same turn, the history index of the promotion is before the capture
+        MoveHistory lastMoveHistory =
+                pawnPromotionWithCapture ?
+                        moveHistory.get(moveHistory.size() - 2) :
+                        moveHistory.get(moveHistory.size() - 1);
 
         if (!MoveType.PAWN_PROMOTION.equals(lastMoveHistory.getMoveType())) {
             throw new IllegalStateException("The pawn promotion is not in the history!");

@@ -74,10 +74,25 @@ public class GenericGameHandler extends GameBoard {
      */
     public MoveType movePiece(CasePosition from, CasePosition to, Side playerSide) {
         MoveHistory moveHistory = new MoveHistory(from, to, playerSide);
+        Pieces piecesToBeforeAction = getPiece(to);
 
         MoveType moveType = movePiece(from, to, playerSide, moveHistory);
         moveHistory.setMoveType(moveType);
         moveHistoryList.add(moveHistory);
+
+        switch (moveType) {
+            case PAWN_PROMOTION:
+                //Check if the promotion kill a piece in the process
+                if (piecesToBeforeAction != null) {
+                    MoveHistory moveHistoryCapture = new MoveHistory(from, to, playerSide);
+                    moveHistoryCapture.setMoveType(MoveType.CAPTURE);
+                    moveHistoryList.add(moveHistoryCapture);
+                }
+                break;
+            default:
+                break;
+        }
+
         return moveType;
     }
 
@@ -485,7 +500,6 @@ public class GenericGameHandler extends GameBoard {
      * @return
      */
     public List<Pair<CasePosition, Pieces>> getAllPiecesThatCanMoveTo(CasePosition to, Side sideToKeep) {
-
         List<Pair<CasePosition, Pieces>> values = new ArrayList<>();
 
         for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : getPiecesLocation().entrySet()) {
@@ -496,7 +510,10 @@ public class GenericGameHandler extends GameBoard {
                 continue;
             }
 
-            if (isPieceMovableTo(from, to, sideToKeep)) {
+            MoveType moveType = CONSTRAINT_SERVICE.getMoveType(from, to, this);
+            boolean isEnPassant = MoveType.EN_PASSANT.equals(moveType);
+
+            if (isPieceMovableTo(from, to, sideToKeep) || isEnPassant) {
                 if (Pieces.isKing(piecesFrom) && !isKingCheckAtPosition(to, sideToKeep)) {
                     values.add(new Pair<>(from, piecesFrom));
                 } else {
