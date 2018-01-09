@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -37,47 +36,12 @@ import static ca.watier.enums.Side.WHITE;
 public class PgnParser {
     public static final PgnMoveToken NORMAL_MOVE = PgnMoveToken.NORMAL_MOVE;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PgnParser.class);
-    private static final Map<CasePosition, Pieces> DEFAULT_GAME_TEMPLATE = new EnumMap<>(CasePosition.class);
     private static final List<PgnMoveToken> PAWN_PROMOTION_WITH_CAPTURE_TOKENS = new ArrayList<>();
-    private final static Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
+    private static final Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
 
     static {
         PAWN_PROMOTION_WITH_CAPTURE_TOKENS.add(PgnMoveToken.PAWN_PROMOTION);
         PAWN_PROMOTION_WITH_CAPTURE_TOKENS.add(PgnMoveToken.CAPTURE);
-
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.A1, Pieces.W_ROOK);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.B1, Pieces.W_KNIGHT);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.C1, Pieces.W_BISHOP);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.D1, Pieces.W_QUEEN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.E1, Pieces.W_KING);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.F1, Pieces.W_BISHOP);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.G1, Pieces.W_KNIGHT);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.H1, Pieces.W_ROOK);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.A2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.B2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.C2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.D2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.E2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.F2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.G2, Pieces.W_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.H2, Pieces.W_PAWN);
-
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.A8, Pieces.B_ROOK);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.B8, Pieces.B_KNIGHT);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.C8, Pieces.B_BISHOP);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.D8, Pieces.B_QUEEN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.E8, Pieces.B_KING);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.F8, Pieces.B_BISHOP);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.G8, Pieces.B_KNIGHT);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.H8, Pieces.B_ROOK);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.A7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.B7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.C7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.D7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.E7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.F7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.G7, Pieces.B_PAWN);
-        DEFAULT_GAME_TEMPLATE.put(CasePosition.H7, Pieces.B_PAWN);
     }
 
     private final List<GenericGameHandler> handlerList = new ArrayList<>();
@@ -100,11 +64,6 @@ public class PgnParser {
         int currentIdx = 1;
 
         for (int i = 0; i < nbOfGames; i = i + 2) {
-
-            //FIXME: Will be used later ?
-//            String rawHeaders = headersAndGames[i];
-//            String[] currentHeaders = rawHeaders.split("\n");
-
             String rawCurrentGame = headersAndGames[i + 1];
             String currentGame = rawCurrentGame.substring(2, rawCurrentGame.length()).replace("\n", " ");
 
@@ -131,6 +90,12 @@ public class PgnParser {
                 String[] actions = currentToken.split(" ");
 
                 for (String action : actions) {
+                    action = action.trim();
+
+                    if (action.isEmpty()) {
+                        continue;
+                    }
+
                     parseAction(action);
                 }
             }
@@ -139,13 +104,12 @@ public class PgnParser {
         return handlerList;
     }
 
-    public void resetSide() {
+    private void resetSide() {
         currentSide = WHITE;
         otherSide = BLACK;
     }
 
     private void parseAction(String action) {
-
         PgnEndGameToken endGameTokenByAction = PgnEndGameToken.getEndGameTokenByAction(action);
         if (PgnEndGameToken.isGameEnded(endGameTokenByAction)) {
             LOGGER.info("Game ending code ({})", endGameTokenByAction);
