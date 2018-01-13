@@ -219,84 +219,21 @@ public class PgnParser {
     }
 
     private void executeMove(@NotNull String action) {
+
         List<String> casePositions = getPositionsFromAction(action);
         List<PgnMoveToken> pieceMovesFromLetter = PgnMoveToken.getPieceMovesFromLetter(action);
+
         String position = casePositions.get(0);
         CasePosition to = CasePosition.valueOf(position.toUpperCase());
-        MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget = new MultiArrayMap<>();
-        List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition = gameHandler.getAllPiecesThatCanMoveTo(to, currentSide);
-        CasePosition from = null;
 
-        boolean isPawnPromotion = pieceMovesFromLetter.contains(PgnMoveToken.PAWN_PROMOTION);
-        PgnPieceFound pgnPieceFound = isPawnPromotion ? PgnPieceFound.PAWN : PgnPieceFound.getPieceFromAction(action);
+        PgnPieceFound pgnPieceFound = isPawnPromotion(action, pieceMovesFromLetter);
         List<Pieces> validPiecesFromAction = pgnPieceFound.getPieces();
+        List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition = gameHandler.getAllPiecesThatCanMoveTo(to, currentSide);
+        MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget = getSimilarPiecesThatCanHitSameTarget(piecesThatCanHitPosition, validPiecesFromAction);
 
-
-        //Group all similar pieces that can hit the target
-        for (int i = 0; i < piecesThatCanHitPosition.size(); i++) {
-            Pair<CasePosition, Pieces> firstLayer = piecesThatCanHitPosition.get(i);
-            CasePosition firstPosition = firstLayer.getFirstValue();
-            Pieces firstPiece = firstLayer.getSecondValue();
-
-            if (!validPiecesFromAction.contains(firstPiece)) {
-                continue;
-            }
-
-            boolean isOtherFound = false;
-
-            for (int j = (i + 1); j < piecesThatCanHitPosition.size(); j++) {
-                Pair<CasePosition, Pieces> secondLayer = piecesThatCanHitPosition.get(j);
-                CasePosition secondPosition = secondLayer.getFirstValue();
-                Pieces secondPiece = secondLayer.getSecondValue();
-
-                if (firstPiece.equals(secondPiece)) {
-                    similarPieceThatHitTarget.put(secondPiece, new Pair<>(secondPosition, secondPiece));
-                    isOtherFound = true;
-                }
-            }
-
-            if (isOtherFound) {
-                similarPieceThatHitTarget.put(firstPiece, new Pair<>(firstPosition, firstPiece));
-            }
-        }
-
-        if (!similarPieceThatHitTarget.isEmpty()) {
-            int length = casePositions.size();
-            char colOrRow = findFirstColOrRowInAction(action);
-            mainLoop:
-            for (Map.Entry<Pieces, List<Pair<CasePosition, Pieces>>> piecesListEntry : similarPieceThatHitTarget.entrySet()) {
-                for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
-                    if (length == 1) {
-                        CasePosition firstValue = casePositionPiecesPair.getFirstValue();
-                        if ((Character.isLetter(colOrRow) && firstValue.isOnSameColumn(colOrRow)) ||   //col (letter)
-                                (Character.isDigit(colOrRow) && firstValue.isOnSameRow(colOrRow))) {  //row (number)
-                            from = firstValue;
-                            break mainLoop;
-                        }
-                    } else if (length == 2) { //Extract the full coordinate
-                        throw new IllegalStateException("The full coordinate is not implemented yet");
-                    } else {
-                        throw new IllegalStateException("Invalid type of positioning");
-                    }
-                }
-            }
-        } else {
-            for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesThatCanHitPosition) {
-                CasePosition casePosition = casePositionPiecesPair.getFirstValue();
-                Pieces pieces = casePositionPiecesPair.getSecondValue();
-
-                if ((Pieces.isPawn(pieces) && PgnPieceFound.PAWN.equals(pgnPieceFound)) ||
-                        (Pieces.isBishop(pieces) && PgnPieceFound.BISHOP.equals(pgnPieceFound)) ||
-                        (Pieces.isKing(pieces) && PgnPieceFound.KING.equals(pgnPieceFound)) ||
-                        (Pieces.isKnight(pieces) && PgnPieceFound.KNIGHT.equals(pgnPieceFound)) ||
-                        (Pieces.isQueen(pieces) && PgnPieceFound.QUEEN.equals(pgnPieceFound)) ||
-                        (Pieces.isRook(pieces) && PgnPieceFound.ROOK.equals(pgnPieceFound))) {
-                    from = casePosition;
-
-                    break;
-                }
-            }
-        }
+        CasePosition from = (!similarPieceThatHitTarget.isEmpty() ?
+                getPositionWhenMultipleTargetCanHit(action, casePositions, similarPieceThatHitTarget) :
+                getPositionWhenOneTargetCanHit(piecesThatCanHitPosition, pgnPieceFound));
 
         LOGGER.debug("MOVE {} to {} ({}) | action -> {}", from, to, currentSide, action);
         MoveType moveType = gameHandler.movePiece(from, to, currentSide);
@@ -308,6 +245,10 @@ public class PgnParser {
         } else if (!(MoveType.NORMAL_MOVE.equals(moveType) || MoveType.CAPTURE.equals(moveType) || MoveType.EN_PASSANT.equals(moveType))) {  //Issue with the move / case
             LOGGER.error("Unable to move at the selected position {} for the current color {} !", position, currentSide);
         }
+    }
+
+    private PgnPieceFound isPawnPromotion(@NotNull String action, List<PgnMoveToken> pieceMovesFromLetter) {
+        return pieceMovesFromLetter.contains(PgnMoveToken.PAWN_PROMOTION) ? PgnPieceFound.PAWN : PgnPieceFound.getPieceFromAction(action);
     }
 
     private void validateCapture() {
@@ -353,6 +294,86 @@ public class PgnParser {
             casePositions.add(currentPosition);
         }
         return casePositions;
+    }
+
+    private MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> getSimilarPiecesThatCanHitSameTarget(List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition, List<Pieces> validPiecesFromAction) {
+        MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget = new MultiArrayMap<>();
+
+        //Group all similar pieces that can hit the target
+        for (int i = 0; i < piecesThatCanHitPosition.size(); i++) {
+            Pair<CasePosition, Pieces> firstLayer = piecesThatCanHitPosition.get(i);
+            CasePosition firstPosition = firstLayer.getFirstValue();
+            Pieces firstPiece = firstLayer.getSecondValue();
+
+            if (!validPiecesFromAction.contains(firstPiece)) {
+                continue;
+            }
+
+            boolean isOtherFound = false;
+
+            for (int j = (i + 1); j < piecesThatCanHitPosition.size(); j++) {
+                Pair<CasePosition, Pieces> secondLayer = piecesThatCanHitPosition.get(j);
+                CasePosition secondPosition = secondLayer.getFirstValue();
+                Pieces secondPiece = secondLayer.getSecondValue();
+
+                if (firstPiece.equals(secondPiece)) {
+                    similarPieceThatHitTarget.put(secondPiece, new Pair<>(secondPosition, secondPiece));
+                    isOtherFound = true;
+                }
+            }
+
+            if (isOtherFound) {
+                similarPieceThatHitTarget.put(firstPiece, new Pair<>(firstPosition, firstPiece));
+            }
+        }
+
+        return similarPieceThatHitTarget;
+    }
+
+    private CasePosition getPositionWhenMultipleTargetCanHit(@NotNull String action, List<String> casePositions, MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> similarPieceThatHitTarget) {
+        CasePosition value = null;
+        int length = casePositions.size();
+        char colOrRow = findFirstColOrRowInAction(action);
+        mainLoop:
+        for (Map.Entry<Pieces, List<Pair<CasePosition, Pieces>>> piecesListEntry : similarPieceThatHitTarget.entrySet()) {
+            for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesListEntry.getValue()) {
+                if (length == 1) {
+                    CasePosition firstValue = casePositionPiecesPair.getFirstValue();
+                    if ((Character.isLetter(colOrRow) && firstValue.isOnSameColumn(colOrRow)) ||   //col (letter)
+                            (Character.isDigit(colOrRow) && firstValue.isOnSameRow(colOrRow))) {  //row (number)
+                        value = firstValue;
+                        break mainLoop;
+                    }
+                } else if (length == 2) { //Extract the full coordinate
+                    throw new IllegalStateException("The full coordinate is not implemented yet");
+                } else {
+                    throw new IllegalStateException("Invalid type of positioning");
+                }
+            }
+        }
+        return value;
+    }
+
+    private CasePosition getPositionWhenOneTargetCanHit(List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition, PgnPieceFound pgnPieceFound) {
+        CasePosition value = null;
+
+        for (Pair<CasePosition, Pieces> casePositionPiecesPair : piecesThatCanHitPosition) {
+            CasePosition casePosition = casePositionPiecesPair.getFirstValue();
+            Pieces pieces = casePositionPiecesPair.getSecondValue();
+
+            if ((Pieces.isPawn(pieces) && PgnPieceFound.PAWN.equals(pgnPieceFound)) ||
+                    (Pieces.isBishop(pieces) && PgnPieceFound.BISHOP.equals(pgnPieceFound)) ||
+                    (Pieces.isKing(pieces) && PgnPieceFound.KING.equals(pgnPieceFound)) ||
+                    (Pieces.isKnight(pieces) && PgnPieceFound.KNIGHT.equals(pgnPieceFound)) ||
+                    (Pieces.isQueen(pieces) && PgnPieceFound.QUEEN.equals(pgnPieceFound)) ||
+                    (Pieces.isRook(pieces) && PgnPieceFound.ROOK.equals(pgnPieceFound))) {
+                value = casePosition;
+
+                break;
+            }
+        }
+
+        return value;
     }
 
     private char findFirstColOrRowInAction(@NotNull String action) {
