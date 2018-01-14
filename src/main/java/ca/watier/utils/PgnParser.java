@@ -38,6 +38,7 @@ public class PgnParser {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PgnParser.class);
     private static final List<PgnMoveToken> PAWN_PROMOTION_WITH_CAPTURE_TOKENS = new ArrayList<>();
     private static final Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
+    private static final String THE_GAME_IS_SUPPOSED_TO_BE_WON_BY = "The game is supposed to be won by the {} player";
 
     static {
         PAWN_PROMOTION_WITH_CAPTURE_TOKENS.add(PgnMoveToken.PAWN_PROMOTION);
@@ -161,12 +162,12 @@ public class PgnParser {
         switch (ending) {
             case WHITE_WIN:
                 if (!(gameHandler.isGameDone() && KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(BLACK, false)))) {
-                    LOGGER.error("The game is supposed to be won by the WHITE player");
+                    LOGGER.error(THE_GAME_IS_SUPPOSED_TO_BE_WON_BY, WHITE);
                 }
                 break;
             case BLACK_WIN:
                 if (!(gameHandler.isGameDone() && KingStatus.CHECKMATE.equals(gameHandler.getKingStatus(WHITE, false)))) {
-                    LOGGER.error("The game is supposed to be won by the BLACK player");
+                    LOGGER.error(THE_GAME_IS_SUPPOSED_TO_BE_WON_BY, BLACK);
                 }
                 break;
             case DRAWN:
@@ -247,10 +248,6 @@ public class PgnParser {
         }
     }
 
-    private PgnPieceFound isPawnPromotion(@NotNull String action, List<PgnMoveToken> pieceMovesFromLetter) {
-        return pieceMovesFromLetter.contains(PgnMoveToken.PAWN_PROMOTION) ? PgnPieceFound.PAWN : PgnPieceFound.getPieceFromAction(action);
-    }
-
     private void validateCapture() {
         List<MoveHistory> moveHistory = gameHandler.getMoveHistory();
         MoveHistory lastMoveHistory = moveHistory.get(moveHistory.size() - 1);
@@ -294,6 +291,10 @@ public class PgnParser {
             casePositions.add(currentPosition);
         }
         return casePositions;
+    }
+
+    private PgnPieceFound isPawnPromotion(@NotNull String action, List<PgnMoveToken> pieceMovesFromLetter) {
+        return pieceMovesFromLetter.contains(PgnMoveToken.PAWN_PROMOTION) ? PgnPieceFound.PAWN : PgnPieceFound.getPieceFromAction(action);
     }
 
     private MultiArrayMap<Pieces, Pair<CasePosition, Pieces>> getSimilarPiecesThatCanHitSameTarget(List<Pair<CasePosition, Pieces>> piecesThatCanHitPosition, List<Pieces> validPiecesFromAction) {
