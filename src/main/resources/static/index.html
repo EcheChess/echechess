@@ -69,84 +69,84 @@
     </div>
 </div>
 
-
-<div id="main">
-    <div class="ui top attached tabular menu">
-        <a class="active item" data-tab="tabBoard">Board</a>
-        <a class="item" data-tab="tabLog">Log</a>
-    </div>
-    <div class="ui horizontal segments">
-        <div class="ui segment" id="boardSegment">
-            <div class="ui bottom attached active tab segment" id="mainBoardLayout" data-tab="tabBoard">
-                <table id="board"></table>
-                <div class="ui label">
-                    White
-                    <div class="detail" id="whitePlayerScore">0</div>
-                </div>
-                <div class="ui label">
-                    Black
-                    <div class="detail" id="blackPlayerScore">0</div>
-                </div>
-            </div>
-
-            <select id="chessLog" size="15" class="ui bottom attached tab segment" data-tab="tabLog">
+<div class="ui modal" id="modalJoinGame">
+    <div class="header">Join a game</div>
+    <div class="content">
+        <div class="ui labeled action input" id="joinGameGroup">
+            <input placeholder="Game ID" type="text" name="gameIdJoinGame" id="joinGame">
+            <select id="chooseSideJoinGame" class="ui compact">
+                <option value="WHITE">White</option>
+                <option value="BLACK" selected>Black</option>
+                <option value="OBSERVER">Observer</option>
             </select>
-        </div>
-        <div class="ui segment" id="gameOptionsSegment">
-            <div class="ui segment">
-                <div class="ui toggle checkbox" id="againstComputer">
-                    <input type="checkbox">
-                    <label>Play against a computer</label>
-                </div>
-            </div>
-            <div class="ui segment">
-                <div class="ui toggle checkbox" id="allowOtherObserver">
-                    <input type="checkbox">
-                    <label>Allow observers</label>
-                </div>
-            </div>
-            <div class="ui segment">
-                <select id="changeSide">
-                    <option value="WHITE" selected>White</option>
-                    <option value="BLACK">Black</option>
-                    <option value="OBSERVER">Observer</option>
-                </select>
-                <label for="changeSide">side and</label>
-                <select id="gameType">
-                    <option value="CLASSIC" selected>Classic</option>
-                    <option value="SPECIAL">Special order</option>
-                </select>
-                <label for="gameType">game mode</label>
-                <label id="specialGamePiecesLabel" for="specialGamePieces" hidden> with pieces set has</label>
-                <div class="ui input" id="divSpecialGamePieces">
-                    <input id="specialGamePieces" placeholder="E1:W_KING;E8:B_KING" type="text" hidden>
-                </div>
-            </div>
-            <div class="ui center aligned segment">
-                <button class="ui compact green labeled icon button" id="createGame">
-                    <i class="icon plus"></i>
-                    Create a new game
-                </button>
-            </div>
-            <div class="ui horizontal divider">
-                OR
-            </div>
-            Game ID: <span id="uuid">NONE</span><br>
-            <div class="ui labeled action input" id="joinGameGroup">
-                <div class="ui label">
-                    Join a game
-                </div>
-                <input placeholder="Game ID" type="text" name="gameIdJoinGame" id="joinGame">
-                <select id="chooseSideJoinGame" class="ui compact">
-                    <option value="WHITE">White</option>
-                    <option value="BLACK" selected>Black</option>
-                    <option value="OBSERVER">Observer</option>
-                </select>
-                <button class="ui button" id="joinGameButton">OK</button>
-            </div>
+            <button class="ui button" id="joinGameButton">OK</button>
         </div>
     </div>
 </div>
+
+<div class="ui modal" id="modalCreateNewGame">
+    <div class="header">Create a new game</div>
+    <div class="content">
+        <div class="ui segment">
+            <div class="ui toggle checkbox" id="againstComputer">
+                <input type="checkbox">
+                <label>Play against a computer</label>
+            </div>
+        </div>
+        <div class="ui segment">
+            <div class="ui toggle checkbox" id="allowOtherObserver">
+                <input type="checkbox">
+                <label>Allow observers</label>
+            </div>
+        </div>
+        <div class="ui segment">
+            <select id="changeSide">
+                <option value="WHITE" selected>White</option>
+                <option value="BLACK">Black</option>
+                <option value="OBSERVER">Observer</option>
+            </select>
+            <label for="changeSide">side and</label>
+            <select id="gameType">
+                <option value="CLASSIC" selected>Classic</option>
+                <option value="SPECIAL">Special order</option>
+            </select>
+            <label for="gameType">game mode</label>
+            <label id="specialGamePiecesLabel" for="specialGamePieces" hidden> with pieces set has</label>
+            <div class="ui input" id="divSpecialGamePieces">
+                <input id="specialGamePieces" placeholder="E1:W_KING;E8:B_KING" type="text" hidden>
+            </div>
+        </div>
+        <div class="ui center aligned segment">
+            <button class="ui compact green labeled icon button" id="createGame">
+                <i class="icon plus"></i>
+                Create a new game
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="ui sidebar inverted vertical menu">
+    <a class="item" id="mainMenuCreateGame">Create a new game</a>
+    <a class="item" id="mainMenuJoinGame">Join a game</a>
+</div>
+<div class="pusher">
+    <button class="ui button" id="showMainMenuButton"><i class="sidebar icon"></i></button>
+
+    <div id="gameLayout">
+        <div id="mainBoardLayout">
+            Game ID: <span id="uuid">NONE</span><br>
+            <table id="board"></table>
+            <div class="ui label">
+                White
+                <div class="detail" id="whitePlayerScore">0</div>
+            </div>
+            <div class="ui label">
+                Black
+                <div class="detail" id="blackPlayerScore">0</div>
+            </div>
+        </div>
+        <select id="chessLog" size="15" class="ui bottom attached"></select>
+    </div>
 </div>
 </body>
 </html>

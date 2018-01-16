@@ -39,13 +39,18 @@ $(document).ready(function () {
 
     initUiTriggers();
     drawBoard(null, "#board"); //Draw an empty board
+    resizeBoardBasedOnWidth();
 
     $("#createGame").click(function () {
+
         currentGameUuid = createNewGame();
         ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
         ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
 
+        $('#chessLog').empty();
         $('#uuid').text(currentGameUuid);
+        $('.ui.sidebar').sidebar('toggle');
+        $("#modalCreateNewGame").modal("hide");
         renderBoard();
     });
 
@@ -67,10 +72,7 @@ $(document).ready(function () {
             ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
         }
     });
-
-    $('.menu .item').tab();
 });
-
 
 function writeToGameLog(message, type) {
     $('#chessLog').append(`<option>${message}</option>`);
@@ -194,11 +196,42 @@ function initHelperEvents() {
     });
 }
 
+function resizeBoardBasedOnWidth() {
+    const $chessLog = $("#chessLog");
+    const $boardSquare = $(".board-square");
+    const $boardPiece = $(".board-pieces");
+
+    //30 = approximated width of the scroll bar
+    //230 = Chess log width
+    var totalWindowWidth = $(window).width() - 30 - 230;
+    var totalWindowHeight = $(window).height() - 30 - 230;
+    var selectedDim = (totalWindowHeight > totalWindowWidth) ? totalWindowWidth :  totalWindowHeight; //take the lowest values
+    var caseDim = selectedDim / 9;
+
+    if (caseDim <= 50) {
+        caseDim = 50;
+    } else {
+        $chessLog.css("height", `${caseDim * 8}px`);
+    }
+
+    var pieceSize = ((35 * caseDim) / 50);
+    $boardSquare.css("width", caseDim);
+    $boardSquare.css("min-width", caseDim);
+    $boardSquare.css("height", caseDim);
+    $boardSquare.css("min-height", caseDim);
+    $boardPiece.css("fontSize", pieceSize);
+}
+
 function initUiTriggers() {
+    window.addEventListener("resize", resizeBoardBasedOnWidth);
     let $changeSide = $('#changeSide');
     let $gameType = $('#gameType');
     let $specialGameLabel = $('#specialGamePiecesLabel');
     let $specialGame = $('#specialGamePieces');
+
+    $(document).on("click", "#showMainMenuButton", function () {
+        $('.ui.sidebar').sidebar('toggle');
+    });
 
     $(document).on("click", "#buttonSendChoicePawnPromotion", function () {
         $('#modalPawnPromotion').modal('hide');
@@ -261,6 +294,14 @@ function initUiTriggers() {
             $iconValidatePatternSpecialGame.addClass('remove');
             $iconValidatePatternSpecialGame.addClass('red');
         }
+    });
+
+    $("#mainMenuCreateGame").click(function () {
+        $('#modalCreateNewGame').modal('show');
+    });
+
+    $("#mainMenuJoinGame").click(function () {
+        $("#modalJoinGame").modal("show");
     });
 
     $("#buttonSendPatternSpecialGame").click(function () {
@@ -421,6 +462,8 @@ function renderBoard() {
     $boardCaseWithPieceSelector.mouseleave(function () {
         $("td").removeClass("pieceAvailMoves");
     });
+
+    resizeBoardBasedOnWidth();
 }
 
 function drawBoard(piecesLocation, boardId) {
