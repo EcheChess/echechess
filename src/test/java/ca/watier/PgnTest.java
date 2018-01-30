@@ -26,11 +26,25 @@ import java.nio.charset.Charset;
 
 public class PgnTest extends GameTest {
 
+
+    private static String gamesAsFile;
+
+    static {
+        try {
+            gamesAsFile = IOUtils.toString(PgnTest.class.getResourceAsStream("/puzzles.pgn"), Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
-    public void pgnTest1() throws IOException {
+    public void pgnTest1() {
         PgnParser pgnParser = new PgnParser(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
-        String gamesAsFile = IOUtils.toString(PgnTest.class.getResourceAsStream("/puzzles.pgn"), Charset.forName("UTF-8"));
 
         Assertions.assertThat(pgnParser.parse(gamesAsFile)).isNotEmpty();
+    }
+
+    public static String getGamesAsFile() {
+        return gamesAsFile;
     }
 }

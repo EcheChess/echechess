@@ -83,20 +83,6 @@
             <version>15.0</version>
         </dependency>
 
-        <dependency>  <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.4</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency> <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.6</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Spring -->
 
         <dependency>
@@ -149,6 +135,14 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
         </dependency>
+
+        <!-- For the tests only -->
+        <dependency> <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -158,5 +152,13 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/test/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
 </project>

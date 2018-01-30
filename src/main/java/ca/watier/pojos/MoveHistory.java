@@ -70,4 +70,16 @@ public class MoveHistory {
     public void setOtherKingStatus(KingStatus otherKingStatus) {
         this.otherKingStatus = otherKingStatus;
     }
+
+    @Override
+    public String toString() {
+        return "MoveHistory{" +
+                "from=" + from +
+                ", to=" + to +
+                ", playerSide=" + playerSide +
+                ", moveType=" + moveType +
+                ", currentKingStatus=" + currentKingStatus +
+                ", otherKingStatus=" + otherKingStatus +
+                '}';
+    }
 }
