@@ -1,6 +1,6 @@
 # Echecchess
 - - -
-[![Build Status](https://travis-ci.org/EcheChess/echechess.svg?branch=master)](https://travis-ci.org/Doi9t/echechess)
+[![Build Status](https://travis-ci.org/EcheChess/echechess.svg?branch=master)](https://travis-ci.org/EcheChess/echechess)
 [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=ca.watier:echechess)](https://sonarcloud.io/dashboard?id=ca.watier:echechess)
 [![Code Coverage](https://sonarcloud.io/api/badges/measure?key=ca.watier:echechess&metric=coverage)](https://sonarcloud.io/dashboard?id=ca.watier:echechess)
 [![Line Of Codes](https://sonarcloud.io/api/badges/measure?key=ca.watier:echechess&metric=ncloc)](https://sonarcloud.io/dashboard?id=ca.watier:echechess)
