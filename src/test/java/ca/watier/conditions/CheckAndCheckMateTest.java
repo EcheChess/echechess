@@ -22,7 +22,7 @@ import ca.watier.echesscommon.enums.KingStatus;
 import ca.watier.echesscommon.enums.Side;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.impl.WebSocketServiceTestImpl;
-import ca.watier.services.ConstraintService;
+import ca.watier.services.GameConstraints;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CheckAndCheckMateTest {
 
     private static final Side WHITE = Side.WHITE;
-    private static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
+    private static final GameConstraints CONSTRAINT_SERVICE = new GameConstraints();
     private static final WebSocketService WEB_SOCKET_SERVICE = new WebSocketServiceTestImpl();
 
     /**

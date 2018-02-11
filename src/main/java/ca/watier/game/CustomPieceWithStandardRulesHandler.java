@@ -20,7 +20,7 @@ import ca.watier.echesscommon.enums.CasePosition;
 import ca.watier.echesscommon.enums.Pieces;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.utils.Assert;
-import ca.watier.services.ConstraintService;
+import ca.watier.services.GameConstraints;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -31,8 +31,8 @@ import java.util.Map;
 public class CustomPieceWithStandardRulesHandler extends GenericGameHandler {
     public static final String THE_NUMBER_OF_PARAMETER_IS_INCORRECT = "The number of parameter is incorrect !";
 
-    public CustomPieceWithStandardRulesHandler(ConstraintService constraintService, WebSocketService webSocketService) {
-        super(constraintService, webSocketService);
+    public CustomPieceWithStandardRulesHandler(GameConstraints gameConstraints, WebSocketService webSocketService) {
+        super(gameConstraints, webSocketService);
     }
 
     public void setPieces(Map<CasePosition, Pieces> positionPieces) {

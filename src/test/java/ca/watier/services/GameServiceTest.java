@@ -25,6 +25,7 @@ import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.Constants;
 import ca.watier.echesscommon.utils.GameUtils;
+import ca.watier.game.GameService;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.impl.WebSocketServiceTestImpl;
 import ca.watier.responses.BooleanResponse;
@@ -48,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class GameServiceTest extends GameTest {
-    private static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
+    private static final GameConstraints CONSTRAINT_SERVICE = new GameConstraints();
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
     private WebSocketService currentWebSocketService;

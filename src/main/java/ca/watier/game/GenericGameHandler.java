@@ -23,7 +23,7 @@ import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.*;
 import ca.watier.pojos.MoveHistory;
 import ca.watier.responses.GameScoreResponse;
-import ca.watier.services.ConstraintService;
+import ca.watier.services.GameConstraints;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ import static ca.watier.echesscommon.utils.Constants.*;
  * Created by yannick on 5/5/2017.
  */
 public class GenericGameHandler extends GameBoard {
-    private final ConstraintService CONSTRAINT_SERVICE;
+    private final GameConstraints CONSTRAINT_SERVICE;
     private final WebSocketService WEB_SOCKET_SERVICE;
     private final Set<SpecialGameRules> SPECIAL_GAME_RULES;
     protected String uuid;
@@ -57,11 +57,11 @@ public class GenericGameHandler extends GameBoard {
     private short whitePlayerPoint = 0;
     private GameType gameType;
 
-    public GenericGameHandler(ConstraintService constraintService, WebSocketService webSocketService) {
+    public GenericGameHandler(GameConstraints gameConstraints, WebSocketService webSocketService) {
         SPECIAL_GAME_RULES = new HashSet<>();
         observerList = new ArrayList<>();
         moveHistoryList = new ArrayList<>();
-        this.CONSTRAINT_SERVICE = constraintService;
+        this.CONSTRAINT_SERVICE = gameConstraints;
         this.WEB_SOCKET_SERVICE = webSocketService;
     }
 

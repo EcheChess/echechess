@@ -20,7 +20,7 @@ import ca.watier.echesscommon.enums.Side;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.impl.WebSocketServiceTestImpl;
 import ca.watier.responses.GameScoreResponse;
-import ca.watier.services.ConstraintService;
+import ca.watier.services.GameConstraints;
 
 /**
  * Created by yannick on 5/30/2017.
@@ -31,7 +31,7 @@ import ca.watier.services.ConstraintService;
 public class GameTest {
     protected static final Side WHITE = Side.WHITE;
     protected static final Side BLACK = Side.BLACK;
-    protected static final ConstraintService CONSTRAINT_SERVICE = new ConstraintService();
+    protected static final GameConstraints CONSTRAINT_SERVICE = new GameConstraints();
     protected static final WebSocketService WEB_SOCKET_SERVICE = new WebSocketServiceTestImpl();
     protected static final GameScoreResponse EMPTY_GAME_SCORE_RESPONSE = new GameScoreResponse((short) 0, (short) 0);
 }

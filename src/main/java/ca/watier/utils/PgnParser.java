@@ -23,7 +23,7 @@ import ca.watier.echesscommon.utils.Pair;
 import ca.watier.enums.PgnMoveToken;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.pojos.MoveHistory;
-import ca.watier.services.ConstraintService;
+import ca.watier.services.GameConstraints;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class PgnParser {
     }
 
     private final List<GenericGameHandler> handlerList = new ArrayList<>();
-    private final ConstraintService constraintService;
+    private final GameConstraints gameConstraints;
     private final WebSocketService webSocketService;
 
     private GenericGameHandler gameHandler;
@@ -57,8 +57,8 @@ public class PgnParser {
     private Side otherSide = BLACK;
 
 
-    public PgnParser(@NotNull ConstraintService constraintService, @NotNull WebSocketService webSocketService) {
-        this.constraintService = constraintService;
+    public PgnParser(@NotNull GameConstraints gameConstraints, @NotNull WebSocketService webSocketService) {
+        this.gameConstraints = gameConstraints;
         this.webSocketService = webSocketService;
     }
 
@@ -85,7 +85,7 @@ public class PgnParser {
             }
 
             resetSide();
-            gameHandler = new GenericGameHandler(constraintService, webSocketService);
+            gameHandler = new GenericGameHandler(gameConstraints, webSocketService);
             handlerList.add(gameHandler);
 
             for (String currentToken : tokens) {

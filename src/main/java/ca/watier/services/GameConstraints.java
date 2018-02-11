@@ -23,7 +23,6 @@ import ca.watier.game.GenericGameHandler;
 import ca.watier.interfaces.MoveConstraint;
 import ca.watier.interfaces.SpecialMoveConstraint;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -32,10 +31,9 @@ import java.util.Map;
  * Created by yannick on 4/26/2017.
  */
 
-@Service
-public class ConstraintService {
+public class GameConstraints {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ConstraintService.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameConstraints.class);
     private static final Map<Pieces, MoveConstraint> MOVE_CONSTRAINT_MAP = new EnumMap<>(Pieces.class);
 
     static {

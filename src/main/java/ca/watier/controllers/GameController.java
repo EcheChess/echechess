@@ -23,7 +23,7 @@ import ca.watier.echesscommon.utils.SessionUtils;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.responses.StringResponse;
-import ca.watier.services.GameService;
+import ca.watier.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2017 Yannick Watier
+ *    Copyright 2014 - 2018 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.game;
 
 import ca.watier.echesscommon.enums.*;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.Assert;
-import ca.watier.game.CustomPieceWithStandardRulesHandler;
-import ca.watier.game.GenericGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
+import ca.watier.services.GameConstraints;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,12 +41,12 @@ import static ca.watier.echesscommon.utils.Constants.*;
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
     private final Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
-    private final ConstraintService CONSTRAINT_SERVICE;
+    private final GameConstraints CONSTRAINT_SERVICE;
     private final WebSocketService WEB_SOCKET_SERVICE;
 
     @Autowired
-    public GameService(ConstraintService constraintService, WebSocketService webSocketService) {
-        this.CONSTRAINT_SERVICE = constraintService;
+    public GameService(GameConstraints gameConstraints, WebSocketService webSocketService) {
+        this.CONSTRAINT_SERVICE = gameConstraints;
         this.WEB_SOCKET_SERVICE = webSocketService;
     }
 
