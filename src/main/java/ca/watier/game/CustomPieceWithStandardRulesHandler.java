@@ -20,7 +20,6 @@ import ca.watier.echesscommon.enums.CasePosition;
 import ca.watier.echesscommon.enums.Pieces;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.utils.Assert;
-import ca.watier.services.GameConstraints;
 
 import java.util.EnumMap;
 import java.util.Map;

@@ -23,7 +23,6 @@ import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.*;
 import ca.watier.pojos.MoveHistory;
 import ca.watier.responses.GameScoreResponse;
-import ca.watier.services.GameConstraints;
 
 import java.util.*;
 

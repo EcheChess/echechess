@@ -23,7 +23,7 @@ import ca.watier.echesscommon.utils.Pair;
 import ca.watier.enums.PgnMoveToken;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.pojos.MoveHistory;
-import ca.watier.services.GameConstraints;
+import ca.watier.game.GameConstraints;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 

@@ -22,7 +22,7 @@ import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.Assert;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
-import ca.watier.services.GameConstraints;
+import ca.watier.game.GameConstraints;
 
 import java.util.Map;
 import java.util.UUID;

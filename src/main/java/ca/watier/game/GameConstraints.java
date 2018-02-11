@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2017 Yannick Watier
+ *    Copyright 2014 - 2018 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.game;
 
 import ca.watier.constraints.*;
 import ca.watier.echesscommon.enums.*;
 import ca.watier.echesscommon.utils.Assert;
-import ca.watier.game.GenericGameHandler;
 import ca.watier.interfaces.MoveConstraint;
 import ca.watier.interfaces.SpecialMoveConstraint;
 import org.slf4j.LoggerFactory;

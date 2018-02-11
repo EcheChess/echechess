@@ -20,7 +20,7 @@ import ca.watier.echesscommon.enums.Side;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.impl.WebSocketServiceTestImpl;
 import ca.watier.responses.GameScoreResponse;
-import ca.watier.services.GameConstraints;
+import ca.watier.game.GameConstraints;
 
 /**
  * Created by yannick on 5/30/2017.

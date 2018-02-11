@@ -25,6 +25,7 @@ import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.Constants;
 import ca.watier.echesscommon.utils.GameUtils;
+import ca.watier.game.GameConstraints;
 import ca.watier.game.GameService;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.impl.WebSocketServiceTestImpl;
