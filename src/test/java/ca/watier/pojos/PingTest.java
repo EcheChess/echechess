@@ -16,6 +16,7 @@
 
 package ca.watier.pojos;
 
+import ca.watier.echesscommon.pojos.Ping;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

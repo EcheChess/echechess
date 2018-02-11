@@ -17,6 +17,7 @@
 package ca.watier.game;
 
 import ca.watier.GameTest;
+import ca.watier.echechessengine.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.echesscommon.enums.KingStatus;
 import ca.watier.echesscommon.enums.Pieces;
 import ca.watier.echesscommon.enums.SpecialGameRules;
@@ -26,9 +27,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static ca.watier.echechessengine.game.CustomPieceWithStandardRulesHandler.THE_NUMBER_OF_PARAMETER_IS_INCORRECT;
 import static ca.watier.echesscommon.enums.CasePosition.*;
 import static ca.watier.echesscommon.enums.MoveType.MOVE_NOT_ALLOWED;
-import static ca.watier.game.CustomPieceWithStandardRulesHandler.THE_NUMBER_OF_PARAMETER_IS_INCORRECT;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

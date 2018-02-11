@@ -16,6 +16,7 @@
 
 package ca.watier.responses;
 
+import ca.watier.echechessengine.responses.GameScoreResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

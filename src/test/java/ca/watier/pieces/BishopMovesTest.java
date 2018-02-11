@@ -17,7 +17,7 @@
 package ca.watier.pieces;
 
 import ca.watier.GameTest;
-import ca.watier.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.contexts.StandardGameHandlerContext;
 import ca.watier.echesscommon.enums.CasePosition;
 import ca.watier.echesscommon.enums.MoveType;
 import ca.watier.echesscommon.enums.Pieces;

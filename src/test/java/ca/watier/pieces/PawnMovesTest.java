@@ -17,11 +17,11 @@
 package ca.watier.pieces;
 
 import ca.watier.GameTest;
-import ca.watier.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.responses.GameScoreResponse;
 import ca.watier.echesscommon.enums.CasePosition;
 import ca.watier.echesscommon.enums.KingStatus;
 import ca.watier.echesscommon.enums.Pieces;
-import ca.watier.responses.GameScoreResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

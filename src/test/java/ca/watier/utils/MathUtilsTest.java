@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2017 Yannick Watier
+ *    Copyright 2014 - 2018 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package ca.watier.utils;
 
-import ca.watier.constraints.KnightMoveConstraint;
+
+import ca.watier.echechessengine.constraints.KnightMoveConstraint;
 import ca.watier.echesscommon.enums.CasePosition;
 import ca.watier.echesscommon.enums.Direction;
 import ca.watier.echesscommon.utils.MathUtils;

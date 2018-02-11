@@ -17,7 +17,7 @@
 package ca.watier.pieces;
 
 import ca.watier.GameTest;
-import ca.watier.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.contexts.StandardGameHandlerContext;
 import org.junit.Assert;
 import org.junit.Test;
 

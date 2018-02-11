@@ -16,13 +16,13 @@
 
 package ca.watier.services;
 
+import ca.watier.echechessengine.engines.GenericGameHandler;
+import ca.watier.echechessengine.game.CustomPieceWithStandardRulesHandler;
+import ca.watier.echechessengine.game.GameConstraints;
 import ca.watier.echesscommon.enums.*;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.Assert;
-import ca.watier.game.CustomPieceWithStandardRulesHandler;
-import ca.watier.game.GameConstraints;
-import ca.watier.game.GenericGameHandler;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import org.slf4j.LoggerFactory;

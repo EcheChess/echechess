@@ -20,10 +20,10 @@ package ca.watier;
  * Created by yannick on 5/8/2017.
  */
 
-import ca.watier.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.engines.GenericGameHandler;
 import ca.watier.echesscommon.enums.KingStatus;
 import ca.watier.echesscommon.enums.Side;
-import ca.watier.game.GenericGameHandler;
 import org.junit.Assert;
 import org.junit.Test;
 

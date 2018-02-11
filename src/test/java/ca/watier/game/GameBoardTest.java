@@ -17,7 +17,7 @@
 package ca.watier.game;
 
 import ca.watier.GameTest;
-import ca.watier.contexts.StandardGameHandlerContext;
+import ca.watier.echechessengine.contexts.StandardGameHandlerContext;
 import ca.watier.echesscommon.enums.SpecialGameRules;
 import org.junit.Before;
 import org.junit.Test;

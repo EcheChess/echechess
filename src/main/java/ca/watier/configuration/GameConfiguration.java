@@ -16,7 +16,7 @@
 
 package ca.watier.configuration;
 
-import ca.watier.game.GameConstraints;
+import ca.watier.echechessengine.game.GameConstraints;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

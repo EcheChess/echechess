@@ -16,7 +16,7 @@
 
 package ca.watier;
 
-import ca.watier.utils.PgnParser;
+import ca.watier.echechessengine.utils.PgnParser;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -37,14 +37,14 @@ public class PgnTest extends GameTest {
         }
     }
 
+    public static String getGamesAsFile() {
+        return gamesAsFile;
+    }
+
     @Test
     public void pgnTest1() {
         PgnParser pgnParser = new PgnParser(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
 
         Assertions.assertThat(pgnParser.parse(gamesAsFile)).isNotEmpty();
-    }
-
-    public static String getGamesAsFile() {
-        return gamesAsFile;
     }
 }
