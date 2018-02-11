@@ -16,10 +16,10 @@
 
 package ca.watier.services;
 
-import ca.watier.enums.ChessEventMessage;
-import ca.watier.interfaces.WebSocketService;
-import ca.watier.sessions.Player;
-import ca.watier.utils.Assert;
+import ca.watier.echesscommon.enums.ChessEventMessage;
+import ca.watier.echesscommon.interfaces.WebSocketService;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.Assert;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -29,9 +29,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static ca.watier.utils.CacheConstants.CACHE_UI_SESSION_NAME;
-import static ca.watier.utils.Constants.REQUESTED_SESSION_ALREADY_DEFINED;
-import static ca.watier.utils.Constants.THE_CLIENT_LOST_THE_CONNECTION;
+import static ca.watier.echesscommon.utils.CacheConstants.CACHE_UI_SESSION_NAME;
+import static ca.watier.echesscommon.utils.Constants.REQUESTED_SESSION_ALREADY_DEFINED;
+import static ca.watier.echesscommon.utils.Constants.THE_CLIENT_LOST_THE_CONNECTION;
 
 /**
  * Created by yannick on 6/11/2017.

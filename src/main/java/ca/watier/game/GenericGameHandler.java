@@ -16,23 +16,25 @@
 
 package ca.watier.game;
 
-import ca.watier.enums.*;
-import ca.watier.interfaces.WebSocketService;
+import ca.watier.echesscommon.enums.*;
+import ca.watier.echesscommon.game.GameBoard;
+import ca.watier.echesscommon.interfaces.WebSocketService;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.*;
 import ca.watier.pojos.MoveHistory;
 import ca.watier.responses.GameScoreResponse;
 import ca.watier.services.ConstraintService;
-import ca.watier.sessions.Player;
-import ca.watier.utils.*;
 
 import java.util.*;
 
-import static ca.watier.enums.ChessEventMessage.*;
-import static ca.watier.enums.ChessEventMessage.PLAYER_TURN;
-import static ca.watier.enums.KingStatus.OK;
-import static ca.watier.enums.KingStatus.STALEMATE;
-import static ca.watier.enums.Side.BLACK;
-import static ca.watier.enums.Side.WHITE;
-import static ca.watier.utils.Constants.*;
+import static ca.watier.echesscommon.enums.ChessEventMessage.*;
+import static ca.watier.echesscommon.enums.ChessEventMessage.PLAYER_TURN;
+import static ca.watier.echesscommon.enums.KingStatus.OK;
+import static ca.watier.echesscommon.enums.KingStatus.STALEMATE;
+import static ca.watier.echesscommon.enums.Side.BLACK;
+import static ca.watier.echesscommon.enums.Side.WHITE;
+import static ca.watier.echesscommon.utils.Constants.*;
+
 
 /**
  * Created by yannick on 5/5/2017.
@@ -120,7 +122,7 @@ public class GenericGameHandler extends GameBoard {
         }
 
         MoveType moveType = CONSTRAINT_SERVICE.getMoveType(from, to, this);
-        KingStatus currentKingStatus = KingStatus.OK;
+        KingStatus currentKingStatus = OK;
         boolean isEatingPiece = piecesTo != null;
 
         if (MoveType.NORMAL_MOVE.equals(moveType)) {
@@ -165,7 +167,7 @@ public class GenericGameHandler extends GameBoard {
             movePieceTo(from, to, piecesFrom);
             changeAllowedMoveSide();
 
-            CasePosition enemyPawnPosition = MathUtils.getNearestPositionFromDirection(to, otherPlayerSide.equals(Side.BLACK) ? Direction.SOUTH : Direction.NORTH);
+            CasePosition enemyPawnPosition = MathUtils.getNearestPositionFromDirection(to, otherPlayerSide.equals(BLACK) ? Direction.SOUTH : Direction.NORTH);
             Pieces enemyPawnToEat = getPiece(enemyPawnPosition);
             updatePointsForSide(playerSide, enemyPawnToEat.getPoint());
             removePieceAt(enemyPawnPosition);
@@ -420,7 +422,7 @@ public class GenericGameHandler extends GameBoard {
         }
 
         //Add the position, if the castling is authorized on the rook
-        Pieces rook = Side.WHITE.equals(playerSide) ? Pieces.W_ROOK : Pieces.B_ROOK;
+        Pieces rook = WHITE.equals(playerSide) ? Pieces.W_ROOK : Pieces.B_ROOK;
         for (CasePosition rookPosition : GameUtils.getPiecesPosition(rook, getPiecesLocation())) {
             if (MoveType.CASTLING.equals(CONSTRAINT_SERVICE.getMoveType(kingPosition, rookPosition, this))) {
                 values.add(rookPosition);

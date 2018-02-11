@@ -18,12 +18,12 @@ package ca.watier.pieces;
 
 import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.KingStatus;
+import ca.watier.echesscommon.enums.KingStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

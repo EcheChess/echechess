@@ -16,20 +16,22 @@
 
 package ca.watier.conditions;
 
+
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.KingStatus;
-import ca.watier.enums.Side;
+import ca.watier.echesscommon.enums.KingStatus;
+import ca.watier.echesscommon.enums.Side;
+import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.impl.WebSocketServiceTestImpl;
-import ca.watier.interfaces.WebSocketService;
 import ca.watier.services.ConstraintService;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.KingStatus.*;
-import static ca.watier.enums.Side.BLACK;
-import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.KingStatus.*;
+import static ca.watier.echesscommon.enums.Side.BLACK;
+import static ca.watier.echesscommon.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * Created by yannick on 5/9/2017.
@@ -79,9 +81,9 @@ public class CheckAndCheckMateTest {
         StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
+        Assert.assertEquals(CHECKMATE, context.getKingStatus(WHITE, true));
         context.movePieceTo(H1, A1);
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
+        Assert.assertEquals(CHECKMATE, context.getKingStatus(WHITE, true));
     }
 
 
@@ -97,9 +99,9 @@ public class CheckAndCheckMateTest {
         StandardGameHandlerContext context = new StandardGameHandlerContext(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE, positionPieces);
         context.addSpecialRule(NO_PLAYER_TURN);
 
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
+        Assert.assertEquals(CHECKMATE, context.getKingStatus(WHITE, true));
         context.movePieceTo(A8, A1); //Move the rook
-        Assert.assertEquals(KingStatus.CHECKMATE, context.getKingStatus(WHITE, true));
+        Assert.assertEquals(CHECKMATE, context.getKingStatus(WHITE, true));
     }
 
     @Test

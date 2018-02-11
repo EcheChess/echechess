@@ -18,8 +18,8 @@ package ca.watier.pieces;
 
 import ca.watier.GameTest;
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.Pieces;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,12 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.MoveType.*;
-import static ca.watier.enums.Pieces.B_PAWN;
-import static ca.watier.enums.Pieces.W_KING;
-import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
-import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.MoveType.*;
+import static ca.watier.echesscommon.enums.Pieces.B_PAWN;
+import static ca.watier.echesscommon.enums.Pieces.W_KING;
+import static ca.watier.echesscommon.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
+import static ca.watier.echesscommon.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

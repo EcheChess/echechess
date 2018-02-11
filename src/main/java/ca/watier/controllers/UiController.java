@@ -16,10 +16,10 @@
 
 package ca.watier.controllers;
 
+import ca.watier.echesscommon.utils.SessionUtils;
 import ca.watier.pojos.Ping;
 import ca.watier.responses.StringResponse;
 import ca.watier.services.UiSessionService;
-import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.handler.annotation.MessageMapping;

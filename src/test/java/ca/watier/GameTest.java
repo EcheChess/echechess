@@ -16,9 +16,9 @@
 
 package ca.watier;
 
-import ca.watier.enums.Side;
+import ca.watier.echesscommon.enums.Side;
+import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.impl.WebSocketServiceTestImpl;
-import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.GameScoreResponse;
 import ca.watier.services.ConstraintService;
 

@@ -16,7 +16,7 @@
 
 package ca.watier.responses;
 
-import ca.watier.enums.ChessEventMessage;
+import ca.watier.echesscommon.enums.ChessEventMessage;
 
 /**
  * Created by yannick on 5/1/2017.

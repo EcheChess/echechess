@@ -17,7 +17,7 @@
 package ca.watier.configuration;
 
 import ca.watier.EchechessApplication;
-import ca.watier.utils.EcKeystoreGenerator;
+import ca.watier.echesscommon.utils.EcKeystoreGenerator;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -35,8 +35,8 @@ import org.springframework.context.annotation.Profile;
 
 import java.security.KeyStore;
 
-import static ca.watier.utils.EcKeystoreGenerator.PRNG;
-import static ca.watier.utils.EcKeystoreGenerator.PROVIDER_NAME;
+import static ca.watier.echesscommon.utils.EcKeystoreGenerator.PRNG;
+import static ca.watier.echesscommon.utils.EcKeystoreGenerator.PROVIDER_NAME;
 
 
 @Profile("prod")

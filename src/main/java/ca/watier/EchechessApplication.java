@@ -16,7 +16,8 @@
 
 package ca.watier;
 
-import ca.watier.sessions.Player;
+
+import ca.watier.echesscommon.sessions.Player;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -26,8 +27,9 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.UUID;
 
-import static ca.watier.utils.CacheConstants.CACHE_UI_SESSION_EXPIRY;
+import static ca.watier.echesscommon.utils.CacheConstants.CACHE_UI_SESSION_EXPIRY;
 import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
+
 
 @SpringBootApplication
 @EnableAutoConfiguration

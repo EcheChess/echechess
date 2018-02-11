@@ -16,8 +16,8 @@
 
 package ca.watier.interfaces;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.MoveType;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.MoveType;
 import ca.watier.game.GenericGameHandler;
 
 /**

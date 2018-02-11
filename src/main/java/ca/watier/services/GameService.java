@@ -16,23 +16,23 @@
 
 package ca.watier.services;
 
-import ca.watier.enums.*;
+import ca.watier.echesscommon.enums.*;
+import ca.watier.echesscommon.interfaces.WebSocketService;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.Assert;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.game.GenericGameHandler;
-import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
-import ca.watier.sessions.Player;
-import ca.watier.utils.Assert;
-import ca.watier.utils.Pair;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static ca.watier.enums.ChessEventMessage.*;
-import static ca.watier.utils.Constants.*;
+import static ca.watier.echesscommon.enums.ChessEventMessage.*;
+import static ca.watier.echesscommon.utils.Constants.*;
+
 
 /**
  * Created by yannick on 4/17/2017.
@@ -101,7 +101,7 @@ public class GameService {
      * @param to
      * @param uuid
      * @param player
-     * @return - A {@link Pair} Containing if the piece can move, and if the game is ended
+     * @return
      */
     public BooleanResponse movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
         Assert.assertNotNull(from, to, player);

@@ -16,11 +16,12 @@
 
 package ca.watier.enums;
 
+import ca.watier.echesscommon.enums.Pieces;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.enums.Pieces.*;
-import static ca.watier.enums.Side.*;
+import static ca.watier.echesscommon.enums.Pieces.*;
+import static ca.watier.echesscommon.enums.Side.*;
 
 /**
  * Created by yannick on 6/20/2017.

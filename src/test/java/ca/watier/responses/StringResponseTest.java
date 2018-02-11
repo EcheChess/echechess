@@ -16,7 +16,7 @@
 
 package ca.watier.responses;
 
-import ca.watier.utils.Assert;
+import ca.watier.echesscommon.utils.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

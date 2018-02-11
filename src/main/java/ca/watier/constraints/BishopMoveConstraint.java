@@ -16,7 +16,8 @@
 
 package ca.watier.constraints;
 
-import ca.watier.enums.DirectionPattern;
+
+import ca.watier.echesscommon.enums.DirectionPattern;
 
 /**
  * Created by yannick on 4/23/2017.

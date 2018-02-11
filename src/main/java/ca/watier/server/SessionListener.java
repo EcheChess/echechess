@@ -16,8 +16,8 @@
 
 package ca.watier.server;
 
-import ca.watier.sessions.Player;
-import ca.watier.utils.Constants;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.Constants;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;

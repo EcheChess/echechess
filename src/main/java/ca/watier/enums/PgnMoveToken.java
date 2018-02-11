@@ -16,14 +16,16 @@
 
 package ca.watier.enums;
 
-import ca.watier.utils.PgnParser;
+
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.Side;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static ca.watier.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.CasePosition.*;
 
 public enum PgnMoveToken {
     CAPTURE("x"),
@@ -70,8 +72,8 @@ public enum PgnMoveToken {
                             case CHECK:
                             case CHECKMATE:
                             case PAWN_PROMOTION:
-                                if (!moves.contains(PgnParser.NORMAL_MOVE)) {
-                                    moves.add(PgnParser.NORMAL_MOVE);
+                                if (!moves.contains(NORMAL_MOVE)) {
+                                    moves.add(NORMAL_MOVE);
                                 }
                                 break;
                         }
@@ -81,7 +83,7 @@ public enum PgnMoveToken {
             }
 
             if (moves.isEmpty()) {
-                moves.add(PgnParser.NORMAL_MOVE);
+                moves.add(NORMAL_MOVE);
             }
         }
 

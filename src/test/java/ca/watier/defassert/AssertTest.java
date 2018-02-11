@@ -17,7 +17,7 @@
 package ca.watier.defassert;
 
 import ca.watier.defassert.utils.EmptyObj;
-import ca.watier.utils.Assert;
+import ca.watier.echesscommon.utils.Assert;
 import org.junit.Test;
 
 import java.util.*;

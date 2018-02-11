@@ -16,20 +16,20 @@
 
 package ca.watier.constraints;
 
-import ca.watier.enums.*;
+import ca.watier.echesscommon.enums.*;
+import ca.watier.echesscommon.interfaces.BaseUtils;
+import ca.watier.echesscommon.utils.Assert;
+import ca.watier.echesscommon.utils.GameUtils;
+import ca.watier.echesscommon.utils.MathUtils;
 import ca.watier.game.GenericGameHandler;
-import ca.watier.interfaces.BaseUtils;
 import ca.watier.interfaces.MoveConstraint;
 import ca.watier.interfaces.SpecialMoveConstraint;
-import ca.watier.utils.Assert;
-import ca.watier.utils.GameUtils;
-import ca.watier.utils.MathUtils;
 
 import java.util.List;
 import java.util.Map;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.interfaces.BaseUtils.getSafeBoolean;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.interfaces.BaseUtils.getSafeBoolean;
 
 /**
  * Created by yannick on 4/23/2017.

@@ -17,17 +17,17 @@
 package ca.watier.services;
 
 import ca.watier.GameTest;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.ChessEventMessage;
-import ca.watier.enums.MoveType;
-import ca.watier.enums.Pieces;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.ChessEventMessage;
+import ca.watier.echesscommon.enums.MoveType;
+import ca.watier.echesscommon.enums.Pieces;
+import ca.watier.echesscommon.interfaces.WebSocketService;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.Constants;
+import ca.watier.echesscommon.utils.GameUtils;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.impl.WebSocketServiceTestImpl;
-import ca.watier.interfaces.WebSocketService;
 import ca.watier.responses.BooleanResponse;
-import ca.watier.sessions.Player;
-import ca.watier.utils.Constants;
-import ca.watier.utils.GameUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,13 +35,13 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.ChessEventMessage.REFRESH_BOARD;
-import static ca.watier.enums.GameType.CLASSIC;
-import static ca.watier.enums.GameType.SPECIAL;
-import static ca.watier.enums.Pieces.B_KING;
-import static ca.watier.enums.Pieces.W_QUEEN;
-import static ca.watier.enums.Side.OBSERVER;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.ChessEventMessage.REFRESH_BOARD;
+import static ca.watier.echesscommon.enums.GameType.CLASSIC;
+import static ca.watier.echesscommon.enums.GameType.SPECIAL;
+import static ca.watier.echesscommon.enums.Pieces.B_KING;
+import static ca.watier.echesscommon.enums.Pieces.W_QUEEN;
+import static ca.watier.echesscommon.enums.Side.OBSERVER;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;

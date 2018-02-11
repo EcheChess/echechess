@@ -17,12 +17,13 @@
 package ca.watier.utils;
 
 import ca.watier.constraints.KnightMoveConstraint;
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Direction;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.Direction;
+import ca.watier.echesscommon.utils.MathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.CasePosition.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 

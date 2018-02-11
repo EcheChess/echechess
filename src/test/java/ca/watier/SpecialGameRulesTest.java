@@ -21,17 +21,17 @@ package ca.watier;
  */
 
 import ca.watier.contexts.StandardGameHandlerContext;
-import ca.watier.enums.KingStatus;
-import ca.watier.enums.Side;
+import ca.watier.echesscommon.enums.KingStatus;
+import ca.watier.echesscommon.enums.Side;
 import ca.watier.game.GenericGameHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.MoveType.MOVE_NOT_ALLOWED;
-import static ca.watier.enums.MoveType.NORMAL_MOVE;
-import static ca.watier.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
-import static ca.watier.enums.SpecialGameRules.NO_PLAYER_TURN;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.MoveType.MOVE_NOT_ALLOWED;
+import static ca.watier.echesscommon.enums.MoveType.NORMAL_MOVE;
+import static ca.watier.echesscommon.enums.SpecialGameRules.NO_CHECK_OR_CHECKMATE;
+import static ca.watier.echesscommon.enums.SpecialGameRules.NO_PLAYER_TURN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

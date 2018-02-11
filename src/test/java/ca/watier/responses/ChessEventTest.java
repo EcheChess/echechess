@@ -16,7 +16,7 @@
 
 package ca.watier.responses;
 
-import ca.watier.enums.ChessEventMessage;
+import ca.watier.echesscommon.enums.ChessEventMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

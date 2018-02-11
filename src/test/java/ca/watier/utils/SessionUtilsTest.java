@@ -16,7 +16,10 @@
 
 package ca.watier.utils;
 
-import ca.watier.sessions.Player;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.Constants;
+import ca.watier.echesscommon.utils.SessionUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpSession;
 

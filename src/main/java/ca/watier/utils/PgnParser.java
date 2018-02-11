@@ -16,9 +16,12 @@
 
 package ca.watier.utils;
 
-import ca.watier.enums.*;
+import ca.watier.echesscommon.enums.*;
+import ca.watier.echesscommon.interfaces.WebSocketService;
+import ca.watier.echesscommon.utils.MultiArrayMap;
+import ca.watier.echesscommon.utils.Pair;
+import ca.watier.enums.PgnMoveToken;
 import ca.watier.game.GenericGameHandler;
-import ca.watier.interfaces.WebSocketService;
 import ca.watier.pojos.MoveHistory;
 import ca.watier.services.ConstraintService;
 import org.jetbrains.annotations.NotNull;
@@ -30,11 +33,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static ca.watier.enums.Side.BLACK;
-import static ca.watier.enums.Side.WHITE;
+import static ca.watier.echesscommon.enums.Side.BLACK;
+import static ca.watier.echesscommon.enums.Side.WHITE;
+
 
 public class PgnParser {
-    public static final PgnMoveToken NORMAL_MOVE = PgnMoveToken.NORMAL_MOVE;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PgnParser.class);
     private static final List<PgnMoveToken> PAWN_PROMOTION_WITH_CAPTURE_TOKENS = new ArrayList<>();
     private static final Pattern POSITION_PATTERN = Pattern.compile("[a-h][1-8]");
@@ -196,7 +199,7 @@ public class PgnParser {
 
         CasePosition selectedRookPosition = PgnMoveToken.getCastlingRookPosition(pgnMoveToken, currentSide);
 
-        if (ca.watier.enums.MoveType.CASTLING.equals(gameHandler.movePiece(kingPosition, selectedRookPosition, currentSide))) {
+        if (MoveType.CASTLING.equals(gameHandler.movePiece(kingPosition, selectedRookPosition, currentSide))) {
             LOGGER.debug("Castling: King -> {} | Rook {} | ({})", kingPosition, selectedRookPosition, currentSide);
         } else { //Issue with the move / case
             LOGGER.error("Unable to cast at the selected position {} for the current color {} !", selectedRookPosition, currentSide);

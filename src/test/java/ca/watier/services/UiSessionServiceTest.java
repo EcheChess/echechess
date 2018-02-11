@@ -16,8 +16,9 @@
 
 package ca.watier.services;
 
+import ca.watier.echesscommon.sessions.Player;
 import ca.watier.impl.WebSocketServiceTestImpl;
-import ca.watier.sessions.Player;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
@@ -28,7 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 
 /**
  * Created by yannick on 6/11/2017.
@@ -39,7 +39,7 @@ public class UiSessionServiceTest {
 
     @Before
     public void setup() {
-        service = new UiSessionService(new WebSocketServiceTestImpl(), newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
+        service = new UiSessionService(new WebSocketServiceTestImpl(), CacheConfigurationBuilder.newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
                 .withExpiry(Expirations.timeToIdleExpiration(new Duration(5, TimeUnit.SECONDS))));
     }
 

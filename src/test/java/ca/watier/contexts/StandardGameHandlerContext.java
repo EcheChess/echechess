@@ -16,13 +16,13 @@
 
 package ca.watier.contexts;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.Pieces;
+import ca.watier.echesscommon.interfaces.WebSocketService;
+import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.utils.Assert;
 import ca.watier.game.CustomPieceWithStandardRulesHandler;
-import ca.watier.interfaces.WebSocketService;
 import ca.watier.services.ConstraintService;
-import ca.watier.sessions.Player;
-import ca.watier.utils.Assert;
 
 import java.util.Map;
 import java.util.UUID;

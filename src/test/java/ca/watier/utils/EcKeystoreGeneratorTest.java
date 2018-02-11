@@ -16,6 +16,7 @@
 
 package ca.watier.utils;
 
+import ca.watier.echesscommon.utils.EcKeystoreGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.Months;
 import org.junit.Test;

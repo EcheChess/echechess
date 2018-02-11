@@ -17,11 +17,11 @@
 package ca.watier.services;
 
 import ca.watier.constraints.*;
-import ca.watier.enums.*;
+import ca.watier.echesscommon.enums.*;
+import ca.watier.echesscommon.utils.Assert;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.interfaces.MoveConstraint;
 import ca.watier.interfaces.SpecialMoveConstraint;
-import ca.watier.utils.Assert;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 

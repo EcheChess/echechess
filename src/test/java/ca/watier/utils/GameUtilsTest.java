@@ -16,15 +16,16 @@
 
 package ca.watier.utils;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Pieces;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.Pieces;
+import ca.watier.echesscommon.utils.GameUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
 
-import static ca.watier.enums.Pieces.*;
+import static ca.watier.echesscommon.enums.Pieces.*;
 
 /**
  * Created by yannick on 4/28/2017.

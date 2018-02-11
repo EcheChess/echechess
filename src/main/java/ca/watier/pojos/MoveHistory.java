@@ -16,10 +16,10 @@
 
 package ca.watier.pojos;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.KingStatus;
-import ca.watier.enums.MoveType;
-import ca.watier.enums.Side;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.KingStatus;
+import ca.watier.echesscommon.enums.MoveType;
+import ca.watier.echesscommon.enums.Side;
 
 public class MoveHistory {
     private final CasePosition from;

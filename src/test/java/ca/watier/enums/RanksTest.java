@@ -20,8 +20,8 @@ import ca.watier.GameTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.enums.CasePosition.*;
-import static ca.watier.enums.Ranks.*;
+import static ca.watier.echesscommon.enums.CasePosition.*;
+import static ca.watier.echesscommon.enums.Ranks.*;
 
 /**
  * Created by yannick on 7/5/2017.

@@ -16,11 +16,11 @@
 
 package ca.watier.constraints;
 
-import ca.watier.enums.*;
+import ca.watier.echesscommon.enums.*;
+import ca.watier.echesscommon.utils.Assert;
+import ca.watier.echesscommon.utils.MathUtils;
 import ca.watier.game.GenericGameHandler;
 import ca.watier.interfaces.MoveConstraint;
-import ca.watier.utils.Assert;
-import ca.watier.utils.MathUtils;
 
 import java.util.ArrayList;
 import java.util.List;

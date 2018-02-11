@@ -16,14 +16,14 @@
 
 package ca.watier.controllers;
 
-import ca.watier.enums.CasePosition;
-import ca.watier.enums.Side;
+import ca.watier.echesscommon.enums.CasePosition;
+import ca.watier.echesscommon.enums.Side;
+import ca.watier.echesscommon.utils.Assert;
+import ca.watier.echesscommon.utils.SessionUtils;
 import ca.watier.responses.BooleanResponse;
 import ca.watier.responses.DualValueResponse;
 import ca.watier.responses.StringResponse;
 import ca.watier.services.GameService;
-import ca.watier.utils.Assert;
-import ca.watier.utils.SessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;

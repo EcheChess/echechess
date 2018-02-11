@@ -16,6 +16,7 @@
 
 package ca.watier.utils;
 
+import ca.watier.echesscommon.utils.MultiArrayMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
