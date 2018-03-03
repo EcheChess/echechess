@@ -27,9 +27,9 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.jetty.JettyEmbeddedServletContainerFactory;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -49,59 +49,56 @@ public class ProdSecurityConfiguration {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EchechessApplication.class);
 
 
-    @Configuration
-    public class HttpToHttpsJettyCustomizer implements EmbeddedServletContainerCustomizer {
+    @Bean
+    public ConfigurableServletWebServerFactory webServerFactory() {
+        JettyServletWebServerFactory jettyServletWebServerFactory = new JettyServletWebServerFactory();
+        jettyServletWebServerFactory.addConfigurations(new HttpToHttpsJettyConfiguration());
+        jettyServletWebServerFactory.addServerCustomizers(server -> {
+            HttpConfiguration httpsConfig = new HttpConfiguration();
+            httpsConfig.addCustomizer(new SecureRequestCustomizer());
+            httpsConfig.setSecureScheme("https");
+            httpsConfig.setSecurePort(SECURE_PORT);
 
-        @Override
-        public void customize(ConfigurableEmbeddedServletContainer container) {
-            JettyEmbeddedServletContainerFactory containerFactory = (JettyEmbeddedServletContainerFactory) container;
-            //Add a plain HTTP connector and a WebAppContext config to force redirect from http->https
-            containerFactory.addConfigurations(new HttpToHttpsJettyConfiguration());
-            containerFactory.addServerCustomizers(server -> {
-                HttpConfiguration httpsConfig = new HttpConfiguration();
-                httpsConfig.addCustomizer(new SecureRequestCustomizer());
-                httpsConfig.setSecureScheme("https");
-                httpsConfig.setSecurePort(SECURE_PORT);
+            HttpConfiguration httpConfig = new HttpConfiguration();
+            httpConfig.addCustomizer(new SecureRequestCustomizer());
+            httpConfig.setSecurePort(SECURE_PORT);
 
-                HttpConfiguration httpConfig = new HttpConfiguration();
-                httpConfig.addCustomizer(new SecureRequestCustomizer());
-                httpConfig.setSecurePort(SECURE_PORT);
+            SslContextFactory sslContextFactory = new SslContextFactory();
+            sslContextFactory.setKeyStoreProvider(PROVIDER_NAME);
+            sslContextFactory.setSecureRandomAlgorithm(PRNG);
+            sslContextFactory.setIncludeProtocols("TLSv1.2");
 
-                SslContextFactory sslContextFactory = new SslContextFactory();
-                sslContextFactory.setKeyStoreProvider(PROVIDER_NAME);
-                sslContextFactory.setSecureRandomAlgorithm(PRNG);
-                sslContextFactory.setIncludeProtocols("TLSv1.2");
+            if (CURRENT_KEYSTORE_HOLDER == null) {
+                LOGGER.error("INVALID KEYSTORE HOLDER (NULL)");
+                System.exit(1);
+            }
 
-                if (CURRENT_KEYSTORE_HOLDER == null) {
-                    LOGGER.error("INVALID KEYSTORE HOLDER (NULL)");
-                    System.exit(1);
-                }
+            KeyStore keyStore = CURRENT_KEYSTORE_HOLDER.getKeyStore();
 
-                KeyStore keyStore = CURRENT_KEYSTORE_HOLDER.getKeyStore();
+            if (keyStore == null) {
+                LOGGER.error("INVALID KEYSTORE (NULL)");
+                System.exit(1);
+            }
 
-                if (keyStore == null) {
-                    LOGGER.error("INVALID KEYSTORE (NULL)");
-                    System.exit(1);
-                }
+            sslContextFactory.setKeyStore(keyStore);
+            sslContextFactory.setKeyStorePassword(CURRENT_KEYSTORE_HOLDER.getPassword());
 
-                sslContextFactory.setKeyStore(keyStore);
-                sslContextFactory.setKeyStorePassword(CURRENT_KEYSTORE_HOLDER.getPassword());
+            sslContextFactory.setIncludeCipherSuites(
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
+            );
 
-                sslContextFactory.setIncludeCipherSuites(
-                        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-                        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
-                );
+            ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+            http.setPort(WEB_PORT);
 
-                ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
-                http.setPort(WEB_PORT);
+            ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
+            https.setPort(SECURE_PORT);
+            https.setIdleTimeout(500000);
 
-                ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
-                https.setPort(SECURE_PORT);
-                https.setIdleTimeout(500000);
+            server.setConnectors(new Connector[]{https, http});
+        });
 
-                server.setConnectors(new Connector[]{https, http});
-            });
-        }
+        return jettyServletWebServerFactory;
     }
 
 

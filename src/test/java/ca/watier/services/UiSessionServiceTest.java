@@ -17,7 +17,7 @@
 package ca.watier.services;
 
 import ca.watier.echesscommon.sessions.Player;
-import ca.watier.impl.WebSocketServiceTestImpl;
+import ca.watier.echesscommon.impl.WebSocketServiceTestImpl;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;

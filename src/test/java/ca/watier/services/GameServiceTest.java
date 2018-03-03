@@ -27,7 +27,7 @@ import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
 import ca.watier.echesscommon.utils.Constants;
 import ca.watier.echesscommon.utils.GameUtils;
-import ca.watier.impl.WebSocketServiceTestImpl;
+import ca.watier.echesscommon.impl.WebSocketServiceTestImpl;
 import ca.watier.responses.BooleanResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;

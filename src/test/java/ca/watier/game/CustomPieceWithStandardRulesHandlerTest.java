@@ -22,7 +22,7 @@ import ca.watier.echesscommon.enums.KingStatus;
 import ca.watier.echesscommon.enums.Pieces;
 import ca.watier.echesscommon.enums.SpecialGameRules;
 import ca.watier.echesscommon.utils.Constants;
-import ca.watier.impl.WebSocketServiceTestImpl;
+import ca.watier.echesscommon.impl.WebSocketServiceTestImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
