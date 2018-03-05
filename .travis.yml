@@ -5,10 +5,15 @@ jdk:
 branches:
   only:
   - master
-
 addons:
-  sonarqube:
+  sonarcloud:
     organization: "doi9t-github"
 script:
   # other script steps might be done before running the actual SonarQube analysis
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key: $GITHUB_OAUTH_TOKEN
+  file: target/echechess-0.0.1-SNAPSHOT.jar

@@ -20,7 +20,7 @@ import ca.watier.echesscommon.enums.ChessEventMessage;
 import ca.watier.echesscommon.enums.Side;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.utils.Assert;
-import ca.watier.responses.ChessEvent;
+import ca.watier.echesscommon.responses.ChessEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

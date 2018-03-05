@@ -16,7 +16,7 @@
 
 package ca.watier.enums;
 
-import ca.watier.GameTest;
+import ca.watier.echesscommon.tests.GameTest;
 import org.junit.Assert;
 import org.junit.Test;
 

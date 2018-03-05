@@ -16,7 +16,6 @@
 
 package ca.watier.services;
 
-import ca.watier.GameTest;
 import ca.watier.echechessengine.engines.GenericGameHandler;
 import ca.watier.echechessengine.game.GameConstraints;
 import ca.watier.echesscommon.enums.CasePosition;
@@ -25,10 +24,11 @@ import ca.watier.echesscommon.enums.MoveType;
 import ca.watier.echesscommon.enums.Pieces;
 import ca.watier.echesscommon.interfaces.WebSocketService;
 import ca.watier.echesscommon.sessions.Player;
+import ca.watier.echesscommon.tests.GameTest;
 import ca.watier.echesscommon.utils.Constants;
 import ca.watier.echesscommon.utils.GameUtils;
 import ca.watier.echesscommon.impl.WebSocketServiceTestImpl;
-import ca.watier.responses.BooleanResponse;
+import ca.watier.echesscommon.responses.BooleanResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
