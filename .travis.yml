@@ -12,6 +12,8 @@ script:
   # other script steps might be done before running the actual SonarQube analysis
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
 
+before_deploy:
+  - git tag "release-$(date +'%Y%m%d%H%M%S')"
 deploy:
   provider: releases
   skip_cleanup: true
