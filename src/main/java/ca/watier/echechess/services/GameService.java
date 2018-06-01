@@ -14,25 +14,25 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.echechess.services;
 
-import ca.watier.echechessengine.engines.GenericGameHandler;
-import ca.watier.echechessengine.game.CustomPieceWithStandardRulesHandler;
-import ca.watier.echechessengine.game.GameConstraints;
-import ca.watier.echesscommon.enums.*;
-import ca.watier.echesscommon.interfaces.WebSocketService;
-import ca.watier.echesscommon.sessions.Player;
-import ca.watier.echesscommon.utils.Assert;
-import ca.watier.echesscommon.responses.BooleanResponse;
-import ca.watier.echesscommon.responses.DualValueResponse;
+import ca.watier.echechess.common.enums.*;
+import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.responses.BooleanResponse;
+import ca.watier.echechess.common.responses.DualValueResponse;
+import ca.watier.echechess.common.sessions.Player;
+import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.engine.game.CustomPieceWithStandardRulesHandler;
+import ca.watier.echechess.engine.game.GameConstraints;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static ca.watier.echesscommon.enums.ChessEventMessage.*;
-import static ca.watier.echesscommon.utils.Constants.*;
+import static ca.watier.echechess.common.enums.ChessEventMessage.*;
+import static ca.watier.echechess.common.utils.Constants.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -62,7 +62,8 @@ public class GameService {
      * @param observers
      */
     public UUID createNewGame(Player player, String specialGamePieces, Side side, boolean againstComputer, boolean observers) {
-        Assert.assertNotNull(player, side);
+        assertThat(player).isNotNull();
+        assertThat(side).isNotNull();
 
         GameType gameType = GameType.CLASSIC;
         GenericGameHandler genericGameHandler;
@@ -105,12 +106,14 @@ public class GameService {
      * @return
      */
     public BooleanResponse movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
-        Assert.assertNotNull(from, to, player);
-        Assert.assertNotEmpty(uuid);
+        assertThat(from).isNotNull();
+        assertThat(to).isNotNull();
+        assertThat(player).isNotNull();
+        assertThat(uuid).isNotEmpty();
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Side playerSide = getPlayerSide(uuid, player);
-        Assert.assertNotNull(gameFromUuid);
+        assertThat(gameFromUuid).isNotNull();
 
         if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused() || gameFromUuid.isGameDraw()) {
             return BooleanResponse.NO;
@@ -133,7 +136,8 @@ public class GameService {
      * @return
      */
     public GenericGameHandler getGameFromUuid(String uuid) {
-        Assert.assertNotEmpty(uuid);
+        assertThat(uuid).isNotEmpty();
+
         return getGameFromUuid(UUID.fromString(uuid));
     }
 
@@ -144,10 +148,11 @@ public class GameService {
      * @return
      */
     public Side getPlayerSide(String uuid, Player player) {
-        Assert.assertNotEmpty(uuid);
+        assertThat(uuid).isNotEmpty();
 
         GenericGameHandler standardGameHandler = GAMES_HANDLER_MAP.get(UUID.fromString(uuid));
-        Assert.assertNotNull(standardGameHandler);
+
+        assertThat(standardGameHandler).isNotNull();
         return standardGameHandler.getPlayerSide(player);
     }
 
@@ -158,7 +163,7 @@ public class GameService {
      * @return
      */
     public GenericGameHandler getGameFromUuid(UUID uuid) {
-        Assert.assertNotNull(uuid);
+        assertThat(uuid).isNotNull();
 
         return GAMES_HANDLER_MAP.get(uuid);
     }
@@ -172,11 +177,11 @@ public class GameService {
      * @return
      */
     public List<String> getAllAvailableMoves(CasePosition from, String uuid, Player player) {
-        Assert.assertNotNull(from);
-        Assert.assertNotEmpty(uuid);
+        assertThat(from).isNotNull();
+        assertThat(uuid).isNotEmpty();
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-        Assert.assertNotNull(gameFromUuid);
+        assertThat(gameFromUuid).isNotNull();
         List<String> values = new ArrayList<>();
 
         if (!gameFromUuid.hasPlayer(player)) {
@@ -187,7 +192,7 @@ public class GameService {
 
         Map<CasePosition, Pieces> piecesLocation = gameFromUuid.getPiecesLocation();
         Pieces pieces = piecesLocation.get(from);
-        Assert.assertNotNull(pieces);
+        assertThat(pieces).isNotNull();
 
         if (!pieces.getSide().equals(playerSide)) {
             return values;
@@ -206,8 +211,9 @@ public class GameService {
     }
 
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
-        Assert.assertNotNull(side, player);
-        Assert.assertNotEmpty(uuid);
+        assertThat(side).isNotNull();
+        assertThat(player).isNotNull();
+        assertThat(uuid).isNotEmpty();
 
         boolean joined = false;
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
@@ -241,8 +247,8 @@ public class GameService {
     }
 
     public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
-        Assert.assertNotNull(player);
-        Assert.assertNotEmpty(uuid);
+        assertThat(player).isNotNull();
+        assertThat(uuid).isNotEmpty();
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
@@ -281,9 +287,10 @@ public class GameService {
      * @return
      */
     public BooleanResponse upgradePiece(CasePosition to, String uuid, String piece, Player player) {
-        Assert.assertNotNull(to, player);
-        Assert.assertNotEmpty(uuid);
-        Assert.assertNotEmpty(piece);
+        assertThat(to).isNotNull();
+        assertThat(player).isNotNull();
+        assertThat(uuid).isNotEmpty();
+        assertThat(piece).isNotEmpty();
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Side playerSide = gameFromUuid.getPlayerSide(player);
@@ -305,7 +312,7 @@ public class GameService {
 
         boolean isChanged = false;
 
-        Assert.assertNotEmpty(finalPieceName);
+        assertThat(finalPieceName).isNotEmpty();
 
         try {
             isChanged = gameFromUuid.upgradePiece(to, Pieces.valueOf(finalPieceName), playerSide);

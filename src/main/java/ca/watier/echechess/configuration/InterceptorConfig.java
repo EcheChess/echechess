@@ -14,11 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.configuration;
+package ca.watier.echechess.configuration;
 
-import ca.watier.echesscommon.interfaces.WebSocketService;
-import ca.watier.server.UiSessionHandlerInterceptor;
-import ca.watier.services.UiSessionService;
+import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.server.UiSessionHandlerInterceptor;
+import ca.watier.echechess.services.UiSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

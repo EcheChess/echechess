@@ -16,8 +16,8 @@
 
 package ca.watier.integration;
 
-import ca.watier.EchechessApplication;
-import ca.watier.services.GameService;
+import ca.watier.echechess.EchechessApplication;
+import ca.watier.echechess.services.GameService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

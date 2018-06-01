@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.echechess.services;
 
-import ca.watier.echesscommon.sessions.Player;
-import ca.watier.echesscommon.impl.WebSocketServiceTestImpl;
+import ca.watier.echechess.common.sessions.Player;
+import ca.watier.echechess.common.impl.WebSocketServiceTestImpl;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;

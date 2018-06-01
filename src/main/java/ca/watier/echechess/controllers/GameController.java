@@ -14,16 +14,15 @@
  *    limitations under the License.
  */
 
-package ca.watier.controllers;
+package ca.watier.echechess.controllers;
 
-import ca.watier.echesscommon.enums.CasePosition;
-import ca.watier.echesscommon.enums.Side;
-import ca.watier.echesscommon.utils.Assert;
-import ca.watier.echesscommon.utils.SessionUtils;
-import ca.watier.echesscommon.responses.BooleanResponse;
-import ca.watier.echesscommon.responses.DualValueResponse;
-import ca.watier.echesscommon.responses.StringResponse;
-import ca.watier.services.GameService;
+import ca.watier.echechess.common.enums.CasePosition;
+import ca.watier.echechess.common.enums.Side;
+import ca.watier.echechess.common.responses.BooleanResponse;
+import ca.watier.echechess.common.responses.DualValueResponse;
+import ca.watier.echechess.common.responses.StringResponse;
+import ca.watier.echechess.common.utils.SessionUtils;
+import ca.watier.echechess.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by yannick on 4/22/2017.
@@ -60,7 +61,7 @@ public class GameController {
     @RequestMapping(path = "/create/1", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public StringResponse createNewGame(Side side, boolean againstComputer, boolean observers, String specialGamePieces, HttpSession session) {
         UUID newGame = gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces, side, againstComputer, observers);
-        Assert.assertNotNull(newGame);
+        assertThat(newGame).isNotNull();
 
         return new StringResponse(newGame.toString());
     }

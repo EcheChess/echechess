@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package ca.watier.server;
+package ca.watier.echechess.server;
 
-import ca.watier.echesscommon.sessions.Player;
-import ca.watier.echesscommon.utils.Constants;
+import ca.watier.echechess.common.sessions.Player;
+import ca.watier.echechess.common.utils.Constants;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;

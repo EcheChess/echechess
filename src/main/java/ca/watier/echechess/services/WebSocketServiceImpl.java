@@ -14,16 +14,17 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.echechess.services;
 
-import ca.watier.echesscommon.enums.ChessEventMessage;
-import ca.watier.echesscommon.enums.Side;
-import ca.watier.echesscommon.interfaces.WebSocketService;
-import ca.watier.echesscommon.utils.Assert;
-import ca.watier.echesscommon.responses.ChessEvent;
+import ca.watier.echechess.common.enums.ChessEventMessage;
+import ca.watier.echechess.common.enums.Side;
+import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.responses.ChessEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by yannick on 6/10/2017.
@@ -41,18 +42,21 @@ public class WebSocketServiceImpl implements WebSocketService {
     }
 
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
-        Assert.assertNotNull(side, evtMessage);
-        Assert.assertNotEmpty(uuid);
-        Assert.assertNotEmpty(message);
+        assertThat(side).isNotNull();
+        assertThat(evtMessage).isNotNull();
+        assertThat(uuid).isNotEmpty();
+        assertThat(message).isNotEmpty();
 
         template.convertAndSend(TOPIC + uuid + '/' + side, new ChessEvent(evtMessage, message));
     }
 
     @Override
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj) {
-        Assert.assertNotNull(side, evtMessage);
-        Assert.assertNotEmpty(uuid);
-        Assert.assertNotEmpty(message);
+        assertThat(side).isNotNull();
+        assertThat(evtMessage).isNotNull();
+        assertThat(uuid).isNotEmpty();
+        assertThat(message).isNotEmpty();
+
 
         ChessEvent payload = new ChessEvent(evtMessage, message);
         payload.setObj(obj);

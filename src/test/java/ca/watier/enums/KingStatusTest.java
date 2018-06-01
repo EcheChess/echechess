@@ -17,7 +17,7 @@
 package ca.watier.enums;
 
 
-import ca.watier.echesscommon.enums.KingStatus;
+import ca.watier.echechess.common.enums.KingStatus;
 import org.junit.Assert;
 import org.junit.Test;
 

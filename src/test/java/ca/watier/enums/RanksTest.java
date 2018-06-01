@@ -16,12 +16,12 @@
 
 package ca.watier.enums;
 
-import ca.watier.echesscommon.tests.GameTest;
+import ca.watier.echechess.common.tests.GameTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ca.watier.echesscommon.enums.CasePosition.*;
-import static ca.watier.echesscommon.enums.Ranks.*;
+import static ca.watier.echechess.common.enums.CasePosition.*;
+import static ca.watier.echechess.common.enums.Ranks.*;
 
 /**
  * Created by yannick on 7/5/2017.

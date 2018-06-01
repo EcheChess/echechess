@@ -16,7 +16,7 @@
 
 package ca.watier.interfaces;
 
-import ca.watier.echesscommon.interfaces.BaseUtils;
+import ca.watier.echechess.common.interfaces.BaseUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;

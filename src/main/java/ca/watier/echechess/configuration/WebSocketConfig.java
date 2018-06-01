@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.configuration;
+package ca.watier.echechess.configuration;
 
 /**
  * Created by yannick on 4/30/2017.

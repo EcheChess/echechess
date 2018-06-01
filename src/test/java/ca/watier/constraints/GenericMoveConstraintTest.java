@@ -16,7 +16,7 @@
 
 package ca.watier.constraints;
 
-import ca.watier.echechessengine.constraints.GenericMoveConstraint;
+import ca.watier.echechess.engine.constraints.GenericMoveConstraint;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

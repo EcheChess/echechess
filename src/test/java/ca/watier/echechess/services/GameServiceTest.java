@@ -14,21 +14,21 @@
  *    limitations under the License.
  */
 
-package ca.watier.services;
+package ca.watier.echechess.services;
 
-import ca.watier.echechessengine.engines.GenericGameHandler;
-import ca.watier.echechessengine.game.GameConstraints;
-import ca.watier.echesscommon.enums.CasePosition;
-import ca.watier.echesscommon.enums.ChessEventMessage;
-import ca.watier.echesscommon.enums.MoveType;
-import ca.watier.echesscommon.enums.Pieces;
-import ca.watier.echesscommon.interfaces.WebSocketService;
-import ca.watier.echesscommon.sessions.Player;
-import ca.watier.echesscommon.tests.GameTest;
-import ca.watier.echesscommon.utils.Constants;
-import ca.watier.echesscommon.utils.GameUtils;
-import ca.watier.echesscommon.impl.WebSocketServiceTestImpl;
-import ca.watier.echesscommon.responses.BooleanResponse;
+import ca.watier.echechess.common.enums.CasePosition;
+import ca.watier.echechess.common.enums.ChessEventMessage;
+import ca.watier.echechess.common.enums.MoveType;
+import ca.watier.echechess.common.enums.Pieces;
+import ca.watier.echechess.common.impl.WebSocketServiceTestImpl;
+import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.responses.BooleanResponse;
+import ca.watier.echechess.common.sessions.Player;
+import ca.watier.echechess.common.tests.GameTest;
+import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.engine.game.GameConstraints;
+import ca.watier.echechess.engine.utils.GameUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,17 +36,16 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static ca.watier.echesscommon.enums.CasePosition.*;
-import static ca.watier.echesscommon.enums.ChessEventMessage.REFRESH_BOARD;
-import static ca.watier.echesscommon.enums.GameType.CLASSIC;
-import static ca.watier.echesscommon.enums.GameType.SPECIAL;
-import static ca.watier.echesscommon.enums.Pieces.B_KING;
-import static ca.watier.echesscommon.enums.Pieces.W_QUEEN;
-import static ca.watier.echesscommon.enums.Side.OBSERVER;
+import static ca.watier.echechess.common.enums.CasePosition.*;
+import static ca.watier.echechess.common.enums.ChessEventMessage.REFRESH_BOARD;
+import static ca.watier.echechess.common.enums.GameType.CLASSIC;
+import static ca.watier.echechess.common.enums.GameType.SPECIAL;
+import static ca.watier.echechess.common.enums.Pieces.B_KING;
+import static ca.watier.echechess.common.enums.Pieces.W_QUEEN;
+import static ca.watier.echechess.common.enums.Side.OBSERVER;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GameServiceTest extends GameTest {
     private static final GameConstraints CONSTRAINT_SERVICE = new GameConstraints();
@@ -71,6 +70,8 @@ public class GameServiceTest extends GameTest {
 
 
         Assert.assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
+
+        gameFromUuid.isGameDone();
 
         String uuid = gameFromUuid.getUuid();
         Assert.assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.upgradePiece(G8, uuid, "queene", player1)); //invalid piece
@@ -108,13 +109,13 @@ public class GameServiceTest extends GameTest {
 
         //Check if the player1 is set to black
         assertEquals(player1, normalGameHandler.getPlayerBlack());
-        assertEquals(null, normalGameHandler.getPlayerWhite());
+        assertNull(normalGameHandler.getPlayerWhite());
         assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         gameService.setSideOfPlayer(player1, WHITE, uuid);
 
         //Check if the player1 is set to white (was black before)
-        assertEquals(null, normalGameHandler.getPlayerBlack());
+        assertNull(normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
         assertTrue(normalGameHandler.getObserverList().isEmpty());
 
@@ -127,7 +128,7 @@ public class GameServiceTest extends GameTest {
         gameService.setSideOfPlayer(player2, WHITE, uuid);
 
         //Check if the player1 is still associated to black, player2 not set yet
-        assertEquals(null, normalGameHandler.getPlayerBlack());
+        assertNull(normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
         assertTrue(normalGameHandler.getObserverList().isEmpty());
 
@@ -142,8 +143,8 @@ public class GameServiceTest extends GameTest {
         gameService.setSideOfPlayer(player1, OBSERVER, uuid);
         gameService.setSideOfPlayer(player2, OBSERVER, uuid);
 
-        assertEquals(null, normalGameHandler.getPlayerBlack());
-        assertEquals(null, normalGameHandler.getPlayerWhite());
+        assertNull(normalGameHandler.getPlayerBlack());
+        assertNull(normalGameHandler.getPlayerWhite());
         assertTrue(normalGameHandler.getObserverList().containsAll(asList(player1, player2)));
     }
 

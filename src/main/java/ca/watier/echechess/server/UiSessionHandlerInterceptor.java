@@ -14,11 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.server;
+package ca.watier.echechess.server;
 
-import ca.watier.echesscommon.enums.ChessEventMessage;
-import ca.watier.echesscommon.interfaces.WebSocketService;
-import ca.watier.services.UiSessionService;
+import ca.watier.echechess.common.enums.ChessEventMessage;
+import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.services.UiSessionService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
-import static ca.watier.echesscommon.utils.Constants.THE_CLIENT_LOST_THE_CONNECTION;
+import static ca.watier.echechess.common.utils.Constants.THE_CLIENT_LOST_THE_CONNECTION;
 
 /**
  * Created by yannick on 6/12/2017.

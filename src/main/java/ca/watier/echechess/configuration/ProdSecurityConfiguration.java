@@ -14,10 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.configuration;
+package ca.watier.echechess.configuration;
 
-import ca.watier.EchechessApplication;
-import ca.watier.echesscommon.utils.EcKeystoreGenerator;
+import ca.watier.echechess.EchechessApplication;
+import ca.watier.echechess.common.utils.KeystoreGenerator;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -34,9 +35,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.security.KeyStore;
+import java.util.HashMap;
+import java.util.Map;
 
-import static ca.watier.echesscommon.utils.EcKeystoreGenerator.PRNG;
-import static ca.watier.echesscommon.utils.EcKeystoreGenerator.PROVIDER_NAME;
+import static ca.watier.echechess.common.utils.KeystoreGenerator.PRNG;
+import static ca.watier.echechess.common.utils.KeystoreGenerator.PROVIDER_NAME;
+import static org.bouncycastle.asn1.x500.style.BCStyle.GIVENNAME;
+import static org.bouncycastle.asn1.x500.style.BCStyle.O;
 
 
 @Profile("prod")
@@ -44,10 +49,20 @@ import static ca.watier.echesscommon.utils.EcKeystoreGenerator.PROVIDER_NAME;
 public class ProdSecurityConfiguration {
     private static final int SECURE_PORT = 8443;
     private static final int WEB_PORT = 8080;
-
-    private static final EcKeystoreGenerator.KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER = EcKeystoreGenerator.createKeystore();
+    private static final Map<ASN1ObjectIdentifier, String> CERT_USER_INFOS;
+    private static final KeystoreGenerator.KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EchechessApplication.class);
 
+    static {
+        CERT_USER_INFOS = new HashMap<>();
+        CERT_USER_INFOS.put(GIVENNAME, "Yannick Watier");
+        CERT_USER_INFOS.put(O, "Doi9t");
+        CURRENT_KEYSTORE_HOLDER =
+                KeystoreGenerator.createEcWithDefaultCurveKeystoreAndPassword(
+                        KeystoreGenerator.MAIN_SIGNING_ALG_SHA512_EC,
+                        36,
+                        CERT_USER_INFOS);
+    }
 
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {
