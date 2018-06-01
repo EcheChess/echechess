@@ -1,6 +1,14 @@
 language: java
-jdk:
-  - oraclejdk9
+
+before_install:
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh  # Get latest install-jdk.sh script
+  - unset _JAVA_OPTIONS  # https://github.com/travis-ci/travis-ci/issues/8408
+
+matrix:
+  include:
+    - env: JDK='Oracle JDK 10'
+      install: . ./install-jdk.sh -F 10 -L BCL
+
 
 branches:
   only:
