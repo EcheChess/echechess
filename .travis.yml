@@ -9,7 +9,6 @@ matrix:
     - env: JDK='Oracle JDK 10'
       install: . ./install-jdk.sh -F 10 -L BCL
 
-
 branches:
   only:
   - master
@@ -24,6 +23,7 @@ before_deploy:
   - git tag "release-$(date +'%Y%m%d%H%M%S')"
 deploy:
   provider: releases
+  file_glob: true
   skip_cleanup: true
   api_key: $GITHUB_OAUTH_TOKEN
-  file: target/echechess-0.0.1-SNAPSHOT.jar
+  file: target/echechess-*.jar
