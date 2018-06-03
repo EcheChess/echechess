@@ -24,12 +24,10 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <parent>
-        <groupId>ca.watier.echechess.properties</groupId>
-        <artifactId>echechess-properties</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../EcheChessProperties</relativePath>
-    </parent>
+    <properties>
+        <java.version>10</java.version>
+        <spring.version>5.0.6.RELEASE</spring.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -37,6 +35,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-parent</artifactId>
                 <version>2.0.2.RELEASE</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>ca.watier.echechess.properties</groupId>
+                <artifactId>echechess-properties</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -60,40 +65,73 @@
                 <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
+        <repository>
+            <id>EcheChessProperties</id>
+            <url>https://raw.githubusercontent.com/EcheChess/EcheChessProperties/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
     </repositories>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/test/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
 
     <dependencies>
         <dependency>
             <groupId>ca.watier.echechess.engine</groupId>
             <artifactId>echechess-engine</artifactId>
-            <version>${echechess.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>ca.watier.echechess.common</groupId>
             <artifactId>echechess-common</artifactId>
-            <version>${echechess.version}</version>
+            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency> <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>${bcpkix-jdk15on.version}</version>
         </dependency>
 
         <dependency> <!-- https://mvnrepository.com/artifact/org.ehcache/ehcache -->
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>${ehcache.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
         </dependency>
 
         <!-- Spring -->
@@ -152,7 +190,11 @@
         <dependency> <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
