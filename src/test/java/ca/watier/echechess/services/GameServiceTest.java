@@ -53,9 +53,13 @@ public class GameServiceTest extends GameTest {
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
     private WebSocketService currentWebSocketService;
     private GameService gameService;
+    private Player player1, player2;
+
 
     @Before
     public void setup() {
+        player1 = new Player();
+        player2 = new Player();
         currentWebSocketService = new WebSocketServiceTestImpl();
         gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService);
     }
@@ -64,7 +68,6 @@ public class GameServiceTest extends GameTest {
     @Test
     public void upgradePiece() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        Player player1 = new Player();
         UUID gameUuid = gameService.createNewGame(player1, "G7:W_PAWN;G2:B_PAWN;A8:W_KING;A1:B_KING", WHITE, false, false);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid);
 
@@ -82,10 +85,90 @@ public class GameServiceTest extends GameTest {
         Assertions.assertThat(currentWebSocketService.getMessages()).containsOnly(
                 "G8",
                 String.format(Constants.GAME_PAUSED_PAWN_PROMOTION, "WHITE"),
-                "WHITE player moved G7 to G8",
+                "G8",
+                String.format(Constants.GAME_PAUSED_PAWN_PROMOTION, "WHITE"),
                 "It's your turn !", //Black turn
                 EMPTY_GAME_SCORE_RESPONSE,
                 REFRESH_BOARD);
+    }
+
+
+    @Test
+    public void getMessageBlackKingCheckMate() {
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+
+        UUID gameUuid = gameService.createNewGame(player1, "H8:B_KING;H1:W_KING;B7:W_QUEEN;A7:W_QUEEN", WHITE, false, false);
+
+        gameService.movePiece(A7, A8, gameUuid.toString(), player1);  //Move the White queen to checkmate the black king
+
+        assertThat(currentWebSocketService.getMessages()).containsOnly(
+                "WHITE player moved A7 to A8",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                String.format(Constants.PLAYER_KING_CHECKMATE, "BLACK")
+        );
+    }
+
+    @Test
+    public void getMessageWhiteKingCheckMate() {
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+
+        UUID gameUuid = gameService.createNewGame(player1, "C3:W_PAWN;H8:B_KING;H1:W_KING;A2:B_QUEEN;B2:B_QUEEN", BLACK, false, false);
+        String uuidAsString = gameUuid.toString();
+        gameService.joinGame(uuidAsString, WHITE, null, player2);
+
+        gameService.movePiece(C3, C4, uuidAsString, player2);  //To allow the black player to move
+        gameService.movePiece(A2, A1, uuidAsString, player1);  //Move the White queen to checkmate the black king
+
+        assertThat(currentWebSocketService.getMessages()).containsOnly(
+                String.format(Constants.NEW_PLAYER_JOINED_SIDE, "WHITE"),
+                "WHITE player moved C3 to C4",
+                String.format(Constants.JOINING_GAME, uuidAsString),
+                "BLACK player moved A2 to A1",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                String.format(Constants.PLAYER_KING_CHECKMATE, "WHITE")
+        );
+    }
+
+
+    @Test
+    public void getMessageBlackKingCheck() {
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+
+        UUID gameUuid = gameService.createNewGame(player1, "H8:B_KING;H1:W_KING;E7:W_QUEEN", WHITE, false, false);
+        String uuidAsString = gameUuid.toString();
+
+        gameService.movePiece(E7, E8, uuidAsString, player1);
+
+        assertThat(currentWebSocketService.getMessages()).containsOnly(
+                "WHITE player moved E7 to E8",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                Constants.PLAYER_KING_CHECK
+        );
+    }
+
+    @Test
+    public void getMessageWhiteKingCheck() {
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+
+        UUID gameUuid = gameService.createNewGame(player1, "C2:W_PAWN;H8:B_KING;H1:W_KING;E2:B_QUEEN", BLACK, false, false);
+        String uuidAsString = gameUuid.toString();
+        gameService.joinGame(uuidAsString, WHITE, null, player2);
+
+        gameService.movePiece(C2, C3, uuidAsString, player2);  //To allow the black player to move
+        gameService.movePiece(E2, E1, uuidAsString, player1);  //Move the White queen to checkmate the black king
+
+        assertThat(currentWebSocketService.getMessages()).containsOnly(
+                String.format(Constants.NEW_PLAYER_JOINED_SIDE, "WHITE"),
+                "WHITE player moved C2 to C3",
+                String.format(Constants.JOINING_GAME, uuidAsString),
+                "BLACK player moved E2 to E1",
+                Constants.PLAYER_TURN,
+                EMPTY_GAME_SCORE_RESPONSE,
+                Constants.PLAYER_KING_CHECK
+        );
     }
 
 

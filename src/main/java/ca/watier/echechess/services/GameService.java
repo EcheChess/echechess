@@ -21,6 +21,7 @@ import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.DualValueResponse;
 import ca.watier.echechess.common.sessions.Player;
+import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.game.CustomPieceWithStandardRulesHandler;
 import ca.watier.echechess.engine.game.GameConstraints;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static ca.watier.echechess.common.enums.ChessEventMessage.*;
+import static ca.watier.echechess.common.enums.ChessEventMessage.PLAYER_TURN;
+import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
 import static ca.watier.echechess.common.utils.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,11 +74,11 @@ public class GameService {
         if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
+            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
-            genericGameHandler = new GenericGameHandler(CONSTRAINT_SERVICE, WEB_SOCKET_SERVICE);
+            genericGameHandler = new GenericGameHandler(CONSTRAINT_SERVICE);
         }
 
         UUID uui = UUID.randomUUID();
@@ -125,8 +128,16 @@ public class GameService {
             return BooleanResponse.NO;
         }
 
-        boolean isMoved = MoveType.isMoved(gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player)));
-        return BooleanResponse.getResponse(isMoved);
+        MoveType moveType = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
+
+        boolean moved = MoveType.isMoved(moveType);
+
+        if (moved) {
+            sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
+            sendCheckOrCheckmateMessages(gameFromUuid.getCurrentKingStatus(), gameFromUuid.getOtherKingStatusAfterMove(), playerSide, uuid);
+        }
+
+        return BooleanResponse.getResponse(moved);
     }
 
     /**
@@ -154,6 +165,33 @@ public class GameService {
 
         assertThat(standardGameHandler).isNotNull();
         return standardGameHandler.getPlayerSide(player);
+    }
+
+    private void sendMovedPieceMessage(CasePosition from, CasePosition to, String uuid, GenericGameHandler gameFromUuid, Side playerSide) {
+        WEB_SOCKET_SERVICE.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
+        WEB_SOCKET_SERVICE.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
+        WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
+    }
+
+    private void sendCheckOrCheckmateMessages(KingStatus currentkingStatus, KingStatus otherKingStatusAfterMove, Side playerSide, String uuid) {
+        if (currentkingStatus == null || otherKingStatusAfterMove == null || playerSide == null) {
+            return;
+        }
+
+        Side otherPlayerSide = getOtherPlayerSide(playerSide);
+
+        if (KingStatus.CHECKMATE.equals(currentkingStatus)) {
+            WEB_SOCKET_SERVICE.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, playerSide));
+        } else if (KingStatus.CHECKMATE.equals(otherKingStatusAfterMove)) {
+            WEB_SOCKET_SERVICE.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, otherPlayerSide));
+        }
+
+        if (KingStatus.CHECK.equals(currentkingStatus)) {
+            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
+        } else if (KingStatus.CHECK.equals(otherKingStatusAfterMove)) {
+            WEB_SOCKET_SERVICE.fireSideEvent(uuid, otherPlayerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
+        }
+
     }
 
     /**
@@ -308,7 +346,8 @@ public class GameService {
             default:
                 break;
         }
-
+        //sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
+        sendPawnPromotionMessage(uuid, playerSide, to);
 
         boolean isChanged = false;
 
@@ -317,8 +356,10 @@ public class GameService {
         try {
             isChanged = gameFromUuid.upgradePiece(to, Pieces.valueOf(finalPieceName), playerSide);
 
-            if (isChanged) { //Refresh the boards
-                WEB_SOCKET_SERVICE.fireGameEvent(uuid, REFRESH_BOARD);
+            if (isChanged) {
+                WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore()); //Refresh the points
+                WEB_SOCKET_SERVICE.fireGameEvent(uuid, REFRESH_BOARD); //Refresh the boards
+                WEB_SOCKET_SERVICE.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
             }
 
         } catch (IllegalArgumentException ex) {
@@ -326,5 +367,10 @@ public class GameService {
         }
 
         return BooleanResponse.getResponse(isChanged);
+    }
+
+    private void sendPawnPromotionMessage(String uuid, Side playerSide, CasePosition to) {
+        WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
+        WEB_SOCKET_SERVICE.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
     }
 }

@@ -17,8 +17,8 @@
 package ca.watier.echechess.controllers;
 
 import ca.watier.echechess.common.pojos.Ping;
-import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.common.responses.StringResponse;
+import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.services.UiSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
