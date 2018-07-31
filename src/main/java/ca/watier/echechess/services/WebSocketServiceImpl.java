@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by yannick on 6/10/2017.
@@ -42,21 +41,18 @@ public class WebSocketServiceImpl implements WebSocketService {
     }
 
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
-        assertThat(side).isNotNull();
-        assertThat(evtMessage).isNotNull();
-        assertThat(uuid).isNotEmpty();
-        assertThat(message).isNotEmpty();
+        if (side == null || evtMessage == null || uuid == null || uuid.isEmpty() || message == null || message.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         template.convertAndSend(TOPIC + uuid + '/' + side, new ChessEvent(evtMessage, message));
     }
 
     @Override
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj) {
-        assertThat(side).isNotNull();
-        assertThat(evtMessage).isNotNull();
-        assertThat(uuid).isNotEmpty();
-        assertThat(message).isNotEmpty();
-
+        if (side == null || evtMessage == null || uuid == null || uuid.isEmpty() || message == null || message.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         ChessEvent payload = new ChessEvent(evtMessage, message);
         payload.setObj(obj);

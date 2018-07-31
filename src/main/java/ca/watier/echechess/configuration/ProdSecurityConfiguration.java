@@ -16,7 +16,7 @@
 
 package ca.watier.echechess.configuration;
 
-import ca.watier.echechess.EchechessApplication;
+import ca.watier.echechess.EcheChessApplication;
 import ca.watier.echechess.common.utils.KeystoreGenerator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.eclipse.jetty.http.HttpVersion;
@@ -51,7 +51,7 @@ public class ProdSecurityConfiguration {
     private static final int WEB_PORT = 8080;
     private static final Map<ASN1ObjectIdentifier, String> CERT_USER_INFOS;
     private static final KeystoreGenerator.KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER;
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EchechessApplication.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EcheChessApplication.class);
 
     static {
         CERT_USER_INFOS = new HashMap<>();

@@ -31,10 +31,9 @@ import java.util.UUID;
 import static ca.watier.echechess.common.utils.CacheConstants.CACHE_UI_SESSION_NAME;
 import static ca.watier.echechess.common.utils.Constants.REQUESTED_SESSION_ALREADY_DEFINED;
 import static ca.watier.echechess.common.utils.Constants.THE_CLIENT_LOST_THE_CONNECTION;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Created by yannick on 6/11/2017.
+ * Created by yannick on 6/11/2017.l
  */
 
 @Service
@@ -74,7 +73,9 @@ public class UiSessionService {
     }
 
     public void refresh(String uuid) {
-        assertThat(uuid).isNotEmpty();
+        if (uuid == null || uuid.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         Player player = CACHE_UI.get(UUID.fromString(uuid));
 

@@ -16,27 +16,26 @@
 
 package ca.watier.echechess;
 
-
 import ca.watier.echechess.common.sessions.Player;
+import ca.watier.echechess.redis.configuration.RedisConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 import java.util.UUID;
 
 import static ca.watier.echechess.common.utils.CacheConstants.CACHE_UI_SESSION_EXPIRY;
 import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
 
-
+@Import(value = {RedisConfiguration.class})
 @SpringBootApplication
-@EnableAutoConfiguration
-public class EchechessApplication {
+public class EcheChessApplication {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(EchechessApplication.class)
+        new SpringApplicationBuilder(EcheChessApplication.class)
                 .profiles("prod")
                 .run(args);
     }

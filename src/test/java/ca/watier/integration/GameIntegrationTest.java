@@ -16,9 +16,10 @@
 
 package ca.watier.integration;
 
-import ca.watier.echechess.EchechessApplication;
+import ca.watier.echechess.EcheChessApplication;
 import ca.watier.echechess.services.GameService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
+@Ignore("Don't forget to start Redis!!")
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {EchechessApplication.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {EcheChessApplication.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GameIntegrationTest {
 
     private String url;
@@ -90,7 +91,7 @@ public class GameIntegrationTest {
         assertThat(mappedValues).containsOnlyKeys(uuidKeyMapName);
         assertThat(mappedValues).doesNotContainValue(null);
 
-        UUID uuid = UUID.fromString((String) mappedValues.get(uuidKeyMapName));
+        String uuid = (String) mappedValues.get(uuidKeyMapName);
 
         assertThat(gameService.getGameFromUuid(uuid)).isNotNull(); //Make sure that the game is created and present in the service
     }
