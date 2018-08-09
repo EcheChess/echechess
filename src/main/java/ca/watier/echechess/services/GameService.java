@@ -22,9 +22,10 @@ import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.DualValueResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.game.CustomPieceWithStandardRulesHandler;
-import ca.watier.echechess.engine.game.GameConstraints;
+import ca.watier.echechess.engine.interfaces.GameConstraint;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,11 +47,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
     private final Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
-    private final GameConstraints CONSTRAINT_SERVICE;
+    private final GameConstraint CONSTRAINT_SERVICE;
     private final WebSocketService WEB_SOCKET_SERVICE;
 
     @Autowired
-    public GameService(GameConstraints gameConstraints, WebSocketService webSocketService) {
+    public GameService(GameConstraint gameConstraints, WebSocketService webSocketService) {
         this.CONSTRAINT_SERVICE = gameConstraints;
         this.WEB_SOCKET_SERVICE = webSocketService;
     }
@@ -74,7 +75,7 @@ public class GameService {
         if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler(CONSTRAINT_SERVICE);
+            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler((DefaultGameConstraint) CONSTRAINT_SERVICE);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
@@ -123,7 +124,7 @@ public class GameService {
         } else if (gameFromUuid.isGameDone()) {
             WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
             return BooleanResponse.NO;
-        } else if (KingStatus.STALEMATE.equals(gameFromUuid.getKingStatus(playerSide, true))) {
+        } else if (KingStatus.STALEMATE.equals(gameFromUuid.getKingStatus(playerSide))) {
             WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
             return BooleanResponse.NO;
         }
@@ -134,7 +135,7 @@ public class GameService {
 
         if (moved) {
             sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
-            sendCheckOrCheckmateMessages(gameFromUuid.getCurrentKingStatus(), gameFromUuid.getOtherKingStatusAfterMove(), playerSide, uuid);
+            sendCheckOrCheckmateMessages(gameFromUuid.getEvaluatedKingStatusBySide(playerSide), gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide)), playerSide, uuid);
         }
 
         return BooleanResponse.getResponse(moved);

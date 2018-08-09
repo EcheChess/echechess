@@ -23,6 +23,7 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by yannick on 6/11/2017.
  */
+@Ignore
 public class UiSessionServiceTest {
 
     private UiSessionService service;

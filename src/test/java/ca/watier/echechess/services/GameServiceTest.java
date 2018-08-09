@@ -27,7 +27,8 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.tests.GameTest;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.engine.game.GameConstraints;
+import ca.watier.echechess.engine.factories.GameConstraintFactory;
+import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.engine.utils.GameUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
@@ -48,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 public class GameServiceTest extends GameTest {
-    private static final GameConstraints CONSTRAINT_SERVICE = new GameConstraints();
+    private static final GameConstraint CONSTRAINT_SERVICE = GameConstraintFactory.getDefaultGameConstraint();
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
     private WebSocketService currentWebSocketService;

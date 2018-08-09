@@ -20,7 +20,6 @@ package ca.watier.echechess;
 import ca.watier.echechess.common.sessions.Player;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +31,6 @@ import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConf
 
 
 @SpringBootApplication
-@EnableAutoConfiguration
 public class EchechessApplication {
 
     public static void main(String[] args) {
