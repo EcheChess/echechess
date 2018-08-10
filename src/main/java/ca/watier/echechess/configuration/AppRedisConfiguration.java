@@ -36,9 +36,4 @@ public class AppRedisConfiguration extends RedisConfiguration {
     public MessageListenerAdapter messageListener(GameHandlerService gameFetcher) {
         return new MessageListenerAdapter(gameFetcher);
     }
-
-    @Bean
-    public GameHandlerService gameHandlerService() {
-        return new GameHandlerService(gameRepository());
-    }
 }

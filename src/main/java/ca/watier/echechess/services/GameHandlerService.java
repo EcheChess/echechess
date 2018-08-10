@@ -30,7 +30,7 @@ import java.util.List;
 public class GameHandlerService implements MessageListener {
     private final GameRepository gameRepository;
 
-    @Autowired(required = false)
+    @Autowired
     public GameHandlerService(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
