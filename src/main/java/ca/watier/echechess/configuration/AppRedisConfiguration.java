@@ -27,9 +27,18 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 @Configuration
 public class AppRedisConfiguration extends RedisConfiguration {
 
+    private final GameHandlerService gameHandlerService;
+
     @Autowired
-    public AppRedisConfiguration(RedisMessageListenerContainer redisMessageContainer, GameHandlerService gameHandlerService) {
-        redisMessageContainer.addMessageListener(messageListener(gameHandlerService), gameMessageTopic());
+    public AppRedisConfiguration(GameHandlerService gameHandlerService) {
+        this.gameHandlerService = gameHandlerService;
+    }
+
+    @Override
+    public RedisMessageListenerContainer redisMessageContainer() {
+        RedisMessageListenerContainer redisMessageListenerContainer = super.redisMessageContainer();
+        redisMessageListenerContainer.addMessageListener(messageListener(gameHandlerService), gameMessageTopic());
+        return redisMessageListenerContainer;
     }
 
     @Bean
