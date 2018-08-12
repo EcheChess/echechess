@@ -18,31 +18,14 @@ package ca.watier.echechess.configuration;
 
 import ca.watier.echechess.redis.configuration.RedisConfiguration;
 import ca.watier.echechess.services.GameHandlerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 
 @Configuration
 public class AppRedisConfiguration extends RedisConfiguration {
-
-    private final GameHandlerService gameHandlerService;
-
-    @Autowired
-    public AppRedisConfiguration(GameHandlerService gameHandlerService) {
-        this.gameHandlerService = gameHandlerService;
-    }
-
-    @Override
-    public RedisMessageListenerContainer redisMessageContainer() {
-        RedisMessageListenerContainer redisMessageListenerContainer = super.redisMessageContainer();
-        redisMessageListenerContainer.addMessageListener(messageListener(gameHandlerService), gameMessageTopic());
-        return redisMessageListenerContainer;
-    }
-
     @Bean
-    public MessageListenerAdapter messageListener(GameHandlerService gameFetcher) {
-        return new MessageListenerAdapter(gameFetcher);
+    public MessageListenerAdapter messageListener(GameHandlerService gameHandlerService) {
+        return new MessageListenerAdapter(gameHandlerService);
     }
 }
