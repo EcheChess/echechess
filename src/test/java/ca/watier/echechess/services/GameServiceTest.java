@@ -65,7 +65,8 @@ public class GameServiceTest extends GameTest {
         player1 = new Player();
         player2 = new Player();
         currentWebSocketService = new WebSocketServiceTestImpl();
-        gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService, redisGameRepository);
+        //gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService, redisGameRepository, redisTemplateGenericGameHandlerWrapper, moveAppToNodeTopic);
+        fail();
     }
 
     @Test

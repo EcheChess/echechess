@@ -16,70 +16,136 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.common.enums.RedisGameEvent;
+import ca.watier.echechess.common.enums.CasePosition;
+import ca.watier.echechess.common.enums.KingStatus;
+import ca.watier.echechess.common.enums.MoveType;
+import ca.watier.echechess.common.enums.Side;
+import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.redis.interfaces.GameRepository;
 import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
+import ca.watier.echechess.redis.repositories.RedisGameRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.UUID;
+
+import static ca.watier.echechess.common.enums.ChessEventMessage.*;
+import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
+import static ca.watier.echechess.common.utils.Constants.PLAYER_KING_CHECKMATE;
+import static ca.watier.echechess.common.utils.Constants.PLAYER_MOVE;
 
 @Service
 public class GameHandlerService implements MessageListener {
-    private final GameRepository gameRepository;
-    private final RedisSerializer<String> valueSerializer;
+    private final GameRepository<GenericGameHandler> gameRepository;
+    private final StringRedisSerializer stringRedisSerializer;
+    private final WebSocketService webSocketService;
+    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper;
 
     @Autowired
-    public GameHandlerService(GameRepository gameRepository,
+    public GameHandlerService(GameRepository<GenericGameHandler> gameRepository,
                               RedisMessageListenerContainer redisMessageContainer,
-                              ChannelTopic gameMessageTopic,
-                              RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper) {
+                              ChannelTopic moveNodeAppTopic,
+                              ChannelTopic availableMoveNodeAppTopic,
+                              RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper, WebSocketService webSocketService) {
 
-        valueSerializer = (RedisSerializer<String>) redisTemplateGenericGameHandlerWrapper.getValueSerializer();
 
         this.gameRepository = gameRepository;
-        redisMessageContainer.addMessageListener(this, gameMessageTopic); //Bind the message listener
+        this.webSocketService = webSocketService;
+        this.stringRedisSerializer = new StringRedisSerializer();
+        this.redisTemplateGenericGameHandlerWrapper = redisTemplateGenericGameHandlerWrapper;
+
+        redisTemplateGenericGameHandlerWrapper.setValueSerializer(stringRedisSerializer);
+
+        //Bind the message listener
+        redisMessageContainer.addMessageListener(this, moveNodeAppTopic);
+        redisMessageContainer.addMessageListener(this, availableMoveNodeAppTopic);
     }
 
     @Override
     public void onMessage(@NotNull Message message, byte[] pattern) {
-        String messageAsString = valueSerializer.deserialize(message.getBody());
+        String messageAsString = stringRedisSerializer.deserialize(message.getBody());
 
-        if(messageAsString == null || messageAsString.isEmpty()) {
+        if (pattern == null || messageAsString == null) {
             return;
         }
 
-        int totalLength = messageAsString.length();
-        int uuidStartPos = totalLength - 36;
-
-        RedisGameEvent redisGameEvent = RedisGameEvent.getFromValue(Byte.parseByte(messageAsString.substring(0, uuidStartPos)));
-        String gameId = messageAsString.substring(uuidStartPos, totalLength);
-
-        handleGameMessage(redisGameEvent, gameId);
-    }
-
-    private void handleGameMessage(RedisGameEvent gameEvent, String gameId) {
-        switch (gameEvent) {
-            case MOVE:
-                handleMoveMessage(gameId);
+        switch (new String(pattern)) {
+            case RedisGameRepositoryImpl.REDIS_MOVE_NODE_TO_APP:
+                handleReceivedMoveMessage(messageAsString);
+                break;
+            case RedisGameRepositoryImpl.REDIS_AVAILABLE_MOVE_NODE_TO_APP:
+                handleReceivedAvailableMovesMessage(messageAsString);
                 break;
         }
     }
 
-    private void handleMoveMessage(String gameId) {
-        GenericGameHandlerWrapper genericGameHandlerWrapper = gameRepository.get(gameId);
-        System.out.println();
+    /**
+     * Message pattern: {@link UUID#toString()}|{@link CasePosition from}|{@link CasePosition to}|{@link MoveType#getValue()}|{@link Side#getValue()()}
+     *
+     * @param messageAsString
+     */
+    private void handleReceivedMoveMessage(String messageAsString) {
+        String[] messages = messageAsString.split("\\|");
+
+        String uuid = messages[0];
+        CasePosition from = CasePosition.valueOf(messages[1]);
+        CasePosition to = CasePosition.valueOf(messages[2]);
+        MoveType moveType = MoveType.getFromValue(Byte.parseByte(messages[3]));
+        Side playerSide = Side.getFromValue(Byte.parseByte(messages[4]));
+
+        GenericGameHandlerWrapper<GenericGameHandler> handlerWrapper = gameRepository.get(uuid);
+        GenericGameHandler gameFromUuid = handlerWrapper.getGenericGameHandler();
+
+        if (MoveType.isMoved(moveType)) {
+            KingStatus currentKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(playerSide);
+            KingStatus otherKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide));
+
+            sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
+            sendCheckOrCheckmateMessages(currentKingStatus, otherKingStatus, playerSide, uuid);
+        }
     }
 
-    public void fetchNewGames() {
-        List<GenericGameHandlerWrapper> games = gameRepository.getAll();
-        System.out.println(games);
+    /**
+     * Message pattern: A json serialized list
+     *
+     * @param messageAsString
+     */
+    private void handleReceivedAvailableMovesMessage(String messageAsString) {
+
+    }
+
+    private void sendMovedPieceMessage(CasePosition from, CasePosition to, String uuid, GenericGameHandler gameFromUuid, Side playerSide) {
+        webSocketService.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
+        webSocketService.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
+        webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
+    }
+
+    private void sendCheckOrCheckmateMessages(KingStatus currentkingStatus, KingStatus otherKingStatusAfterMove, Side playerSide, String uuid) {
+        if (currentkingStatus == null || otherKingStatusAfterMove == null || playerSide == null) {
+            return;
+        }
+
+        Side otherPlayerSide = getOtherPlayerSide(playerSide);
+
+        if (KingStatus.CHECKMATE.equals(currentkingStatus)) {
+            webSocketService.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, playerSide));
+        } else if (KingStatus.CHECKMATE.equals(otherKingStatusAfterMove)) {
+            webSocketService.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, otherPlayerSide));
+        }
+
+        if (KingStatus.CHECK.equals(currentkingStatus)) {
+            webSocketService.fireSideEvent(uuid, playerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
+        } else if (KingStatus.CHECK.equals(otherKingStatusAfterMove)) {
+            webSocketService.fireSideEvent(uuid, otherPlayerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
+        }
     }
 }

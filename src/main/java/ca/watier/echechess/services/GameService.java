@@ -30,6 +30,9 @@ import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -46,15 +49,24 @@ import static ca.watier.echechess.common.utils.Constants.*;
 @Service
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
-    private final GameConstraint CONSTRAINT_SERVICE;
-    private final WebSocketService WEB_SOCKET_SERVICE;
-    private final GameRepository<GenericGameHandler> GAME_REPO;
+    private final GameConstraint gameConstraint;
+    private final WebSocketService webSocketService;
+    private final GameRepository<GenericGameHandler> gameRepository;
+    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper;
+    private final ChannelTopic moveAppToNodeTopic;
 
     @Autowired
-    public GameService(GameConstraint gameConstraint, WebSocketService webSocketService, GameRepository<GenericGameHandler> gameRepository) {
-        this.CONSTRAINT_SERVICE = gameConstraint;
-        this.WEB_SOCKET_SERVICE = webSocketService;
-        this.GAME_REPO = gameRepository;
+    public GameService(GameConstraint gameConstraint,
+                       WebSocketService webSocketService,
+                       GameRepository<GenericGameHandler> gameRepository,
+                       RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper, ChannelTopic moveAppToNodeTopic) {
+
+        this.gameConstraint = gameConstraint;
+        this.webSocketService = webSocketService;
+        this.gameRepository = gameRepository;
+        this.redisTemplateGenericGameHandlerWrapper = redisTemplateGenericGameHandlerWrapper;
+        this.redisTemplateGenericGameHandlerWrapper.setDefaultSerializer(new StringRedisSerializer());
+        this.moveAppToNodeTopic = moveAppToNodeTopic;
     }
 
     /**
@@ -77,11 +89,11 @@ public class GameService {
         if (StringUtils.isNotBlank(specialGamePieces)) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler((DefaultGameConstraint) CONSTRAINT_SERVICE);
+            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler((DefaultGameConstraint) gameConstraint);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
-            genericGameHandler = new GenericGameHandler(CONSTRAINT_SERVICE);
+            genericGameHandler = new GenericGameHandler(gameConstraint);
         }
 
         UUID uui = UUID.randomUUID();
@@ -94,7 +106,7 @@ public class GameService {
         genericGameHandler.setAllowOtherToJoin(!againstComputer);
         genericGameHandler.setAllowObservers(observers);
 
-        GAME_REPO.add(new GenericGameHandlerWrapper<>(uuidAsString, genericGameHandler));
+        gameRepository.add(new GenericGameHandlerWrapper<>(uuidAsString, genericGameHandler));
 
         return uui;
     }
@@ -102,7 +114,7 @@ public class GameService {
     public Map<UUID, GenericGameHandler> getAllGames() {
         Map<UUID, GenericGameHandler> values = new HashMap<>();
 
-        for (GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper : GAME_REPO.getAll()) {
+        for (GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper : gameRepository.getAll()) {
             values.put(UUID.fromString(genericGameHandlerWrapper.getId()), genericGameHandlerWrapper.getGenericGameHandler());
         }
 
@@ -129,22 +141,16 @@ public class GameService {
         if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused() || gameFromUuid.isGameDraw()) {
             return;
         } else if (gameFromUuid.isGameDone()) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
             return;
         } else if (KingStatus.STALEMATE.equals(gameFromUuid.getEvaluatedKingStatusBySide(playerSide))) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
+            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
             return;
         }
 
-        MoveType moveType = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
-
-        if (MoveType.isMoved(moveType)) {
-            KingStatus currentKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(playerSide);
-            KingStatus otherKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide));
-
-            sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
-            sendCheckOrCheckmateMessages(currentKingStatus, otherKingStatus, playerSide, uuid);
-        }
+        //UUID|FROM|TO|ID_PLAYER_SIDE
+        String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
+        redisTemplateGenericGameHandlerWrapper.convertAndSend(moveAppToNodeTopic.getTopic(), payload);
     }
 
     /**
@@ -158,7 +164,7 @@ public class GameService {
             throw new IllegalArgumentException();
         }
 
-        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = GAME_REPO.get(uuid);
+        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = gameRepository.get(uuid);
 
         return genericGameHandlerWrapper.getGenericGameHandler();
     }
@@ -174,37 +180,10 @@ public class GameService {
             throw new IllegalArgumentException();
         }
 
-        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = GAME_REPO.get(uuid);
+        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = gameRepository.get(uuid);
         GenericGameHandler genericGameHandler = genericGameHandlerWrapper.getGenericGameHandler();
 
         return genericGameHandler.getPlayerSide(player);
-    }
-
-    private void sendMovedPieceMessage(CasePosition from, CasePosition to, String uuid, GenericGameHandler gameFromUuid, Side playerSide) {
-        WEB_SOCKET_SERVICE.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
-        WEB_SOCKET_SERVICE.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
-        WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
-    }
-
-    private void sendCheckOrCheckmateMessages(KingStatus currentkingStatus, KingStatus otherKingStatusAfterMove, Side playerSide, String uuid) {
-        if (currentkingStatus == null || otherKingStatusAfterMove == null || playerSide == null) {
-            return;
-        }
-
-        Side otherPlayerSide = getOtherPlayerSide(playerSide);
-
-        if (KingStatus.CHECKMATE.equals(currentkingStatus)) {
-            WEB_SOCKET_SERVICE.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, playerSide));
-        } else if (KingStatus.CHECKMATE.equals(otherKingStatusAfterMove)) {
-            WEB_SOCKET_SERVICE.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, otherPlayerSide));
-        }
-
-        if (KingStatus.CHECK.equals(currentkingStatus)) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
-        } else if (KingStatus.CHECK.equals(otherKingStatusAfterMove)) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, otherPlayerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
-        }
-
     }
 
     /**
@@ -266,7 +245,7 @@ public class GameService {
         if ((!allowOtherToJoin && !allowObservers) ||
                 (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
                 (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
-            WEB_SOCKET_SERVICE.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
+            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
             return false;
         }
 
@@ -276,8 +255,8 @@ public class GameService {
         }
 
         if (joined) {
-            WEB_SOCKET_SERVICE.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
-            WEB_SOCKET_SERVICE.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
+            webSocketService.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
+            webSocketService.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
             player.addJoinedGame(gameUuid);
         }
 
@@ -335,9 +314,9 @@ public class GameService {
             isChanged = gameFromUuid.upgradePiece(to, GenericPiecesModel.from(piece, playerSide), playerSide);
 
             if (isChanged) {
-                WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore()); //Refresh the points
-                WEB_SOCKET_SERVICE.fireGameEvent(uuid, REFRESH_BOARD); //Refresh the boards
-                WEB_SOCKET_SERVICE.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
+                webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore()); //Refresh the points
+                webSocketService.fireGameEvent(uuid, REFRESH_BOARD); //Refresh the boards
+                webSocketService.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
             }
 
         } catch (IllegalArgumentException ex) {
@@ -348,7 +327,7 @@ public class GameService {
     }
 
     private void sendPawnPromotionMessage(String uuid, Side playerSide, CasePosition to) {
-        WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
-        WEB_SOCKET_SERVICE.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
+        webSocketService.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
+        webSocketService.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
     }
 }
