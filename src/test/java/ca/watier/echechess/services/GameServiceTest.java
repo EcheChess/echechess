@@ -62,8 +62,8 @@ public class GameServiceTest extends GameTest {
 
     @Before
     public void setup() {
-        player1 = new Player();
-        player2 = new Player();
+        player1 = new Player(UUID.randomUUID().toString());
+        player2 = new Player(UUID.randomUUID().toString());
         currentWebSocketService = new WebSocketServiceTestImpl();
         //gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService, redisGameRepository, redisTemplateGenericGameHandlerWrapper, moveAppToNodeTopic);
         fail();
@@ -172,8 +172,8 @@ public class GameServiceTest extends GameTest {
 
     @Test
     public void setSideOfPlayerTest() {
-        Player player1 = new Player();
-        Player player2 = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
+        Player player2 = new Player(UUID.randomUUID().toString());
 
         UUID gameUuid = gameService.createNewGame(player1, "", WHITE, false, false);
         String uuid = gameUuid.toString();
@@ -231,7 +231,7 @@ public class GameServiceTest extends GameTest {
 
     @Test
     public void createNewGameTest() {
-        Player player1 = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
 
         UUID specialGame = gameService.createNewGame(player1, "", WHITE, false, false);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(specialGame.toString());
@@ -271,9 +271,9 @@ public class GameServiceTest extends GameTest {
     @Test
     public void movePieceTest() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player playerNotInGame = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
+        Player player2 = new Player(UUID.randomUUID().toString());
+        Player playerNotInGame = new Player(UUID.randomUUID().toString());
 
         UUID gameUuid = gameService.createNewGame(player1, "H2:W_PAWN;H7:B_PAWN;E2:W_PAWN;H1:W_KING;H8:B_KING;A7:W_PAWN;A2:B_PAWN", WHITE, false, false);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
@@ -345,8 +345,8 @@ public class GameServiceTest extends GameTest {
     @Test
     public void movePieceStaleMessageTest() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        Player player1 = new Player();
-        Player player2 = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
+        Player player2 = new Player(UUID.randomUUID().toString());
 
         UUID gameUuid = gameService.createNewGame(player1, "H1:W_KING;D5:B_KING;C7:W_ROOK;E7:W_ROOK;B6:W_ROOK;B4:W_ROOK", WHITE, false, false);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
@@ -368,9 +368,9 @@ public class GameServiceTest extends GameTest {
 
     @Test
     public void getAllAvailableMovesTest() {
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player playerNotInGame = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
+        Player player2 = new Player(UUID.randomUUID().toString());
+        Player playerNotInGame = new Player(UUID.randomUUID().toString());
 
         UUID gameUuid = gameService.createNewGame(player1, "", WHITE, false, false);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
@@ -390,9 +390,9 @@ public class GameServiceTest extends GameTest {
     public void joinGameTest() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
 
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player playerObserver = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
+        Player player2 = new Player(UUID.randomUUID().toString());
+        Player playerObserver = new Player(UUID.randomUUID().toString());
 
         List<Object> messages = currentWebSocketService.getMessages();
 
@@ -446,9 +446,9 @@ public class GameServiceTest extends GameTest {
 
     @Test
     public void getPieceLocationsTest() {
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player playerNotInGame = new Player();
+        Player player1 = new Player(UUID.randomUUID().toString());
+        Player player2 = new Player(UUID.randomUUID().toString());
+        Player playerNotInGame = new Player(UUID.randomUUID().toString());
 
         UUID gameUuid = gameService.createNewGame(player1, "", WHITE, false, true);
         GenericGameHandler game = gameService.getGameFromUuid(gameUuid.toString());

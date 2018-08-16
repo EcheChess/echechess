@@ -48,7 +48,6 @@ public class UiController {
         this.uiSessionService = uiSessionService;
     }
 
-
     @ApiOperation("Create and bind a ui session to the player")
     @RequestMapping(path = "/id/1", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public StringResponse createNewGame(HttpSession session) {

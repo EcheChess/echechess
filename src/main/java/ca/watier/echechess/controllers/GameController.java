@@ -19,6 +19,8 @@ package ca.watier.echechess.controllers;
 import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Side;
+import ca.watier.echechess.common.responses.BooleanResponse;
+import ca.watier.echechess.common.responses.StringResponse;
 import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.services.GameService;
 import io.swagger.annotations.ApiOperation;
@@ -67,7 +69,7 @@ public class GameController {
                                         @ApiParam(value = PATTERN_CUSTOM_GAME) String specialGamePieces,
                                         HttpSession session) {
         UUID newGameUuid = gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces, side, againstComputer, observers);
-        return ResponseEntity.ok(newGameUuid.toString());
+        return ResponseEntity.ok(new StringResponse(newGameUuid.toString()));
     }
 
     @ApiOperation("Move the selected piece")
@@ -111,7 +113,7 @@ public class GameController {
                                    @ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                    @ApiParam(value = UI_UUID_PLAYER, required = true) String uiUuid,
                                    HttpSession session) {
-        return ResponseEntity.ok(gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session)));
+        return ResponseEntity.ok(BooleanResponse.getResponse(gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session))));
     }
 
     @ApiOperation("Change the side of the current player")

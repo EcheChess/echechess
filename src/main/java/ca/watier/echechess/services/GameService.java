@@ -19,6 +19,7 @@ package ca.watier.echechess.services;
 import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.responses.DualValueResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
@@ -180,10 +181,7 @@ public class GameService {
             throw new IllegalArgumentException();
         }
 
-        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = gameRepository.get(uuid);
-        GenericGameHandler genericGameHandler = genericGameHandlerWrapper.getGenericGameHandler();
-
-        return genericGameHandler.getPlayerSide(player);
+        return getGameFromUuid(uuid).getPlayerSide(player);
     }
 
     /**
@@ -258,23 +256,31 @@ public class GameService {
             webSocketService.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
             webSocketService.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
             player.addJoinedGame(gameUuid);
+
+            gameRepository.add(new GenericGameHandlerWrapper<>(uuid, gameFromUuid));
         }
 
         return joined;
     }
 
-    public Map<CasePosition, Pieces> getPieceLocations(String uuid, Player player) {
+    public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
         if (player == null || uuid == null || uuid.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
+        List<DualValueResponse> values = new ArrayList<>();
+
         if (gameFromUuid == null || !gameFromUuid.hasPlayer(player)) {
-            return new EnumMap<>(CasePosition.class);
+            return values;
         }
 
-        return gameFromUuid.getPiecesLocation();
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : gameFromUuid.getPiecesLocation().entrySet()) {
+            values.add(new DualValueResponse(casePositionPiecesEntry.getKey(), casePositionPiecesEntry.getValue(), ""));
+        }
+
+        return values;
     }
 
     public boolean setSideOfPlayer(Player player, Side side, String uuid) {

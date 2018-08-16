@@ -16,8 +16,8 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.impl.WebSocketServiceTestImpl;
+import ca.watier.echechess.common.sessions.Player;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.expiry.Duration;
@@ -47,7 +47,7 @@ public class UiSessionServiceTest {
 
     @Test
     public void createNewSessionTest() throws Exception {
-        Player player = new Player();
+        Player player = new Player(UUID.randomUUID().toString());
 
         UUID newSessionUuid = UUID.fromString(service.createNewSession(player));
         assertThat(newSessionUuid).isNotNull();
@@ -60,7 +60,7 @@ public class UiSessionServiceTest {
 
     @Test
     public void refreshTest() throws Exception {
-        Player player = new Player();
+        Player player = new Player(UUID.randomUUID().toString());
 
         UUID newSessionUuid = UUID.fromString(service.createNewSession(player));
         assertThat(newSessionUuid).isNotNull();
