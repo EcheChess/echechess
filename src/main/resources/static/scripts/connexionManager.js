@@ -83,7 +83,7 @@ class ConnexionManager {
                 let parsed = JSON.parse(greeting.body);
                 let chessEvent = parsed.event;
                 let message = parsed.message;
-                let obj = parsed.obj;
+                let payload = parsed.obj;
 
                 switch (chessEvent) {
                     case 'PLAYER_TURN':
@@ -97,6 +97,15 @@ class ConnexionManager {
                         break;
                     case 'KING_CHECK':
                         alertify.warning(message);
+                        break;
+                    case 'AVAILABLE_MOVE':
+                        const from = payload.from;
+                        if (from && ConnexionManager.lastPiece === from) {
+                            var positions = payload.positions;
+                            for (let i = 0; i < positions.length; i++) {
+                                $(`[data-case-id='${positions[i]}']`).addClass("pieceAvailMoves");
+                            }
+                        }
                         break;
 
                 }
@@ -145,5 +154,9 @@ class ConnexionManager {
                 }
             });
         });
+    }
+
+    static setLastPiece(piece) {
+        ConnexionManager.lastPiece = piece;
     }
 }

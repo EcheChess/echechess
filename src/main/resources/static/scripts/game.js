@@ -415,7 +415,7 @@ function renderBoard() {
     });
 
     $(".board-square").droppable({
-        drop: function (event, ui) {
+        drop: function () {
             let from = $(sourceEvt).attr("data-case-id");
             let to = $(this).attr("data-case-id");
 
@@ -430,21 +430,17 @@ function renderBoard() {
     let $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
 
     $boardCaseWithPieceSelector.mouseover(function () {
-        //FIXME: The assert fail when we do a castling on the black side, the pieces on the client is not synced with the server
-        let piecesLocation = jsonFromRequest('GET', '/api/v1/game/moves', {
-            from: $(this).parent().attr("data-case-id"),
+        const from = $(this).parent().attr("data-case-id");
+        ConnexionManager.setLastPiece(from);
+        jsonFromRequest('GET', '/api/v1/game/moves', {
+            from: from,
             uuid: currentGameUuid
         });
-
-        if (piecesLocation) {
-            for (let i = 0; i < piecesLocation.length; i++) {
-                $(`[data-case-id='${piecesLocation[i]}']`).addClass("pieceAvailMoves");
-            }
-        }
     });
 
 
     $boardCaseWithPieceSelector.mouseleave(function () {
+        ConnexionManager.setLastPiece(null);
         $("td").removeClass("pieceAvailMoves");
     });
 

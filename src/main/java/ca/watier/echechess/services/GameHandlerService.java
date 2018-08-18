@@ -23,9 +23,11 @@ import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.pojos.AvailableMovePojo;
 import ca.watier.echechess.redis.interfaces.GameRepository;
 import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.redis.repositories.RedisGameRepositoryImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -36,6 +38,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import static ca.watier.echechess.common.enums.ChessEventMessage.*;
@@ -49,17 +53,19 @@ public class GameHandlerService implements MessageListener {
     private final StringRedisSerializer stringRedisSerializer;
     private final WebSocketService webSocketService;
     private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public GameHandlerService(GameRepository<GenericGameHandler> gameRepository,
                               RedisMessageListenerContainer redisMessageContainer,
                               ChannelTopic moveNodeAppTopic,
                               ChannelTopic availableMoveNodeAppTopic,
-                              RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper, WebSocketService webSocketService) {
+                              RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper, WebSocketService webSocketService, ObjectMapper objectMapper) {
 
 
         this.gameRepository = gameRepository;
         this.webSocketService = webSocketService;
+        this.objectMapper = objectMapper;
         this.stringRedisSerializer = new StringRedisSerializer();
         this.redisTemplateGenericGameHandlerWrapper = redisTemplateGenericGameHandlerWrapper;
 
@@ -115,12 +121,23 @@ public class GameHandlerService implements MessageListener {
     }
 
     /**
-     * Message pattern: A json serialized list
+     * Message pattern: {@link UUID#toString()}|{@link CasePosition from}|{@link Byte side}|{@link List}
      *
      * @param messageAsString
      */
     private void handleReceivedAvailableMovesMessage(String messageAsString) {
+        String[] headers = messageAsString.split("\\|");
+        String uuid = headers[0];
+        String fromAsString = headers[1];
+        Side playerSide = Side.getFromValue(Byte.valueOf(headers[2]));
 
+        try {
+            List<String> positions = objectMapper.readValue(headers[3], List.class);
+
+            webSocketService.fireSideEvent(uuid, playerSide, AVAILABLE_MOVE, null, new AvailableMovePojo(fromAsString, positions));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendMovedPieceMessage(CasePosition from, CasePosition to, String uuid, GenericGameHandler gameFromUuid, Side playerSide) {

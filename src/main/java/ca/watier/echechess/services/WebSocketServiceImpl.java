@@ -50,7 +50,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Override
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj) {
-        if (side == null || evtMessage == null || uuid == null || uuid.isEmpty() || message == null || message.isEmpty()) {
+        if (side == null || evtMessage == null || uuid == null || uuid.isEmpty()) {
             throw new IllegalArgumentException();
         }
 

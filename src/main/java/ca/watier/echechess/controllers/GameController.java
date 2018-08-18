@@ -19,7 +19,6 @@ package ca.watier.echechess.controllers;
 import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Side;
-import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.StringResponse;
 import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.services.GameService;
@@ -52,6 +51,7 @@ public class GameController {
     private static final String PLAY_AGAINST_THE_AI = "Create a new game to play against the AI";
     private static final String WITH_OR_WITHOUT_OBSERVERS = "Create a new game with or without observers";
     private static final String PATTERN_CUSTOM_GAME = "Pattern used to create a custom game";
+    private static final ResponseEntity<Object> NO_CONTENT_RESPONSE_ENTITY = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     private final GameService gameService;
 
@@ -80,7 +80,7 @@ public class GameController {
                                             HttpSession session) {
 
         gameService.movePiece(from, to, uuid, SessionUtils.getPlayer(session));
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return NO_CONTENT_RESPONSE_ENTITY;
     }
 
     @ApiOperation("Get a list of position that the piece can moves")
@@ -88,7 +88,9 @@ public class GameController {
     public ResponseEntity getMovesOfAPiece(@ApiParam(value = FROM_POSITION, required = true) CasePosition from,
                                            @ApiParam(value = UUID_GAME, required = true) String uuid,
                                            HttpSession session) {
-        return ResponseEntity.ok(gameService.getAllAvailableMoves(from, uuid, SessionUtils.getPlayer(session)));
+
+        gameService.getAllAvailableMoves(from, uuid, SessionUtils.getPlayer(session));
+        return NO_CONTENT_RESPONSE_ENTITY;
     }
 
     @ApiOperation("Used when there's a pawn promotion")
@@ -113,7 +115,7 @@ public class GameController {
                                    @ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                    @ApiParam(value = UI_UUID_PLAYER, required = true) String uiUuid,
                                    HttpSession session) {
-        return ResponseEntity.ok(BooleanResponse.getResponse(gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session))));
+        return ResponseEntity.ok(gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session)));
     }
 
     @ApiOperation("Change the side of the current player")

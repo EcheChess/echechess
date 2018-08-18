@@ -23,6 +23,7 @@ import ca.watier.echechess.common.enums.MoveType;
 import ca.watier.echechess.common.enums.Pieces;
 import ca.watier.echechess.common.impl.WebSocketServiceTestImpl;
 import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.tests.GameTest;
 import ca.watier.echechess.common.utils.Constants;
@@ -31,6 +32,8 @@ import ca.watier.echechess.engine.factories.GameConstraintFactory;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.engine.utils.GameUtils;
 import ca.watier.repository.KeyValueRepository;
+import ca.watier.utils.RedisTemplateTestImpl;
+import ca.watier.utils.TestTopic;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,19 +57,28 @@ import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GameServiceTest extends GameTest {
+    private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
+    private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
     private static final GameConstraint CONSTRAINT_SERVICE = GameConstraintFactory.getDefaultGameConstraint();
     private WebSocketService currentWebSocketService;
     private GameService gameService;
     private Player player1, player2;
     private KeyValueRepository redisGameRepository = new KeyValueRepository();
+    private RedisTemplateTestImpl redisOperationsTest = new RedisTemplateTestImpl();
+    private TestTopic testTopic = new TestTopic("TEST_TOPIC");
 
     @Before
     public void setup() {
         player1 = new Player(UUID.randomUUID().toString());
         player2 = new Player(UUID.randomUUID().toString());
         currentWebSocketService = new WebSocketServiceTestImpl();
-        //gameService = new GameService(CONSTRAINT_SERVICE, currentWebSocketService, redisGameRepository, redisTemplateGenericGameHandlerWrapper, moveAppToNodeTopic);
-        fail();
+        gameService = new GameService(
+                CONSTRAINT_SERVICE,
+                currentWebSocketService,
+                redisGameRepository,
+                redisOperationsTest,
+                testTopic,
+                testTopic);
     }
 
     @Test
@@ -92,82 +104,6 @@ public class GameServiceTest extends GameTest {
                 "It's your turn !", //Black turn
                 EMPTY_GAME_SCORE_RESPONSE,
                 REFRESH_BOARD);
-    }
-
-    @Test
-    public void getMessageBlackKingCheckMate() {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-
-        UUID gameUuid = gameService.createNewGame(player1, "H8:B_KING;H1:W_KING;B7:W_QUEEN;A7:W_QUEEN", WHITE, false, false);
-        gameService.movePiece(A7, A8, gameUuid.toString(), player1);  //Move the White queen to checkmate the black king
-
-        assertThat(currentWebSocketService.getMessages()).containsOnly(
-                "WHITE player moved A7 to A8",
-                Constants.PLAYER_TURN,
-                EMPTY_GAME_SCORE_RESPONSE,
-                String.format(Constants.PLAYER_KING_CHECKMATE, "BLACK")
-        );
-    }
-
-    @Test
-    public void getMessageWhiteKingCheckMate() {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-
-        UUID gameUuid = gameService.createNewGame(player1, "C3:W_PAWN;H8:B_KING;H1:W_KING;A2:B_QUEEN;B2:B_QUEEN", BLACK, false, false);
-        String uuidAsString = gameUuid.toString();
-        gameService.joinGame(uuidAsString, WHITE, UUID.randomUUID().toString(), player2);
-
-        gameService.movePiece(C3, C4, uuidAsString, player2);  //To allow the black player to move
-        gameService.movePiece(A2, A1, uuidAsString, player1);  //Move the White queen to checkmate the black king
-
-        assertThat(currentWebSocketService.getMessages()).containsOnly(
-                String.format(Constants.NEW_PLAYER_JOINED_SIDE, "WHITE"),
-                "WHITE player moved C3 to C4",
-                String.format(Constants.JOINING_GAME, uuidAsString),
-                "BLACK player moved A2 to A1",
-                Constants.PLAYER_TURN,
-                EMPTY_GAME_SCORE_RESPONSE,
-                String.format(Constants.PLAYER_KING_CHECKMATE, "WHITE")
-        );
-    }
-
-    @Test
-    public void getMessageBlackKingCheck() {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-
-        UUID gameUuid = gameService.createNewGame(player1, "H8:B_KING;H1:W_KING;E7:W_QUEEN", WHITE, false, false);
-        String uuidAsString = gameUuid.toString();
-
-        gameService.movePiece(E7, E8, uuidAsString, player1);
-
-        assertThat(currentWebSocketService.getMessages()).containsOnly(
-                "WHITE player moved E7 to E8",
-                Constants.PLAYER_TURN,
-                EMPTY_GAME_SCORE_RESPONSE,
-                Constants.PLAYER_KING_CHECK
-        );
-    }
-
-    @Test
-    public void getMessageWhiteKingCheck() {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-
-        UUID gameUuid = gameService.createNewGame(player1, "C2:W_PAWN;H8:B_KING;H1:W_KING;E2:B_QUEEN", BLACK, false, false);
-        String uuidAsString = gameUuid.toString();
-        gameService.joinGame(uuidAsString, WHITE, UUID.randomUUID().toString(), player2);
-
-        gameService.movePiece(C2, C3, uuidAsString, player2);  //To allow the black player to move
-        gameService.movePiece(E2, E1, uuidAsString, player1);  //Move the White queen to checkmate the black king
-
-        assertThat(currentWebSocketService.getMessages()).containsOnly(
-                String.format(Constants.NEW_PLAYER_JOINED_SIDE, "WHITE"),
-                "WHITE player moved C2 to C3",
-                String.format(Constants.JOINING_GAME, uuidAsString),
-                "BLACK player moved E2 to E1",
-                Constants.PLAYER_TURN,
-                EMPTY_GAME_SCORE_RESPONSE,
-                Constants.PLAYER_KING_CHECK
-        );
     }
 
     @Test
@@ -269,124 +205,6 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void movePieceTest() {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        Player player1 = new Player(UUID.randomUUID().toString());
-        Player player2 = new Player(UUID.randomUUID().toString());
-        Player playerNotInGame = new Player(UUID.randomUUID().toString());
-
-        UUID gameUuid = gameService.createNewGame(player1, "H2:W_PAWN;H7:B_PAWN;E2:W_PAWN;H1:W_KING;H8:B_KING;A7:W_PAWN;A2:B_PAWN", WHITE, false, false);
-        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
-        String uuid = gameFromUuid.getUuid();
-        gameFromUuid.setPlayerToSide(player2, BLACK);
-
-        //Invalid moves, by the wrong player
-        gameService.movePiece(H2, H4, uuid, playerNotInGame);
-        gameService.movePiece(H2, H4, uuid, player2);
-
-        //Valid move
-        gameService.movePiece(H2, H4, uuid, player1);
-
-        //Unable to move twice
-        gameService.movePiece(H4, H5, uuid, player1);
-
-        //Valid move for the black player
-        gameService.movePiece(H7, H5, uuid, player2);
-
-        gameFromUuid.setGamePaused(true);
-
-        //Unable to move, because the game is paused
-        gameService.movePiece(E2, E4, uuid, player1);
-        gameFromUuid.setGamePaused(false);
-
-        //Can move, the game is not paused
-        gameService.movePiece(E2, E4, uuid, player1);
-
-
-        //Valid move for the black player (Pawn promotion)
-        gameService.movePiece(A2, A1, uuid, player2);
-        gameService.upgradePiece(A1, uuid, KNIGHT, player2);
-
-        //Valid move for the white player (Pawn promotion)
-        gameService.movePiece(A7, A8, uuid, player1);
-        gameService.upgradePiece(A8, uuid, KNIGHT, player1);
-
-
-        List<Object> messages = currentWebSocketService.getMessages();
-
-        /*
-            Asserting the messages
-        */
-
-        assertThat(messages).containsOnly(
-                "WHITE player moved H2 to H4",
-                "It's your turn !",
-                EMPTY_GAME_SCORE_RESPONSE,
-                "BLACK player moved H7 to H5",
-                "It's your turn !",
-                EMPTY_GAME_SCORE_RESPONSE,
-                "WHITE player moved E2 to E4",
-                "It's your turn !",
-                EMPTY_GAME_SCORE_RESPONSE,
-                "A1",
-                "The game will continue after the BLACK player choose his piece",
-                "BLACK player moved A2 to A1",
-                "It's your turn !",
-                EMPTY_GAME_SCORE_RESPONSE,
-                ChessEventMessage.REFRESH_BOARD,
-                "A8",
-                "The game will continue after the WHITE player choose his piece",
-                "WHITE player moved A7 to A8",
-                "It's your turn !",
-                EMPTY_GAME_SCORE_RESPONSE,
-                ChessEventMessage.REFRESH_BOARD);
-    }
-
-    @Test
-    public void movePieceStaleMessageTest() {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        Player player1 = new Player(UUID.randomUUID().toString());
-        Player player2 = new Player(UUID.randomUUID().toString());
-
-        UUID gameUuid = gameService.createNewGame(player1, "H1:W_KING;D5:B_KING;C7:W_ROOK;E7:W_ROOK;B6:W_ROOK;B4:W_ROOK", WHITE, false, false);
-        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
-        String uuid = gameFromUuid.getUuid();
-        gameFromUuid.setPlayerToSide(player2, BLACK);
-
-        gameService.movePiece(H1, H2, uuid, player1);
-        gameService.movePiece(D5, C5, uuid, player2);
-
-        List<Object> messages = currentWebSocketService.getMessages();
-        assertThat(messages).containsOnly(
-                "WHITE player moved H1 to H2",
-                "It's your turn !",
-                EMPTY_GAME_SCORE_RESPONSE,
-                Constants.PLAYER_KING_STALEMATE //Due to the black king (stale)
-        );
-
-    }
-
-    @Test
-    public void getAllAvailableMovesTest() {
-        Player player1 = new Player(UUID.randomUUID().toString());
-        Player player2 = new Player(UUID.randomUUID().toString());
-        Player playerNotInGame = new Player(UUID.randomUUID().toString());
-
-        UUID gameUuid = gameService.createNewGame(player1, "", WHITE, false, false);
-        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
-        gameFromUuid.setPlayerToSide(player2, BLACK);
-        String uuid = gameFromUuid.getUuid();
-
-        //Valid for the WHITE player
-        assertThat(gameService.getAllAvailableMoves(H2, uuid, player1)).isNotEmpty().containsOnly("H4", "H3");
-        assertThat(gameService.getAllAvailableMoves(E1, uuid, player1)).isEmpty(); //King
-
-        //Cannot see the piece moves if your not in the game, or not the color of the piece
-        assertThat(gameService.getAllAvailableMoves(H2, uuid, playerNotInGame)).isEmpty();
-        assertThat(gameService.getAllAvailableMoves(H2, uuid, player2)).isEmpty();
-    }
-
-    @Test
     public void joinGameTest() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
 
@@ -401,9 +219,9 @@ public class GameServiceTest extends GameTest {
         GenericGameHandler game1 = gameService.getGameFromUuid(gameUuid1.toString());
         String uuidGame1 = game1.getUuid();
 
-        assertFalse(gameService.joinGame(uuidGame1, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
-        assertTrue(gameService.joinGame(uuidGame1, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // Valid choice
-        assertTrue(gameService.joinGame(uuidGame1, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // Valid choice
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
         assertThat(messages).containsOnly(
                 "New player joined the BLACK side",
                 "Joining the game " + uuidGame1, //Black player
@@ -419,9 +237,9 @@ public class GameServiceTest extends GameTest {
         GenericGameHandler game2 = gameService.getGameFromUuid(gameUuid2.toString());
         String uuidGame2 = game2.getUuid();
 
-        assertFalse(gameService.joinGame(uuidGame2, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
-        assertFalse(gameService.joinGame(uuidGame2, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
-        assertTrue(gameService.joinGame(uuidGame2, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
+        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
         assertThat(messages).containsOnly(
                 "You are not authorized to join this game !", //Private message
                 "You are not authorized to join this game !", //Private message
@@ -437,9 +255,9 @@ public class GameServiceTest extends GameTest {
         GenericGameHandler game3 = gameService.getGameFromUuid(gameUuid3.toString());
         String uuidGame3 = game3.getUuid();
 
-        assertFalse(gameService.joinGame(uuidGame3, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
-        assertFalse(gameService.joinGame(uuidGame3, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
-        assertFalse(gameService.joinGame(uuidGame3, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); //Cannot join observers
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
+        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); //Cannot join observers
 
         assertThat(messages).containsOnly("You are not authorized to join this game !"); //Private message (x3)
     }

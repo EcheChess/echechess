@@ -19,6 +19,7 @@ package ca.watier.echechess.services;
 import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.DualValueResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
@@ -50,24 +51,29 @@ import static ca.watier.echechess.common.utils.Constants.*;
 @Service
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
+    private static final BooleanResponse NO = BooleanResponse.NO;
     private final GameConstraint gameConstraint;
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
-    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper;
+    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate;
     private final ChannelTopic moveAppToNodeTopic;
+    private final ChannelTopic availableMoveAppToNodeTopic;
 
     @Autowired
     public GameService(GameConstraint gameConstraint,
                        WebSocketService webSocketService,
                        GameRepository<GenericGameHandler> gameRepository,
-                       RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper, ChannelTopic moveAppToNodeTopic) {
+                       RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate,
+                       ChannelTopic moveAppToNodeTopic,
+                       ChannelTopic availableMoveAppToNodeTopic) {
 
         this.gameConstraint = gameConstraint;
         this.webSocketService = webSocketService;
         this.gameRepository = gameRepository;
-        this.redisTemplateGenericGameHandlerWrapper = redisTemplateGenericGameHandlerWrapper;
-        this.redisTemplateGenericGameHandlerWrapper.setDefaultSerializer(new StringRedisSerializer());
+        this.redisTemplate = redisTemplate;
+        this.redisTemplate.setDefaultSerializer(new StringRedisSerializer());
         this.moveAppToNodeTopic = moveAppToNodeTopic;
+        this.availableMoveAppToNodeTopic = availableMoveAppToNodeTopic;
     }
 
     /**
@@ -151,7 +157,7 @@ public class GameService {
 
         //UUID|FROM|TO|ID_PLAYER_SIDE
         String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
-        redisTemplateGenericGameHandlerWrapper.convertAndSend(moveAppToNodeTopic.getTopic(), payload);
+        redisTemplate.convertAndSend(moveAppToNodeTopic.getTopic(), payload);
     }
 
     /**
@@ -192,40 +198,28 @@ public class GameService {
      * @param player
      * @return
      */
-    public List<String> getAllAvailableMoves(CasePosition from, String uuid, Player player) {
+    public void getAllAvailableMoves(CasePosition from, String uuid, Player player) {
         if (from == null || player == null || uuid == null || uuid.isEmpty()) {
             throw new IllegalArgumentException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-        List<String> values = new ArrayList<>();
-
-        if (!gameFromUuid.hasPlayer(player)) {
-            return values;
-        }
-
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
-        Map<CasePosition, Pieces> piecesLocation = gameFromUuid.getPiecesLocation();
-        Pieces pieces = piecesLocation.get(from);
+        boolean isOnTheSameSide =
+                Optional.ofNullable(gameFromUuid.getPiece(from))
+                        .map(p -> p.getSide().equals(playerSide))
+                        .orElse(false);
 
-        if (!pieces.getSide().equals(playerSide)) {
-            return values;
+        if (!gameFromUuid.hasPlayer(player) || !isOnTheSameSide) {
+            return;
         }
 
-        List<CasePosition> positions =
-                Pieces.isKing(pieces) ?
-                        gameFromUuid.getPositionKingCanMove(playerSide) :
-                        gameFromUuid.getAllAvailableMoves(from, playerSide);
-
-        for (CasePosition casePosition : positions) {
-            values.add(casePosition.name());
-        }
-
-        return values;
+        String payload = uuid + '|' + from.name() + '|' + playerSide.getValue();
+        redisTemplate.convertAndSend(availableMoveAppToNodeTopic.getTopic(), payload);
     }
 
-    public boolean joinGame(String uuid, Side side, String uiUuid, Player player) {
+    public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
         if (uiUuid == null || uiUuid.isEmpty() || player == null || uuid == null || uuid.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -234,7 +228,7 @@ public class GameService {
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
         if (gameFromUuid == null) {
-            return false;
+            return NO;
         }
 
         boolean allowObservers = gameFromUuid.isAllowObservers();
@@ -244,7 +238,7 @@ public class GameService {
                 (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
                 (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
             webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
-            return false;
+            return NO;
         }
 
         UUID gameUuid = UUID.fromString(uuid);
@@ -260,7 +254,7 @@ public class GameService {
             gameRepository.add(new GenericGameHandlerWrapper<>(uuid, gameFromUuid));
         }
 
-        return joined;
+        return BooleanResponse.getResponse(joined);
     }
 
     public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
