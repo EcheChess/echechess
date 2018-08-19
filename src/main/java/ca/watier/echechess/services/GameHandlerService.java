@@ -60,16 +60,18 @@ public class GameHandlerService implements MessageListener {
                               RedisMessageListenerContainer redisMessageContainer,
                               ChannelTopic moveNodeAppTopic,
                               ChannelTopic availableMoveNodeAppTopic,
-                              RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper, WebSocketService webSocketService, ObjectMapper objectMapper) {
+                              RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate,
+                              WebSocketService webSocketService,
+                              ObjectMapper objectMapper) {
 
 
         this.gameRepository = gameRepository;
         this.webSocketService = webSocketService;
         this.objectMapper = objectMapper;
         this.stringRedisSerializer = new StringRedisSerializer();
-        this.redisTemplateGenericGameHandlerWrapper = redisTemplateGenericGameHandlerWrapper;
+        this.redisTemplateGenericGameHandlerWrapper = redisTemplate;
 
-        redisTemplateGenericGameHandlerWrapper.setValueSerializer(stringRedisSerializer);
+        redisTemplate.setValueSerializer(stringRedisSerializer);
 
         //Bind the message listener
         redisMessageContainer.addMessageListener(this, moveNodeAppTopic);
