@@ -403,22 +403,21 @@ function renderBoard() {
 
     drawBoard(piecesLocation, "#board");
 
-    let sourceEvt = null;
-
-    let $currentPiece = $(".board-pieces");
-    $currentPiece.draggable({
-        containment: "#board",
-        helper: "clone",
-        start: function () {
-            sourceEvt = $(this).parent();
-        }
+    document.addEventListener("dragover", function (event) {
+        event.preventDefault();
     });
 
-    $(".board-square").droppable({
-        drop: function () {
-            let from = $(sourceEvt).attr("data-case-id");
-            let to = $(this).attr("data-case-id");
+    $(document).on("dragstart", ".board-pieces", function (event) {
+        let dataTransfer = event.originalEvent.dataTransfer;
+        dataTransfer.setData("from", $(event.target).parent().data('case-id'));
+    });
 
+    $(document).on("drop", ".board-square", function (event) {
+        let dataTransfer = event.originalEvent.dataTransfer;
+        let from = dataTransfer.getData("from");
+        let to = $(this).data('case-id');
+
+        if(from !== to) {
             jsonFromRequest('POST', '/api/v1/game/move', {
                 from: from,
                 to: to,
@@ -477,7 +476,7 @@ function drawBoard(piecesLocation, boardId) {
                 }
             }
 
-            tableInnerHtml += `<td data-case-id="${caseLetter}${numberIdx}" data-case-x="${x}" data-case-y="${y}" class="board-square ${caseColor}"><span class="board-pieces">${pieceIcon}</span></td>`;
+            tableInnerHtml += `<td data-case-id="${caseLetter}${numberIdx}" data-case-x="${x}" data-case-y="${y}" class="board-square ${caseColor}"><span class="board-pieces" draggable="true">${pieceIcon}</span></td>`;
             caseColorIndex++;
             letterIdx++;
         }
