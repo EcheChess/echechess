@@ -52,7 +52,6 @@ public class GameHandlerService implements MessageListener {
     private final GameRepository<GenericGameHandler> gameRepository;
     private final StringRedisSerializer stringRedisSerializer;
     private final WebSocketService webSocketService;
-    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplateGenericGameHandlerWrapper;
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -69,7 +68,6 @@ public class GameHandlerService implements MessageListener {
         this.webSocketService = webSocketService;
         this.objectMapper = objectMapper;
         this.stringRedisSerializer = new StringRedisSerializer();
-        this.redisTemplateGenericGameHandlerWrapper = redisTemplate;
 
         redisTemplate.setValueSerializer(stringRedisSerializer);
 
