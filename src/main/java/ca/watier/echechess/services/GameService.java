@@ -25,7 +25,7 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.engine.game.CustomPieceWithStandardRulesHandler;
+import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.redis.interfaces.GameRepository;
 import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
@@ -96,7 +96,7 @@ public class GameService {
         if (StringUtils.isNotBlank(specialGamePieces)) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler((DefaultGameConstraint) gameConstraint);
+            SimpleCustomPositionGameHandler customPieceWithStandardRulesHandler = new SimpleCustomPositionGameHandler((DefaultGameConstraint) gameConstraint);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
