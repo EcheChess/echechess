@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import java.util.UUID;
 
 /**
  * Created by yannick on 4/17/2017.
@@ -34,7 +35,8 @@ public class SessionListener implements HttpSessionListener {
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         HttpSession session = httpSessionEvent.getSession();
-        session.setAttribute(Constants.PLAYER, new Player());
+        Player player = new Player(UUID.randomUUID().toString());
+        session.setAttribute(Constants.PLAYER, player);
     }
 
 

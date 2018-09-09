@@ -19,6 +19,7 @@ package ca.watier.echechess.server;
 import ca.watier.echechess.common.enums.ChessEventMessage;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.services.UiSessionService;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -48,7 +49,7 @@ public class UiSessionHandlerInterceptor extends HandlerInterceptorAdapter {
 
         String[] uiUuids = request.getParameterValues("uiUuid");
 
-        if (uiUuids != null && uiUuids.length == 1) { //Authorize only those with an active ui session
+        if (ArrayUtils.isNotEmpty(uiUuids)) { //Authorize only those with an active ui session
             String uiUuid = uiUuids[0];
             isAllowed = uiSessionService.isUiSessionActive(UUID.fromString(uiUuid));
 

@@ -42,7 +42,6 @@ $(document).ready(function () {
     resizeBoardBasedOnWidth();
 
     $("#createGame").click(function () {
-
         currentGameUuid = createNewGame();
         ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
         ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
@@ -62,7 +61,7 @@ $(document).ready(function () {
 
             let side = $("#chooseSideJoinGame").find("option:selected").val();
             selectedColor = side;
-            jsonFromRequest("POST", '/api/game/join/1', {
+            jsonFromRequest("POST", '/api/v1/game/join', {
                 side: side,
                 uuid: currentGameUuid,
             });
@@ -95,26 +94,26 @@ function setHelperBoardEvents() {
         on: 'click',
         hoverable: true,
         html: "<div class='header'>Choose a piece</div><div class='content'>" +
-        "<table>" +
-        "<tr>" +
-        "<td class='helperBordPieces' data-helper-icon='W_KING'>♔</td>" +
-        "<td class='helperBordPieces' data-helper-icon='W_QUEEN'>♕</td>" +
-        "<td class='helperBordPieces' data-helper-icon='W_ROOK'>♖</td>" +
-        "<td class='helperBordPieces' data-helper-icon='W_BISHOP'>♗</td>" +
-        "<td class='helperBordPieces' data-helper-icon='W_KNIGHT'>♘</td>" +
-        "<td class='helperBordPieces' data-helper-icon='W_PAWN'>♙</td>" +
-        "</tr>" +
-        "<tr>" +
-        "<td class='helperBordPieces' data-helper-icon='B_KING'>♚</td>" +
-        "<td class='helperBordPieces' data-helper-icon='B_QUEEN'>♛</td>" +
-        "<td class='helperBordPieces' data-helper-icon='B_ROOK'>♜</td>" +
-        "<td class='helperBordPieces' data-helper-icon='B_BISHOP'>♝</td>" +
-        "<td class='helperBordPieces' data-helper-icon='B_KNIGHT'>♞</td>" +
-        "<td class='helperBordPieces' data-helper-icon='B_PAWN'>♟</td>" +
-        "</tr>" +
-        "</table>" +
-        "<button id='helperActionRemovePiece' class='ui red basic button'>Empty the case</button>" +
-        "</div>"
+            "<table>" +
+            "<tr>" +
+            "<td class='helperBordPieces' data-helper-icon='W_KING'>♔</td>" +
+            "<td class='helperBordPieces' data-helper-icon='W_QUEEN'>♕</td>" +
+            "<td class='helperBordPieces' data-helper-icon='W_ROOK'>♖</td>" +
+            "<td class='helperBordPieces' data-helper-icon='W_BISHOP'>♗</td>" +
+            "<td class='helperBordPieces' data-helper-icon='W_KNIGHT'>♘</td>" +
+            "<td class='helperBordPieces' data-helper-icon='W_PAWN'>♙</td>" +
+            "</tr>" +
+            "<tr>" +
+            "<td class='helperBordPieces' data-helper-icon='B_KING'>♚</td>" +
+            "<td class='helperBordPieces' data-helper-icon='B_QUEEN'>♛</td>" +
+            "<td class='helperBordPieces' data-helper-icon='B_ROOK'>♜</td>" +
+            "<td class='helperBordPieces' data-helper-icon='B_BISHOP'>♝</td>" +
+            "<td class='helperBordPieces' data-helper-icon='B_KNIGHT'>♞</td>" +
+            "<td class='helperBordPieces' data-helper-icon='B_PAWN'>♟</td>" +
+            "</tr>" +
+            "</table>" +
+            "<button id='helperActionRemovePiece' class='ui red basic button'>Empty the case</button>" +
+            "</div>"
     });
 }
 
@@ -205,7 +204,7 @@ function resizeBoardBasedOnWidth() {
     //230 = Chess log width
     var totalWindowWidth = $(window).width() - 30 - 230;
     var totalWindowHeight = $(window).height() - 30 - 230;
-    var selectedDim = (totalWindowHeight > totalWindowWidth) ? totalWindowWidth :  totalWindowHeight; //take the lowest values
+    var selectedDim = (totalWindowHeight > totalWindowWidth) ? totalWindowWidth : totalWindowHeight; //take the lowest values
     var caseDim = selectedDim / 9;
 
     if (caseDim <= 50) {
@@ -236,7 +235,7 @@ function initUiTriggers() {
     $(document).on("click", "#buttonSendChoicePawnPromotion", function () {
         $('#modalPawnPromotion').modal('hide');
 
-        jsonFromRequest("POST", '/api/game/piece/pawn/promotion/1', {
+        jsonFromRequest("POST", '/api/game/piece/pawn/promotion', {
             to: currentPawnPromotion,
             uuid: currentGameUuid,
             piece: $("#dropdownPawnPromo").val()
@@ -246,15 +245,15 @@ function initUiTriggers() {
     $("#divSpecialGamePieces").popup({
         hoverable: true,
         html: "<div class='header'>Use this format</div><div class='content'>Position" +
-        "<span class='special-game-item-spacer'>:</span>" +
-        "Piece" +
-        "<span class='special-game-item-spacer'>;</span>" +
-        "Position" +
-        "<span class='special-game-item-spacer'>:</span>" +
-        "Piece..." +
-        "<br>" +
-        "Click <button id='moreInfoSpecialGame'>HERE</button> to show the helper" +
-        "</div>"
+            "<span class='special-game-item-spacer'>:</span>" +
+            "Piece" +
+            "<span class='special-game-item-spacer'>;</span>" +
+            "Position" +
+            "<span class='special-game-item-spacer'>:</span>" +
+            "Piece..." +
+            "<br>" +
+            "Click <button id='moreInfoSpecialGame'>HERE</button> to show the helper" +
+            "</div>"
     });
 
     $("#buttonValidatePatternSpecialGame").click(function () {
@@ -318,7 +317,7 @@ function initUiTriggers() {
 
     $changeSide.change(function () {
         if (currentGameUuid) {
-            let response = jsonFromRequest("POST", '/api/game/side/1', {
+            let response = jsonFromRequest("POST", '/api/v1/game/side', {
                 side: $(this).find("option:selected").val(),
                 uuid: currentGameUuid
             }).response;
@@ -384,7 +383,7 @@ function jsonFromRequest(type, url, data) {
 function createNewGame() {
     const side = $("#changeSide").find("option:selected").val();
     selectedColor = side;
-    return jsonFromRequest('POST', '/api/game/create/1', {
+    return jsonFromRequest('POST', '/api/v1/game/create', {
         side: side,
         againstComputer: $("#againstComputer").checkbox('is checked'),
         observers: $("#allowOtherObserver").checkbox('is checked'),
@@ -398,68 +397,49 @@ function renderBoard() {
         return;
     }
 
-    let piecesLocation = jsonFromRequest('GET', '/api/game/pieces/1', {
+    let piecesLocation = jsonFromRequest('GET', '/api/v1/game/pieces', {
         uuid: currentGameUuid
     });
 
     drawBoard(piecesLocation, "#board");
 
-    let sourceEvt = null;
-
-    let $currentPiece = $(".board-pieces");
-    $currentPiece.draggable({
-        containment: "#board",
-        helper: "clone",
-        start: function () {
-            sourceEvt = $(this).parent();
-        }
+    document.addEventListener("dragover", function (event) {
+        event.preventDefault();
     });
 
-    $(".board-square").droppable({
-        drop: function (event, ui) {
-            let from = $(sourceEvt).attr("data-case-id");
-            let to = $(this).attr("data-case-id");
+    $(document).on("dragstart", ".board-pieces", function (event) {
+        let dataTransfer = event.originalEvent.dataTransfer;
+        dataTransfer.setData("from", $(event.target).parent().data('case-id'));
+    });
 
-            let response = jsonFromRequest('POST', '/api/game/move/1', {
+    $(document).on("drop", ".board-square", function (event) {
+        let dataTransfer = event.originalEvent.dataTransfer;
+        let from = dataTransfer.getData("from");
+        let to = $(this).data('case-id');
+
+        if(from !== to) {
+            jsonFromRequest('POST', '/api/v1/game/move', {
                 from: from,
                 to: to,
                 uuid: currentGameUuid
-            }).response;
-
-            if (response) {
-                $(this).find('.board-pieces').each(function () {
-                    let item = $(this).text();
-
-                    if (item) {
-                        $(this).hide();
-                    }
-                });
-
-                $(this).append(ui.draggable);
-            }
-
-            $currentPiece.draggable("option", "revert", !response);
+            });
         }
     });
 
     let $boardCaseWithPieceSelector = $(".board-square > span.board-pieces");
 
     $boardCaseWithPieceSelector.mouseover(function () {
-        //FIXME: The assert fail when we do a castling on the black side, the pieces on the client is not synced with the server
-        let piecesLocation = jsonFromRequest('GET', '/api/game/moves/1', {
-            from: $(this).parent().attr("data-case-id"),
+        const from = $(this).parent().attr("data-case-id");
+        ConnexionManager.setLastPiece(from);
+        jsonFromRequest('GET', '/api/v1/game/moves', {
+            from: from,
             uuid: currentGameUuid
         });
-
-        if (piecesLocation) {
-            for (let i = 0; i < piecesLocation.length; i++) {
-                $(`[data-case-id='${piecesLocation[i]}']`).addClass("pieceAvailMoves");
-            }
-        }
     });
 
 
     $boardCaseWithPieceSelector.mouseleave(function () {
+        ConnexionManager.setLastPiece(null);
         $("td").removeClass("pieceAvailMoves");
     });
 
@@ -496,7 +476,7 @@ function drawBoard(piecesLocation, boardId) {
                 }
             }
 
-            tableInnerHtml += `<td data-case-id="${caseLetter}${numberIdx}" data-case-x="${x}" data-case-y="${y}" class="board-square ${caseColor}"><span class="board-pieces">${pieceIcon}</span></td>`;
+            tableInnerHtml += `<td data-case-id="${caseLetter}${numberIdx}" data-case-x="${x}" data-case-y="${y}" class="board-square ${caseColor}"><span class="board-pieces" draggable="true">${pieceIcon}</span></td>`;
             caseColorIndex++;
             letterIdx++;
         }

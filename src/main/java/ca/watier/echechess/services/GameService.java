@@ -16,6 +16,7 @@
 
 package ca.watier.echechess.services;
 
+import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.BooleanResponse;
@@ -24,10 +25,16 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.engine.game.CustomPieceWithStandardRulesHandler;
+import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
+import ca.watier.echechess.redis.interfaces.GameRepository;
+import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,8 +43,6 @@ import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.ChessEventMessage.PLAYER_TURN;
 import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
 import static ca.watier.echechess.common.utils.Constants.*;
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 /**
  * Created by yannick on 4/17/2017.
@@ -46,14 +51,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
-    private final Map<UUID, GenericGameHandler> GAMES_HANDLER_MAP = new HashMap<>();
-    private final GameConstraint CONSTRAINT_SERVICE;
-    private final WebSocketService WEB_SOCKET_SERVICE;
+    private static final BooleanResponse NO = BooleanResponse.NO;
+    private final GameConstraint gameConstraint;
+    private final WebSocketService webSocketService;
+    private final GameRepository<GenericGameHandler> gameRepository;
+    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate;
+    private final ChannelTopic moveAppToNodeTopic;
+    private final ChannelTopic availableMoveAppToNodeTopic;
 
     @Autowired
-    public GameService(GameConstraint gameConstraints, WebSocketService webSocketService) {
-        this.CONSTRAINT_SERVICE = gameConstraints;
-        this.WEB_SOCKET_SERVICE = webSocketService;
+    public GameService(GameConstraint gameConstraint,
+                       WebSocketService webSocketService,
+                       GameRepository<GenericGameHandler> gameRepository,
+                       RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate,
+                       ChannelTopic moveAppToNodeTopic,
+                       ChannelTopic availableMoveAppToNodeTopic) {
+
+        this.gameConstraint = gameConstraint;
+        this.webSocketService = webSocketService;
+        this.gameRepository = gameRepository;
+        this.redisTemplate = redisTemplate;
+        this.redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        this.moveAppToNodeTopic = moveAppToNodeTopic;
+        this.availableMoveAppToNodeTopic = availableMoveAppToNodeTopic;
     }
 
     /**
@@ -66,38 +86,46 @@ public class GameService {
      * @param observers
      */
     public UUID createNewGame(Player player, String specialGamePieces, Side side, boolean againstComputer, boolean observers) {
-        assertThat(player).isNotNull();
-        assertThat(side).isNotNull();
+        if (player == null || side == null) {
+            throw new IllegalArgumentException();
+        }
 
         GameType gameType = GameType.CLASSIC;
         GenericGameHandler genericGameHandler;
 
-        if (specialGamePieces != null && !specialGamePieces.isEmpty()) {
+        if (StringUtils.isNotBlank(specialGamePieces)) {
             gameType = GameType.SPECIAL;
 
-            CustomPieceWithStandardRulesHandler customPieceWithStandardRulesHandler = new CustomPieceWithStandardRulesHandler((DefaultGameConstraint) CONSTRAINT_SERVICE);
+            SimpleCustomPositionGameHandler customPieceWithStandardRulesHandler = new SimpleCustomPositionGameHandler((DefaultGameConstraint) gameConstraint);
             customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
             genericGameHandler = customPieceWithStandardRulesHandler;
         } else {
-            genericGameHandler = new GenericGameHandler(CONSTRAINT_SERVICE);
+            genericGameHandler = new GenericGameHandler(gameConstraint);
         }
 
         UUID uui = UUID.randomUUID();
         genericGameHandler.setGameType(gameType);
-        genericGameHandler.setUuid(uui.toString());
-        GAMES_HANDLER_MAP.put(uui, genericGameHandler);
+        String uuidAsString = uui.toString();
+        genericGameHandler.setUuid(uuidAsString);
         player.addCreatedGame(uui);
 
         genericGameHandler.setPlayerToSide(player, side);
         genericGameHandler.setAllowOtherToJoin(!againstComputer);
         genericGameHandler.setAllowObservers(observers);
 
+        gameRepository.add(new GenericGameHandlerWrapper<>(uuidAsString, genericGameHandler));
 
         return uui;
     }
 
     public Map<UUID, GenericGameHandler> getAllGames() {
-        return GAMES_HANDLER_MAP;
+        Map<UUID, GenericGameHandler> values = new HashMap<>();
+
+        for (GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper : gameRepository.getAll()) {
+            values.put(UUID.fromString(genericGameHandlerWrapper.getId()), genericGameHandlerWrapper.getGenericGameHandler());
+        }
+
+        return values;
     }
 
     /**
@@ -109,36 +137,27 @@ public class GameService {
      * @param player
      * @return
      */
-    public BooleanResponse movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
-        assertThat(from).isNotNull();
-        assertThat(to).isNotNull();
-        assertThat(player).isNotNull();
-        assertThat(uuid).isNotEmpty();
+    public void movePiece(CasePosition from, CasePosition to, String uuid, Player player) {
+        if (from == null || to == null || uuid == null || player == null) {
+            throw new IllegalArgumentException();
+        }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Side playerSide = getPlayerSide(uuid, player);
-        assertThat(gameFromUuid).isNotNull();
 
         if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused() || gameFromUuid.isGameDraw()) {
-            return BooleanResponse.NO;
+            return;
         } else if (gameFromUuid.isGameDone()) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
-            return BooleanResponse.NO;
-        } else if (KingStatus.STALEMATE.equals(gameFromUuid.getKingStatus(playerSide))) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
-            return BooleanResponse.NO;
+            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+            return;
+        } else if (KingStatus.STALEMATE.equals(gameFromUuid.getEvaluatedKingStatusBySide(playerSide))) {
+            webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
+            return;
         }
 
-        MoveType moveType = gameFromUuid.movePiece(from, to, gameFromUuid.getPlayerSide(player));
-
-        boolean moved = MoveType.isMoved(moveType);
-
-        if (moved) {
-            sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
-            sendCheckOrCheckmateMessages(gameFromUuid.getEvaluatedKingStatusBySide(playerSide), gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide)), playerSide, uuid);
-        }
-
-        return BooleanResponse.getResponse(moved);
+        //UUID|FROM|TO|ID_PLAYER_SIDE
+        String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
+        redisTemplate.convertAndSend(moveAppToNodeTopic.getTopic(), payload);
     }
 
     /**
@@ -148,9 +167,13 @@ public class GameService {
      * @return
      */
     public GenericGameHandler getGameFromUuid(String uuid) {
-        assertThat(uuid).isNotEmpty();
+        if (uuid == null || uuid.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
-        return getGameFromUuid(UUID.fromString(uuid));
+        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = gameRepository.get(uuid);
+
+        return genericGameHandlerWrapper.getGenericGameHandler();
     }
 
     /**
@@ -160,51 +183,11 @@ public class GameService {
      * @return
      */
     public Side getPlayerSide(String uuid, Player player) {
-        assertThat(uuid).isNotEmpty();
-
-        GenericGameHandler standardGameHandler = GAMES_HANDLER_MAP.get(UUID.fromString(uuid));
-
-        assertThat(standardGameHandler).isNotNull();
-        return standardGameHandler.getPlayerSide(player);
-    }
-
-    private void sendMovedPieceMessage(CasePosition from, CasePosition to, String uuid, GenericGameHandler gameFromUuid, Side playerSide) {
-        WEB_SOCKET_SERVICE.fireGameEvent(uuid, MOVE, String.format(PLAYER_MOVE, playerSide, from, to));
-        WEB_SOCKET_SERVICE.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
-        WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
-    }
-
-    private void sendCheckOrCheckmateMessages(KingStatus currentkingStatus, KingStatus otherKingStatusAfterMove, Side playerSide, String uuid) {
-        if (currentkingStatus == null || otherKingStatusAfterMove == null || playerSide == null) {
-            return;
+        if (uuid == null || uuid.isEmpty()) {
+            throw new IllegalArgumentException();
         }
 
-        Side otherPlayerSide = getOtherPlayerSide(playerSide);
-
-        if (KingStatus.CHECKMATE.equals(currentkingStatus)) {
-            WEB_SOCKET_SERVICE.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, playerSide));
-        } else if (KingStatus.CHECKMATE.equals(otherKingStatusAfterMove)) {
-            WEB_SOCKET_SERVICE.fireGameEvent(uuid, KING_CHECKMATE, String.format(PLAYER_KING_CHECKMATE, otherPlayerSide));
-        }
-
-        if (KingStatus.CHECK.equals(currentkingStatus)) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
-        } else if (KingStatus.CHECK.equals(otherKingStatusAfterMove)) {
-            WEB_SOCKET_SERVICE.fireSideEvent(uuid, otherPlayerSide, KING_CHECK, Constants.PLAYER_KING_CHECK);
-        }
-
-    }
-
-    /**
-     * Get the game associated to the uuid
-     *
-     * @param uuid
-     * @return
-     */
-    public GenericGameHandler getGameFromUuid(UUID uuid) {
-        assertThat(uuid).isNotNull();
-
-        return GAMES_HANDLER_MAP.get(uuid);
+        return getGameFromUuid(uuid).getPlayerSide(player);
     }
 
     /**
@@ -215,50 +198,37 @@ public class GameService {
      * @param player
      * @return
      */
-    public List<String> getAllAvailableMoves(CasePosition from, String uuid, Player player) {
-        assertThat(from).isNotNull();
-        assertThat(uuid).isNotEmpty();
+    public void getAllAvailableMoves(CasePosition from, String uuid, Player player) {
+        if (from == null || player == null || uuid == null || uuid.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-        assertThat(gameFromUuid).isNotNull();
-        List<String> values = new ArrayList<>();
-
-        if (!gameFromUuid.hasPlayer(player)) {
-            return values;
-        }
-
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
-        Map<CasePosition, Pieces> piecesLocation = gameFromUuid.getPiecesLocation();
-        Pieces pieces = piecesLocation.get(from);
-        assertThat(pieces).isNotNull();
+        boolean isOnTheSameSide =
+                Optional.ofNullable(gameFromUuid.getPiece(from))
+                        .map(p -> p.getSide().equals(playerSide))
+                        .orElse(false);
 
-        if (!pieces.getSide().equals(playerSide)) {
-            return values;
+        if (!gameFromUuid.hasPlayer(player) || !isOnTheSameSide) {
+            return;
         }
 
-        List<CasePosition> positions =
-                Pieces.isKing(pieces) ?
-                        gameFromUuid.getPositionKingCanMove(playerSide) :
-                        gameFromUuid.getAllAvailableMoves(from, playerSide);
-
-        for (CasePosition casePosition : positions) {
-            values.add(casePosition.name());
-        }
-
-        return values;
+        String payload = uuid + '|' + from.name() + '|' + playerSide.getValue();
+        redisTemplate.convertAndSend(availableMoveAppToNodeTopic.getTopic(), payload);
     }
 
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
-        assertThat(side).isNotNull();
-        assertThat(player).isNotNull();
-        assertThat(uuid).isNotEmpty();
+        if (uiUuid == null || uiUuid.isEmpty() || player == null || uuid == null || uuid.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         boolean joined = false;
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
         if (gameFromUuid == null) {
-            return BooleanResponse.NO;
+            return NO;
         }
 
         boolean allowObservers = gameFromUuid.isAllowObservers();
@@ -267,8 +237,8 @@ public class GameService {
         if ((!allowOtherToJoin && !allowObservers) ||
                 (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
                 (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
-            WEB_SOCKET_SERVICE.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
-            return BooleanResponse.NO;
+            webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
+            return NO;
         }
 
         UUID gameUuid = UUID.fromString(uuid);
@@ -277,17 +247,20 @@ public class GameService {
         }
 
         if (joined) {
-            WEB_SOCKET_SERVICE.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
-            WEB_SOCKET_SERVICE.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
+            webSocketService.fireGameEvent(uuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, side));
+            webSocketService.fireUiEvent(uiUuid, PLAYER_JOINED, String.format(JOINING_GAME, uuid));
             player.addJoinedGame(gameUuid);
+
+            gameRepository.add(new GenericGameHandlerWrapper<>(uuid, gameFromUuid));
         }
 
         return BooleanResponse.getResponse(joined);
     }
 
     public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
-        assertThat(player).isNotNull();
-        assertThat(uuid).isNotEmpty();
+        if (player == null || uuid == null || uuid.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
@@ -304,7 +277,7 @@ public class GameService {
         return values;
     }
 
-    public BooleanResponse setSideOfPlayer(Player player, Side side, String uuid) {
+    public boolean setSideOfPlayer(Player player, Side side, String uuid) {
 
         GenericGameHandler game = getGameFromUuid(uuid);
         boolean isGameExist = game != null;
@@ -314,7 +287,7 @@ public class GameService {
             response = game.setPlayerToSide(player, side);
         }
 
-        return BooleanResponse.getResponse(isGameExist && response);
+        return isGameExist && response;
     }
 
     /**
@@ -325,53 +298,36 @@ public class GameService {
      * @param player
      * @return
      */
-    public BooleanResponse upgradePiece(CasePosition to, String uuid, String piece, Player player) {
-        assertThat(to).isNotNull();
-        assertThat(player).isNotNull();
-        assertThat(uuid).isNotEmpty();
-        assertThat(piece).isNotEmpty();
+    public boolean upgradePiece(CasePosition to, String uuid, GenericPiecesModel piece, Player player) {
+        if (player == null || uuid == null || uuid.isEmpty() || piece == null || to == null) {
+            throw new IllegalArgumentException();
+        }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
-        String finalPieceName = null;
-
-        switch (playerSide) {
-            case WHITE:
-                finalPieceName = "W_" + piece.toUpperCase();
-                break;
-            case BLACK:
-                finalPieceName = "B_" + piece.toUpperCase();
-                break;
-            case OBSERVER:
-            default:
-                break;
-        }
-        //sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
         sendPawnPromotionMessage(uuid, playerSide, to);
 
         boolean isChanged = false;
 
-        assertThat(finalPieceName).isNotEmpty();
-
         try {
-            isChanged = gameFromUuid.upgradePiece(to, Pieces.valueOf(finalPieceName), playerSide);
+            isChanged = gameFromUuid.upgradePiece(to, GenericPiecesModel.from(piece, playerSide), playerSide);
 
             if (isChanged) {
-                WEB_SOCKET_SERVICE.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore()); //Refresh the points
-                WEB_SOCKET_SERVICE.fireGameEvent(uuid, REFRESH_BOARD); //Refresh the boards
-                WEB_SOCKET_SERVICE.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
+                webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore()); //Refresh the points
+                webSocketService.fireGameEvent(uuid, REFRESH_BOARD); //Refresh the boards
+                webSocketService.fireSideEvent(uuid, getOtherPlayerSide(playerSide), PLAYER_TURN, Constants.PLAYER_TURN);
             }
 
         } catch (IllegalArgumentException ex) {
             LOGGER.error(ex.toString(), ex);
         }
 
-        return BooleanResponse.getResponse(isChanged);
+        return isChanged;
     }
 
     private void sendPawnPromotionMessage(String uuid, Side playerSide, CasePosition to) {
-        WEB_SOCKET_SERVICE.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
-        WEB_SOCKET_SERVICE.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
+        webSocketService.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());
+        webSocketService.fireGameEvent(uuid, PAWN_PROMOTION, String.format(GAME_PAUSED_PAWN_PROMOTION, playerSide));
     }
 }

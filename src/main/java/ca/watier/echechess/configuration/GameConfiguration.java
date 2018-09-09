@@ -16,6 +16,7 @@
 
 package ca.watier.echechess.configuration;
 
+
 import ca.watier.echechess.engine.factories.GameConstraintFactory;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GameConfiguration {
     @Bean
-    public GameConstraint gameConstraints() {
+    public GameConstraint gameConstraint() {
         return GameConstraintFactory.getDefaultGameConstraint();
     }
 }
