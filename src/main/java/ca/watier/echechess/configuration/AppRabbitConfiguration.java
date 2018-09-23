@@ -16,16 +16,25 @@
 
 package ca.watier.echechess.configuration;
 
-import ca.watier.echechess.communication.redis.configuration.RedisConfiguration;
+import ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration;
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
+import ca.watier.echechess.services.GameMessageHandlerService;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AppRedisConfiguration extends RedisConfiguration {
+public class AppRabbitConfiguration extends RabbitMqConfiguration {
+
     @Autowired
-    public AppRedisConfiguration(@Qualifier("redisServerPojo") ServerInfoPojo redisServerPojo) {
+    public AppRabbitConfiguration(@Qualifier("rabbitMqServerPojo") ServerInfoPojo redisServerPojo) {
         super(redisServerPojo);
+    }
+
+    @Bean
+    public MessageListenerAdapter messageListener(GameMessageHandlerService gameMessageHandlerService) {
+        return new MessageListenerAdapter(gameMessageHandlerService);
     }
 }

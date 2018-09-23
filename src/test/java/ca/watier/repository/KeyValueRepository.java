@@ -16,13 +16,14 @@
 
 package ca.watier.repository;
 
+import ca.watier.echechess.communication.redis.interfaces.GameRepository;
+import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.redis.interfaces.GameRepository;
-import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class KeyValueRepository implements GameRepository<GenericGameHandler> {
 

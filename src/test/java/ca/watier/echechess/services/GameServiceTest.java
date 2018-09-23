@@ -18,7 +18,6 @@ package ca.watier.echechess.services;
 
 import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.CasePosition;
-import ca.watier.echechess.common.enums.ChessEventMessage;
 import ca.watier.echechess.common.enums.MoveType;
 import ca.watier.echechess.common.enums.Pieces;
 import ca.watier.echechess.common.impl.WebSocketServiceTestImpl;
@@ -33,17 +32,17 @@ import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.engine.utils.GameUtils;
 import ca.watier.repository.KeyValueRepository;
 import ca.watier.utils.RedisTemplateTestImpl;
-import ca.watier.utils.TestTopic;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.*;
 
-import static ca.watier.echechess.api.model.GenericPiecesModel.KNIGHT;
 import static ca.watier.echechess.common.enums.CasePosition.*;
 import static ca.watier.echechess.common.enums.ChessEventMessage.REFRESH_BOARD;
 import static ca.watier.echechess.common.enums.GameType.CLASSIC;
@@ -65,7 +64,10 @@ public class GameServiceTest extends GameTest {
     private Player player1, player2;
     private KeyValueRepository redisGameRepository = new KeyValueRepository();
     private RedisTemplateTestImpl redisOperationsTest = new RedisTemplateTestImpl();
-    private TestTopic testTopic = new TestTopic("TEST_TOPIC");
+
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+
 
     @Before
     public void setup() {
@@ -77,8 +79,7 @@ public class GameServiceTest extends GameTest {
                 currentWebSocketService,
                 redisGameRepository,
                 redisOperationsTest,
-                testTopic,
-                testTopic);
+                rabbitTemplate);
     }
 
     @Test

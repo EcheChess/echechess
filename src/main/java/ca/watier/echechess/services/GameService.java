@@ -23,17 +23,17 @@ import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.DualValueResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.communication.redis.interfaces.GameRepository;
+import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
-import ca.watier.echechess.redis.interfaces.GameRepository;
-import ca.watier.echechess.redis.model.GenericGameHandlerWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +43,9 @@ import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.ChessEventMessage.PLAYER_TURN;
 import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
 import static ca.watier.echechess.common.utils.Constants.*;
+import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration.AVAIL_MOVE_WORK_QUEUE_NAME;
+import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration.MOVE_WORK_QUEUE_NAME;
+
 
 /**
  * Created by yannick on 4/17/2017.
@@ -56,24 +59,21 @@ public class GameService {
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
     private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate;
-    private final ChannelTopic moveAppToNodeTopic;
-    private final ChannelTopic availableMoveAppToNodeTopic;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
     public GameService(GameConstraint gameConstraint,
                        WebSocketService webSocketService,
                        GameRepository<GenericGameHandler> gameRepository,
                        RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate,
-                       ChannelTopic moveAppToNodeTopic,
-                       ChannelTopic availableMoveAppToNodeTopic) {
+                       RabbitTemplate rabbitTemplate) {
 
         this.gameConstraint = gameConstraint;
         this.webSocketService = webSocketService;
         this.gameRepository = gameRepository;
         this.redisTemplate = redisTemplate;
         this.redisTemplate.setDefaultSerializer(new StringRedisSerializer());
-        this.moveAppToNodeTopic = moveAppToNodeTopic;
-        this.availableMoveAppToNodeTopic = availableMoveAppToNodeTopic;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -157,7 +157,7 @@ public class GameService {
 
         //UUID|FROM|TO|ID_PLAYER_SIDE
         String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
-        redisTemplate.convertAndSend(moveAppToNodeTopic.getTopic(), payload);
+        rabbitTemplate.convertAndSend(MOVE_WORK_QUEUE_NAME, payload);
     }
 
     /**
@@ -216,7 +216,7 @@ public class GameService {
         }
 
         String payload = uuid + '|' + from.name() + '|' + playerSide.getValue();
-        redisTemplate.convertAndSend(availableMoveAppToNodeTopic.getTopic(), payload);
+        rabbitTemplate.convertAndSend(AVAIL_MOVE_WORK_QUEUE_NAME, payload);
     }
 
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
