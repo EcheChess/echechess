@@ -167,7 +167,7 @@ public class GameService {
      * @return
      */
     public GenericGameHandler getGameFromUuid(String uuid) {
-        if (uuid == null || uuid.isEmpty()) {
+        if (StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
@@ -183,7 +183,7 @@ public class GameService {
      * @return
      */
     public Side getPlayerSide(String uuid, Player player) {
-        if (uuid == null || uuid.isEmpty()) {
+        if (StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
@@ -199,7 +199,7 @@ public class GameService {
      * @return
      */
     public void getAllAvailableMoves(CasePosition from, String uuid, Player player) {
-        if (from == null || player == null || uuid == null || uuid.isEmpty()) {
+        if (from == null || player == null || StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
@@ -220,7 +220,7 @@ public class GameService {
     }
 
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
-        if (uiUuid == null || uiUuid.isEmpty() || player == null || uuid == null || uuid.isEmpty()) {
+        if (StringUtils.isBlank(uiUuid) || player == null || StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
@@ -258,7 +258,7 @@ public class GameService {
     }
 
     public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
-        if (player == null || uuid == null || uuid.isEmpty()) {
+        if (player == null || StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
@@ -299,7 +299,7 @@ public class GameService {
      * @return
      */
     public boolean upgradePiece(CasePosition to, String uuid, GenericPiecesModel piece, Player player) {
-        if (player == null || uuid == null || uuid.isEmpty() || piece == null || to == null) {
+        if (player == null || StringUtils.isBlank(uuid) || piece == null || to == null) {
             throw new IllegalArgumentException();
         }
 

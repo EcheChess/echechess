@@ -28,7 +28,6 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.pojos.AvailableMovePojo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -123,22 +122,18 @@ public class GameMessageHandlerService {
         }
     }
 
+    /**
+     * Message pattern: {@link UUID#toString()}|{@link CasePosition from}|{@link Byte side}|{@link List}
+     *
+     * @param message
+     */
     @RabbitListener(queues = "#{nodeToAppAvailMoveQueue.name}")
     public void handleAvailMoveResponseMessage(String message) {
         if (StringUtils.isBlank(message)) {
             return;
         }
 
-        handleReceivedAvailableMovesMessage(message);
-    }
-
-    /**
-     * Message pattern: {@link UUID#toString()}|{@link CasePosition from}|{@link Byte side}|{@link List}
-     *
-     * @param messageAsString
-     */
-    private void handleReceivedAvailableMovesMessage(String messageAsString) {
-        String[] headers = messageAsString.split("\\|");
+        String[] headers = message.split("\\|");
         String uuid = headers[0];
         String fromAsString = headers[1];
         Side playerSide = Side.getFromValue(Byte.valueOf(headers[2]));

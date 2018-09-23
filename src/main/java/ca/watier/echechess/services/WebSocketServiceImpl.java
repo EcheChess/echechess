@@ -20,6 +20,7 @@ import ca.watier.echechess.common.enums.ChessEventMessage;
 import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.ChessEvent;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class WebSocketServiceImpl implements WebSocketService {
     }
 
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message) {
-        if (side == null || evtMessage == null || uuid == null || uuid.isEmpty() || message == null || message.isEmpty()) {
+        if (side == null || evtMessage == null || StringUtils.isBlank(uuid) || StringUtils.isBlank(message)) {
             throw new IllegalArgumentException();
         }
 
@@ -50,7 +51,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Override
     public void fireSideEvent(String uuid, Side side, ChessEventMessage evtMessage, String message, Object obj) {
-        if (side == null || evtMessage == null || uuid == null || uuid.isEmpty()) {
+        if (side == null || evtMessage == null || StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
