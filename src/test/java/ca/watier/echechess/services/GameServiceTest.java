@@ -31,7 +31,6 @@ import ca.watier.echechess.engine.factories.GameConstraintFactory;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.engine.utils.GameUtils;
 import ca.watier.repository.KeyValueRepository;
-import ca.watier.utils.RedisTemplateTestImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,7 +62,6 @@ public class GameServiceTest extends GameTest {
     private GameService gameService;
     private Player player1, player2;
     private KeyValueRepository redisGameRepository = new KeyValueRepository();
-    private RedisTemplateTestImpl redisOperationsTest = new RedisTemplateTestImpl();
 
     @Mock
     private RabbitTemplate rabbitTemplate;
@@ -78,7 +76,6 @@ public class GameServiceTest extends GameTest {
                 CONSTRAINT_SERVICE,
                 currentWebSocketService,
                 redisGameRepository,
-                redisOperationsTest,
                 rabbitTemplate);
     }
 

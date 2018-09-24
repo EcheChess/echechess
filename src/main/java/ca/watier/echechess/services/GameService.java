@@ -33,8 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -58,21 +56,17 @@ public class GameService {
     private final GameConstraint gameConstraint;
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
-    private final RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate;
     private final RabbitTemplate rabbitTemplate;
 
     @Autowired
     public GameService(GameConstraint gameConstraint,
                        WebSocketService webSocketService,
                        GameRepository<GenericGameHandler> gameRepository,
-                       RedisTemplate<String, GenericGameHandlerWrapper> redisTemplate,
                        RabbitTemplate rabbitTemplate) {
 
         this.gameConstraint = gameConstraint;
         this.webSocketService = webSocketService;
         this.gameRepository = gameRepository;
-        this.redisTemplate = redisTemplate;
-        this.redisTemplate.setDefaultSerializer(new StringRedisSerializer());
         this.rabbitTemplate = rabbitTemplate;
     }
 

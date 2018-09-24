@@ -20,6 +20,7 @@ import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.server.UiSessionHandlerInterceptor;
 import ca.watier.echechess.services.UiSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -42,6 +43,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new UiSessionHandlerInterceptor(uiSessionService, webSocketService)).addPathPatterns("/api/game/**");
+        registry.addInterceptor(interceptor()).addPathPatterns("/api/game/**");
+    }
+
+    @Bean
+    public UiSessionHandlerInterceptor interceptor() {
+        return new UiSessionHandlerInterceptor(uiSessionService, webSocketService);
     }
 }
