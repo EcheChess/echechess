@@ -392,7 +392,6 @@ function createNewGame() {
 }
 
 function renderBoard() {
-
     if (!currentGameUuid) {
         return;
     }
@@ -407,12 +406,12 @@ function renderBoard() {
         event.preventDefault();
     });
 
-    $(document).on("dragstart", ".board-pieces", function (event) {
+    $(document).off("dragstart").on("dragstart", ".board-pieces", function (event) {
         let dataTransfer = event.originalEvent.dataTransfer;
         dataTransfer.setData("from", $(event.target).parent().data('case-id'));
     });
 
-    $(document).on("drop", ".board-square", function (event) {
+    $(document).off("drop").on("drop", ".board-square", function (event) {
         let dataTransfer = event.originalEvent.dataTransfer;
         let from = dataTransfer.getData("from");
         let to = $(this).data('case-id');
