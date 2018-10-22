@@ -61,14 +61,16 @@ $(document).ready(function () {
 
             let side = $("#chooseSideJoinGame").find("option:selected").val();
             selectedColor = side;
-            jsonFromRequest("POST", '/api/v1/game/join', {
+            const responseFromServer = jsonFromRequest("POST", '/api/v1/game/join', {
                 side: side,
                 uuid: currentGameUuid,
             });
 
-            ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
-            renderBoard();
-            ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
+            if(responseFromServer.response) {
+                ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
+                renderBoard();
+                ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
+            }
         }
     });
 });

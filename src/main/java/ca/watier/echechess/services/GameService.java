@@ -225,12 +225,7 @@ public class GameService {
             return NO;
         }
 
-        boolean allowObservers = gameFromUuid.isAllowObservers();
-        boolean allowOtherToJoin = gameFromUuid.isAllowOtherToJoin();
-
-        if ((!allowOtherToJoin && !allowObservers) ||
-                (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
-                (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side)))) {
+        if (isNotAllowedToJoinGame(side, gameFromUuid)) {
             webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
             return NO;
         }
@@ -249,6 +244,17 @@ public class GameService {
         }
 
         return BooleanResponse.getResponse(joined);
+    }
+
+    private boolean isNotAllowedToJoinGame(Side side, GenericGameHandler gameFromUuid) {
+        boolean allowObservers = gameFromUuid.isAllowObservers();
+        boolean allowOtherToJoin = gameFromUuid.isAllowOtherToJoin();
+
+        return (!allowOtherToJoin && !allowObservers) ||
+                (allowOtherToJoin && !allowObservers && Side.OBSERVER.equals(side)) ||
+                (!allowOtherToJoin && (Side.BLACK.equals(side) || Side.WHITE.equals(side))) ||
+                (allowOtherToJoin && !allowObservers && Objects.nonNull(gameFromUuid.getPlayerWhite()) &&
+                        Objects.nonNull(gameFromUuid.getPlayerBlack()));
     }
 
     public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
