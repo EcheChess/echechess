@@ -1,0 +1,21 @@
+language: java
+
+before_install:
+- wget https://github.com/sormuras/bach/raw/master/install-jdk.sh  # Get latest install-jdk.sh script
+- unset _JAVA_OPTIONS  # https://github.com/travis-ci/travis-ci/issues/8408
+
+matrix:
+  include:
+  - env: JDK='Oracle JDK 11'
+    install: . ./install-jdk.sh -F 11 -L BCL
+
+branches:
+  only:
+  - develop
+
+addons:
+  sonarcloud:
+    organization: "doi9t-github"
+script:
+# other script steps might be done before running the actual SonarQube analysis
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
