@@ -1,12 +1,11 @@
-# Echecchess
-- - -
-[![Build Status](https://travis-ci.org/EcheChess/echechess.svg?branch=develop)](https://travis-ci.org/EcheChess/echechess.svg?branch=develop)
-![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=ca.watier.echechess:echechess&metric=alert_status)
+# EcheChess
+-
+![Build Status](https://travis-ci.org/EcheChess/echechess.svg?branch=develop)
 ![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=ca.watier.echechess:echechess&metric=security_rating)
 ![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=ca.watier.echechess:echechess&metric=reliability_rating)
-![Line Of Codes](https://sonarcloud.io/api/project_badges/measure?project=ca.watier.echechess:echechess&&metric=ncloc)
+![Line Of Codes](https://sonarcloud.io/api/project_badges/measure?project=ca.watier.echechess:echechess&metric=ncloc)
 <br>
-Echecchess is a chess game made with spring boot + a rest service. The multiplayer is functional, but there's no AI yet.
+EcheChess is a chess game made with spring boot + a rest service. The multiplayer is functional, but there's no AI yet.
 
 ![game preview](readme-img/preview.png)
 
