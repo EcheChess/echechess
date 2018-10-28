@@ -17,6 +17,7 @@
 package ca.watier.echechess.services;
 
 import ca.watier.echechess.api.model.GenericPiecesModel;
+import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.MoveType;
 import ca.watier.echechess.common.enums.Pieces;
@@ -38,7 +39,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.*;
 
@@ -64,7 +64,7 @@ public class GameServiceTest extends GameTest {
     private KeyValueRepository redisGameRepository = new KeyValueRepository();
 
     @Mock
-    private RabbitTemplate rabbitTemplate;
+    private MessageClient messageClient;
 
 
     @Before
@@ -76,7 +76,7 @@ public class GameServiceTest extends GameTest {
                 CONSTRAINT_SERVICE,
                 currentWebSocketService,
                 redisGameRepository,
-                rabbitTemplate);
+                messageClient);
     }
 
     @Test

@@ -17,6 +17,7 @@
 package ca.watier.echechess.services;
 
 import ca.watier.echechess.api.model.GenericPiecesModel;
+import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.BooleanResponse;
@@ -31,7 +32,6 @@ import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,18 +56,18 @@ public class GameService {
     private final GameConstraint gameConstraint;
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final MessageClient messageClient;
 
     @Autowired
     public GameService(GameConstraint gameConstraint,
                        WebSocketService webSocketService,
                        GameRepository<GenericGameHandler> gameRepository,
-                       RabbitTemplate rabbitTemplate) {
+                       MessageClient messageClient) {
 
         this.gameConstraint = gameConstraint;
         this.webSocketService = webSocketService;
         this.gameRepository = gameRepository;
-        this.rabbitTemplate = rabbitTemplate;
+        this.messageClient = messageClient;
     }
 
     /**
@@ -151,7 +151,7 @@ public class GameService {
 
         //UUID|FROM|TO|ID_PLAYER_SIDE
         String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
-        rabbitTemplate.convertAndSend(MOVE_WORK_QUEUE_NAME, payload);
+        messageClient.sendMessage(MOVE_WORK_QUEUE_NAME, payload);
     }
 
     /**
@@ -210,7 +210,7 @@ public class GameService {
         }
 
         String payload = uuid + '|' + from.name() + '|' + playerSide.getValue();
-        rabbitTemplate.convertAndSend(AVAIL_MOVE_WORK_QUEUE_NAME, payload);
+        messageClient.sendMessage(AVAIL_MOVE_WORK_QUEUE_NAME, payload);
     }
 
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.services;
+package ca.watier.echechess.components;
 
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.KingStatus;
@@ -28,39 +28,26 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.pojos.AvailableMovePojo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
 import static ca.watier.echechess.common.utils.Constants.PLAYER_KING_CHECKMATE;
 import static ca.watier.echechess.common.utils.Constants.PLAYER_MOVE;
 
-
-@Service
-public class GameMessageHandlerService {
+public class MessageActionExecutor {
     private final GameRepository<GenericGameHandler> gameRepository;
     private final WebSocketService webSocketService;
     private final ObjectMapper objectMapper;
 
-
-    @Autowired
-    public GameMessageHandlerService(GameRepository<GenericGameHandler> gameRepository,
-                                     WebSocketService webSocketService,
-                                     ObjectMapper objectMapper) {
-
-
+    public MessageActionExecutor(GameRepository<GenericGameHandler> gameRepository, WebSocketService webSocketService, ObjectMapper objectMapper) {
         this.gameRepository = gameRepository;
         this.webSocketService = webSocketService;
         this.objectMapper = objectMapper;
     }
 
-    @RabbitListener(queues = "#{nodeToAppMoveQueue.name}")
     public void handleMoveResponseMessage(String message) {
 
         if (StringUtils.isBlank(message)) {
@@ -70,11 +57,6 @@ public class GameMessageHandlerService {
         handleReceivedMoveMessage(message);
     }
 
-    /**
-     * Message pattern: {@link UUID#toString()}|{@link CasePosition from}|{@link CasePosition to}|{@link MoveType#getValue()}|{@link Side#getValue()()}
-     *
-     * @param messageAsString
-     */
     private void handleReceivedMoveMessage(String messageAsString) {
         String[] messages = messageAsString.split("\\|");
 
@@ -122,13 +104,8 @@ public class GameMessageHandlerService {
         }
     }
 
-    /**
-     * Message pattern: {@link UUID#toString()}|{@link CasePosition from}|{@link Byte side}|{@link List}
-     *
-     * @param message
-     */
-    @RabbitListener(queues = "#{nodeToAppAvailMoveQueue.name}")
     public void handleAvailMoveResponseMessage(String message) {
+
         if (StringUtils.isBlank(message)) {
             return;
         }
