@@ -28,6 +28,7 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.pojos.AvailableMovePojo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,6 +39,7 @@ import static ca.watier.echechess.common.utils.Constants.PLAYER_KING_CHECKMATE;
 import static ca.watier.echechess.common.utils.Constants.PLAYER_MOVE;
 
 public class MessageActionExecutor {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MessageActionExecutor.class);
     private final GameRepository<GenericGameHandler> gameRepository;
     private final WebSocketService webSocketService;
     private final ObjectMapper objectMapper;
@@ -120,7 +122,7 @@ public class MessageActionExecutor {
 
             webSocketService.fireSideEvent(uuid, playerSide, AVAILABLE_MOVE, null, new AvailableMovePojo(fromAsString, positions));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }

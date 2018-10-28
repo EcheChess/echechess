@@ -20,7 +20,6 @@ import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
-import ca.watier.echechess.components.GameMessageHandler;
 import ca.watier.echechess.components.MessageActionExecutor;
 import ca.watier.echechess.components.StandaloneMessageHandler;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
