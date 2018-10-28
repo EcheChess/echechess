@@ -29,31 +29,39 @@ public enum GenericPiecesModel {
 
         switch (side) {
             case BLACK:
-                switch (model) {
-                    case QUEEN:
-                        return Pieces.B_QUEEN;
-                    case KNIGHT:
-                        return Pieces.B_KNIGHT;
-                    case ROOK:
-                        return Pieces.B_ROOK;
-                    case BISHOP:
-                        return Pieces.B_BISHOP;
-                }
-                break;
+                return handleBlackSide(model);
             case WHITE:
-                switch (model) {
-                    case QUEEN:
-                        return Pieces.W_QUEEN;
-                    case KNIGHT:
-                        return Pieces.W_KNIGHT;
-                    case ROOK:
-                        return Pieces.W_ROOK;
-                    case BISHOP:
-                        return Pieces.W_BISHOP;
-                }
-                break;
+                return handleWhiteSide(model);
         }
 
+        return null;
+    }
+
+    private static Pieces handleBlackSide(GenericPiecesModel model) {
+        switch (model) {
+            case QUEEN:
+                return Pieces.B_QUEEN;
+            case KNIGHT:
+                return Pieces.B_KNIGHT;
+            case ROOK:
+                return Pieces.B_ROOK;
+            case BISHOP:
+                return Pieces.B_BISHOP;
+        }
+        return null;
+    }
+
+    private static Pieces handleWhiteSide(GenericPiecesModel model) {
+        switch (model) {
+            case QUEEN:
+                return Pieces.W_QUEEN;
+            case KNIGHT:
+                return Pieces.W_KNIGHT;
+            case ROOK:
+                return Pieces.W_ROOK;
+            case BISHOP:
+                return Pieces.W_BISHOP;
+        }
         return null;
     }
 }

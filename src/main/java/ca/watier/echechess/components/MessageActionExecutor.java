@@ -40,6 +40,7 @@ import static ca.watier.echechess.common.utils.Constants.PLAYER_MOVE;
 
 public class MessageActionExecutor {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MessageActionExecutor.class);
+    private static final String REGEX_VALUE_SEPARATOR = "\\|";
     private final GameRepository<GenericGameHandler> gameRepository;
     private final WebSocketService webSocketService;
     private final ObjectMapper objectMapper;
@@ -60,7 +61,7 @@ public class MessageActionExecutor {
     }
 
     private void handleReceivedMoveMessage(String messageAsString) {
-        String[] messages = messageAsString.split("\\|");
+        String[] messages = messageAsString.split(REGEX_VALUE_SEPARATOR);
 
         String uuid = messages[0];
         CasePosition from = CasePosition.valueOf(messages[1]);
@@ -112,7 +113,7 @@ public class MessageActionExecutor {
             return;
         }
 
-        String[] headers = message.split("\\|");
+        String[] headers = message.split(REGEX_VALUE_SEPARATOR);
         String uuid = headers[0];
         String fromAsString = headers[1];
         Side playerSide = Side.getFromValue(Byte.valueOf(headers[2]));
