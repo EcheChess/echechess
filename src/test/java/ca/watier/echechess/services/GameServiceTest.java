@@ -16,7 +16,7 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.api.model.GenericPiecesModel;
+import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.MoveType;
@@ -39,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.*;
 
@@ -53,6 +54,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
+@ActiveProfiles(profiles = "test")
 @RunWith(MockitoJUnitRunner.class)
 public class GameServiceTest extends GameTest {
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);

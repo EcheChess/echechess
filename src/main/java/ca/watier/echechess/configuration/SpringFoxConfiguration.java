@@ -16,8 +16,8 @@
 
 package ca.watier.echechess.configuration;
 
-import ca.watier.echechess.api.model.CasePositionModel;
 import ca.watier.echechess.common.enums.CasePosition;
+import ca.watier.echechess.models.CasePositionModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;

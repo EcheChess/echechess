@@ -32,9 +32,7 @@ import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConf
 public class EcheChessApplication {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(EcheChessApplication.class)
-                .profiles("prod")
-                .run(args);
+        new SpringApplicationBuilder(EcheChessApplication.class).run(args);
     }
 
     @Bean

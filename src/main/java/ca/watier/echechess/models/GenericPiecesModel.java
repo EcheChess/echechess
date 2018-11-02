@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.api.model;
+package ca.watier.echechess.models;
 
 import ca.watier.echechess.common.enums.Pieces;
 import ca.watier.echechess.common.enums.Side;

@@ -16,11 +16,11 @@
 
 package ca.watier.echechess.controllers;
 
-import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.responses.StringResponse;
 import ca.watier.echechess.common.utils.SessionUtils;
+import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.services.GameService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

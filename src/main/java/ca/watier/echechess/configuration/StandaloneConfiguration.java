@@ -23,6 +23,8 @@ import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.components.MessageActionExecutor;
 import ca.watier.echechess.components.StandaloneMessageHandler;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.repositories.StandaloneUserRepositoryImpl;
+import ca.watier.echechess.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -86,5 +88,10 @@ public class StandaloneConfiguration {
                                                        WebSocketService webSocketService,
                                                        ObjectMapper objectMapper) {
         return new MessageActionExecutor(gameRepository, webSocketService, objectMapper);
+    }
+
+    @Bean
+    public UserRepository userRepository() {
+        return new StandaloneUserRepositoryImpl();
     }
 }

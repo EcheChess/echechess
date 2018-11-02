@@ -25,6 +25,7 @@ import org.ehcache.expiry.Expirations;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by yannick on 6/11/2017.
  */
+@ActiveProfiles(profiles = "test")
 @Ignore
 public class UiSessionServiceTest {
 
