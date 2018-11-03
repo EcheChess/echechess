@@ -23,13 +23,17 @@ import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.components.MessageActionExecutor;
 import ca.watier.echechess.components.StandaloneMessageHandler;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.exceptions.UserException;
+import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.repositories.StandaloneUserRepositoryImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +44,13 @@ import java.util.Map;
 @Profile("standalone")
 public class StandaloneConfiguration {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StandaloneConfiguration.class);
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public StandaloneConfiguration(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     public GameRepository<GenericGameHandler> gameRepository() {
@@ -92,6 +103,15 @@ public class StandaloneConfiguration {
 
     @Bean
     public UserRepository userRepository() {
-        return new StandaloneUserRepositoryImpl();
+        StandaloneUserRepositoryImpl standaloneUserRepository = new StandaloneUserRepositoryImpl(passwordEncoder);
+
+        try {
+            standaloneUserRepository.addNewUserWithRole("admin", "admin", Roles.ADMIN);
+        } catch (UserException e) {
+            e.printStackTrace();
+            LOGGER.error("Unable to create the default admin user!", e);
+        }
+
+        return standaloneUserRepository;
     }
 }

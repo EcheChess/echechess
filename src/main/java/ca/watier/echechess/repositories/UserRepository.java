@@ -16,8 +16,37 @@
 
 package ca.watier.echechess.repositories;
 
+import ca.watier.echechess.exceptions.UserException;
+import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.models.UserCredentials;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 
-public interface UserRepository {
-    UserCredentials getUserByName(String username);
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+@Validated
+public abstract class UserRepository {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserRepository(@NotNull PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public final void addNewUser(@NotBlank String username, @NotBlank String password) throws UserException {
+        save(createUser(username, password));
+    }
+
+    protected abstract void save(@NotNull UserCredentials userCredentials) throws UserException;
+
+    private UserCredentials createUser(@NotBlank String username, @NotBlank String password) {
+        String encodedPassword = passwordEncoder.encode(password);
+        return new UserCredentials(username, encodedPassword);
+    }
+
+    public final void addNewUserWithRole(@NotBlank String username, @NotBlank String password, @NotNull Roles role) throws UserException {
+        save(createUser(username, password).withRole(role));
+    }
+
+    public abstract UserCredentials getUserByName(@NotBlank String username) throws UserException;
 }

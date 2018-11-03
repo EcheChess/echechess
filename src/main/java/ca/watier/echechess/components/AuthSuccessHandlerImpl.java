@@ -32,7 +32,7 @@ public class AuthSuccessHandlerImpl extends SavedRequestAwareAuthenticationSucce
                                         Authentication authentication) throws IOException {
 
 
-        response.setStatus(HttpServletResponse.SC_FOUND);
+        response.setStatus(HttpServletResponse.SC_OK);
         response.sendRedirect("/game.html");
     }
 }

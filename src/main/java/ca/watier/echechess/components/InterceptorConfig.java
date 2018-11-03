@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2017 Yannick Watier
+ *    Copyright 2014 - 2018 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.components;
 
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.server.UiSessionHandlerInterceptor;

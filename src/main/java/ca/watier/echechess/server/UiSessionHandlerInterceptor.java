@@ -20,7 +20,6 @@ import ca.watier.echechess.common.enums.ChessEventMessage;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.services.UiSessionService;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +31,6 @@ import static ca.watier.echechess.common.utils.Constants.THE_CLIENT_LOST_THE_CON
 /**
  * Created by yannick on 6/12/2017.
  */
-@Component
 public class UiSessionHandlerInterceptor extends HandlerInterceptorAdapter {
 
     private UiSessionService uiSessionService;

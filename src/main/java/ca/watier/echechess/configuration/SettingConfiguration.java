@@ -16,22 +16,20 @@
 
 package ca.watier.echechess.configuration;
 
-
-import ca.watier.echechess.engine.factories.GameConstraintFactory;
-import ca.watier.echechess.engine.interfaces.GameConstraint;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-public class GameConfiguration {
-    @Bean
-    public GameConstraint gameConstraint() {
-        return GameConstraintFactory.getDefaultGameConstraint();
-    }
+public class SettingConfiguration {
+
+    @Value("${app.security.bcrypt.work-factor:16}")
+    private byte bcryptWorkFactor;
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(bcryptWorkFactor);
     }
 }

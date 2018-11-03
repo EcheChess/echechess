@@ -16,14 +16,42 @@
 
 package ca.watier.echechess.repositories;
 
+import ca.watier.echechess.exceptions.UserAlreadyExistException;
+import ca.watier.echechess.exceptions.UserException;
+import ca.watier.echechess.exceptions.UserNotFoundException;
+import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.models.UserCredentials;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
+
 @Repository
-public class StandaloneUserRepositoryImpl implements UserRepository {
+public class StandaloneUserRepositoryImpl extends UserRepository {
+    protected final Set<UserCredentials> users = new HashSet<>();
+
+    private final PasswordEncoder passwordEncoder;
+
+    public StandaloneUserRepositoryImpl(PasswordEncoder passwordEncoder) {
+        super(passwordEncoder);
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
-    public UserCredentials getUserByName(String username) {
-        return new UserCredentials(0, "admin", "$2a$16$hCYBiKUZ1tKGOJ9WMKSlieczcnHpX6pl5TpSa886XBcxtIC8DJcPG", "ADMIN");
+    protected void save(UserCredentials userCredentials) throws UserException {
+        if (!users.add(userCredentials)) {
+            throw new UserAlreadyExistException();
+        }
+    }
+
+    @Override
+    public UserCredentials getUserByName(String username) throws UserException {
+        return users.stream()
+                .filter(userCredentials -> username.equals(userCredentials.getName()))
+                .findFirst()
+                .orElseThrow(UserNotFoundException::new);
     }
 }

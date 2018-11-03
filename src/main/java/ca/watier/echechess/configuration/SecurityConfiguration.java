@@ -30,7 +30,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -40,10 +40,12 @@ import org.springframework.security.web.csrf.CsrfFilter;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfiguration(UserRepository userRepository) {
+    public SecurityConfiguration(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
@@ -63,7 +65,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .authenticationProvider(daoAuthenticationProvider(passwordEncoder()))
+                .authenticationProvider(daoAuthenticationProvider(passwordEncoder))
                 .addFilterAfter(customCsrfTokenFilter(), CsrfFilter.class)
                 .formLogin()
                 .loginPage("/")
@@ -75,17 +77,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthenticationProvider daoAuthenticationProvider(BCryptPasswordEncoder passwordEncoder) {
+    public AuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
         final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(16);
-    }
 
     @Bean
     public CustomCsrfTokenFilter customCsrfTokenFilter() {

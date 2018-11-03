@@ -16,21 +16,32 @@
 
 package ca.watier.echechess.models;
 
+import java.util.Objects;
+
 public class UserCredentials {
-    private final int id;
     private final String name;
     private final String hash;
-    private final String role;
+    private Roles role;
+    private int id;
 
-    public UserCredentials(int id, String name, String hash, String role) {
-        this.id = id;
+    public UserCredentials(String name, String hash, Roles role) {
         this.name = name;
         this.hash = hash;
         this.role = role;
     }
 
+    public UserCredentials(String name, String hash) {
+        this.name = name;
+        this.hash = hash;
+        this.role = Roles.USER;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -41,7 +52,33 @@ public class UserCredentials {
         return hash;
     }
 
-    public String getRole() {
+    public String getRoleAsString() {
+        return role.name();
+    }
+
+    public Roles getRole() {
         return role;
+    }
+
+    public void setRole(Roles role) {
+        this.role = role;
+    }
+
+    public UserCredentials withRole(Roles role) {
+        this.role = role;
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserCredentials that = (UserCredentials) o;
+        return Objects.equals(name, that.name);
     }
 }

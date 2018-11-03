@@ -18,7 +18,6 @@ package ca.watier.echechess.components;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +26,6 @@ import java.io.IOException;
 /**
  * Created by Yannick on 09/11/2015.
  */
-@Component
 public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandler {
 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,

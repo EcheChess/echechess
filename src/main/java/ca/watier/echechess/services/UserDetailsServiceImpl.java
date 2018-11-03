@@ -16,6 +16,7 @@
 
 package ca.watier.echechess.services;
 
+import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.UserCredentials;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.repositories.UserRepository;
@@ -31,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
     final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
@@ -45,14 +45,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         logger.info("Fetching the user -> " + username);
 
-        UserCredentials userCredentials = userRepository.getUserByName(username);
+        UserCredentials userCredentials;
+        try {
+            userCredentials = userRepository.getUserByName(username);
+        } catch (UserException userException) {
+            String message = String.format("Unable to find user %s", username);
+            logger.warn(message);
 
-        if (Objects.isNull(userCredentials)) {
-            throw new UsernameNotFoundException("user not found");
+            throw new UsernameNotFoundException(message, userException);
         }
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(userCredentials.getRole()));
+        authorities.add(new SimpleGrantedAuthority(userCredentials.getRoleAsString()));
 
         return new UserDetailsImpl(userCredentials.getId(), userCredentials.getName(), userCredentials.getHash(), true, true, true, true, authorities);
     }

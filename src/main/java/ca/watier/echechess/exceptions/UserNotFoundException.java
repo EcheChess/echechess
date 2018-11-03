@@ -14,16 +14,8 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.exceptions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-public class CommonConfiguration {
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
+public class UserNotFoundException extends UserException {
+    private static final long serialVersionUID = 6604583850678272035L;
 }
