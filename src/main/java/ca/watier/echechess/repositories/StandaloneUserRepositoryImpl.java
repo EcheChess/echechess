@@ -16,42 +16,49 @@
 
 package ca.watier.echechess.repositories;
 
-import ca.watier.echechess.exceptions.UserAlreadyExistException;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.exceptions.UserNotFoundException;
-import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.models.UserCredentials;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-@Repository
-public class StandaloneUserRepositoryImpl extends UserRepository {
-    protected final Set<UserCredentials> users = new HashSet<>();
-
-    private final PasswordEncoder passwordEncoder;
+public class StandaloneUserRepositoryImpl extends AbstractUserRepository {
+    protected final Map<String, UserCredentials> users = new HashMap<>();
 
     public StandaloneUserRepositoryImpl(PasswordEncoder passwordEncoder) {
         super(passwordEncoder);
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    protected void save(UserCredentials userCredentials) throws UserException {
-        if (!users.add(userCredentials)) {
-            throw new UserAlreadyExistException();
-        }
+    protected void saveOrUpdateUserCredentials(UserCredentials userCredentials) {
+        users.put(userCredentials.getName(), userCredentials);
     }
 
     @Override
     public UserCredentials getUserByName(String username) throws UserException {
-        return users.stream()
-                .filter(userCredentials -> username.equals(userCredentials.getName()))
-                .findFirst()
-                .orElseThrow(UserNotFoundException::new);
+        return Optional.ofNullable(users.get(username)).orElseThrow(UserNotFoundException::new);
+    }
+
+    @Override
+    public List<UserCredentials> getUserByEmail(@NotBlank String email) throws UserException {
+        Predicate<UserCredentials> userCredentialsPredicate = userCredentials -> email.equals(userCredentials.getEmail());
+
+        List<UserCredentials> values = users.values()
+                .parallelStream()
+                .filter(userCredentialsPredicate)
+                .collect(Collectors.toList());
+
+        if (values.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        return values;
     }
 }

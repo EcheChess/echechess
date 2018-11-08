@@ -21,18 +21,21 @@ import java.util.Objects;
 public class UserCredentials {
     private final String name;
     private final String hash;
+    private final String email;
     private Roles role;
     private int id;
 
-    public UserCredentials(String name, String hash, Roles role) {
+    public UserCredentials(String name, String hash, String email, Roles role) {
         this.name = name;
         this.hash = hash;
         this.role = role;
+        this.email = email;
     }
 
-    public UserCredentials(String name, String hash) {
+    public UserCredentials(String name, String hash, String email) {
         this.name = name;
         this.hash = hash;
+        this.email = email;
         this.role = Roles.USER;
     }
 
@@ -80,5 +83,9 @@ public class UserCredentials {
         if (o == null || getClass() != o.getClass()) return false;
         UserCredentials that = (UserCredentials) o;
         return Objects.equals(name, that.name);
+    }
+
+    public String getEmail() {
+        return email;
     }
 }

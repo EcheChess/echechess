@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
-    final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
     private final UserRepository userRepository;
 
     public UserDetailsServiceImpl(UserRepository userRepository) {
@@ -58,6 +58,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(userCredentials.getRoleAsString()));
 
-        return new UserDetailsImpl(userCredentials.getId(), userCredentials.getName(), userCredentials.getHash(), true, true, true, true, authorities);
+        return new UserDetailsImpl(userCredentials.getId(), userCredentials.getName(), userCredentials.getHash(), userCredentials.getEmail(), true, true, true, true, authorities);
     }
 }

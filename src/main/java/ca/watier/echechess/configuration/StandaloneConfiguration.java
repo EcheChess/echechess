@@ -25,6 +25,7 @@ import ca.watier.echechess.components.StandaloneMessageHandler;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
+import ca.watier.echechess.models.User;
 import ca.watier.echechess.repositories.StandaloneUserRepositoryImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,15 +104,15 @@ public class StandaloneConfiguration {
 
     @Bean
     public UserRepository userRepository() {
-        StandaloneUserRepositoryImpl standaloneUserRepository = new StandaloneUserRepositoryImpl(passwordEncoder);
+        StandaloneUserRepositoryImpl standaloneUserRepositoryImpl = new StandaloneUserRepositoryImpl(passwordEncoder);
 
         try {
-            standaloneUserRepository.addNewUserWithRole("admin", "admin", Roles.ADMIN);
+            standaloneUserRepositoryImpl.addNewUserWithRole(new User("admin", "admin", "adminEmail"), Roles.ADMIN);
         } catch (UserException e) {
             e.printStackTrace();
             LOGGER.error("Unable to create the default admin user!", e);
         }
 
-        return standaloneUserRepository;
+        return standaloneUserRepositoryImpl;
     }
 }

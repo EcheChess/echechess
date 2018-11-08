@@ -18,35 +18,23 @@ package ca.watier.echechess.repositories;
 
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
+import ca.watier.echechess.models.User;
 import ca.watier.echechess.models.UserCredentials;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import ca.watier.echechess.models.UserDetailsImpl;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
+import java.util.List;
 @Validated
-public abstract class UserRepository {
-    private final PasswordEncoder passwordEncoder;
+public interface UserRepository {
+    void addNewUserWithRole(@NotNull User user, @NotNull Roles role) throws UserException;
 
-    public UserRepository(@NotNull PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
+    UserCredentials getUserByName(@NotBlank String username) throws UserException;
 
-    public final void addNewUser(@NotBlank String username, @NotBlank String password) throws UserException {
-        save(createUser(username, password));
-    }
+    List<UserCredentials> getUserByEmail(@NotBlank String email) throws UserException;
 
-    protected abstract void save(@NotNull UserCredentials userCredentials) throws UserException;
+    void addNewUser(@NotNull User user) throws UserException;
 
-    private UserCredentials createUser(@NotBlank String username, @NotBlank String password) {
-        String encodedPassword = passwordEncoder.encode(password);
-        return new UserCredentials(username, encodedPassword);
-    }
-
-    public final void addNewUserWithRole(@NotBlank String username, @NotBlank String password, @NotNull Roles role) throws UserException {
-        save(createUser(username, password).withRole(role));
-    }
-
-    public abstract UserCredentials getUserByName(@NotBlank String username) throws UserException;
+    void updateUser(@NotNull User user, @NotNull UserDetailsImpl userDetails) throws UserException;
 }

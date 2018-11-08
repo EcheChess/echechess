@@ -30,19 +30,29 @@ public class UserDetailsImpl implements UserDetails {
     private int userId;
     private String usr;
     private String pwd;
+    private String email;
 
     private boolean isExpired, isLocked, isPwdExpired, isEnabled;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(int userId, String usr, String pwd, boolean isExpired, boolean isLocked, boolean isPwdExpired, boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(int userId, String usr, String pwd, String email, boolean isExpired, boolean isLocked, boolean isPwdExpired, boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.usr = usr;
         this.pwd = pwd;
+        this.email = email;
         this.isExpired = isExpired;
         this.isLocked = isLocked;
         this.isPwdExpired = isPwdExpired;
         this.isEnabled = isEnabled;
         this.authorities = authorities;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public int getUserId() {
