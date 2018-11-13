@@ -19,7 +19,7 @@ package ca.watier.echechess.models;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Created by Yannick on 25/9/2015.
@@ -31,6 +31,7 @@ public class UserDetailsImpl implements UserDetails {
     private String usr;
     private String pwd;
     private String email;
+    private List<UUID> games;
 
     private boolean isExpired, isLocked, isPwdExpired, isEnabled;
     private Collection<? extends GrantedAuthority> authorities;
@@ -45,6 +46,17 @@ public class UserDetailsImpl implements UserDetails {
         this.isPwdExpired = isPwdExpired;
         this.isEnabled = isEnabled;
         this.authorities = authorities;
+        games = new ArrayList<>();
+    }
+
+    public void addGame(UUID game) {
+        if (Objects.nonNull(game)) {
+            games.add(game);
+        }
+    }
+
+    public boolean isInGame(UUID game) {
+        return games.contains(game);
     }
 
     public String getEmail() {

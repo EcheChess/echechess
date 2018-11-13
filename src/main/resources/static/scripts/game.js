@@ -39,6 +39,9 @@ $(document).ready(function () {
     //fetch the Oauth token
     oAuthToken = getOauthToken();
 
+    //Set the token in the url of the websocket
+    ConnexionManager.updateWebsocketPathWithOauthToken(oAuthToken);
+
     //fetch the uuid associated with this id
     currentUiUuid = jsonFromRequest("GET", '/api/ui/id/1').response;
 

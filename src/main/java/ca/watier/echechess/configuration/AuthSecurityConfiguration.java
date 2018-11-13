@@ -37,13 +37,13 @@ import org.springframework.security.web.csrf.CsrfFilter;
 
 
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfiguration(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthSecurityConfiguration(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -62,7 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/favicon.ico").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .authenticationProvider(daoAuthenticationProvider(passwordEncoder))

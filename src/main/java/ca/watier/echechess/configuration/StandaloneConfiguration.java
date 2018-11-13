@@ -107,7 +107,9 @@ public class StandaloneConfiguration {
         StandaloneUserRepositoryImpl standaloneUserRepositoryImpl = new StandaloneUserRepositoryImpl(passwordEncoder);
 
         try {
-            standaloneUserRepositoryImpl.addNewUserWithRole(new User("admin", "admin", "adminEmail"), Roles.ADMIN);
+            User user = new User("admin", "admin", "adminEmail");
+
+            standaloneUserRepositoryImpl.addNewUserWithRole(user, Roles.ADMIN);
         } catch (UserException e) {
             e.printStackTrace();
             LOGGER.error("Unable to create the default admin user!", e);
