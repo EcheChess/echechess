@@ -23,6 +23,7 @@ import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.services.GameService;
+import ca.watier.echechess.services.UserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +58,12 @@ public class GameController {
     private static final ResponseEntity<Object> NO_CONTENT_RESPONSE_ENTITY = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     private final GameService gameService;
+    private final UserService userService;
 
     @Autowired
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, UserService userService) {
         this.gameService = gameService;
+        this.userService = userService;
     }
 
 
@@ -80,6 +83,8 @@ public class GameController {
     private void addGameToPlayerSession(UUID newGameUuid) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         principal.addGame(newGameUuid);
+
+        userService.addGameToUser(principal.getUsername(), newGameUuid);
     }
 
     @ApiOperation("Move the selected piece")

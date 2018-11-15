@@ -14,11 +14,11 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.services;
+package ca.watier.echechess.components;
 
 import ca.watier.echechess.exceptions.UserException;
-import ca.watier.echechess.models.UserCredentials;
 import ca.watier.echechess.models.UserDetailsImpl;
+import ca.watier.echechess.models.UserInformation;
 import ca.watier.echechess.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +45,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         logger.info("Fetching the user -> " + username);
 
-        UserCredentials userCredentials;
+        UserInformation userInformation;
         try {
-            userCredentials = userRepository.getUserByName(username);
+            userInformation = userRepository.getUserByName(username);
         } catch (UserException userException) {
             String message = String.format("Unable to find user %s", username);
             logger.warn(message);
@@ -56,8 +56,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(userCredentials.getRoleAsString()));
+        authorities.add(new SimpleGrantedAuthority(userInformation.getRoleAsString()));
 
-        return new UserDetailsImpl(userCredentials.getId(), userCredentials.getName(), userCredentials.getHash(), userCredentials.getEmail(), true, true, true, true, authorities);
+        return new UserDetailsImpl(userInformation.getId(), userInformation.getName(), userInformation.getHash(), userInformation.getEmail(), true, true, true, true, authorities);
     }
 }

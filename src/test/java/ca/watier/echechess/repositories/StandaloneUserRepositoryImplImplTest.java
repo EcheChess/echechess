@@ -19,7 +19,7 @@ package ca.watier.echechess.repositories;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.models.User;
-import ca.watier.echechess.models.UserCredentials;
+import ca.watier.echechess.models.UserInformation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -51,11 +51,11 @@ public class StandaloneUserRepositoryImplImplTest {
         // then & when
         try {
             userRepository.addNewUserWithRole(new User(givenUsername, givenPassword, givenEmail), givenRole);
-            UserCredentials userCredentials = userRepository.getUserByName(givenUsername);
-            assertThat(userCredentials).isNotNull();
-            assertThat(userCredentials.getName()).isNotBlank().isEqualTo(givenUsername);
-            assertThat(userCredentials.getHash()).isNotBlank().startsWith("$2a$04$").hasSize(60);
-            assertThat(userCredentials.getRole()).isNotNull().isEqualByComparingTo(givenRole);
+            UserInformation userInformation = userRepository.getUserByName(givenUsername);
+            assertThat(userInformation).isNotNull();
+            assertThat(userInformation.getName()).isNotBlank().isEqualTo(givenUsername);
+            assertThat(userInformation.getHash()).isNotBlank().startsWith("$2a$04$").hasSize(60);
+            assertThat(userInformation.getRole()).isNotNull().isEqualByComparingTo(givenRole);
         } catch (UserException e) {
             fail(e.getMessage(), e);
         }

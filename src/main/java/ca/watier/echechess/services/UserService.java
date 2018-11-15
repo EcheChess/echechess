@@ -20,11 +20,21 @@ import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.User;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.repositories.UserRepository;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.UUID;
+
+@Validated
 @Service
 public class UserService {
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
 
@@ -33,19 +43,27 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void addNewUser(User user) {
+    public void addNewUser(@NotNull User user) {
         try {
             userRepository.addNewUser(user);
         } catch (UserException e) {
-            e.printStackTrace();
+            LOGGER.warn(e.getMessage(), e);
         }
     }
 
-    public void updateUser(User user, UserDetailsImpl principal) {
+    public void updateUser(@Valid @NotNull User user, @NotNull UserDetailsImpl principal) {
         try {
             userRepository.updateUser(user, principal);
         } catch (UserException e) {
-            e.printStackTrace();
+            LOGGER.warn(e.getMessage(), e);
+        }
+    }
+
+    public void addGameToUser(@NotEmpty String username, @NotNull UUID game) {
+        try {
+            userRepository.addGameToUser(username, game);
+        } catch (UserException e) {
+            LOGGER.warn(e.getMessage(), e);
         }
     }
 }

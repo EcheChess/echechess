@@ -20,12 +20,13 @@ import ca.watier.echechess.exceptions.UserAlreadyExistException;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.models.User;
-import ca.watier.echechess.models.UserCredentials;
 import ca.watier.echechess.models.UserDetailsImpl;
+import ca.watier.echechess.models.UserInformation;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Validated
@@ -37,12 +38,12 @@ public abstract class AbstractUserRepository implements UserRepository {
     }
 
     @Override
-    public final void addNewUserWithRole(@NotNull User user, @NotNull Roles role) throws UserException {
+    public final void addNewUserWithRole(@Valid @NotNull User user, @NotNull Roles role) throws UserException {
         saveOrUpdateUserIfNotExist(user, role);
     }
 
     @Override
-    public void addNewUser(@NotNull User user) throws UserException {
+    public void addNewUser(@Valid @NotNull User user) throws UserException {
         saveOrUpdateUserIfNotExist(user);
     }
 
@@ -54,21 +55,22 @@ public abstract class AbstractUserRepository implements UserRepository {
      * @throws UserException
      */
     @Override
-    public void updateUser(@NotNull User user, @NotNull UserDetailsImpl userDetails) throws UserException {
+    public void updateUser(@Valid @NotNull User user, @NotNull UserDetailsImpl userDetails) throws UserException {
         throw new UnsupportedOperationException();
     }
 
-    private void saveOrUpdateUserIfNotExist(@NotNull User user, Roles... role) throws UserException {
+    private void saveOrUpdateUserIfNotExist(@Valid @NotNull User user, Roles... role) throws UserException {
         if (!isUserExist(user.getName())) {
-            UserCredentials userCredentials;
+            UserInformation userInformation;
+
             if (ArrayUtils.isEmpty(role)) {
-                userCredentials = createUserCredentialsFromUser(user);
+                userInformation = createUserCredentialsFromUser(user);
             } else {
                 //TODO: Support multiples roles
-                userCredentials = createUserCredentialsFromUser(user).withRole(role[0]);
+                userInformation = createUserCredentialsFromUser(user).withRole(role[0]);
             }
 
-            saveOrUpdateUserCredentials(userCredentials);
+            saveOrUpdateUserInformation(userInformation);
         } else {
             throw new UserAlreadyExistException();
         }
@@ -83,10 +85,10 @@ public abstract class AbstractUserRepository implements UserRepository {
         }
     }
 
-    private UserCredentials createUserCredentialsFromUser(@NotNull User user) {
+    private UserInformation createUserCredentialsFromUser(@Valid @NotNull User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
-        return new UserCredentials(user.getName(), encodedPassword, user.getEmail());
+        return new UserInformation(user.getName(), encodedPassword, user.getEmail());
     }
 
-    protected abstract void saveOrUpdateUserCredentials(@NotNull UserCredentials userCredentials);
+    protected abstract void saveOrUpdateUserInformation(@NotNull UserInformation userInformation);
 }

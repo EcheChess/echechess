@@ -18,39 +18,38 @@ package ca.watier.echechess.repositories;
 
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.exceptions.UserNotFoundException;
-import ca.watier.echechess.models.UserCredentials;
+import ca.watier.echechess.models.UserInformation;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class StandaloneUserRepositoryImpl extends AbstractUserRepository {
-    protected final Map<String, UserCredentials> users = new HashMap<>();
+    protected final Map<String, UserInformation> users = new HashMap<>();
 
     public StandaloneUserRepositoryImpl(PasswordEncoder passwordEncoder) {
         super(passwordEncoder);
     }
 
     @Override
-    protected void saveOrUpdateUserCredentials(UserCredentials userCredentials) {
-        users.put(userCredentials.getName(), userCredentials);
+    protected void saveOrUpdateUserInformation(@NotNull UserInformation userInformation) {
+        users.put(userInformation.getName(), userInformation);
     }
 
     @Override
-    public UserCredentials getUserByName(String username) throws UserException {
+    public UserInformation getUserByName(@NotBlank String username) throws UserException {
         return Optional.ofNullable(users.get(username)).orElseThrow(UserNotFoundException::new);
     }
 
     @Override
-    public List<UserCredentials> getUserByEmail(@NotBlank String email) throws UserException {
-        Predicate<UserCredentials> userCredentialsPredicate = userCredentials -> email.equals(userCredentials.getEmail());
+    public List<UserInformation> getUserByEmail(@NotBlank @Email String email) throws UserException {
+        Predicate<UserInformation> userCredentialsPredicate = userCredentials -> email.equals(userCredentials.getEmail());
 
-        List<UserCredentials> values = users.values()
+        List<UserInformation> values = users.values()
                 .parallelStream()
                 .filter(userCredentialsPredicate)
                 .collect(Collectors.toList());
@@ -60,5 +59,13 @@ public class StandaloneUserRepositoryImpl extends AbstractUserRepository {
         }
 
         return values;
+    }
+
+    @Override
+    public void addGameToUser(@NotBlank String username, @NotNull UUID game) throws UserException {
+        UserInformation userByName = getUserByName(username);
+        userByName.addGame(game);
+
+        saveOrUpdateUserInformation(userByName);
     }
 }
