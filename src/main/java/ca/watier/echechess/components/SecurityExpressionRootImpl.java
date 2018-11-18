@@ -36,26 +36,26 @@ public class SecurityExpressionRootImpl extends SecurityExpressionRoot implement
 
     @Override
     public void setFilterObject(Object o) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object getFilterObject() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setReturnObject(Object o) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object getReturnObject() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object getThis() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

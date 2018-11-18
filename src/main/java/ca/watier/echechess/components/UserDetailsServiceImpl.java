@@ -43,7 +43,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        logger.info("Fetching the user -> " + username);
+        logger.info("Fetching the user -> {} ", username);
 
         UserInformation userInformation;
         try {

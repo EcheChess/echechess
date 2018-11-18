@@ -18,6 +18,7 @@ package ca.watier.echechess.controllers;
 
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Side;
+import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.StringResponse;
 import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.models.GenericPiecesModel;
@@ -32,8 +33,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -68,7 +70,7 @@ public class GameController {
 
 
     @ApiOperation("Create a new game for the current player")
-    @RequestMapping(path = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createNewGame(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                         @ApiParam(value = PLAY_AGAINST_THE_AI, required = true) boolean againstComputer,
                                         @ApiParam(value = WITH_OR_WITHOUT_OBSERVERS, required = true) boolean observers,
@@ -89,7 +91,7 @@ public class GameController {
 
     @ApiOperation("Move the selected piece")
     @PreAuthorize("isPlayerInGame(#uuid)")
-    @RequestMapping(path = "/move", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/move", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity movePieceOfPlayer(@ApiParam(value = FROM_POSITION, required = true) CasePosition from,
                                             @ApiParam(value = TO_POSITION, required = true) CasePosition to,
                                             @ApiParam(value = UUID_GAME, required = true) String uuid,
@@ -101,7 +103,7 @@ public class GameController {
 
     @ApiOperation("Get a list of position that the piece can moves")
     @PreAuthorize("isPlayerInGame(#uuid)")
-    @RequestMapping(path = "/moves", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/moves", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getMovesOfAPiece(@ApiParam(value = FROM_POSITION, required = true) CasePosition from,
                                            @ApiParam(value = UUID_GAME, required = true) String uuid,
                                            HttpSession session) {
@@ -112,7 +114,7 @@ public class GameController {
 
     @ApiOperation("Used when there's a pawn promotion")
     @PreAuthorize("isPlayerInGame(#uuid)")
-    @RequestMapping(path = "/piece/pawn/promotion", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/piece/pawn/promotion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity pawnPromotion(@ApiParam(value = TO_POSITION, required = true) CasePosition to,
                                         @ApiParam(value = UUID_GAME, required = true) String uuid,
                                         @ApiParam(value = UPGRADED_PIECE, required = true) GenericPiecesModel piece,
@@ -122,25 +124,32 @@ public class GameController {
 
     @ApiOperation("Gets the pieces location")
     @PreAuthorize("isPlayerInGame(#uuid)")
-    @RequestMapping(path = "/pieces", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/pieces", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getPieceLocations(@ApiParam(value = UUID_GAME, required = true) String uuid,
                                             HttpSession session) {
         return ResponseEntity.ok(gameService.getPieceLocations(uuid, SessionUtils.getPlayer(session)));
     }
 
     @ApiOperation("Join a game for the current player")
-    @PreAuthorize("isPlayerInGame(#uuid)")
-    @RequestMapping(path = "/join", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/join", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity joinGame(@ApiParam(value = UUID_GAME, required = true) String uuid,
                                    @ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                    @ApiParam(value = UI_UUID_PLAYER, required = true) String uiUuid,
                                    HttpSession session) {
-        return ResponseEntity.ok(gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session)));
+
+
+        BooleanResponse response = gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session));
+
+        if (response.isResponse()) {
+            addGameToPlayerSession(UUID.fromString(uuid));
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation("Change the side of the current player")
     @PreAuthorize("isPlayerInGame(#uuid)")
-    @RequestMapping(path = "/side", method = RequestMethod.POST)
+    @PostMapping(path = "/side")
     public ResponseEntity setSideOfPlayer(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                           @ApiParam(value = UUID_GAME, required = true) String uuid,
                                           HttpSession session) {

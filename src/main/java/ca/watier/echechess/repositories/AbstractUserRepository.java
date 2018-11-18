@@ -52,10 +52,9 @@ public abstract class AbstractUserRepository implements UserRepository {
      *
      * @param user
      * @param userDetails
-     * @throws UserException
      */
     @Override
-    public void updateUser(@Valid @NotNull User user, @NotNull UserDetailsImpl userDetails) throws UserException {
+    public void updateUser(@Valid @NotNull User user, @NotNull UserDetailsImpl userDetails) {
         throw new UnsupportedOperationException();
     }
 

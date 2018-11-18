@@ -33,7 +33,10 @@ public class UserDetailsImpl implements UserDetails {
     private String email;
     private List<UUID> games;
 
-    private boolean isExpired, isLocked, isPwdExpired, isEnabled;
+    private boolean isExpired;
+    private boolean isLocked;
+    private boolean isPwdExpired;
+    private boolean isEnabled;
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(int userId, String usr, String pwd, String email, boolean isExpired, boolean isLocked, boolean isPwdExpired, boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {

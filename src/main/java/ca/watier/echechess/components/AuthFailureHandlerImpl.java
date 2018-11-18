@@ -28,6 +28,7 @@ import java.io.IOException;
  */
 public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandler {
 
+    @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

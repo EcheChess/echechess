@@ -25,8 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
@@ -45,13 +46,13 @@ public class UserController {
     }
 
     @ApiOperation("Create a new user")
-    @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public void addNewUser(@ApiParam(value = USER_DESC, required = true) @NotNull User user) {
         userService.addNewUser(user);
     }
 
     @ApiOperation("Update the user settings")
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public void updateNewUser(@ApiParam(value = USER_DESC, required = true) @NotNull User user) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         userService.updateUser(user, principal);

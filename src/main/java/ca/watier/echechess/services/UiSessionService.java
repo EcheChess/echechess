@@ -39,17 +39,17 @@ import static ca.watier.echechess.common.utils.Constants.THE_CLIENT_LOST_THE_CON
 @Service
 public class UiSessionService {
 
-    private final Cache<UUID, Player> CACHE_UI;
+    private final Cache<UUID, Player> cacheUi;
     private final WebSocketService webSocketService;
 
     @Autowired
     public UiSessionService(WebSocketService webSocketService, CacheConfigurationBuilder<UUID, Player> uuidPlayerCacheConfiguration) {
-        CacheManager CACHE_MANAGER = CacheManagerBuilder.newCacheManagerBuilder()
+        CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache(CACHE_UI_SESSION_NAME, uuidPlayerCacheConfiguration)
                 .build();
 
-        CACHE_MANAGER.init();
-        CACHE_UI = CACHE_MANAGER.getCache(CACHE_UI_SESSION_NAME, UUID.class, Player.class);
+        cacheManager.init();
+        cacheUi = cacheManager.getCache(CACHE_UI_SESSION_NAME, UUID.class, Player.class);
         this.webSocketService = webSocketService;
     }
 
@@ -60,7 +60,7 @@ public class UiSessionService {
         if (!isUiSessionActive(uuid)) {
             uuidAsString = uuid.toString();
             player.addUiSession(uuid);
-            CACHE_UI.put(uuid, player);
+            cacheUi.put(uuid, player);
         } else {
             webSocketService.fireUiEvent(uuid.toString(), ChessEventMessage.UI_SESSION_ALREADY_INITIALIZED, REQUESTED_SESSION_ALREADY_DEFINED);
         }
@@ -69,7 +69,7 @@ public class UiSessionService {
     }
 
     public boolean isUiSessionActive(UUID uuid) {
-        return CACHE_UI.containsKey(uuid);
+        return cacheUi.containsKey(uuid);
     }
 
     public void refresh(String uuid) {
@@ -77,7 +77,7 @@ public class UiSessionService {
             throw new IllegalArgumentException();
         }
 
-        Player player = CACHE_UI.get(UUID.fromString(uuid));
+        Player player = cacheUi.get(UUID.fromString(uuid));
 
         if (player == null) {
             webSocketService.fireUiEvent(uuid, ChessEventMessage.UI_SESSION_EXPIRED, THE_CLIENT_LOST_THE_CONNECTION);
@@ -85,6 +85,6 @@ public class UiSessionService {
     }
 
     public Player getItemFromCache(UUID uuid) {
-        return CACHE_UI.get(uuid);
+        return cacheUi.get(uuid);
     }
 }

@@ -26,8 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -49,7 +49,7 @@ public class UiController {
     }
 
     @ApiOperation("Create and bind a ui session to the player")
-    @RequestMapping(path = "/id/1", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/id/1", produces = MediaType.APPLICATION_JSON_VALUE)
     public StringResponse createNewGame(HttpSession session) {
         return new StringResponse(uiSessionService.createNewSession(SessionUtils.getPlayer(session)));
     }

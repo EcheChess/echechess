@@ -26,7 +26,6 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.ReceiveAndReplyCallback;
@@ -53,22 +52,22 @@ public class StandaloneMessageHandler implements RabbitOperations {
     }
 
     @Override
-    public <T> T execute(ChannelCallback<T> channelCallback) throws AmqpException {
+    public <T> T execute(ChannelCallback<T> channelCallback) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T invoke(OperationsCallback<T> operationsCallback) throws AmqpException {
+    public <T> T invoke(OperationsCallback<T> operationsCallback) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean waitForConfirms(long l) throws AmqpException {
+    public boolean waitForConfirms(long l) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void waitForConfirmsOrDie(long l) throws AmqpException {
+    public void waitForConfirmsOrDie(long l) {
         throw new UnsupportedOperationException();
     }
 
@@ -78,122 +77,122 @@ public class StandaloneMessageHandler implements RabbitOperations {
     }
 
     @Override
-    public void send(String s, String s1, Message message, CorrelationData correlationData) throws AmqpException {
+    public void send(String s, String s1, Message message, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void correlationConvertAndSend(Object o, CorrelationData correlationData) throws AmqpException {
+    public void correlationConvertAndSend(Object o, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String s, Object o, CorrelationData correlationData) throws AmqpException {
+    public void convertAndSend(String s, Object o, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String s, String s1, Object o, CorrelationData correlationData) throws AmqpException {
+    public void convertAndSend(String s, String s1, Object o, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) throws AmqpException {
+    public void convertAndSend(Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String s, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) throws AmqpException {
+    public void convertAndSend(String s, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) throws AmqpException {
+    public void convertAndSend(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(Object o, CorrelationData correlationData) throws AmqpException {
+    public Object convertSendAndReceive(Object o, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, Object o, CorrelationData correlationData) throws AmqpException {
+    public Object convertSendAndReceive(String s, Object o, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, String s1, Object o, CorrelationData correlationData) throws AmqpException {
+    public Object convertSendAndReceive(String s, String s1, Object o, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) throws AmqpException {
+    public Object convertSendAndReceive(Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) throws AmqpException {
+    public Object convertSendAndReceive(String s, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) throws AmqpException {
+    public Object convertSendAndReceive(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(Object o, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(Object o, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, Object o, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, Object o, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, CorrelationData correlationData, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void send(Message message) throws AmqpException {
+    public void send(Message message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void send(String s, Message message) throws AmqpException {
+    public void send(String s, Message message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void send(String s, String s1, Message message) throws AmqpException {
+    public void send(String s, String s1, Message message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(Object o) throws AmqpException {
+    public void convertAndSend(Object o) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String queueName, Object message) throws AmqpException {
+    public void convertAndSend(String queueName, Object message) {
         handleChessMessage(queueName, (String) message);
     }
 
@@ -245,187 +244,187 @@ public class StandaloneMessageHandler implements RabbitOperations {
     }
 
     @Override
-    public void convertAndSend(String s, String s1, Object o) throws AmqpException {
+    public void convertAndSend(String s, String s1, Object o) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(Object o, MessagePostProcessor messagePostProcessor) throws AmqpException {
+    public void convertAndSend(Object o, MessagePostProcessor messagePostProcessor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String s, Object o, MessagePostProcessor messagePostProcessor) throws AmqpException {
+    public void convertAndSend(String s, Object o, MessagePostProcessor messagePostProcessor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void convertAndSend(String s, String s1, Object o, MessagePostProcessor messagePostProcessor) throws AmqpException {
+    public void convertAndSend(String s, String s1, Object o, MessagePostProcessor messagePostProcessor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message receive() throws AmqpException {
+    public Message receive() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message receive(String s) throws AmqpException {
+    public Message receive(String s) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message receive(long l) throws AmqpException {
+    public Message receive(long l) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message receive(String s, long l) throws AmqpException {
+    public Message receive(String s, long l) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object receiveAndConvert() throws AmqpException {
+    public Object receiveAndConvert() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object receiveAndConvert(String s) throws AmqpException {
+    public Object receiveAndConvert(String s) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object receiveAndConvert(long l) throws AmqpException {
+    public Object receiveAndConvert(long l) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object receiveAndConvert(String s, long l) throws AmqpException {
+    public Object receiveAndConvert(String s, long l) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T receiveAndConvert(ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T receiveAndConvert(ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T receiveAndConvert(String s, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T receiveAndConvert(String s, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T receiveAndConvert(long l, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T receiveAndConvert(long l, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T receiveAndConvert(String s, long l, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T receiveAndConvert(String s, long l, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <R, S> boolean receiveAndReply(ReceiveAndReplyCallback<R, S> receiveAndReplyCallback) throws AmqpException {
+    public <R, S> boolean receiveAndReply(ReceiveAndReplyCallback<R, S> receiveAndReplyCallback) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <R, S> boolean receiveAndReply(String s, ReceiveAndReplyCallback<R, S> receiveAndReplyCallback) throws AmqpException {
+    public <R, S> boolean receiveAndReply(String s, ReceiveAndReplyCallback<R, S> receiveAndReplyCallback) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <R, S> boolean receiveAndReply(ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, String s, String s1) throws AmqpException {
+    public <R, S> boolean receiveAndReply(ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, String s, String s1) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <R, S> boolean receiveAndReply(String s, ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, String s1, String s2) throws AmqpException {
+    public <R, S> boolean receiveAndReply(String s, ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, String s1, String s2) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <R, S> boolean receiveAndReply(ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, ReplyToAddressCallback<S> replyToAddressCallback) throws AmqpException {
+    public <R, S> boolean receiveAndReply(ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, ReplyToAddressCallback<S> replyToAddressCallback) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <R, S> boolean receiveAndReply(String s, ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, ReplyToAddressCallback<S> replyToAddressCallback) throws AmqpException {
+    public <R, S> boolean receiveAndReply(String s, ReceiveAndReplyCallback<R, S> receiveAndReplyCallback, ReplyToAddressCallback<S> replyToAddressCallback) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message sendAndReceive(Message message) throws AmqpException {
+    public Message sendAndReceive(Message message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message sendAndReceive(String s, Message message) throws AmqpException {
+    public Message sendAndReceive(String s, Message message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Message sendAndReceive(String s, String s1, Message message) throws AmqpException {
+    public Message sendAndReceive(String s, String s1, Message message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(Object o) throws AmqpException {
+    public Object convertSendAndReceive(Object o) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, Object o) throws AmqpException {
+    public Object convertSendAndReceive(String s, Object o) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, String s1, Object o) throws AmqpException {
+    public Object convertSendAndReceive(String s, String s1, Object o) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(Object o, MessagePostProcessor messagePostProcessor) throws AmqpException {
+    public Object convertSendAndReceive(Object o, MessagePostProcessor messagePostProcessor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, Object o, MessagePostProcessor messagePostProcessor) throws AmqpException {
+    public Object convertSendAndReceive(String s, Object o, MessagePostProcessor messagePostProcessor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object convertSendAndReceive(String s, String s1, Object o, MessagePostProcessor messagePostProcessor) throws AmqpException {
+    public Object convertSendAndReceive(String s, String s1, Object o, MessagePostProcessor messagePostProcessor) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(Object o, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(Object o, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, Object o, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, Object o, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(Object o, MessagePostProcessor messagePostProcessor, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(Object o, MessagePostProcessor messagePostProcessor, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, Object o, MessagePostProcessor messagePostProcessor, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, Object o, MessagePostProcessor messagePostProcessor, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, ParameterizedTypeReference<T> parameterizedTypeReference) throws AmqpException {
+    public <T> T convertSendAndReceiveAsType(String s, String s1, Object o, MessagePostProcessor messagePostProcessor, ParameterizedTypeReference<T> parameterizedTypeReference) {
         throw new UnsupportedOperationException();
     }
 }
