@@ -17,14 +17,18 @@
 /**
  * Created by yannick on 5/28/2017.
  */
-const websocketPath = '/websocket';
 let wsClient = null;
 let wsClientColor = null;
 let wsMainClient = null;
 let wsPingClient = null;
+let websocketPath = '/websocket';
 
 
 class ConnexionManager {
+    static updateWebsocketPathWithOauthToken(token) {
+        websocketPath = `/websocket?_csrf=${token}`;
+    }
+
     static connectUiEvent(uuid) {
         if (wsMainClient) {
             wsMainClient.unsubscribe();

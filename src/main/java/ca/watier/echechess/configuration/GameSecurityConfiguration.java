@@ -16,14 +16,18 @@
 
 package ca.watier.echechess.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Bean;
+import ca.watier.echechess.components.DefaultMethodSecurityExpressionHandlerImpl;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
 @Configuration
-public class CommonConfiguration {
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class GameSecurityConfiguration extends GlobalMethodSecurityConfiguration {
+
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        return new DefaultMethodSecurityExpressionHandlerImpl();
     }
 }

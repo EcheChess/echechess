@@ -14,24 +14,8 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.exceptions;
 
-
-import ca.watier.echechess.engine.factories.GameConstraintFactory;
-import ca.watier.echechess.engine.interfaces.GameConstraint;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-public class GameConfiguration {
-    @Bean
-    public GameConstraint gameConstraint() {
-        return GameConstraintFactory.getDefaultGameConstraint();
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
+public class UserException extends Exception {
+    private static final long serialVersionUID = 8543669481800730168L;
 }

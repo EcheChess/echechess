@@ -16,7 +16,6 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.api.model.GenericPiecesModel;
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
@@ -30,6 +29,7 @@ import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
+import ca.watier.echechess.models.GenericPiecesModel;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

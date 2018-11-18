@@ -14,25 +14,8 @@
  *    limitations under the License.
  */
 
-package ca.watier.utils;
+package ca.watier.echechess.exceptions;
 
-import org.springframework.data.redis.listener.ChannelTopic;
-
-public class TestTopic extends ChannelTopic {
-    private final String name;
-
-    /**
-     * Constructs a new {@link ChannelTopic} instance.
-     *
-     * @param name must not be {@literal null}.
-     */
-    public TestTopic(String name) {
-        super(name);
-        this.name = name;
-    }
-
-    @Override
-    public String getTopic() {
-        return name;
-    }
+public class UserAlreadyExistException extends UserException {
+    private static final long serialVersionUID = 1699472448059068454L;
 }

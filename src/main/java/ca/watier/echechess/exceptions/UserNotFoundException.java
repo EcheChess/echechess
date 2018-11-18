@@ -14,27 +14,8 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.pojos;
+package ca.watier.echechess.exceptions;
 
-import java.io.Serializable;
-import java.util.List;
-
-public class AvailableMovePojo implements Serializable {
-    private static final long serialVersionUID = 8612686569088965026L;
-
-    private final String from;
-    private final List<String> positions;
-
-    public AvailableMovePojo(String from, List<String> positions) {
-        this.from = from;
-        this.positions = positions;
-    }
-
-    public String getFrom() {
-        return from;
-    }
-
-    public List<String> getPositions() {
-        return positions;
-    }
+public class UserNotFoundException extends UserException {
+    private static final long serialVersionUID = 6604583850678272035L;
 }

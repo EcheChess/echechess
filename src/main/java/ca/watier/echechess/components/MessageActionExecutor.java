@@ -25,7 +25,7 @@ import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.pojos.AvailableMovePojo;
+import ca.watier.echechess.models.AvailableMove;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -121,7 +121,7 @@ public class MessageActionExecutor {
         try {
             List<String> positions = objectMapper.readValue(headers[3], List.class);
 
-            webSocketService.fireSideEvent(uuid, playerSide, AVAILABLE_MOVE, null, new AvailableMovePojo(fromAsString, positions));
+            webSocketService.fireSideEvent(uuid, playerSide, AVAILABLE_MOVE, null, new AvailableMove(fromAsString, positions));
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }

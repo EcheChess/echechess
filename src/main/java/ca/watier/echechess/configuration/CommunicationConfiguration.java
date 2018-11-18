@@ -16,22 +16,17 @@
 
 package ca.watier.echechess.configuration;
 
-
-import ca.watier.echechess.engine.factories.GameConstraintFactory;
-import ca.watier.echechess.engine.interfaces.GameConstraint;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ca.watier.echechess.repositories.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
-public class GameConfiguration {
-    @Bean
-    public GameConstraint gameConstraint() {
-        return GameConstraintFactory.getDefaultGameConstraint();
-    }
+@Profile("!standalone")
+public class CommunicationConfiguration {
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    public UserRepository userRepository() {
+        throw new UnsupportedOperationException();
     }
 }

@@ -19,14 +19,28 @@
  */
 let currentGameUuid = null;
 let currentUiUuid = null;
+let oAuthToken = null;
 let lastSelectedBoardSquareHelper = null;
 let helperSetItemMap = [];
 let selectedColor = null;
 let currentPawnPromotion = null;
 const BASE_API = "https://" + window.location.hostname + ":8443";
 
+function getOauthToken() {
+    let loginPage = new XMLHttpRequest();
+    loginPage.open('GET', '/', false);
+    loginPage.send(null);
+
+    return loginPage.getResponseHeader('X-CSRF-TOKEN');
+}
+
 
 $(document).ready(function () {
+    //fetch the Oauth token
+    oAuthToken = getOauthToken();
+
+    //Set the token in the url of the websocket
+    ConnexionManager.updateWebsocketPathWithOauthToken(oAuthToken);
 
     //fetch the uuid associated with this id
     currentUiUuid = jsonFromRequest("GET", '/api/ui/id/1').response;
@@ -66,7 +80,7 @@ $(document).ready(function () {
                 uuid: currentGameUuid,
             });
 
-            if(responseFromServer.response) {
+            if (responseFromServer.response) {
                 ConnexionManager.connectGameEvent(currentGameUuid, renderBoard, writeToGameLog);
                 renderBoard();
                 ConnexionManager.connectSideEvent(currentGameUuid, writeToGameLog);
@@ -365,6 +379,9 @@ function jsonFromRequest(type, url, data) {
         async: false,
         cache: false,
         timeout: 30000,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRF-TOKEN", oAuthToken);
+        },
         success: function (json) {
             value = json;
         }
@@ -418,7 +435,7 @@ function renderBoard() {
         let from = dataTransfer.getData("from");
         let to = $(this).data('case-id');
 
-        if(from !== to) {
+        if (from !== to) {
             jsonFromRequest('POST', '/api/v1/game/move', {
                 from: from,
                 to: to,

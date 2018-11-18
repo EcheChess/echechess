@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2017 Yannick Watier
+ *    Copyright 2014 - 2018 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package ca.watier.echechess.configuration;
 
-import ca.watier.echechess.EcheChessApplication;
 import ca.watier.echechess.common.utils.KeystoreGenerator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.eclipse.jetty.http.HttpVersion;
@@ -32,7 +31,6 @@ import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.security.KeyStore;
 import java.util.HashMap;
@@ -44,14 +42,13 @@ import static org.bouncycastle.asn1.x500.style.BCStyle.GIVENNAME;
 import static org.bouncycastle.asn1.x500.style.BCStyle.O;
 
 
-@Profile("prod")
 @Configuration
-public class ProdSecurityConfiguration {
+public class WebServerSecurityConfiguration {
     private static final int SECURE_PORT = 8443;
     private static final int WEB_PORT = 8080;
     private static final Map<ASN1ObjectIdentifier, String> CERT_USER_INFOS;
     private static final KeystoreGenerator.KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER;
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EcheChessApplication.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(WebServerSecurityConfiguration.class);
 
     static {
         CERT_USER_INFOS = new HashMap<>();
@@ -63,6 +60,7 @@ public class ProdSecurityConfiguration {
                         36,
                         CERT_USER_INFOS);
     }
+
 
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {
@@ -130,9 +128,7 @@ public class ProdSecurityConfiguration {
 
             ConstraintSecurityHandler constraintSecurityHandler = new ConstraintSecurityHandler();
             constraintSecurityHandler.addConstraintMapping(constraintMapping);
-
             context.setSecurityHandler(constraintSecurityHandler);
         }
     }
-
 }
