@@ -24,6 +24,7 @@ import ca.watier.echechess.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -34,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 
 @Configuration
@@ -63,7 +65,9 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/", "/favicon.ico").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/v1/user").permitAll()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .authenticationProvider(daoAuthenticationProvider(passwordEncoder))
                 .addFilterAfter(customCsrfTokenFilter(), CsrfFilter.class)
@@ -73,7 +77,10 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .successHandler(authSuccessHandler())
-                .failureHandler(authFailureHandler());
+                .failureHandler(authFailureHandler())
+                .and()
+                .csrf()
+                .requireCsrfProtectionMatcher(requireCsrfProtectionMatcher());
     }
 
     @Bean
@@ -83,7 +90,6 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
     }
-
 
     @Bean
     public CustomCsrfTokenFilter customCsrfTokenFilter() {
@@ -98,5 +104,18 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationFailureHandler authFailureHandler() {
         return new AuthFailureHandlerImpl();
+    }
+
+    @Bean
+    public RequestMatcher requireCsrfProtectionMatcher() {
+        return httpServletRequest -> {
+            String requestURI = httpServletRequest.getRequestURI();
+            httpServletRequest.getMethod();
+
+            boolean noCsrfNeeded = "/api/v1/user".equals(requestURI)
+                    && "PUT".equals(httpServletRequest.getMethod());
+
+            return !noCsrfNeeded;
+        };
     }
 }

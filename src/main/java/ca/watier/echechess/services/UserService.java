@@ -43,27 +43,15 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void addNewUser(@NotNull User user) {
-        try {
-            userRepository.addNewUser(user);
-        } catch (UserException e) {
-            LOGGER.warn(e.getMessage(), e);
-        }
+    public void addNewUser(@NotNull User user) throws UserException {
+        userRepository.addNewUser(user);
     }
 
-    public void updateUser(@Valid @NotNull User user, @NotNull UserDetailsImpl principal) {
-        try {
-            userRepository.updateUser(user, principal);
-        } catch (UserException e) {
-            LOGGER.warn(e.getMessage(), e);
-        }
+    public void updateUser(@Valid @NotNull User user, @NotNull UserDetailsImpl principal) throws UserException {
+        userRepository.updateUser(user, principal);
     }
 
-    public void addGameToUser(@NotEmpty String username, @NotNull UUID game) {
-        try {
-            userRepository.addGameToUser(username, game);
-        } catch (UserException e) {
-            LOGGER.warn(e.getMessage(), e);
-        }
+    public void addGameToUser(@NotEmpty String username, @NotNull UUID game) throws UserException {
+        userRepository.addGameToUser(username, game);
     }
 }
