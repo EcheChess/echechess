@@ -20,7 +20,6 @@ import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.User;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.repositories.UserRepository;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -33,8 +32,6 @@ import java.util.UUID;
 @Validated
 @Service
 public class UserService {
-
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
 

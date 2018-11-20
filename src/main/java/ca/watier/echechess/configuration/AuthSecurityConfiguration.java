@@ -37,6 +37,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 @Configuration
 public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -112,10 +114,26 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
             String requestURI = httpServletRequest.getRequestURI();
             httpServletRequest.getMethod();
 
-            boolean noCsrfNeeded = "/api/v1/user".equals(requestURI)
-                    && "PUT".equals(httpServletRequest.getMethod());
-
-            return !noCsrfNeeded;
+            return isCsrfNeeded(httpServletRequest, requestURI);
         };
+    }
+
+    private boolean isCsrfNeeded(HttpServletRequest httpServletRequest, String url) {
+        switch (url) {
+            case "/":
+            case "/favicon.ico":
+                return false;
+            default:
+                return handleOtherUrl(httpServletRequest, url);
+        }
+    }
+
+    private boolean handleOtherUrl(HttpServletRequest httpServletRequest, String url) {
+        switch (url) {
+            case "/api/v1/user":
+                return !"PUT".equals(httpServletRequest.getMethod());
+            default:
+                return false;
+        }
     }
 }
