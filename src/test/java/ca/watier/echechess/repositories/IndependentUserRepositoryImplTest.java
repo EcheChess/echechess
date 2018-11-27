@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StandaloneUserRepositoryImplImplTest {
+public class IndependentUserRepositoryImplTest {
 
     @Spy
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(4);
 
     @InjectMocks
-    private StandaloneUserRepositoryImpl userRepository;
+    private IndependentUserRepositoryImpl userRepository;
 
     @Test
     public void repoTest() {

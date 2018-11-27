@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.configuration.independent;
 
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.interfaces.WebSocketService;
@@ -25,8 +25,8 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
 import ca.watier.echechess.models.User;
-import ca.watier.echechess.repositories.StandaloneGameRepositoryImpl;
-import ca.watier.echechess.repositories.StandaloneUserRepositoryImpl;
+import ca.watier.echechess.repositories.IndependentGameRepositoryImpl;
+import ca.watier.echechess.repositories.IndependentUserRepositoryImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
@@ -37,20 +37,20 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@Profile("standalone")
-public class StandaloneCommunicationConfiguration {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StandaloneCommunicationConfiguration.class);
+@Profile("independent-mode")
+public class IndependentModeConfiguration {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IndependentModeConfiguration.class);
 
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public StandaloneCommunicationConfiguration(PasswordEncoder passwordEncoder) {
+    public IndependentModeConfiguration(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
     public GameRepository<GenericGameHandler> gameRepository() {
-        return new StandaloneGameRepositoryImpl();
+        return new IndependentGameRepositoryImpl();
     }
 
     @Bean
@@ -67,16 +67,16 @@ public class StandaloneCommunicationConfiguration {
 
     @Bean
     public UserRepository userRepository() {
-        StandaloneUserRepositoryImpl standaloneUserRepositoryImpl = new StandaloneUserRepositoryImpl(passwordEncoder);
+        IndependentUserRepositoryImpl independentUserRepositoryImpl = new IndependentUserRepositoryImpl(passwordEncoder);
 
         try {
             User user = new User("admin", "admin", "adminEmail");
 
-            standaloneUserRepositoryImpl.addNewUserWithRole(user, Roles.ADMIN);
+            independentUserRepositoryImpl.addNewUserWithRole(user, Roles.ADMIN);
         } catch (UserException e) {
             LOGGER.error("Unable to create the default admin user!", e);
         }
 
-        return standaloneUserRepositoryImpl;
+        return independentUserRepositoryImpl;
     }
 }

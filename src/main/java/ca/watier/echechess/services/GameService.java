@@ -37,8 +37,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.ChessEventMessage.PLAYER_TURN;
+import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
 import static ca.watier.echechess.common.utils.Constants.*;
 import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration.AVAIL_MOVE_WORK_QUEUE_NAME;

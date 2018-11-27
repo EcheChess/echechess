@@ -14,19 +14,20 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.configuration.dependent;
 
-import ca.watier.echechess.repositories.UserRepository;
-import org.springframework.context.annotation.Bean;
+import ca.watier.echechess.communication.redis.configuration.RedisConfiguration;
+import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!standalone")
-public class CommunicationConfiguration {
-
-    @Bean
-    public UserRepository userRepository() {
-        throw new UnsupportedOperationException();
+@Profile("dependent-mode")
+public class AppRedisConfiguration extends RedisConfiguration {
+    @Autowired
+    public AppRedisConfiguration(@Qualifier("redisServerPojo") ServerInfoPojo redisServerPojo) {
+        super(redisServerPojo);
     }
 }

@@ -27,13 +27,8 @@ let currentPawnPromotion = null;
 const BASE_API = "https://" + window.location.hostname + ":8443";
 
 function getOauthToken() {
-    let loginPage = new XMLHttpRequest();
-    loginPage.open('GET', '/', false);
-    loginPage.send(null);
-
-    return loginPage.getResponseHeader('X-CSRF-TOKEN');
+    return $('meta[name=_csrf]').attr("content");
 }
-
 
 $(document).ready(function () {
     //fetch the Oauth token

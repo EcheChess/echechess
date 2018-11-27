@@ -16,28 +16,14 @@
 
 package ca.watier.echechess;
 
-import ca.watier.echechess.common.sessions.Player;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.Bean;
-
-import java.util.UUID;
-
-import static ca.watier.echechess.common.utils.CacheConstants.CACHE_UI_SESSION_EXPIRY;
-import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class EcheChessApplication {
+public class EcheChessApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(EcheChessApplication.class).run(args);
-    }
-
-    @Bean
-    public CacheConfigurationBuilder<UUID, Player> uuidPlayerCacheConfiguration() {
-        return newCacheConfigurationBuilder(UUID.class, Player.class, ResourcePoolsBuilder.heap(100))
-                .withExpiry(CACHE_UI_SESSION_EXPIRY);
     }
 }

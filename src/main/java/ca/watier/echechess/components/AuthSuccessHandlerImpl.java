@@ -34,6 +34,6 @@ public class AuthSuccessHandlerImpl extends SavedRequestAwareAuthenticationSucce
 
 
         response.setStatus(HttpServletResponse.SC_OK);
-        response.sendRedirect("/game.html");
+        response.sendRedirect("/game");
     }
 }

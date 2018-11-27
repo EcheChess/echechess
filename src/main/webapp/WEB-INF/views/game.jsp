@@ -1,6 +1,5 @@
-<!DOCTYPE html>
 <!--
-  ~    Copyright 2014 - 2017 Yannick Watier
+  ~    Copyright 2014 - 2018 Yannick Watier
   ~
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
@@ -15,11 +14,13 @@
   ~    limitations under the License.
   -->
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" content="${_csrf.token}"/>
 
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="style/game.css">

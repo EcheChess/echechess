@@ -17,18 +17,13 @@
 package ca.watier.echechess.configuration;
 
 import ca.watier.echechess.common.utils.KeystoreGenerator;
+import ca.watier.echechess.components.HttpToHttpsJettyConfiguration;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,12 +38,12 @@ import static org.bouncycastle.asn1.x500.style.BCStyle.O;
 
 
 @Configuration
-public class WebServerSecurityConfiguration {
+public class JettySecurityConfiguration {
     private static final int SECURE_PORT = 8443;
     private static final int WEB_PORT = 8080;
     private static final Map<ASN1ObjectIdentifier, String> CERT_USER_INFOS;
     private static final KeystoreGenerator.KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER;
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(WebServerSecurityConfiguration.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(JettySecurityConfiguration.class);
 
     static {
         CERT_USER_INFOS = new HashMap<>();
@@ -63,10 +58,8 @@ public class WebServerSecurityConfiguration {
 
 
     @Bean
-    public ConfigurableServletWebServerFactory webServerFactory() {
-        JettyServletWebServerFactory jettyServletWebServerFactory = new JettyServletWebServerFactory();
-        jettyServletWebServerFactory.addConfigurations(new HttpToHttpsJettyConfiguration());
-        jettyServletWebServerFactory.addServerCustomizers(server -> {
+    public JettyServerCustomizer securityServerCustomizer() {
+        return server -> {
             HttpConfiguration httpsConfig = new HttpConfiguration();
             httpsConfig.addCustomizer(new SecureRequestCustomizer());
             httpsConfig.setSecureScheme("https");
@@ -109,26 +102,12 @@ public class WebServerSecurityConfiguration {
             https.setIdleTimeout(500000);
 
             server.setConnectors(new Connector[]{https, http});
-        });
-
-        return jettyServletWebServerFactory;
+        };
     }
 
 
-    private class HttpToHttpsJettyConfiguration extends AbstractConfiguration {
-        // http://wiki.eclipse.org/Jetty/Howto/Configure_SSL#Redirecting_http_requests_to_https
-        @Override
-        public void configure(WebAppContext context) {
-            Constraint constraint = new Constraint();
-            constraint.setDataConstraint(Constraint.DC_CONFIDENTIAL);
-
-            ConstraintMapping constraintMapping = new ConstraintMapping();
-            constraintMapping.setPathSpec("/*");
-            constraintMapping.setConstraint(constraint);
-
-            ConstraintSecurityHandler constraintSecurityHandler = new ConstraintSecurityHandler();
-            constraintSecurityHandler.addConstraintMapping(constraintMapping);
-            context.setSecurityHandler(constraintSecurityHandler);
-        }
+    @Bean
+    public HttpToHttpsJettyConfiguration httpToHttpsJettyConfiguration() {
+        return new HttpToHttpsJettyConfiguration();
     }
 }

@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StandaloneGameRepositoryImpl implements GameRepository<GenericGameHandler> {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StandaloneGameRepositoryImpl.class);
+public class IndependentGameRepositoryImpl implements GameRepository<GenericGameHandler> {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IndependentGameRepositoryImpl.class);
     private final Map<String, GenericGameHandlerWrapper<GenericGameHandler>> games = new HashMap<>();
 
     @Override

@@ -28,10 +28,10 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class StandaloneUserRepositoryImpl extends AbstractUserRepository {
+public class IndependentUserRepositoryImpl extends AbstractUserRepository {
     protected final Map<String, UserInformation> users = new HashMap<>();
 
-    public StandaloneUserRepositoryImpl(PasswordEncoder passwordEncoder) {
+    public IndependentUserRepositoryImpl(PasswordEncoder passwordEncoder) {
         super(passwordEncoder);
     }
 

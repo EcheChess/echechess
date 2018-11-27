@@ -18,7 +18,6 @@ package ca.watier.echechess.configuration;
 
 import ca.watier.echechess.components.AuthFailureHandlerImpl;
 import ca.watier.echechess.components.AuthSuccessHandlerImpl;
-import ca.watier.echechess.components.CustomCsrfTokenFilter;
 import ca.watier.echechess.components.UserDetailsServiceImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,13 +65,12 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/favicon.ico").permitAll()
+                .antMatchers("/", "/favicon.ico", "/style/**", "/scripts/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/v1/user").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .authenticationProvider(daoAuthenticationProvider(passwordEncoder))
-                .addFilterAfter(customCsrfTokenFilter(), CsrfFilter.class)
                 .formLogin()
                 .loginPage("/")
                 .loginProcessingUrl("/api/v1/login")
@@ -91,11 +89,6 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
-    }
-
-    @Bean
-    public CustomCsrfTokenFilter customCsrfTokenFilter() {
-        return new CustomCsrfTokenFilter();
     }
 
     @Bean
@@ -120,7 +113,6 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private boolean isCsrfNeeded(HttpServletRequest httpServletRequest, String url) {
         switch (url) {
-            case "/":
             case "/favicon.ico":
                 return false;
             default:

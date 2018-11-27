@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.configuration.dependent;
 
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.interfaces.WebSocketService;
@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!standalone")
+@Profile("dependent-mode")
 public class AppRabbitConfiguration extends RabbitMqConfiguration {
 
     @Autowired

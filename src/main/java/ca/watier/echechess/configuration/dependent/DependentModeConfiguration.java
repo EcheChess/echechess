@@ -14,9 +14,10 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration;
+package ca.watier.echechess.configuration.dependent;
 
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
+import ca.watier.echechess.repositories.UserRepository;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +27,23 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 @Configuration
-@Profile("!standalone")
-public class ServerConfiguration {
+@Profile("dependent-mode")
+public class DependentModeConfiguration {
 
     private final Environment environment;
     private String rabbitIp;
     private Short rabbitPort;
 
     @Autowired
-    public ServerConfiguration(Environment environment) {
+    public DependentModeConfiguration(Environment environment) {
         this.environment = environment;
         rabbitIp = environment.getProperty("node.rabbit.ip");
         rabbitPort = environment.getProperty("node.rabbit.port", Short.class);
+    }
+
+    @Bean
+    public UserRepository userRepository() {
+        throw new UnsupportedOperationException();
     }
 
     @Bean
