@@ -21,22 +21,22 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
 
+import java.util.Objects;
 import java.util.UUID;
 
-public class SecurityExpressionRootImpl extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
+public class EcheChessSecurityExpressionRootImpl extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
-    public SecurityExpressionRootImpl(Authentication authentication) {
+    public EcheChessSecurityExpressionRootImpl(Authentication authentication) {
         super(authentication);
     }
 
     public boolean isPlayerInGame(UUID uuid) {
+        if (Objects.isNull(uuid)) {
+            return false;
+        }
+
         UserDetailsImpl user = (UserDetailsImpl) this.getPrincipal();
         return user.isInGame(uuid);
-    }
-
-    @Override
-    public void setFilterObject(Object o) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -45,12 +45,17 @@ public class SecurityExpressionRootImpl extends SecurityExpressionRoot implement
     }
 
     @Override
-    public void setReturnObject(Object o) {
+    public void setFilterObject(Object o) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Object getReturnObject() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setReturnObject(Object o) {
         throw new UnsupportedOperationException();
     }
 

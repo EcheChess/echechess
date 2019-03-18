@@ -47,6 +47,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/game")
+@PreAuthorize("#oauth2.hasScope('read')")
 public class GameController {
     public static final String UI_UUID_PLAYER = "The UI-UUID of the player";
     private static final String UUID_GAME = "The UUID of the game";

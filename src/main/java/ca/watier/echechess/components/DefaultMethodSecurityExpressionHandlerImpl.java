@@ -17,23 +17,22 @@
 package ca.watier.echechess.components;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
 
-public class DefaultMethodSecurityExpressionHandlerImpl extends DefaultMethodSecurityExpressionHandler {
+public class DefaultMethodSecurityExpressionHandlerImpl extends OAuth2MethodSecurityExpressionHandler {
 
     private AuthenticationTrustResolver trustResolver =
-            new AuthenticationTrustResolverImpl();
+            getTrustResolver();
 
     @Override
     protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
             Authentication authentication, MethodInvocation invocation) {
 
-        SecurityExpressionRootImpl root =
-                new SecurityExpressionRootImpl(authentication);
+        EcheChessSecurityExpressionRootImpl root =
+                new EcheChessSecurityExpressionRootImpl(authentication);
         root.setPermissionEvaluator(getPermissionEvaluator());
         root.setTrustResolver(this.trustResolver);
         root.setRoleHierarchy(getRoleHierarchy());

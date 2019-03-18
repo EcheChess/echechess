@@ -16,14 +16,11 @@
 
 package ca.watier.echechess.configuration;
 
-import ca.watier.echechess.components.AuthFailureHandlerImpl;
-import ca.watier.echechess.components.AuthSuccessHandlerImpl;
 import ca.watier.echechess.components.UserDetailsServiceImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -31,9 +28,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,8 +59,7 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/favicon.ico", "/style/**", "/scripts/**").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/v1/user").permitAll()
+                .antMatchers("/", "/favicon.ico", "/images/**", "/style/**", "/scripts/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -76,8 +69,6 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/api/v1/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .successHandler(authSuccessHandler())
-                .failureHandler(authFailureHandler())
                 .and()
                 .csrf()
                 .requireCsrfProtectionMatcher(requireCsrfProtectionMatcher());
@@ -89,16 +80,6 @@ public class AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return daoAuthenticationProvider;
-    }
-
-    @Bean
-    public AuthenticationSuccessHandler authSuccessHandler() {
-        return new AuthSuccessHandlerImpl();
-    }
-
-    @Bean
-    public AuthenticationFailureHandler authFailureHandler() {
-        return new AuthFailureHandlerImpl();
     }
 
     @Bean

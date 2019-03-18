@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2017 Yannick Watier
+ *    Copyright 2014 - 2018 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,33 +15,17 @@
  */
 
 body {
-    line-height: inherit !important;
+    background-color: #363636;
 }
 
-html {
+.ui.menu {
+    background: #a9adb1 !important;
+}
+
+.column {
+    max-width: 450px;
+}
+
+#login-container-div {
     height: 100%;
-    overflow: hidden;
-}
-
-#board {
-    max-width: 607px;
-    max-height: 607px;
-
-    display: grid;
-    grid-gap: 1px 1px;
-    grid-template-columns: auto auto auto auto auto auto auto auto;
-    grid-template-rows: auto auto auto auto auto auto auto auto;
-    justify-items: center;
-}
-
-.board-pieces {
-    cursor: grab;
-    font-size: 50px;
-}
-
-.bord-case {
-    text-align: center;
-    width: 75px;
-    height: 75px;
-    border: 1px solid black;
 }
