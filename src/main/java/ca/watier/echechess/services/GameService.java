@@ -20,7 +20,6 @@ import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.BooleanResponse;
-import ca.watier.echechess.common.responses.DualValueResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
@@ -30,6 +29,11 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.models.GenericPiecesModel;
+import ca.watier.echechess.models.PieceLocationModel;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.TreeMultimap;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +57,21 @@ import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqC
 public class GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameService.class);
     private static final BooleanResponse NO = BooleanResponse.NO;
+
+    private static final Comparator<Map.Entry<CasePosition, Pieces>> PIECE_LOCATION_COMPARATOR = new Comparator<>() {
+        @Override
+        public int compare(Map.Entry<CasePosition, Pieces> first, Map.Entry<CasePosition, Pieces> second) {
+            if (!ObjectUtils.allNotNull(first, second)) {
+                throw new NullPointerException();
+            }
+
+            CasePosition firstPosition = first.getKey();
+            CasePosition secondPosition = second.getKey();
+
+            return Integer.compare(firstPosition.getX(), secondPosition.getX());
+        }
+    };
+
     private final GameConstraint gameConstraint;
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
@@ -257,22 +276,46 @@ public class GameService {
                         Objects.nonNull(gameFromUuid.getPlayerBlack()));
     }
 
-    public List<DualValueResponse> getPieceLocations(String uuid, Player player) {
+    public List<PieceLocationModel> getPieceLocations(String uuid, Player player) {
         if (player == null || StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
 
-        List<DualValueResponse> values = new ArrayList<>();
+        List<PieceLocationModel> values = new ArrayList<>();
 
         if (gameFromUuid == null || !gameFromUuid.hasPlayer(player)) {
             return values;
         }
 
-        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : gameFromUuid.getPiecesLocation().entrySet()) {
-            values.add(new DualValueResponse(casePositionPiecesEntry.getKey(), casePositionPiecesEntry.getValue(), ""));
+        //Sorted small values fist (-3 -> 4)
+        SetMultimap<Integer, Map.Entry<CasePosition, Pieces>> sortedByCol = TreeMultimap.create(Ordering.natural(), PIECE_LOCATION_COMPARATOR);
+
+
+        Map<CasePosition, Pieces> piecesLocation = new HashMap<>(gameFromUuid.getPiecesLocation());
+
+        //Fill the empty positions
+        for (CasePosition value : CasePosition.values()) {
+            if (!piecesLocation.containsKey(value)) {
+                piecesLocation.put(value, null);
+            }
         }
+
+        //Add the values to the map to be sorted
+        for (Map.Entry<CasePosition, Pieces> casePositionPiecesEntry : piecesLocation.entrySet()) {
+            CasePosition key = casePositionPiecesEntry.getKey();
+            sortedByCol.put(key.getY(), casePositionPiecesEntry);
+        }
+
+        for (Map.Entry<CasePosition, Pieces> value : sortedByCol.values()) {
+            Pieces pieces = value.getValue();
+            CasePosition position = value.getKey();
+            values.add(new PieceLocationModel(pieces, position));
+        }
+
+        //Sort (4 -> -3)
+        Collections.reverse(values);
 
         return values;
     }

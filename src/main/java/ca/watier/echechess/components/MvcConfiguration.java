@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class MvcConfiguration implements WebMvcConfigurer {
 
+    private static final CacheControl CACHE_CONTROL_TWO_HOURS = CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic();
     private final UiSessionService uiSessionService;
     private final WebSocketService webSocketService;
 
@@ -64,9 +65,9 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        CacheControl cacheControl = CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic();
-        registry.addResourceHandler("/scripts/**").addResourceLocations("/static/scripts/").setCacheControl(cacheControl);
-        registry.addResourceHandler("/style/**").addResourceLocations("/static/style/").setCacheControl(cacheControl);
+        registry.addResourceHandler("/scripts/**").addResourceLocations("/static/scripts/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
+        registry.addResourceHandler("/images/**").addResourceLocations("/static/images/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
+        registry.addResourceHandler("/style/**").addResourceLocations("/static/style/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
     }
 
     @Override

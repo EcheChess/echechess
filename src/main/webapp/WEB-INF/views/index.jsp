@@ -37,6 +37,8 @@
 </div>
 
 
+<script src="scripts/lodash.min.js"></script>
+
 <script src="scripts/jquery-3.3.1.min.js"></script>
 
 <!--Need to be before the router-link-->
