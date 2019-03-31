@@ -53,6 +53,9 @@
 
 <script src="scripts/alertify.min.js"></script>
 
+<script src="scripts/sockjs.min.js"></script>
+<script src="scripts/stomp.min.js"></script>
+
 <script src="scripts/vue/app.js"></script>
 </body>
 </html>

@@ -27,12 +27,11 @@ new Vue({
     router,
     el: '#app',
     data: {
-        uuid: null,
         csrf: null,
         oauth: null,
         oauth_exp: null,
         oauth_scopes: null,
-        baseApi: `https://${window.location.hostname}:8443` //FIXME: HTTPS
+        baseApi: `https://${window.location.hostname}:8443`
     },
     mounted: function () { //When created, will be executed
         this.csrf = this.getCsrfToken();

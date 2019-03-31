@@ -31,14 +31,17 @@ const Game = {
     </div>
     
     <div id="board">
-        <div class="bord-case" v-for="(piece, key, index) in pieces">
-            <span class="board-pieces" v-bind:data-case-id="key" v-html="piece.unicodeIcon"></span>
+        <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
+            <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
         </div>
     </div>
         `,
     data: function () {
         return {
-            pieces: {
+            wsGameClient: null,
+            gameUuid: null,
+            gameSide: null,
+            board: {
                 H8: {
                     "unicodeIcon": "&#9820;",
                     "name": "Black Rook"
@@ -306,7 +309,7 @@ const Game = {
             let length = items.length;
             for (let i = 0; i < length; i++) {
                 let newPiece = items[i];
-                let piece = this.pieces[newPiece.rawPosition];
+                let piece = this.board[newPiece.rawPosition];
                 piece.unicodeIcon = newPiece.unicodeIcon;
                 piece.name = newPiece.name;
             }
@@ -339,6 +342,12 @@ const Game = {
         },
         //---------------------------------------------------------------------------
         registerEvents: function () {
+            let ref = this;
+            let parent = ref.$parent;
+
+            /**
+             * Drag events
+             */
             document.addEventListener("dragover", function (event) {
                 event.preventDefault();
             });
@@ -348,7 +357,113 @@ const Game = {
                 dataTransfer.setData("from", $(event.target).parent().data('case-id'));
             });
 
-            $(document).on("drop", ".bord-case", this.whenPieceDraggedEvent);
+            $(document).on("drop", ".bord-case", function (event) {
+                ref.whenPieceDraggedEvent(event);
+            });
+
+            let $boardCaseWithPieceSelector = $(".bord-case > span.board-pieces");
+
+            $boardCaseWithPieceSelector.mouseover(function () {
+
+                if (!ref.gameUuid) {
+                    return;
+                }
+
+                let from = $(this).parent().attr("data-case-id");
+
+                $.ajax({
+                    url: `${ref.$parent.baseApi}/api/v1/game/moves`,
+                    type: "GET",
+                    cache: false,
+                    timeout: 30000,
+                    data: `from=${from}&uuid=${ref.gameUuid}`,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
+                        xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
+                    }
+                }).fail(function () {
+                    alertify.error("Unable to get the moves positions!", 5);
+                });
+            });
+
+            $boardCaseWithPieceSelector.mouseleave(function () {
+                $("div").removeClass("piece-available-moves");
+            });
+        },
+        //---------------------------------------------------------------------------
+        saveUuid: function (data) {
+            this.gameUuid = data.response;
+        },
+        //---------------------------------------------------------------------------
+        writeToGameLog: function (message, chessEvent) {
+
+        },
+        //---------------------------------------------------------------------------
+        initGameComponents: function () {
+            let ref = this;
+            let parent = ref.$parent;
+
+            let headers = {
+                'X-CSRF-TOKEN' : parent.csrf,
+                "Authorization": `Bearer ${parent.oauth}`
+            };
+
+            let sockJS = new SockJS(`https://127.0.0.1:8443/websocket?_csrf=${parent.csrf}&access_token=${parent.oauth}`);
+            this.wsGameClient = Stomp.over(sockJS);
+            this.wsGameClient.connect(headers, function () {
+
+                ref.wsGameClient.subscribe(`/topic/${ref.gameUuid}`, function (payload) {
+                    let parsed = JSON.parse(payload.body);
+                    let chessEvent = parsed.event;
+                    let message = parsed.message;
+
+                    switch (chessEvent) {
+                        case 'UI_SESSION_EXPIRED': //FIXME
+                            window.setInterval(function () {
+                                location.reload();
+                            }, 10 * 1000);
+                            alertify.error(message, 0);
+                            break;
+                        case 'PLAYER_JOINED':
+                            alertify.success(message, 6);
+                            break;
+                        case 'TRY_JOIN_GAME':
+                            alertify.error(message, 0);
+                            break;
+                    }
+                });
+
+                ref.wsGameClient.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, function (payload) {
+                    let parsed = JSON.parse(payload.body);
+                    let chessEvent = parsed.event;
+                    let message = parsed.message;
+                    let obj = parsed.obj;
+
+                    switch (chessEvent) {
+                        case 'PLAYER_TURN':
+                            ref.writeToGameLog(message, chessEvent);
+                            break;
+                        case 'PAWN_PROMOTION':
+                            //FIXME
+                            break;
+                        case 'KING_CHECK':
+                            alertify.warning(message);
+                            break;
+                        case 'AVAILABLE_MOVE':
+                            const from = obj.from;
+                            if (from) {
+                                var positions = obj.positions;
+                                for (let i = 0; i < positions.length; i++) {
+                                    $(`[data-case-id='${positions[i]}']`).addClass("piece-available-moves");
+                                }
+                            }
+                            break;
+
+                    }
+                });
+
+            });
+
         },
         //---------------------------------------------------------------------------
         createNewGame: function () {
@@ -356,7 +471,7 @@ const Game = {
             let parent = ref.$parent;
 
             //TODO: BIND TO THE UI
-            let side = "WHITE";
+            this.gameSide = "WHITE";
             let againstComputer = false;
             let observers = false;
 
@@ -365,13 +480,15 @@ const Game = {
                 type: "POST",
                 cache: false,
                 timeout: 30000,
-                data: `side=${side}&againstComputer=${againstComputer}&observers=${observers}`,
+                data: `side=${this.gameSide}&againstComputer=${againstComputer}&observers=${observers}`,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
                     xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
                 }
             }).done(function (data) {
-                ref.fetchPiecesAndPutOnBoard(data)
+                ref.saveUuid(data);
+                ref.fetchPiecesAndPutOnBoard(data);
+                ref.initGameComponents();
             }).fail(function () {
                 alertify.error("Unable to create a new game!", 5);
             });
@@ -387,13 +504,13 @@ const Game = {
             let from = dataTransfer.getData("from");
             let to = $(event.target).data('case-id');
 
-            if (from && to && (from !== to)) {
+            if (this.gameUuid && from && to && (from !== to)) {
                 $.ajax({
                     url: `${this.$parent.baseApi}/api/v1/game/move`,
                     type: "POST",
                     cache: false,
                     timeout: 30000,
-                    data: `from=${from}&to=${to}&uuid=${this.$parent.uuid}`,
+                    data: `from=${from}&to=${to}&uuid=${ref.gameUuid}`,
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", `Bearer ${ref.$parent.oauth}`);
                     },

@@ -34,6 +34,10 @@ html {
     justify-items: center;
 }
 
+.piece-available-moves {
+    border: 4px solid #36ff004a !important;
+}
+
 .board-pieces {
     cursor: grab;
     font-size: 50px;
