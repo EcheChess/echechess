@@ -36,19 +36,52 @@ const Login = {
                         <input id="password-input" type="password" name="password" placeholder="Password">
                     </div>
                 </div>
-                <button id="login-button" class="fluid ui large teal button" v-on:click="login">Login</button>
+                
+                <button class="fluid ui large teal button" v-on:click="login" :disabled="isLoginInProgress">
+                    <i v-if="isLoginInProgress" class='spinner icon'></i>
+                    <span v-else>Login</span>
+                </button>
             </div>
             <div class="ui error message"></div>
-            <!--PUT CSRF TOKEN-->
         </div>
     </div>
 </div>
 `,
+    data: function () {
+        return {
+            isLoginInProgress: false
+        };
+    },
     methods: {
         login: function () {
-            this.$parent.login();
-        }
+
+            let ref = this;
+            let parent = ref.$parent;
+            let user = $('#username-input').val();
+            let pwd = $('#password-input').val();
+
+            this.isLoginInProgress = true;
+
+            if (!user || !pwd) {
+                alertify.error("Password or the username cannot be empty!", 5);
+                return;
+            }
+
+            $.ajax({
+                url: `${parent.baseApi}/oauth/token`,
+                type: "POST",
+                cache: false,
+                timeout: 30000,
+                datatype: "x-www-form-urlencoded",
+                data: `username=${user}&password=${pwd}&grant_type=password`,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Basic Y2xpZW50SWQ6c2VjcmV0");
+                    xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
+                },
+            }).done(parent.authSuccessEvent).fail(function () {
+                alertify.error("Login failed!", 5);
+                ref.isLoginInProgress = false;
+            });
+        },
     }
 };
-
-<!--<input id="csrfToken" name="_csrf" type="hidden" value="${_csrf.token}">-->

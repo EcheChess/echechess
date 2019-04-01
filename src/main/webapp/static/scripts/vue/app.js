@@ -48,32 +48,6 @@ new Vue({
             router.push('game')
         },
         //---------------------------------------------------------------------------
-        login: function () {
-            let ref = this;
-            let user = $('#username-input').val();
-            let pwd = $('#password-input').val();
-
-            if (!user || !pwd) {
-                alertify.error("Password or the username cannot be empty!", 5);
-                return;
-            }
-
-            $.ajax({
-                url: `${this.baseApi}/oauth/token`,
-                type: "POST",
-                cache: false,
-                timeout: 30000,
-                datatype: "x-www-form-urlencoded",
-                data: `username=${user}&password=${pwd}&grant_type=password`,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", "Basic Y2xpZW50SWQ6c2VjcmV0");
-                    xhr.setRequestHeader("X-CSRF-TOKEN", ref.csrf);
-                },
-            }).done(this.authSuccessEvent).fail(function () {
-                alert("login failed!");
-            });
-        },
-        //---------------------------------------------------------------------------
         getCsrfToken: function () {
             return $('meta[name=_csrf]').attr("content");
         }

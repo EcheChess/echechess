@@ -34,11 +34,15 @@ const Game = {
         <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
             <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
         </div>
+        <span>Black: {{blackPlayerScore}}</span>
+        <span>White: {{whitePlayerScore}}</span>
     </div>
         `,
     data: function () {
         return {
-            wsGameClient: null,
+            stompClient: null,
+            blackPlayerScore: 0,
+            whitePlayerScore: 0,
             gameUuid: null,
             gameSide: null,
             board: {
@@ -315,18 +319,17 @@ const Game = {
             }
         },
         //---------------------------------------------------------------------------
-        fetchPiecesAndPutOnBoard: function (data) {
+        refreshGamePieces: function () {
             let ref = this;
             let parent = ref.$parent;
-            let uuid = data.response;
 
-            if (uuid) {
+            if (this.gameUuid) {
                 $.ajax({
                     url: `${parent.baseApi}/api/v1/game/pieces`,
                     type: "GET",
                     cache: false,
                     timeout: 30000,
-                    data: `uuid=${uuid}`,
+                    data: `uuid=${this.gameUuid}`,
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
                         xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
@@ -404,15 +407,19 @@ const Game = {
             let parent = ref.$parent;
 
             let headers = {
-                'X-CSRF-TOKEN' : parent.csrf,
+                'X-CSRF-TOKEN': parent.csrf,
                 "Authorization": `Bearer ${parent.oauth}`
             };
 
-            let sockJS = new SockJS(`https://127.0.0.1:8443/websocket?_csrf=${parent.csrf}&access_token=${parent.oauth}`);
-            this.wsGameClient = Stomp.over(sockJS);
-            this.wsGameClient.connect(headers, function () {
+            if (this.stompClient) {
+                this.stompClient.unsubscribe();
+            } else {
+                let sockJS = new SockJS(`https://127.0.0.1:8443/websocket?_csrf=${parent.csrf}&access_token=${parent.oauth}`);
+                this.stompClient = Stomp.over(sockJS);
+            }
 
-                ref.wsGameClient.subscribe(`/topic/${ref.gameUuid}`, function (payload) {
+            this.stompClient.connect(headers, function () {
+                ref.stompClient.subscribe(`/topic/${ref.gameUuid}`, function (payload) {
                     let parsed = JSON.parse(payload.body);
                     let chessEvent = parsed.event;
                     let message = parsed.message;
@@ -430,10 +437,33 @@ const Game = {
                         case 'TRY_JOIN_GAME':
                             alertify.error(message, 0);
                             break;
+                        case 'MOVE':
+                            ref.refreshGamePieces();
+                            ref.writeToGameLog(message, chessEvent);
+                            break;
+                        case 'GAME_WON':
+                            ref.writeToGameLog(message, chessEvent);
+                            break;
+                        case 'GAME_WON_EVENT_MOVE':
+                            ref.writeToGameLog(message, chessEvent);
+                            break;
+                        case 'SCORE_UPDATE':
+                            ref.blackPlayerScore = message.blackPlayerPoint;
+                            ref.whitePlayerScore = message.whitePlayerPoint;
+                            break;
+                        case 'REFRESH_BOARD':
+                            ref.refreshGamePieces();
+                            break;
+                        case 'PAWN_PROMOTION':
+                            alertify.warning(message);
+                            break;
+                        case 'KING_CHECKMATE':
+                            alertify.warning(message, 5);
+                            break;
                     }
                 });
 
-                ref.wsGameClient.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, function (payload) {
+                ref.stompClient.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, function (payload) {
                     let parsed = JSON.parse(payload.body);
                     let chessEvent = parsed.event;
                     let message = parsed.message;
@@ -487,7 +517,7 @@ const Game = {
                 }
             }).done(function (data) {
                 ref.saveUuid(data);
-                ref.fetchPiecesAndPutOnBoard(data);
+                ref.refreshGamePieces();
                 ref.initGameComponents();
             }).fail(function () {
                 alertify.error("Unable to create a new game!", 5);
