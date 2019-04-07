@@ -25,15 +25,16 @@ import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.ConfirmCallback;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.ReceiveAndReplyCallback;
 import org.springframework.amqp.core.ReplyToAddressCallback;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.ChannelCallback;
 import org.springframework.amqp.rabbit.core.RabbitOperations;
-import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.ArrayList;
@@ -58,6 +59,11 @@ public class StandaloneMessageHandler implements RabbitOperations {
 
     @Override
     public <T> T invoke(OperationsCallback<T> operationsCallback) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T invoke(OperationsCallback<T> operationsCallback, ConfirmCallback confirmCallback, ConfirmCallback confirmCallback1) {
         throw new UnsupportedOperationException();
     }
 

@@ -20,11 +20,11 @@ import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.StringResponse;
-import ca.watier.echechess.common.utils.SessionUtils;
 import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.services.GameService;
 import ca.watier.echechess.services.UserService;
+import ca.watier.echechess.utils.AuthenticationUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpSession;
 import java.util.UUID;
 
 /**
@@ -75,9 +74,8 @@ public class GameController {
     public ResponseEntity createNewGame(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                         @ApiParam(value = PLAY_AGAINST_THE_AI, required = true) boolean againstComputer,
                                         @ApiParam(value = WITH_OR_WITHOUT_OBSERVERS, required = true) boolean observers,
-                                        @ApiParam(value = PATTERN_CUSTOM_GAME) String specialGamePieces,
-                                        HttpSession session) {
-        UUID newGameUuid = gameService.createNewGame(SessionUtils.getPlayer(session), specialGamePieces, side, againstComputer, observers);
+                                        @ApiParam(value = PATTERN_CUSTOM_GAME) String specialGamePieces) {
+        UUID newGameUuid = gameService.createNewGame(specialGamePieces, side, againstComputer, observers, AuthenticationUtils.getUserDetail());
 
         addGameToPlayerSession(newGameUuid);
         return ResponseEntity.ok(new StringResponse(newGameUuid.toString()));
@@ -85,7 +83,7 @@ public class GameController {
 
     private void addGameToPlayerSession(UUID newGameUuid) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        principal.addGame(newGameUuid);
+        principal.addCreatedGame(newGameUuid);
 
         userService.addGameToUser(principal.getUsername(), newGameUuid);
     }
@@ -95,10 +93,9 @@ public class GameController {
     @PostMapping(path = "/move", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity movePieceOfPlayer(@ApiParam(value = FROM_POSITION, required = true) CasePosition from,
                                             @ApiParam(value = TO_POSITION, required = true) CasePosition to,
-                                            @ApiParam(value = UUID_GAME, required = true) String uuid,
-                                            HttpSession session) {
+                                            @ApiParam(value = UUID_GAME, required = true) String uuid) {
 
-        gameService.movePiece(from, to, uuid, SessionUtils.getPlayer(session));
+        gameService.movePiece(from, to, uuid, AuthenticationUtils.getUserDetail());
         return NO_CONTENT_RESPONSE_ENTITY;
     }
 
@@ -106,10 +103,9 @@ public class GameController {
     @PreAuthorize("isPlayerInGame(#uuid)")
     @GetMapping(path = "/moves", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getMovesOfAPiece(@ApiParam(value = FROM_POSITION, required = true) CasePosition from,
-                                           @ApiParam(value = UUID_GAME, required = true) String uuid,
-                                           HttpSession session) {
+                                           @ApiParam(value = UUID_GAME, required = true) String uuid) {
 
-        gameService.getAllAvailableMoves(from, uuid, SessionUtils.getPlayer(session));
+        gameService.getAllAvailableMoves(from, uuid, AuthenticationUtils.getUserDetail());
         return NO_CONTENT_RESPONSE_ENTITY;
     }
 
@@ -118,28 +114,25 @@ public class GameController {
     @PostMapping(path = "/piece/pawn/promotion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity pawnPromotion(@ApiParam(value = TO_POSITION, required = true) CasePosition to,
                                         @ApiParam(value = UUID_GAME, required = true) String uuid,
-                                        @ApiParam(value = UPGRADED_PIECE, required = true) GenericPiecesModel piece,
-                                        HttpSession session) {
-        return ResponseEntity.ok(gameService.upgradePiece(to, uuid, piece, SessionUtils.getPlayer(session)));
+                                        @ApiParam(value = UPGRADED_PIECE, required = true) GenericPiecesModel piece) {
+        return ResponseEntity.ok(gameService.upgradePiece(to, uuid, piece, AuthenticationUtils.getUserDetail()));
     }
 
     @ApiOperation("Gets the pieces location")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @GetMapping(path = "/pieces", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPieceLocations(@ApiParam(value = UUID_GAME, required = true) String uuid,
-                                            HttpSession session) {
-        return ResponseEntity.ok(gameService.getPieceLocations(uuid, SessionUtils.getPlayer(session)));
+    public ResponseEntity getPieceLocations(@ApiParam(value = UUID_GAME, required = true) String uuid) {
+        return ResponseEntity.ok(gameService.getPieceLocations(uuid, AuthenticationUtils.getUserDetail()));
     }
 
     @ApiOperation("Join a game for the current player")
     @PostMapping(path = "/join", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity joinGame(@ApiParam(value = UUID_GAME, required = true) String uuid,
                                    @ApiParam(value = SIDE_PLAYER, required = true) Side side,
-                                   @ApiParam(value = UI_UUID_PLAYER, required = true) String uiUuid,
-                                   HttpSession session) {
+                                   @ApiParam(value = UI_UUID_PLAYER, required = true) String uiUuid) {
 
 
-        BooleanResponse response = gameService.joinGame(uuid, side, uiUuid, SessionUtils.getPlayer(session));
+        BooleanResponse response = gameService.joinGame(uuid, side, uiUuid, AuthenticationUtils.getUserDetail());
 
         if (response.isResponse()) {
             addGameToPlayerSession(UUID.fromString(uuid));
@@ -152,8 +145,7 @@ public class GameController {
     @PreAuthorize("isPlayerInGame(#uuid)")
     @PostMapping(path = "/side")
     public ResponseEntity setSideOfPlayer(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
-                                          @ApiParam(value = UUID_GAME, required = true) String uuid,
-                                          HttpSession session) {
-        return ResponseEntity.ok(gameService.setSideOfPlayer(SessionUtils.getPlayer(session), side, uuid));
+                                          @ApiParam(value = UUID_GAME, required = true) String uuid) {
+        return ResponseEntity.ok(gameService.setSideOfPlayer(side, uuid, AuthenticationUtils.getUserDetail()));
     }
 }

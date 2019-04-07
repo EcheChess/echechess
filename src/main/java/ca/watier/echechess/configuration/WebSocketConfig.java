@@ -32,6 +32,11 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
     @Override
+    protected boolean sameOriginDisabled() {
+        return true;
+    }
+
+    @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket").withSockJS();
     }
@@ -45,6 +50,6 @@ public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfi
     //https://docs.spring.io/spring-security/site/docs/current/reference/html5/#websocket-authorization
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages.anyMessage().permitAll();
+        messages.anyMessage().authenticated();
     }
 }

@@ -91,14 +91,13 @@ public class GameService {
 
     /**
      * Create a new game, and associate it to the player
-     *
-     * @param player
-     * @param specialGamePieces - If null, create a {@link GenericGameHandler}
+     *  @param specialGamePieces - If null, create a {@link GenericGameHandler}
      * @param side
      * @param againstComputer
      * @param observers
+     * @param player
      */
-    public UUID createNewGame(Player player, String specialGamePieces, Side side, boolean againstComputer, boolean observers) {
+    public UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) {
         if (player == null || side == null) {
             throw new IllegalArgumentException();
         }
@@ -320,7 +319,7 @@ public class GameService {
         return values;
     }
 
-    public boolean setSideOfPlayer(Player player, Side side, String uuid) {
+    public boolean setSideOfPlayer(Side side, String uuid, Player player) {
 
         GenericGameHandler game = getGameFromUuid(uuid);
         boolean isGameExist = game != null;

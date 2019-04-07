@@ -16,9 +16,19 @@
 
 package ca.watier.echechess.configuration;
 
+import ca.watier.echechess.components.UserDetailsServiceImpl;
+import ca.watier.echechess.repositories.UserRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
@@ -29,21 +39,46 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 public class OauthResourceServerConfiguration extends ResourceServerConfigurerAdapter {
     private static final String RESOURCE_ID = "echechess_api";
 
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public OauthResourceServerConfiguration(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
-        resources.resourceId(RESOURCE_ID).stateless(false);
+        resources.resourceId(RESOURCE_ID).stateless(true);
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.requestMatchers()
-                .antMatchers("/api/**")
-                .and()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.PUT, "/api/v1/user")
-                .anonymous()
-                .and()
-                .exceptionHandling()
-                .accessDeniedHandler(new OAuth2AccessDeniedHandler());
+        http.csrf().disable().authorizeRequests()
+                .antMatchers("/", "/favicon.ico", "/images/**", "/style/**", "/scripts/**", "/websocket/**").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/v1/user").permitAll()
+                .anyRequest().authenticated()
+                .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler())
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().authenticationProvider(daoAuthenticationProvider());
+    }
+
+
+    private boolean isApi(String url) {
+        return StringUtils.startsWithIgnoreCase(url, "/api/v");
+    }
+
+    @Bean
+    public AuthenticationProvider daoAuthenticationProvider() {
+        final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        return daoAuthenticationProvider;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsServiceImpl(userRepository);
     }
 }

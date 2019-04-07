@@ -27,8 +27,8 @@ new Vue({
     router,
     el: '#app',
     data: {
-        csrf: null,
         oauth: null,
+        oauth_refresh: null,
         oauth_exp: null,
         oauth_scopes: null,
         baseApi: `https://${window.location.hostname}:8443`
@@ -39,6 +39,7 @@ new Vue({
     methods: {
         storeAuthInfos: function (body) {
             this.oauth = body["access_token"];
+            this.oauth_refresh = body["refresh_token"];
             this.oauth_exp = body["expires_in"];
             this.oauth_scopes = body["scope"].split(" ");
         },

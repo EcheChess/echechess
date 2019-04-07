@@ -16,30 +16,33 @@
 
 package ca.watier.echechess.models;
 
+import ca.watier.echechess.common.sessions.Player;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Created by Yannick on 25/9/2015.
  */
-public class UserDetailsImpl implements UserDetails {
+public class UserDetailsImpl extends Player implements UserDetails {
 
     private static final long serialVersionUID = -124649164513355612L;
     private int userId;
     private String usr;
     private String pwd;
     private String email;
-    private List<UUID> games;
 
     private boolean isExpired;
     private boolean isLocked;
     private boolean isPwdExpired;
     private boolean isEnabled;
+
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(int userId, String usr, String pwd, String email, boolean isExpired, boolean isLocked, boolean isPwdExpired, boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
+        super(UUID.randomUUID().toString());
         this.userId = userId;
         this.usr = usr;
         this.pwd = pwd;
@@ -49,17 +52,11 @@ public class UserDetailsImpl implements UserDetails {
         this.isPwdExpired = isPwdExpired;
         this.isEnabled = isEnabled;
         this.authorities = authorities;
-        games = new ArrayList<>();
     }
 
-    public void addGame(UUID game) {
-        if (Objects.nonNull(game)) {
-            games.add(game);
-        }
-    }
 
     public boolean isInGame(UUID game) {
-        return games.contains(game);
+        return getCreatedGameList().contains(game);
     }
 
     public String getEmail() {

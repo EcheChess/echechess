@@ -76,10 +76,9 @@ const Login = {
                 data: `username=${user}&password=${pwd}&grant_type=password`,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Authorization", "Basic Y2xpZW50SWQ6c2VjcmV0");
-                    xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
                 },
             }).done(parent.authSuccessEvent).fail(function () {
-                alertify.error("Login failed!", 5);
+                alertify.error("Bad credentials!", 5);
                 ref.isLoginInProgress = false;
             });
         },

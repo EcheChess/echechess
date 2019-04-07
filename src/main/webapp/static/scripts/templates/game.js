@@ -332,7 +332,6 @@ const Game = {
                     data: `uuid=${this.gameUuid}`,
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                        xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
                     },
                 }).done(function (pieces) {
                     ref.updateBoardPieces(pieces);
@@ -382,7 +381,6 @@ const Game = {
                     data: `from=${from}&uuid=${ref.gameUuid}`,
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                        xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
                     }
                 }).fail(function () {
                     alertify.error("Unable to get the moves positions!", 5);
@@ -406,19 +404,14 @@ const Game = {
             let ref = this;
             let parent = ref.$parent;
 
-            let headers = {
-                'X-CSRF-TOKEN': parent.csrf,
-                "Authorization": `Bearer ${parent.oauth}`
-            };
-
             if (this.stompClient) {
                 this.stompClient.unsubscribe();
             } else {
-                let sockJS = new SockJS(`https://127.0.0.1:8443/websocket?_csrf=${parent.csrf}&access_token=${parent.oauth}`);
+                let sockJS = new SockJS(`https://127.0.0.1:8443/websocket?access_token=${parent.oauth}`);
                 this.stompClient = Stomp.over(sockJS);
             }
 
-            this.stompClient.connect(headers, function () {
+            this.stompClient.connect({}, function () {
                 ref.stompClient.subscribe(`/topic/${ref.gameUuid}`, function (payload) {
                     let parsed = JSON.parse(payload.body);
                     let chessEvent = parsed.event;
@@ -513,7 +506,6 @@ const Game = {
                 data: `side=${this.gameSide}&againstComputer=${againstComputer}&observers=${observers}`,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                    xhr.setRequestHeader("X-CSRF-TOKEN", parent.csrf);
                 }
             }).done(function (data) {
                 ref.saveUuid(data);

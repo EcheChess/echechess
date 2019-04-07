@@ -84,7 +84,7 @@ public class GameServiceTest extends GameTest {
     @Test
     public void upgradePiece() {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        UUID gameUuid = gameService.createNewGame(player1, "G7:W_PAWN;G2:B_PAWN;A8:W_KING;A1:B_KING", WHITE, false, false);
+        UUID gameUuid = gameService.createNewGame("G7:W_PAWN;G2:B_PAWN;A8:W_KING;A1:B_KING", WHITE, false, false, player1);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
 
         Assert.assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
@@ -111,10 +111,10 @@ public class GameServiceTest extends GameTest {
         Player player1 = new Player(UUID.randomUUID().toString());
         Player player2 = new Player(UUID.randomUUID().toString());
 
-        UUID gameUuid = gameService.createNewGame(player1, "", WHITE, false, false);
+        UUID gameUuid = gameService.createNewGame("", WHITE, false, false, player1);
         String uuid = gameUuid.toString();
 
-        gameService.setSideOfPlayer(player1, BLACK, uuid);
+        gameService.setSideOfPlayer(BLACK, uuid, player1);
 
         Map<UUID, GenericGameHandler> mapOfGames = gameService.getAllGames();
         Set<UUID> allIdGamesFromGameService = mapOfGames.keySet();
@@ -129,7 +129,7 @@ public class GameServiceTest extends GameTest {
         assertNull(normalGameHandler.getPlayerWhite());
         assertTrue(normalGameHandler.getObserverList().isEmpty());
 
-        gameService.setSideOfPlayer(player1, WHITE, uuid);
+        gameService.setSideOfPlayer(WHITE, uuid, player1);
 
         //Check if the player1 is set to white (was black before)
         assertNull(normalGameHandler.getPlayerBlack());
@@ -142,7 +142,7 @@ public class GameServiceTest extends GameTest {
         assertEquals(1, gameListIdFromPlayer.size());
 
         //Try to associate the white to the player 2 (already set to player 1)
-        gameService.setSideOfPlayer(player2, WHITE, uuid);
+        gameService.setSideOfPlayer(WHITE, uuid, player2);
 
         //Check if the player1 is still associated to black, player2 not set yet
         assertNull(normalGameHandler.getPlayerBlack());
@@ -150,15 +150,15 @@ public class GameServiceTest extends GameTest {
         assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //Try to associate the black to the player 2 (not set yet)
-        gameService.setSideOfPlayer(player2, BLACK, uuid);
+        gameService.setSideOfPlayer(BLACK, uuid, player2);
 
         assertEquals(player2, normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
         assertTrue(normalGameHandler.getObserverList().isEmpty());
 
         //Change both of the player to observers
-        gameService.setSideOfPlayer(player1, OBSERVER, uuid);
-        gameService.setSideOfPlayer(player2, OBSERVER, uuid);
+        gameService.setSideOfPlayer(OBSERVER, uuid, player1);
+        gameService.setSideOfPlayer(OBSERVER, uuid, player2);
 
         assertNull(normalGameHandler.getPlayerBlack());
         assertNull(normalGameHandler.getPlayerWhite());
@@ -169,10 +169,10 @@ public class GameServiceTest extends GameTest {
     public void createNewGameTest() {
         Player player1 = new Player(UUID.randomUUID().toString());
 
-        UUID specialGame = gameService.createNewGame(player1, "", WHITE, false, false);
+        UUID specialGame = gameService.createNewGame("", WHITE, false, false, player1);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(specialGame.toString());
 
-        UUID normalGame = gameService.createNewGame(player1, "D5:B_KING;B5:W_QUEEN;D3:W_QUEEN;D7:W_QUEEN;F5:W_QUEEN", WHITE, false, false);
+        UUID normalGame = gameService.createNewGame("D5:B_KING;B5:W_QUEEN;D3:W_QUEEN;D7:W_QUEEN;F5:W_QUEEN", WHITE, false, false, player1);
         GenericGameHandler gameFromUuidCustom = gameService.getGameFromUuid(normalGame.toString());
 
 
@@ -215,7 +215,7 @@ public class GameServiceTest extends GameTest {
         List<Object> messages = currentWebSocketService.getMessages();
 
         //Able to join any side, except WHITE
-        UUID gameUuid1 = gameService.createNewGame(player1, "", WHITE, false, true);
+        UUID gameUuid1 = gameService.createNewGame("", WHITE, false, true, player1);
         GenericGameHandler game1 = gameService.getGameFromUuid(gameUuid1.toString());
         String uuidGame1 = game1.getUuid();
 
@@ -233,7 +233,7 @@ public class GameServiceTest extends GameTest {
         currentWebSocketService.clearMessages();
 
 
-        UUID gameUuid2 = gameService.createNewGame(player1, "", WHITE, true, true);
+        UUID gameUuid2 = gameService.createNewGame("", WHITE, true, true, player1);
         GenericGameHandler game2 = gameService.getGameFromUuid(gameUuid2.toString());
         String uuidGame2 = game2.getUuid();
 
@@ -251,7 +251,7 @@ public class GameServiceTest extends GameTest {
         currentWebSocketService.clearMessages();
 
 
-        UUID gameUuid3 = gameService.createNewGame(player1, "", WHITE, true, false);
+        UUID gameUuid3 = gameService.createNewGame("", WHITE, true, false, player1);
         GenericGameHandler game3 = gameService.getGameFromUuid(gameUuid3.toString());
         String uuidGame3 = game3.getUuid();
 
@@ -268,7 +268,7 @@ public class GameServiceTest extends GameTest {
         Player player2 = new Player(UUID.randomUUID().toString());
         Player playerNotInGame = new Player(UUID.randomUUID().toString());
 
-        UUID gameUuid = gameService.createNewGame(player1, "", WHITE, false, true);
+        UUID gameUuid = gameService.createNewGame("", WHITE, false, true, player1);
         GenericGameHandler game = gameService.getGameFromUuid(gameUuid.toString());
         String uuid = game.getUuid();
         game.setPlayerToSide(player2, BLACK);

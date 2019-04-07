@@ -38,7 +38,7 @@ public class OauthAuthorizationServerConfiguration extends AuthorizationServerCo
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public OauthAuthorizationServerConfiguration(PasswordEncoder passwordEncoder, @Qualifier("authenticationManagerBean") AuthenticationManager authenticationManager) {
+    public OauthAuthorizationServerConfiguration(PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
     }
