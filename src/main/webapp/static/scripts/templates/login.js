@@ -17,33 +17,30 @@
 const Login = {
     template:
         `
-<div id="login-container-div" class="ui middle aligned center aligned grid">
-    <div class="column">
-        <h2 class="ui teal header">
-            Log-in
-        </h2>
-        <div class="ui large form">
-            <div class="ui stacked segment">
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="user icon"></i>
-                        <input id="username-input" type="text" name="username" placeholder="Username">
-                    </div>
+<div id="login-container" v-on:keyup.enter="login">
+    <div id="login-panel">
+        <form class="form-signin text-center">
+            <h1 id="login-header-text" class="h3 mb-3 font-weight-normal">Log-in</h1>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
                 </div>
-                <div class="field">
-                    <div class="ui left icon input">
-                        <i class="lock icon"></i>
-                        <input id="password-input" type="password" name="password" placeholder="Password">
-                    </div>
-                </div>
-                
-                <button class="fluid ui large teal button" v-on:click="login" :disabled="isLoginInProgress">
-                    <i v-if="isLoginInProgress" class='spinner icon'></i>
-                    <span v-else>Login</span>
-                </button>
+                <input type="text" id="username-input" name="username" class="form-control" placeholder="Username"  autofocus="">
             </div>
-            <div class="ui error message"></div>
-        </div>
+          
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
+                </div>
+                <input type="password" id="password-input" name="password" class="form-control" placeholder="Password">
+            </div>
+          
+            <button id="login-button" type="button" class="btn btn-secondary btn-lg" v-on:click="login"  :disabled="isLoginInProgress">
+                <i v-if="isLoginInProgress" class="fas fa-spinner fa-pulse"></i>
+                <span v-else>Login</span>
+            </button>
+        </form>
+        <div class="ui error message"></div>
     </div>
 </div>
 `,

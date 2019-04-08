@@ -22,13 +22,14 @@ const Game = {
     template:
         `
 <div id="main-div">
-    <div id="main-menu" class="ui stackable menu">
-      <div class="item">
-        <img src="images/EcheChess.png" >
-      </div>
-      <a class="item" v-on:click="newGame">New Game</a>
-      <a class="item">Join Game</a>
-    </div>
+
+    <nav id="navbar-main-menu" class="navbar navbar-expand-lg">
+      <a class="navbar-brand" href="#">
+        <img src="images/EcheChess.svg" width="40" height="60" class="d-inline-block align-top">
+      </a>
+      <a class="nav-link" v-on:click="newGame">New Game</a>
+      <a class="nav-link">Join Game</a>
+    </nav>
     
     <div id="board">
         <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
@@ -475,6 +476,7 @@ const Game = {
                         case 'AVAILABLE_MOVE':
                             const from = obj.from;
                             if (from) {
+                                $("div").removeClass("piece-available-moves"); //clear
                                 var positions = obj.positions;
                                 for (let i = 0; i < positions.length; i++) {
                                     $(`[data-case-id='${positions[i]}']`).addClass("piece-available-moves");
