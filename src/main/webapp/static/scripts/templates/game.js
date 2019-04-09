@@ -22,7 +22,6 @@ const Game = {
     template:
         `
 <div id="main-div">
-
     <nav id="navbar-main-menu" class="navbar navbar-expand-lg">
       <a class="navbar-brand" href="#">
         <img src="images/EcheChess.svg" width="40" height="60" class="d-inline-block align-top">
@@ -30,13 +29,26 @@ const Game = {
       <a class="nav-link" v-on:click="newGame">New Game</a>
       <a class="nav-link">Join Game</a>
     </nav>
-    
-    <div id="board">
-        <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
-            <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
+    <div id="game">
+        <div id="board">
+            <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
+                <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
+            </div>
         </div>
-        <span>Black: {{blackPlayerScore}}</span>
-        <span>White: {{whitePlayerScore}}</span>
+        <div id="game-points">
+            <span>Black: {{blackPlayerScore}}</span>
+            <span>White: {{whitePlayerScore}}</span>
+        </div>
+        <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#collapseGameLog">
+            Show logs
+        </button>
+        <div class="collapse" id="collapseGameLog">
+          <div class="card card-body">
+            <div class="form-control" v-for="(log, index) in eventLog">
+                {{log}}<br/>
+            </div>
+          </div>
+        </div>
     </div>
         `,
     data: function () {
@@ -303,7 +315,8 @@ const Game = {
                     "unicodeIcon": "&#9814;",
                     "name": "White Rook"
                 }
-            }
+            },
+            eventLog: []
         };
     },
     mounted: function () {
@@ -397,10 +410,6 @@ const Game = {
             this.gameUuid = data.response;
         },
         //---------------------------------------------------------------------------
-        writeToGameLog: function (message, chessEvent) {
-
-        },
-        //---------------------------------------------------------------------------
         initGameComponents: function () {
             let ref = this;
             let parent = ref.$parent;
@@ -408,11 +417,15 @@ const Game = {
             if (this.stompClient) {
                 this.stompClient.unsubscribe();
             } else {
-                let sockJS = new SockJS(`https://127.0.0.1:8443/websocket?access_token=${parent.oauth}`);
+                let sockJS = new SockJS(`/websocket?access_token=${parent.oauth}`, null, {transports: ['xhr-streaming']});
                 this.stompClient = Stomp.over(sockJS);
             }
 
-            this.stompClient.connect({}, function () {
+            let headers = {
+                "Authorization": `Bearer ${parent.oauth}`
+            };
+
+            this.stompClient.connect(headers, function () {
                 ref.stompClient.subscribe(`/topic/${ref.gameUuid}`, function (payload) {
                     let parsed = JSON.parse(payload.body);
                     let chessEvent = parsed.event;
@@ -433,13 +446,13 @@ const Game = {
                             break;
                         case 'MOVE':
                             ref.refreshGamePieces();
-                            ref.writeToGameLog(message, chessEvent);
+                            ref.eventLog.push(message);
                             break;
                         case 'GAME_WON':
-                            ref.writeToGameLog(message, chessEvent);
+                            ref.eventLog.push(message);
                             break;
                         case 'GAME_WON_EVENT_MOVE':
-                            ref.writeToGameLog(message, chessEvent);
+                            ref.eventLog.push(message);
                             break;
                         case 'SCORE_UPDATE':
                             ref.blackPlayerScore = message.blackPlayerPoint;
@@ -455,7 +468,7 @@ const Game = {
                             alertify.warning(message, 5);
                             break;
                     }
-                });
+                }, headers);
 
                 ref.stompClient.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, function (payload) {
                     let parsed = JSON.parse(payload.body);
@@ -465,7 +478,7 @@ const Game = {
 
                     switch (chessEvent) {
                         case 'PLAYER_TURN':
-                            ref.writeToGameLog(message, chessEvent);
+                            ref.eventLog.push(message);
                             break;
                         case 'PAWN_PROMOTION':
                             //FIXME
@@ -485,7 +498,7 @@ const Game = {
                             break;
 
                     }
-                });
+                }, headers);
 
             });
 

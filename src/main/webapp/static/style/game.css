@@ -52,9 +52,17 @@ html {
     background-color: #7e7e7e66 !important;
 }
 
+#game-points {
+    margin: 5px;
+}
+
 .board-pieces {
     cursor: grab;
     font-size: 50px;
+}
+
+.card {
+    background-color: #4e4e4e !important;
 }
 
 .bord-case {
