@@ -410,98 +410,102 @@ const Game = {
             this.gameUuid = data.response;
         },
         //---------------------------------------------------------------------------
+        onGameEvent: function (payload) {
+            let parsed = JSON.parse(payload.body);
+            let chessEvent = parsed.event;
+            let message = parsed.message;
+
+            switch (chessEvent) {
+                case 'UI_SESSION_EXPIRED': //FIXME
+                    window.setInterval(function () {
+                        location.reload();
+                    }, 10 * 1000);
+                    alertify.error(message, 0);
+                    break;
+                case 'PLAYER_JOINED':
+                    alertify.success(message, 6);
+                    break;
+                case 'TRY_JOIN_GAME':
+                    alertify.error(message, 0);
+                    break;
+                case 'MOVE':
+                    this.refreshGamePieces();
+
+                    this.eventLog.push(message);
+                    break;
+                case 'GAME_WON':
+                    this.eventLog.push(message);
+                    break;
+                case 'GAME_WON_EVENT_MOVE':
+                    this.eventLog.push(message);
+                    break;
+                case 'SCORE_UPDATE':
+                    this.blackPlayerScore = message.blackPlayerPoint;
+                    this.whitePlayerScore = message.whitePlayerPoint;
+                    break;
+                case 'REFRESH_BOARD':
+                    this.refreshGamePieces();
+                    break;
+                case 'PAWN_PROMOTION':
+                    alertify.warning(message);
+                    break;
+                case 'KING_CHECKMATE':
+                    alertify.warning(message, 5);
+                    break;
+            }
+        },
+        //---------------------------------------------------------------------------
+        onGameSideEvent: function (payload) {
+            let parsed = JSON.parse(payload.body);
+            let chessEvent = parsed.event;
+            let message = parsed.message;
+            let obj = parsed.obj;
+
+            switch (chessEvent) {
+                case 'PLAYER_TURN':
+                    ref.eventLog.push(message);
+                    break;
+                case 'PAWN_PROMOTION':
+                    //FIXME
+                    break;
+                case 'KING_CHECK':
+                    alertify.warning(message);
+                    break;
+                case 'AVAILABLE_MOVE':
+                    const from = obj.from;
+                    if (from) {
+                        $("div").removeClass("piece-available-moves"); //clear
+                        var positions = obj.positions;
+                        for (let i = 0; i < positions.length; i++) {
+                            $(`[data-case-id='${positions[i]}']`).addClass("piece-available-moves");
+                        }
+                    }
+                    break;
+
+            }
+        },
+        //---------------------------------------------------------------------------
         initGameComponents: function () {
             let ref = this;
             let parent = ref.$parent;
 
-            if (this.stompClient) {
-                this.stompClient.unsubscribe();
+            let stompClientRef = this.stompClient;
+            if (stompClientRef) {
+                stompClientRef.unsubscribe();
             } else {
                 let sockJS = new SockJS(`/websocket?access_token=${parent.oauth}`, null, {transports: ['xhr-streaming']});
-                this.stompClient = Stomp.over(sockJS);
+                stompClientRef = Stomp.over(sockJS);
+                this.stompClient = stompClientRef;
             }
 
             let headers = {
                 "Authorization": `Bearer ${parent.oauth}`
             };
 
-            this.stompClient.connect(headers, function () {
-                ref.stompClient.subscribe(`/topic/${ref.gameUuid}`, function (payload) {
-                    let parsed = JSON.parse(payload.body);
-                    let chessEvent = parsed.event;
-                    let message = parsed.message;
-
-                    switch (chessEvent) {
-                        case 'UI_SESSION_EXPIRED': //FIXME
-                            window.setInterval(function () {
-                                location.reload();
-                            }, 10 * 1000);
-                            alertify.error(message, 0);
-                            break;
-                        case 'PLAYER_JOINED':
-                            alertify.success(message, 6);
-                            break;
-                        case 'TRY_JOIN_GAME':
-                            alertify.error(message, 0);
-                            break;
-                        case 'MOVE':
-                            ref.refreshGamePieces();
-                            ref.eventLog.push(message);
-                            break;
-                        case 'GAME_WON':
-                            ref.eventLog.push(message);
-                            break;
-                        case 'GAME_WON_EVENT_MOVE':
-                            ref.eventLog.push(message);
-                            break;
-                        case 'SCORE_UPDATE':
-                            ref.blackPlayerScore = message.blackPlayerPoint;
-                            ref.whitePlayerScore = message.whitePlayerPoint;
-                            break;
-                        case 'REFRESH_BOARD':
-                            ref.refreshGamePieces();
-                            break;
-                        case 'PAWN_PROMOTION':
-                            alertify.warning(message);
-                            break;
-                        case 'KING_CHECKMATE':
-                            alertify.warning(message, 5);
-                            break;
-                    }
-                }, headers);
-
-                ref.stompClient.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, function (payload) {
-                    let parsed = JSON.parse(payload.body);
-                    let chessEvent = parsed.event;
-                    let message = parsed.message;
-                    let obj = parsed.obj;
-
-                    switch (chessEvent) {
-                        case 'PLAYER_TURN':
-                            ref.eventLog.push(message);
-                            break;
-                        case 'PAWN_PROMOTION':
-                            //FIXME
-                            break;
-                        case 'KING_CHECK':
-                            alertify.warning(message);
-                            break;
-                        case 'AVAILABLE_MOVE':
-                            const from = obj.from;
-                            if (from) {
-                                $("div").removeClass("piece-available-moves"); //clear
-                                var positions = obj.positions;
-                                for (let i = 0; i < positions.length; i++) {
-                                    $(`[data-case-id='${positions[i]}']`).addClass("piece-available-moves");
-                                }
-                            }
-                            break;
-
-                    }
-                }, headers);
-
+            stompClientRef.connect(headers, function () {
+                stompClientRef.subscribe(`/topic/${ref.gameUuid}`, ref.onGameEvent);
+                stompClientRef.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, ref.onGameSideEvent);
             });
-
         },
         //---------------------------------------------------------------------------
         createNewGame: function () {
