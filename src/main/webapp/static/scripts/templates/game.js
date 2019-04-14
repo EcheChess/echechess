@@ -50,14 +50,58 @@ const Game = {
           </div>
         </div>
     </div>
-        `,
+    <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create a new game</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                <form>
+                    
+                    <select v-model="gameSide">
+                        <option>WHITE</option>
+                        <option>BLACK</option>
+                        <option>OBSERVER</option>
+                    </select>
+                
+                    <div class="form-group">
+                        <label for="new-game-special-game">Special game type</label>
+                        <input type="text" v-model="specialGamePattern" class="form-control form-control-sm" id="new-game-special-game" aria-describedby="new-game-special-game-text" placeholder="Special Game Pattern">
+                        <small id="new-game-special-game-text" class="form-text text-muted">A8:W_KING;B8:W_ROOK[...]</small>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" v-model="againstComputer" class="form-check-input" id="new-game-against-computer">
+                        <label class="form-check-label" for="new-game-against-computer">Play against computer</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" v-model="observers" class="form-check-input" id="new-game-observer">
+                        <label class="form-check-label" for="new-game-observer">Allows observers</label>
+                    </div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" v-on:click="createNewGameWithProperties" class="btn btn-primary">Create game</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+`,
     data: function () {
         return {
             stompClient: null,
             blackPlayerScore: 0,
             whitePlayerScore: 0,
             gameUuid: null,
-            gameSide: null,
+            gameSide: "WHITE",
+            againstComputer: false,
+            observers: true,
+            specialGamePattern: null,
             board: {
                 H8: {
                     "unicodeIcon": "&#9820;",
@@ -416,12 +460,12 @@ const Game = {
             let message = parsed.message;
 
             switch (chessEvent) {
-                case 'UI_SESSION_EXPIRED': //FIXME
-                    window.setInterval(function () {
-                        location.reload();
-                    }, 10 * 1000);
-                    alertify.error(message, 0);
-                    break;
+                // case 'UI_SESSION_EXPIRED': //FIXME
+                //     window.setInterval(function () {
+                //         location.reload();
+                //     }, 10 * 1000);
+                //     alertify.error(message, 0);
+                //     break;
                 case 'PLAYER_JOINED':
                     alertify.success(message, 6);
                     break;
@@ -430,7 +474,6 @@ const Game = {
                     break;
                 case 'MOVE':
                     this.refreshGamePieces();
-
                     this.eventLog.push(message);
                     break;
                 case 'GAME_WON':
@@ -508,21 +551,16 @@ const Game = {
             });
         },
         //---------------------------------------------------------------------------
-        createNewGame: function () {
+        createNewGameWithProperties: function () {
             let ref = this;
             let parent = ref.$parent;
-
-            //TODO: BIND TO THE UI
-            this.gameSide = "WHITE";
-            let againstComputer = false;
-            let observers = false;
 
             $.ajax({
                 url: `${this.$parent.baseApi}/api/v1/game/create`,
                 type: "POST",
                 cache: false,
                 timeout: 30000,
-                data: `side=${this.gameSide}&againstComputer=${againstComputer}&observers=${observers}`,
+                data: `side=${this.gameSide}&againstComputer=${this.againstComputer}&observers=${this.observers}`,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
                 }
@@ -530,13 +568,14 @@ const Game = {
                 ref.saveUuid(data);
                 ref.refreshGamePieces();
                 ref.initGameComponents();
+                $('#new-game-modal').modal('hide')
             }).fail(function () {
                 alertify.error("Unable to create a new game!", 5);
             });
         },
         //---------------------------------------------------------------------------
         newGame: function () {
-            this.createNewGame();
+            $('#new-game-modal').modal('toggle')
         },
         //---------------------------------------------------------------------------
         whenPieceDraggedEvent: function (event) {

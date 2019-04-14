@@ -35,6 +35,14 @@ html {
     justify-items: center;
 }
 
+.modal-content {
+    background-color: #726f6f !important;
+}
+
+#new-game-special-game-text {
+    color: darkgray !important;
+}
+
 #menu-icon {
     width: 45px;
     height: 45px;
