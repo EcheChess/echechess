@@ -51,7 +51,7 @@ const Game = {
         </div>
     </div>
     <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Create a new game</h5>
@@ -61,31 +61,36 @@ const Game = {
                 </div>
                 <div class="modal-body">
                 <form>
-                    
-                    <select v-model="gameSide">
-                        <option>WHITE</option>
-                        <option>BLACK</option>
-                        <option>OBSERVER</option>
-                    </select>
-                
                     <div class="form-group">
-                        <label for="new-game-special-game">Special game type</label>
-                        <input type="text" v-model="specialGamePattern" class="form-control form-control-sm" id="new-game-special-game" aria-describedby="new-game-special-game-text" placeholder="Special Game Pattern">
-                        <small id="new-game-special-game-text" class="form-text text-muted">A8:W_KING;B8:W_ROOK[...]</small>
+                        <label for="new-game-side">Side</label>
+                        <select id="new-game-side" class="form-control form-control-sm" v-model="gameSide">
+                            <option>WHITE</option>
+                            <option>BLACK</option>
+                            <option>OBSERVER</option>
+                        </select>
                     </div>
-                    <div class="form-check">
-                        <input type="checkbox" v-model="againstComputer" class="form-check-input" id="new-game-against-computer">
-                        <label class="form-check-label" for="new-game-against-computer">Play against computer</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" v-model="observers" class="form-check-input" id="new-game-observer">
-                        <label class="form-check-label" for="new-game-observer">Allows observers</label>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" v-model="againstComputer" class="form-check-input" id="new-game-against-computer">
+                            <label class="form-check-label" for="new-game-against-computer">Play against computer</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" v-model="observers" class="form-check-input" id="new-game-observer">
+                            <label class="form-check-label" for="new-game-observer">Allows observers</label>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" v-model="specialGamePatternEnabled" class="form-check-input" id="game-special-game-enable">
+                                <label class="form-check-label" for="game-special-game-enable">Special game pattern</label>
+                                <input type="text" v-model="specialGamePattern" v-if="specialGamePatternEnabled" class="form-control form-control-sm" id="new-game-special-game" placeholder="A8:W_KING;B8:W_ROOK[...]">
+                            </div>
+                        </div>
                     </div>
                 </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" v-on:click="createNewGameWithProperties" class="btn btn-primary">Create game</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -102,6 +107,7 @@ const Game = {
             againstComputer: false,
             observers: true,
             specialGamePattern: null,
+            specialGamePatternEnabled: false,
             board: {
                 H8: {
                     "unicodeIcon": "&#9820;",
