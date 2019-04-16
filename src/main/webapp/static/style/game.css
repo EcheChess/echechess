@@ -24,10 +24,21 @@ html {
     overflow: hidden;
 }
 
+#carousel-game-history {
+    width: 450px;
+    height: 75px;
+}
+
+#carousel-game-history-items {
+    position: absolute;
+    bottom: 29%;
+}
+
 #board {
     max-width: 607px;
     max-height: 607px;
 
+    margin: 5px;
     display: grid;
     grid-gap: 1px 1px;
     grid-template-columns: auto auto auto auto auto auto auto auto;
@@ -58,10 +69,6 @@ html {
 
 #navbar-main-menu {
     background-color: #7e7e7e66 !important;
-}
-
-#game-points {
-    margin: 5px;
 }
 
 .board-pieces {

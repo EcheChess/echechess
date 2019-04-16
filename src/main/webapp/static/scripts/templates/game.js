@@ -30,6 +30,22 @@ const Game = {
       <a class="nav-link">Join Game</a>
     </nav>
     <div id="game">
+        <div id="carousel-game-history" v-if="moveLog.length > 0" class="carousel slide" data-ride="carousel" data-interval="0">
+            <div id="carousel-game-history-items" class="carousel-inner text-center">
+                <div class="carousel-item" v-bind:class="[index === (moveLog.length - 1) ? 'active' : '']" v-for="(message, index) in moveLog">
+                    <span class="d-block w-100">{{message}}</span>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carousel-game-history" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"/>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carousel-game-history" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"/>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    
         <div id="board">
             <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
                 <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
@@ -39,9 +55,11 @@ const Game = {
             <span>Black: {{blackPlayerScore}}</span>
             <span>White: {{whitePlayerScore}}</span>
         </div>
+        
         <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#collapseGameLog">
             Show logs
         </button>
+        
         <div class="collapse" id="collapseGameLog">
           <div class="card card-body">
             <div class="form-control" v-for="(log, index) in eventLog">
@@ -366,7 +384,8 @@ const Game = {
                     "name": "White Rook"
                 }
             },
-            eventLog: []
+            eventLog: [],
+            moveLog: []
         };
     },
     mounted: function () {
@@ -480,7 +499,7 @@ const Game = {
                     break;
                 case 'MOVE':
                     this.refreshGamePieces();
-                    this.eventLog.push(message);
+                    this.moveLog.push(message);
                     break;
                 case 'GAME_WON':
                     this.eventLog.push(message);
@@ -557,6 +576,13 @@ const Game = {
             });
         },
         //---------------------------------------------------------------------------
+        resetGame: function () {
+            this.eventLog = [];
+            this.moveLog = [];
+            this.blackPlayerScore = 0;
+            this.whitePlayerScore = 0;
+        },
+        //---------------------------------------------------------------------------
         createNewGameWithProperties: function () {
             let ref = this;
             let parent = ref.$parent;
@@ -572,6 +598,7 @@ const Game = {
                 }
             }).done(function (data) {
                 ref.saveUuid(data);
+                ref.resetGame();
                 ref.refreshGamePieces();
                 ref.initGameComponents();
                 $('#new-game-modal').modal('hide')
