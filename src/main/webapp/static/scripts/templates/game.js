@@ -127,259 +127,259 @@ const Game = {
             specialGamePattern: null,
             specialGamePatternEnabled: false,
             board: {
-                H8: {
+                A8 : {
                     "unicodeIcon": "&#9820;",
                     "name": "Black Rook"
                 },
-                G8: {
+                B8 : {
                     "unicodeIcon": " &#9822;",
                     "name": "Black Knight"
                 },
-                F8: {
+                C8 : {
                     "unicodeIcon": "&#9821;",
                     "name": "Black Bishop"
                 },
-                E8: {
-                    "unicodeIcon": "&#9818;",
-                    "name": "Black King"
-                },
-                D8: {
+                D8 : {
                     "unicodeIcon": "&#9819;",
                     "name": "Black Queen "
                 },
-                C8: {
+                E8 : {
+                    "unicodeIcon": "&#9818;",
+                    "name": "Black King"
+                },
+                F8 : {
                     "unicodeIcon": "&#9821;",
                     "name": "Black Bishop"
                 },
-                B8: {
+                G8 : {
                     "unicodeIcon": " &#9822;",
                     "name": "Black Knight"
                 },
-                A8: {
+                H8 : {
                     "unicodeIcon": "&#9820;",
                     "name": "Black Rook"
                 },
-                H7: {
+                A7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                G7: {
+                B7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                F7: {
+                C7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                E7: {
+                D7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                D7: {
+                E7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                C7: {
+                F7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                B7: {
+                G7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                A7: {
+                H7 : {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                H6: {
+                A6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G6: {
+                B6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F6: {
+                C6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E6: {
+                D6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D6: {
+                E6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C6: {
+                F6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B6: {
+                G6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A6: {
+                H6 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H5: {
+                A5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G5: {
+                B5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F5: {
+                C5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E5: {
+                D5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D5: {
+                E5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C5: {
+                F5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B5: {
+                G5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A5: {
+                H5 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H4: {
+                A4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G4: {
+                B4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F4: {
+                C4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E4: {
+                D4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D4: {
+                E4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C4: {
+                F4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B4: {
+                G4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A4: {
+                H4 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H3: {
+                A3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G3: {
+                B3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F3: {
+                C3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E3: {
+                D3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D3: {
+                E3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C3: {
+                F3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B3: {
+                G3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A3: {
+                H3 : {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H2: {
+                A2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                G2: {
+                B2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                F2: {
+                C2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                E2: {
+                D2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                D2: {
+                E2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                C2: {
+                F2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                B2: {
+                G2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                A2: {
+                H2 : {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                H1: {
+                A1 : {
                     "unicodeIcon": "&#9814;",
                     "name": "White Rook"
                 },
-                G1: {
+                B1 : {
                     "unicodeIcon": "&#9816;",
                     "name": "White Knight"
                 },
-                F1: {
+                C1 : {
                     "unicodeIcon": "&#9815;",
                     "name": "White Bishop"
                 },
-                E1: {
-                    "unicodeIcon": "&#9812;",
-                    "name": "White King"
-                },
-                D1: {
+                D1 : {
                     "unicodeIcon": "&#9813;",
                     "name": "White Queen "
                 },
-                C1: {
+                E1 : {
+                    "unicodeIcon": "&#9812;",
+                    "name": "White King"
+                },
+                F1 : {
                     "unicodeIcon": "&#9815;",
                     "name": "White Bishop"
                 },
-                B1: {
+                G1 : {
                     "unicodeIcon": "&#9816;",
                     "name": "White Knight"
                 },
-                A1: {
+                H1 : {
                     "unicodeIcon": "&#9814;",
                     "name": "White Rook"
                 }

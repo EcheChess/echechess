@@ -30,9 +30,8 @@ import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.TreeMultimap;
+import com.google.common.collect.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -290,8 +289,6 @@ public class GameService {
 
         //Sorted small values fist (-3 -> 4)
         SetMultimap<Integer, Map.Entry<CasePosition, Pieces>> sortedByCol = TreeMultimap.create(Ordering.natural(), PIECE_LOCATION_COMPARATOR);
-
-
         Map<CasePosition, Pieces> piecesLocation = new HashMap<>(gameFromUuid.getPiecesLocation());
 
         //Fill the empty positions
@@ -307,16 +304,30 @@ public class GameService {
             sortedByCol.put(key.getY(), casePositionPiecesEntry);
         }
 
-        for (Map.Entry<CasePosition, Pieces> value : sortedByCol.values()) {
-            Pieces pieces = value.getValue();
-            CasePosition position = value.getKey();
-            values.add(new PieceLocationModel(pieces, position));
+        List<List<PieceLocationModel>> sortedBoardWithColumns = new ArrayList<>();
+        for (Integer key : sortedByCol.keySet()) {
+
+            List<PieceLocationModel> currentRow = new ArrayList<>(8);
+            for (Map.Entry<CasePosition, Pieces> entry : sortedByCol.get(key)) {
+                currentRow.add(new PieceLocationModel(entry.getValue(), entry.getKey()));
+            }
+
+            sortedBoardWithColumns.add(currentRow);
         }
 
-        //Sort (4 -> -3)
-        Collections.reverse(values);
+        //reverse the board, to be easier to draw
+        Collections.reverse(sortedBoardWithColumns);
 
-        return values;
+        List<PieceLocationModel> sortedBoard = new ArrayList<>();
+
+        //merge the board
+        for (List<PieceLocationModel> currentRow : sortedBoardWithColumns) {
+            if(CollectionUtils.isNotEmpty(currentRow)) {
+                sortedBoard.addAll(currentRow);
+            }
+        }
+
+        return sortedBoard;
     }
 
     public boolean setSideOfPlayer(Side side, String uuid, Player player) {
