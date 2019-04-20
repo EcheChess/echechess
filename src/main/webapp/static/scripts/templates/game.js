@@ -27,30 +27,33 @@ const Game = {
         <img src="images/EcheChess.svg" width="40" height="60" class="d-inline-block align-top">
       </a>
       <a class="nav-link" v-on:click="newGame">New Game</a>
-      <a class="nav-link">Join Game</a>
+      <a class="nav-link" v-on:click="joinGame">Join Game</a>
     </nav>
     <div id="game">
-        <div id="carousel-game-history" v-if="moveLog.length > 0" class="carousel slide" data-ride="carousel" data-interval="0">
-            <div id="carousel-game-history-items" class="carousel-inner text-center">
-                <div class="carousel-item" v-bind:class="[index === (moveLog.length - 1) ? 'active' : '']" v-for="(message, index) in moveLog">
-                    <span class="d-block w-100">{{message}}</span>
+        <div id="board">
+            <div id="board-header">
+                <span id="game-uuid">{{gameUuid}}</span>
+                <div id="carousel-game-history" v-if="moveLog.length > 0" class="carousel slide" data-ride="carousel" data-interval="0">
+                    <div id="carousel-game-history-items" class="carousel-inner text-center">
+                        <div class="carousel-item" v-bind:class="[index === (moveLog.length - 1) ? 'active' : '']" v-for="(message, index) in moveLog">
+                            <span class="d-block w-100">{{message}}</span>
+                        </div>
+                    </div>
+                    <a class="carousel-control-prev" href="#carousel-game-history" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"/>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carousel-game-history" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"/>
+                        <span class="sr-only">Next</span>
+                    </a>
                 </div>
             </div>
-            <a class="carousel-control-prev" href="#carousel-game-history" role="button" data-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"/>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#carousel-game-history" role="button" data-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"/>
-                <span class="sr-only">Next</span>
-            </a>
-        </div>
-    
-        <div id="board">
             <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
                 <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
             </div>
         </div>
+        
         <div id="game-points">
             <span>Black: {{blackPlayerScore}}</span>
             <span>White: {{whitePlayerScore}}</span>
@@ -68,6 +71,7 @@ const Game = {
           </div>
         </div>
     </div>
+    
     <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -113,6 +117,39 @@ const Game = {
             </div>
         </div>
     </div>
+    
+    <div class="modal" id="join-game-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Join an existing game</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="join-game-side">Side</label>
+                            <select id="join-game-side" class="form-control form-control-sm" v-model="joinGameModel.gameSide">
+                                <option>WHITE</option>
+                                <option>BLACK</option>
+                                <option>OBSERVER</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="join-game-uuid">Game ID</label>
+                            <input type="text" maxlength="36" minlength="36" class="form-control" id="join-game-uuid" placeholder="Game ID" v-model="joinGameModel.gameUuid">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" v-on:click="joinGameWithProperties" class="btn btn-primary">Join game</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 `,
     data: function () {
@@ -120,6 +157,11 @@ const Game = {
             stompClient: null,
             blackPlayerScore: 0,
             whitePlayerScore: 0,
+            joinGameModel: {
+                gameUuid: null,
+                gameSide: "WHITE"
+            },
+            uiUuid: null,
             gameUuid: null,
             gameSide: "WHITE",
             againstComputer: false,
@@ -127,259 +169,259 @@ const Game = {
             specialGamePattern: null,
             specialGamePatternEnabled: false,
             board: {
-                A8 : {
+                A8: {
                     "unicodeIcon": "&#9820;",
                     "name": "Black Rook"
                 },
-                B8 : {
+                B8: {
                     "unicodeIcon": " &#9822;",
                     "name": "Black Knight"
                 },
-                C8 : {
+                C8: {
                     "unicodeIcon": "&#9821;",
                     "name": "Black Bishop"
                 },
-                D8 : {
+                D8: {
                     "unicodeIcon": "&#9819;",
                     "name": "Black Queen "
                 },
-                E8 : {
+                E8: {
                     "unicodeIcon": "&#9818;",
                     "name": "Black King"
                 },
-                F8 : {
+                F8: {
                     "unicodeIcon": "&#9821;",
                     "name": "Black Bishop"
                 },
-                G8 : {
+                G8: {
                     "unicodeIcon": " &#9822;",
                     "name": "Black Knight"
                 },
-                H8 : {
+                H8: {
                     "unicodeIcon": "&#9820;",
                     "name": "Black Rook"
                 },
-                A7 : {
+                A7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                B7 : {
+                B7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                C7 : {
+                C7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                D7 : {
+                D7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                E7 : {
+                E7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                F7 : {
+                F7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                G7 : {
+                G7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                H7 : {
+                H7: {
                     "unicodeIcon": "&#9823;",
                     "name": "Black Pawn"
                 },
-                A6 : {
+                A6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B6 : {
+                B6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C6 : {
+                C6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D6 : {
+                D6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E6 : {
+                E6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F6 : {
+                F6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G6 : {
+                G6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H6 : {
+                H6: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A5 : {
+                A5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B5 : {
+                B5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C5 : {
+                C5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D5 : {
+                D5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E5 : {
+                E5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F5 : {
+                F5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G5 : {
+                G5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H5 : {
+                H5: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A4 : {
+                A4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B4 : {
+                B4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C4 : {
+                C4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D4 : {
+                D4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E4 : {
+                E4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F4 : {
+                F4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G4 : {
+                G4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H4 : {
+                H4: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A3 : {
+                A3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                B3 : {
+                B3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                C3 : {
+                C3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                D3 : {
+                D3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                E3 : {
+                E3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                F3 : {
+                F3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                G3 : {
+                G3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                H3 : {
+                H3: {
                     "unicodeIcon": "",
                     "name": ""
                 },
-                A2 : {
+                A2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                B2 : {
+                B2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                C2 : {
+                C2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                D2 : {
+                D2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                E2 : {
+                E2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                F2 : {
+                F2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                G2 : {
+                G2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                H2 : {
+                H2: {
                     "unicodeIcon": "&#9817;",
                     "name": "White Pawn"
                 },
-                A1 : {
+                A1: {
                     "unicodeIcon": "&#9814;",
                     "name": "White Rook"
                 },
-                B1 : {
+                B1: {
                     "unicodeIcon": "&#9816;",
                     "name": "White Knight"
                 },
-                C1 : {
+                C1: {
                     "unicodeIcon": "&#9815;",
                     "name": "White Bishop"
                 },
-                D1 : {
+                D1: {
                     "unicodeIcon": "&#9813;",
                     "name": "White Queen "
                 },
-                E1 : {
+                E1: {
                     "unicodeIcon": "&#9812;",
                     "name": "White King"
                 },
-                F1 : {
+                F1: {
                     "unicodeIcon": "&#9815;",
                     "name": "White Bishop"
                 },
-                G1 : {
+                G1: {
                     "unicodeIcon": "&#9816;",
                     "name": "White Knight"
                 },
-                H1 : {
+                H1: {
                     "unicodeIcon": "&#9814;",
                     "name": "White Rook"
                 }
@@ -476,7 +518,7 @@ const Game = {
         },
         //---------------------------------------------------------------------------
         saveUuid: function (data) {
-            this.gameUuid = data.response;
+            this.gameUuid = data;
         },
         //---------------------------------------------------------------------------
         onGameEvent: function (payload) {
@@ -531,7 +573,7 @@ const Game = {
 
             switch (chessEvent) {
                 case 'PLAYER_TURN':
-                    ref.eventLog.push(message);
+                    this.eventLog.push(message);
                     break;
                 case 'PAWN_PROMOTION':
                     //FIXME
@@ -576,39 +618,97 @@ const Game = {
             });
         },
         //---------------------------------------------------------------------------
-        resetGame: function () {
+        initNewGame: function (gameUuid, gameSide) {
             this.eventLog = [];
             this.moveLog = [];
             this.blackPlayerScore = 0;
             this.whitePlayerScore = 0;
+
+            if(gameSide) {
+                this.gameSide = gameSide;
+            }
+
+            this.saveUuid(gameUuid);
+            this.refreshGamePieces();
+            this.initGameComponents();
         },
         //---------------------------------------------------------------------------
         createNewGameWithProperties: function () {
             let ref = this;
             let parent = ref.$parent;
 
+            this.fetchNewUiUuidAndExecute(function () {
+                $.ajax({
+                    url: `${parent.baseApi}/api/v1/game/create`,
+                    type: "POST",
+                    cache: false,
+                    timeout: 30000,
+                    data: `side=${ref.gameSide}&againstComputer=${ref.againstComputer}&observers=${ref.observers}`,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
+                    }
+                }).done(function (data) {
+                    ref.initNewGame(data.response);
+                    $('#new-game-modal').modal('hide')
+                }).fail(function () {
+                    alertify.error("Unable to create a new game!", 5);
+                });
+            }, function () {
+                alertify.error("Unable to obtain a game id!", 5);
+            });
+        },
+        //---------------------------------------------------------------------------
+        joinGameWithProperties: function () {
+            let ref = this;
+            let parent = ref.$parent;
+
+            this.fetchNewUiUuidAndExecute(function () {
+                $.ajax({
+                    url: `${parent.baseApi}/api/v1/game/join`,
+                    type: "POST",
+                    cache: false,
+                    timeout: 30000,
+                    data: `uuid=${ref.joinGameModel.gameUuid}&side=${ref.joinGameModel.gameSide}&uiUuid=${ref.uiUuid}`,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
+                    }
+                }).done(function (data) {
+                    ref.initNewGame(ref.joinGameModel.gameUuid, ref.joinGameModel.gameSide);
+                    $('#join-game-modal').modal('hide')
+                }).fail(function () {
+                    alertify.error("Unable to join the selected game!", 5);
+                });
+            }, function () {
+                alertify.error("Unable to obtain a game id!", 5);
+            });
+        },
+        //---------------------------------------------------------------------------
+        fetchNewUiUuidAndExecute: function (passCallback, failCallback) {
+            let ref = this;
+            let parent = ref.$parent;
+
             $.ajax({
-                url: `${this.$parent.baseApi}/api/v1/game/create`,
-                type: "POST",
+                url: `${this.$parent.baseApi}/api/v1/ui/id`,
+                type: "GET",
                 cache: false,
                 timeout: 30000,
-                data: `side=${this.gameSide}&againstComputer=${this.againstComputer}&observers=${this.observers}`,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
                 }
             }).done(function (data) {
-                ref.saveUuid(data);
-                ref.resetGame();
-                ref.refreshGamePieces();
-                ref.initGameComponents();
-                $('#new-game-modal').modal('hide')
+                passCallback(data);
+                ref.uiUuid = data.response;
             }).fail(function () {
-                alertify.error("Unable to create a new game!", 5);
+                failCallback();
             });
         },
         //---------------------------------------------------------------------------
         newGame: function () {
             $('#new-game-modal').modal('toggle')
+        },
+        //---------------------------------------------------------------------------
+        joinGame: function () {
+            $('#join-game-modal').modal('toggle')
         },
         //---------------------------------------------------------------------------
         whenPieceDraggedEvent: function (event) {

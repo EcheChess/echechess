@@ -16,10 +16,6 @@
 
 package ca.watier.echechess.components;
 
-import ca.watier.echechess.common.interfaces.WebSocketService;
-import ca.watier.echechess.server.UiSessionHandlerInterceptor;
-import ca.watier.echechess.services.UiSessionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
@@ -39,29 +35,12 @@ import java.util.concurrent.TimeUnit;
 public class MvcConfiguration implements WebMvcConfigurer {
 
     private static final CacheControl CACHE_CONTROL_TWO_HOURS = CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic();
-    private final UiSessionService uiSessionService;
-    private final WebSocketService webSocketService;
-
-    @Autowired
-    public MvcConfiguration(UiSessionService uiSessionService, WebSocketService webSocketService) {
-        this.uiSessionService = uiSessionService;
-        this.webSocketService = webSocketService;
-    }
 
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor()).addPathPatterns("/api/game/**");
-    }
-
-    @Bean
-    public UiSessionHandlerInterceptor interceptor() {
-        return new UiSessionHandlerInterceptor(uiSessionService, webSocketService);
-    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

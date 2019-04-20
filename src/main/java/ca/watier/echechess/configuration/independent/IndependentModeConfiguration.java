@@ -70,9 +70,11 @@ public class IndependentModeConfiguration {
         IndependentUserRepositoryImpl independentUserRepositoryImpl = new IndependentUserRepositoryImpl(passwordEncoder);
 
         try {
-            User user = new User("admin", "admin", "adminEmail");
+            User admin = new User("admin", "admin", "adminEmail");
+            User adminTwo = new User("admin2", "admin2", "adminEmail2");
 
-            independentUserRepositoryImpl.addNewUserWithRole(user, Roles.ADMIN);
+            independentUserRepositoryImpl.addNewUserWithRole(admin, Roles.ADMIN);
+            independentUserRepositoryImpl.addNewUserWithRole(adminTwo, Roles.ADMIN);
         } catch (UserException e) {
             LOGGER.error("Unable to create the default admin user!", e);
         }
