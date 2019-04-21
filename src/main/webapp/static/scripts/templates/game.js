@@ -50,7 +50,7 @@ const Game = {
                 </div>
             </div>
             <div class="bord-case" v-bind:data-case-id="key" v-for="(piece, key, index) in board">
-                <span class="board-pieces" draggable="true" v-html="piece.unicodeIcon"></span>
+                <span class="board-pieces" draggable="true" v-bind:data-piece-side="mapSideByteToText(piece.side)" v-html="piece.unicodeIcon"></span>
             </div>
         </div>
         
@@ -171,259 +171,323 @@ const Game = {
             board: {
                 A8: {
                     "unicodeIcon": "&#9820;",
-                    "name": "Black Rook"
+                    "name": "Black Rook",
+                    "side": 0
                 },
                 B8: {
                     "unicodeIcon": " &#9822;",
-                    "name": "Black Knight"
+                    "name": "Black Knight",
+                    "side": 0
                 },
                 C8: {
                     "unicodeIcon": "&#9821;",
-                    "name": "Black Bishop"
+                    "name": "Black Bishop",
+                    "side": 0
                 },
                 D8: {
                     "unicodeIcon": "&#9819;",
-                    "name": "Black Queen "
+                    "name": "Black Queen ",
+                    "side": 0
                 },
                 E8: {
                     "unicodeIcon": "&#9818;",
-                    "name": "Black King"
+                    "name": "Black King",
+                    "side": 0
                 },
                 F8: {
                     "unicodeIcon": "&#9821;",
-                    "name": "Black Bishop"
+                    "name": "Black Bishop",
+                    "side": 0
                 },
                 G8: {
                     "unicodeIcon": " &#9822;",
-                    "name": "Black Knight"
+                    "name": "Black Knight",
+                    "side": 0
                 },
                 H8: {
                     "unicodeIcon": "&#9820;",
-                    "name": "Black Rook"
+                    "name": "Black Rook",
+                    "side": 0
                 },
                 A7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 B7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 C7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 D7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 E7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 F7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 G7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 H7: {
                     "unicodeIcon": "&#9823;",
-                    "name": "Black Pawn"
+                    "name": "Black Pawn",
+                    "side": 0
                 },
                 A6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 B6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 C6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 D6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 E6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 F6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 G6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 H6: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 A5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 B5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 C5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 D5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 E5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 F5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 G5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 H5: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 A4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 B4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 C4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 D4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 E4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 F4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 G4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 H4: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 A3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 B3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 C3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 D3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 E3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 F3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 G3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 H3: {
                     "unicodeIcon": "",
-                    "name": ""
+                    "name": "",
+                    "side": 0
                 },
                 A2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 B2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 C2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 D2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 E2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 F2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 G2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 H2: {
                     "unicodeIcon": "&#9817;",
-                    "name": "White Pawn"
+                    "name": "White Pawn",
+                    "side": 1
                 },
                 A1: {
                     "unicodeIcon": "&#9814;",
-                    "name": "White Rook"
+                    "name": "White Rook",
+                    "side": 1
                 },
                 B1: {
                     "unicodeIcon": "&#9816;",
-                    "name": "White Knight"
+                    "name": "White Knight",
+                    "side": 1
                 },
                 C1: {
                     "unicodeIcon": "&#9815;",
-                    "name": "White Bishop"
+                    "name": "White Bishop",
+                    "side": 1
                 },
                 D1: {
                     "unicodeIcon": "&#9813;",
-                    "name": "White Queen "
+                    "name": "White Queen ",
+                    "side": 1
                 },
                 E1: {
                     "unicodeIcon": "&#9812;",
-                    "name": "White King"
+                    "name": "White King",
+                    "side": 1
                 },
                 F1: {
                     "unicodeIcon": "&#9815;",
-                    "name": "White Bishop"
+                    "name": "White Bishop",
+                    "side": 1
                 },
                 G1: {
                     "unicodeIcon": "&#9816;",
-                    "name": "White Knight"
+                    "name": "White Knight",
+                    "side": 1
                 },
                 H1: {
                     "unicodeIcon": "&#9814;",
-                    "name": "White Rook"
+                    "name": "White Rook",
+                    "side": 1
                 }
             },
             eventLog: [],
@@ -434,6 +498,19 @@ const Game = {
         this.registerEvents();
     },
     methods: {
+        mapSideByteToText(value) {
+            switch (value) {
+                case 0:
+                    return "BLACK";
+                case 1:
+                    return "WHITE";
+                case 2:
+                    return "OBSERVER";
+                default:
+                    return "";
+            }
+        },
+        //---------------------------------------------------------------------------
         updateBoardPieces: function (items) {
             let length = items.length;
             for (let i = 0; i < length; i++) {
@@ -509,7 +586,13 @@ const Game = {
                     return;
                 }
 
-                let from = $(this).parent().attr("data-case-id");
+                let piece = $(this);
+                let from = piece.parent().data("case-id");
+                let side = piece.data("piece-side");
+
+                if (side !== ref.gameSide) {
+                    return;
+                }
 
                 $.ajax({
                     url: `${ref.$parent.baseApi}/api/v1/game/moves`,

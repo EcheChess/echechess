@@ -18,15 +18,18 @@ package ca.watier.echechess.models;
 
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Pieces;
+import ca.watier.echechess.common.enums.Side;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 public class PieceLocationModel implements Serializable {
     private static final long serialVersionUID = 826241513797550414L;
     private final String unicodeIcon;
     private final String name;
     private final String rawPosition;
+    private final byte side;
 
     public PieceLocationModel(Pieces pieces, CasePosition position) {
 
@@ -42,8 +45,15 @@ public class PieceLocationModel implements Serializable {
             this.name = "";
         }
 
-
+        this.side = initSide(pieces);
         this.rawPosition = position.name();
+    }
+
+    private byte initSide(Pieces piece) {
+        return Optional.ofNullable(piece)
+                .map(Pieces::getSide)
+                .map(Side::getValue)
+                .orElse((byte) 0x00);
     }
 
     public String getUnicodeIcon() {
@@ -56,5 +66,9 @@ public class PieceLocationModel implements Serializable {
 
     public String getRawPosition() {
         return rawPosition;
+    }
+
+    public byte getSide() {
+        return side;
     }
 }
