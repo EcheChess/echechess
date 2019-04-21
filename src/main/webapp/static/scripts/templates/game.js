@@ -36,7 +36,7 @@ const Game = {
                 <div id="carousel-game-history" v-if="moveLog.length > 0" class="carousel slide" data-ride="carousel" data-interval="0">
                     <div id="carousel-game-history-items" class="carousel-inner text-center">
                         <div class="carousel-item" v-bind:class="[index === (moveLog.length - 1) ? 'active' : '']" v-for="(message, index) in moveLog">
-                            <span class="d-block w-100">{{message}}</span>
+                            <span class="d-block w-100">{{message + ' (' + (index + 1) + " of " + moveLog.length  +  ')'}}</span>
                         </div>
                     </div>
                     <a class="carousel-control-prev" href="#carousel-game-history" role="button" data-slide="prev">
@@ -485,7 +485,20 @@ const Game = {
             });
 
             $(document).on("drop", ".bord-case", function (event) {
-                ref.whenPieceDraggedEvent(event);
+                let dataTransfer = event.originalEvent.dataTransfer;
+                let from = dataTransfer.getData("from");
+                let to = $(event.target).data('case-id');
+
+                ref.whenPieceDraggedEvent(from, to);
+            });
+
+            $(document).on("drop", ".board-pieces", function (event) {
+                let dataTransfer = event.originalEvent.dataTransfer;
+                let from = dataTransfer.getData("from");
+                let pieceCase = $(event.target).parent();
+                let to = $(pieceCase).data('case-id');
+
+                ref.whenPieceDraggedEvent(from, to);
             });
 
             let $boardCaseWithPieceSelector = $(".bord-case > span.board-pieces");
@@ -574,6 +587,7 @@ const Game = {
             switch (chessEvent) {
                 case 'PLAYER_TURN':
                     this.eventLog.push(message);
+                    alertify.success(message, 3);
                     break;
                 case 'PAWN_PROMOTION':
                     //FIXME
@@ -591,7 +605,6 @@ const Game = {
                         }
                     }
                     break;
-
             }
         },
         //---------------------------------------------------------------------------
@@ -613,8 +626,9 @@ const Game = {
             };
 
             stompClientRef.connect(headers, function () {
-                stompClientRef.subscribe(`/topic/${ref.gameUuid}`, ref.onGameEvent);
-                stompClientRef.subscribe(`/topic/${ref.gameUuid}/${ref.gameSide}`, ref.onGameSideEvent);
+                let basePath = `/topic/${ref.gameUuid}`;
+                stompClientRef.subscribe(basePath, ref.onGameEvent);
+                stompClientRef.subscribe(`${basePath}/${ref.gameSide}`, ref.onGameSideEvent);
             });
         },
         //---------------------------------------------------------------------------
@@ -624,7 +638,7 @@ const Game = {
             this.blackPlayerScore = 0;
             this.whitePlayerScore = 0;
 
-            if(gameSide) {
+            if (gameSide) {
                 this.gameSide = gameSide;
             }
 
@@ -711,11 +725,8 @@ const Game = {
             $('#join-game-modal').modal('toggle')
         },
         //---------------------------------------------------------------------------
-        whenPieceDraggedEvent: function (event) {
+        whenPieceDraggedEvent: function (from, to) {
             let ref = this;
-            let dataTransfer = event.originalEvent.dataTransfer;
-            let from = dataTransfer.getData("from");
-            let to = $(event.target).data('case-id');
 
             if (this.gameUuid && from && to && (from !== to)) {
                 $.ajax({
