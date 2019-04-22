@@ -24,13 +24,15 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
-import ca.watier.echechess.engine.constraints.DefaultGameConstraint;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.engine.game.SimpleCustomPositionGameHandler;
+import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
+import ca.watier.echechess.engine.utils.FenGameParser;
 import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
-import com.google.common.collect.*;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.TreeMultimap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,13 +92,14 @@ public class GameService {
 
     /**
      * Create a new game, and associate it to the player
-     *  @param specialGamePieces - If null, create a {@link GenericGameHandler}
+     *
+     * @param specialGamePieces       - If null, create a {@link GenericGameHandler}
      * @param side
      * @param againstComputer
      * @param observers
      * @param player
      */
-    public UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) {
+    public UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) throws FenParserException {
         if (player == null || side == null) {
             throw new IllegalArgumentException();
         }
@@ -106,10 +109,7 @@ public class GameService {
 
         if (StringUtils.isNotBlank(specialGamePieces)) {
             gameType = GameType.SPECIAL;
-
-            SimpleCustomPositionGameHandler customPieceWithStandardRulesHandler = new SimpleCustomPositionGameHandler((DefaultGameConstraint) gameConstraint);
-            customPieceWithStandardRulesHandler.setPieces(specialGamePieces);
-            genericGameHandler = customPieceWithStandardRulesHandler;
+            genericGameHandler = FenGameParser.parse(specialGamePieces);
         } else {
             genericGameHandler = new GenericGameHandler(gameConstraint);
         }
@@ -322,7 +322,7 @@ public class GameService {
 
         //merge the board
         for (List<PieceLocationModel> currentRow : sortedBoardWithColumns) {
-            if(CollectionUtils.isNotEmpty(currentRow)) {
+            if (CollectionUtils.isNotEmpty(currentRow)) {
                 sortedBoard.addAll(currentRow);
             }
         }

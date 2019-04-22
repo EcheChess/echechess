@@ -16,6 +16,7 @@
 
 package ca.watier.echechess.services;
 
+import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.CasePosition;
@@ -62,7 +63,7 @@ public class GameServiceTest extends GameTest {
     private static final GameConstraint CONSTRAINT_SERVICE = GameConstraintFactory.getDefaultGameConstraint();
     private WebSocketService currentWebSocketService;
     private GameService gameService;
-    private Player player1, player2;
+    private Player player1;
     private KeyValueRepository redisGameRepository = new KeyValueRepository();
 
     @Mock
@@ -72,7 +73,6 @@ public class GameServiceTest extends GameTest {
     @Before
     public void setup() {
         player1 = new Player(UUID.randomUUID().toString());
-        player2 = new Player(UUID.randomUUID().toString());
         currentWebSocketService = new WebSocketServiceTestImpl();
         gameService = new GameService(
                 CONSTRAINT_SERVICE,
@@ -82,9 +82,9 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void upgradePiece() {
+    public void upgradePiece() throws FenParserException {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        UUID gameUuid = gameService.createNewGame("G7:W_PAWN;G2:B_PAWN;A8:W_KING;A1:B_KING", WHITE, false, false, player1);
+        UUID gameUuid = gameService.createNewGame("K7/6P1/8/8/8/8/6p1/k7 w", WHITE, false, false, player1);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
 
         Assert.assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
@@ -107,7 +107,7 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void setSideOfPlayerTest() {
+    public void setSideOfPlayerTest() throws FenParserException {
         Player player1 = new Player(UUID.randomUUID().toString());
         Player player2 = new Player(UUID.randomUUID().toString());
 
@@ -166,13 +166,13 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void createNewGameTest() {
+    public void createNewGameTest() throws FenParserException {
         Player player1 = new Player(UUID.randomUUID().toString());
 
         UUID specialGame = gameService.createNewGame("", WHITE, false, false, player1);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(specialGame.toString());
 
-        UUID normalGame = gameService.createNewGame("D5:B_KING;B5:W_QUEEN;D3:W_QUEEN;D7:W_QUEEN;F5:W_QUEEN", WHITE, false, false, player1);
+        UUID normalGame = gameService.createNewGame("8/3Q4/8/1Q1k1Q2/8/3Q4/8/8 w", WHITE, false, false, player1);
         GenericGameHandler gameFromUuidCustom = gameService.getGameFromUuid(normalGame.toString());
 
 
@@ -205,7 +205,7 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void joinGameTest() {
+    public void joinGameTest() throws FenParserException {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
 
         Player player1 = new Player(UUID.randomUUID().toString());
@@ -263,7 +263,7 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void getPieceLocationsTest() {
+    public void getPieceLocationsTest() throws FenParserException {
         Player player1 = new Player(UUID.randomUUID().toString());
         Player player2 = new Player(UUID.randomUUID().toString());
         Player playerNotInGame = new Player(UUID.randomUUID().toString());

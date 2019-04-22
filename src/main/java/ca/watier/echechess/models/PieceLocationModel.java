@@ -53,7 +53,7 @@ public class PieceLocationModel implements Serializable {
         return Optional.ofNullable(piece)
                 .map(Pieces::getSide)
                 .map(Side::getValue)
-                .orElse((byte) 0x00);
+                .orElse((byte) -1);
     }
 
     public String getUnicodeIcon() {

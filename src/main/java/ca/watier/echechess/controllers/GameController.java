@@ -20,6 +20,7 @@ import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.StringResponse;
+import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.models.GenericPiecesModel;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.services.GameService;
@@ -27,8 +28,9 @@ import ca.watier.echechess.services.UserService;
 import ca.watier.echechess.utils.AuthenticationUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +59,8 @@ public class GameController {
     private static final String PLAY_AGAINST_THE_AI = "Create a new game to play against the AI";
     private static final String WITH_OR_WITHOUT_OBSERVERS = "Create a new game with or without observers";
     private static final String PATTERN_CUSTOM_GAME = "Pattern used to create a custom game";
-    private static final ResponseEntity<Object> NO_CONTENT_RESPONSE_ENTITY = ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    private static final ResponseEntity<Object> NO_CONTENT_RESPONSE_ENTITY = ResponseEntity.noContent().build();
+    private static final ResponseEntity<Object> BAD_REQUEST_RESPONSE_ENTITY = ResponseEntity.badRequest().build();
 
     private final GameService gameService;
     private final UserService userService;
@@ -69,16 +72,25 @@ public class GameController {
     }
 
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue with the game creation"),
+            @ApiResponse(code = 200, message = "The game is created")
+    })
     @ApiOperation("Create a new game for the current player")
     @PostMapping(path = "/create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createNewGame(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                         @ApiParam(value = PLAY_AGAINST_THE_AI, required = true) boolean againstComputer,
                                         @ApiParam(value = WITH_OR_WITHOUT_OBSERVERS, required = true) boolean observers,
                                         @ApiParam(value = PATTERN_CUSTOM_GAME) String specialGamePieces) {
-        UUID newGameUuid = gameService.createNewGame(specialGamePieces, side, againstComputer, observers, AuthenticationUtils.getUserDetail());
 
-        addGameToPlayerSession(newGameUuid);
-        return ResponseEntity.ok(new StringResponse(newGameUuid.toString()));
+        try {
+            UUID newGameUuid = gameService.createNewGame(specialGamePieces, side, againstComputer, observers, AuthenticationUtils.getUserDetail());
+
+            addGameToPlayerSession(newGameUuid);
+            return ResponseEntity.ok(new StringResponse(newGameUuid.toString()));
+        } catch (FenParserException ignored) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
     }
 
     private void addGameToPlayerSession(UUID newGameUuid) {
