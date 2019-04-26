@@ -28,7 +28,7 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.engine.utils.FenGameParser;
-import ca.watier.echechess.models.GenericPiecesModel;
+import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.SetMultimap;
@@ -351,7 +351,7 @@ public class GameService {
      * @param player
      * @return
      */
-    public boolean upgradePiece(CasePosition to, String uuid, GenericPiecesModel piece, Player player) {
+    public boolean upgradePiece(CasePosition to, String uuid, PawnPromotionPiecesModel piece, Player player) {
         if (player == null || StringUtils.isBlank(uuid) || piece == null || to == null) {
             throw new IllegalArgumentException();
         }
@@ -364,7 +364,7 @@ public class GameService {
         boolean isChanged = false;
 
         try {
-            isChanged = gameFromUuid.upgradePiece(to, GenericPiecesModel.from(piece, playerSide), playerSide);
+            isChanged = gameFromUuid.upgradePiece(to, PawnPromotionPiecesModel.from(piece, playerSide), playerSide);
 
             if (isChanged) {
                 webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore()); //Refresh the points

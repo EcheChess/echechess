@@ -21,7 +21,7 @@ import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.StringResponse;
 import ca.watier.echechess.engine.exceptions.FenParserException;
-import ca.watier.echechess.models.GenericPiecesModel;
+import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.UserDetailsImpl;
 import ca.watier.echechess.services.GameService;
 import ca.watier.echechess.services.UserService;
@@ -126,7 +126,7 @@ public class GameController {
     @PostMapping(path = "/piece/pawn/promotion", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity pawnPromotion(@ApiParam(value = TO_POSITION, required = true) CasePosition to,
                                         @ApiParam(value = UUID_GAME, required = true) String uuid,
-                                        @ApiParam(value = UPGRADED_PIECE, required = true) GenericPiecesModel piece) {
+                                        @ApiParam(value = UPGRADED_PIECE, required = true) PawnPromotionPiecesModel piece) {
         return ResponseEntity.ok(gameService.upgradePiece(to, uuid, piece, AuthenticationUtils.getUserDetail()));
     }
 

@@ -19,10 +19,10 @@ package ca.watier.echechess.models;
 import ca.watier.echechess.common.enums.Pieces;
 import ca.watier.echechess.common.enums.Side;
 
-public enum GenericPiecesModel {
+public enum PawnPromotionPiecesModel {
     QUEEN, KNIGHT, ROOK, BISHOP;
 
-    public static Pieces from(GenericPiecesModel model, Side side) {
+    public static Pieces from(PawnPromotionPiecesModel model, Side side) {
         if (model == null || side == null) {
             return null;
         }
@@ -37,7 +37,7 @@ public enum GenericPiecesModel {
         return null;
     }
 
-    private static Pieces handleBlackSide(GenericPiecesModel model) {
+    private static Pieces handleBlackSide(PawnPromotionPiecesModel model) {
         switch (model) {
             case QUEEN:
                 return Pieces.B_QUEEN;
@@ -51,7 +51,7 @@ public enum GenericPiecesModel {
         return null;
     }
 
-    private static Pieces handleWhiteSide(GenericPiecesModel model) {
+    private static Pieces handleWhiteSide(PawnPromotionPiecesModel model) {
         switch (model) {
             case QUEEN:
                 return Pieces.W_QUEEN;

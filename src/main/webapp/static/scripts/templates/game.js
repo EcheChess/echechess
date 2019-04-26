@@ -71,7 +71,7 @@ const Game = {
           </div>
         </div>
     </div>
-    
+    <!-- New Game Modal -->
     <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -117,7 +117,7 @@ const Game = {
             </div>
         </div>
     </div>
-    
+    <!-- Join Game Modal -->
     <div class="modal" id="join-game-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -150,6 +150,34 @@ const Game = {
             </div>
         </div>
     </div>
+    <!-- Pawn Promotion Game Modal -->
+    <div class="modal" id="pawn-promotion-game-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pawn promotion ({{this.pawnPromotionModel.from}} to {{this.pawnPromotionModel.to}})</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <select class="form-control form-control-sm" v-model="pawnPromotionModel.piece">
+                                <option>QUEEN</option>
+                                <option>ROOK</option>
+                                <option>BISHOP</option>
+                                <option>KNIGHT</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" v-on:click="confirmPawnPromotion" class="btn btn-primary">Confirm the pawn promotion</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 `,
     data: function () {
@@ -157,6 +185,11 @@ const Game = {
             stompClient: null,
             blackPlayerScore: 0,
             whitePlayerScore: 0,
+            pawnPromotionModel: {
+                from: null,
+                to: null,
+                piece: "QUEEN"
+            },
             joinGameModel: {
                 gameUuid: null,
                 gameSide: "WHITE"
@@ -434,7 +467,27 @@ const Game = {
         this.registerEvents();
     },
     methods: {
-        mapSideByteToText(value) {
+        confirmPawnPromotion: function () {
+            let ref = this;
+            let pawnPromotionModel = this.pawnPromotionModel;
+
+            $.ajax({
+                url: `${this.$parent.baseApi}/api/v1/game/piece/pawn/promotion`,
+                type: "POST",
+                cache: false,
+                timeout: 30000,
+                data: `to=${pawnPromotionModel.to}&uuid=${this.gameUuid}&piece=${pawnPromotionModel.piece}`,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", `Bearer ${ref.$parent.oauth}`);
+                }
+            }).done(function () {
+                $('#pawn-promotion-game-modal').modal('toggle');
+            }).fail(function () {
+                alertify.error("Unable to upgrade the pawn!", 5);
+            });
+        },
+        //---------------------------------------------------------------------------
+        mapSideByteToText: function (value) {
             switch (value) {
                 case 0:
                     return "BLACK";
@@ -589,7 +642,7 @@ const Game = {
                     this.refreshGamePieces();
                     break;
                 case 'PAWN_PROMOTION':
-                    alertify.warning(message);
+                    this.handlePawnPromotion(message);
                     break;
                 case 'KING_CHECKMATE':
                     alertify.warning(message, 5);
@@ -762,10 +815,21 @@ const Game = {
                     data: `from=${from}&to=${to}&uuid=${ref.gameUuid}`,
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", `Bearer ${ref.$parent.oauth}`);
-                    },
+                    }
                 }).fail(function () {
                     alertify.error("Unable to move to the selected position!", 5);
                 });
+            }
+        },
+        //---------------------------------------------------------------------------
+        handlePawnPromotion(message) {
+
+            if (message.gameSide === this.gameSide) {
+                let pawnPromotionModel = this.pawnPromotionModel;
+                pawnPromotionModel.from = message.from;
+                pawnPromotionModel.to = message.to;
+
+                $('#pawn-promotion-game-modal').modal('toggle');
             }
         }
     }

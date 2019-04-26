@@ -17,7 +17,7 @@
 package ca.watier.echechess.services;
 
 import ca.watier.echechess.engine.exceptions.FenParserException;
-import ca.watier.echechess.models.GenericPiecesModel;
+import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.MoveType;
@@ -93,7 +93,7 @@ public class GameServiceTest extends GameTest {
 
         String uuid = gameFromUuid.getUuid();
         assertTrue(gameFromUuid.isGamePaused());
-        Assert.assertTrue(gameService.upgradePiece(G8, uuid, GenericPiecesModel.QUEEN, player1));
+        Assert.assertTrue(gameService.upgradePiece(G8, uuid, PawnPromotionPiecesModel.QUEEN, player1));
         Assert.assertFalse(gameFromUuid.isGamePaused());
 
         Assertions.assertThat(currentWebSocketService.getMessages()).containsOnly(

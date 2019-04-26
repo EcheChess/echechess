@@ -16,16 +16,14 @@
 
 package ca.watier.echechess.components;
 
-import ca.watier.echechess.common.enums.CasePosition;
-import ca.watier.echechess.common.enums.KingStatus;
-import ca.watier.echechess.common.enums.MoveType;
-import ca.watier.echechess.common.enums.Side;
+import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.models.AvailableMove;
+import ca.watier.echechess.models.PawnPromotionViewModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -76,8 +74,17 @@ public class MessageActionExecutor {
             KingStatus currentKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(playerSide);
             KingStatus otherKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide));
 
-            sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
-            sendCheckOrCheckmateMessages(currentKingStatus, otherKingStatus, playerSide, uuid);
+            if(MoveType.PAWN_PROMOTION.equals(moveType)) {
+                PawnPromotionViewModel viewModel = new PawnPromotionViewModel();
+                viewModel.setGameSide(playerSide);
+                viewModel.setFrom(from.name());
+                viewModel.setTo(to.name());
+
+                webSocketService.fireGameEvent(uuid, PAWN_PROMOTION, viewModel);
+            } else {
+                sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
+                sendCheckOrCheckmateMessagesIfNeeded(currentKingStatus, otherKingStatus, playerSide, uuid);
+            }
         }
     }
 
@@ -87,7 +94,7 @@ public class MessageActionExecutor {
         webSocketService.fireGameEvent(uuid, SCORE_UPDATE, gameFromUuid.getGameScore());
     }
 
-    private void sendCheckOrCheckmateMessages(KingStatus currentkingStatus, KingStatus otherKingStatusAfterMove, Side playerSide, String uuid) {
+    private void sendCheckOrCheckmateMessagesIfNeeded(KingStatus currentkingStatus, KingStatus otherKingStatusAfterMove, Side playerSide, String uuid) {
         if (currentkingStatus == null || otherKingStatusAfterMove == null || playerSide == null) {
             return;
         }
