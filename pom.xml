@@ -21,7 +21,7 @@
 
     <groupId>ca.watier.echechess</groupId>
     <artifactId>echechess</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>3.1.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -42,7 +42,7 @@
             <dependency>
                 <groupId>ca.watier.echechess.properties</groupId>
                 <artifactId>echechess-properties</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -142,19 +142,19 @@
         <dependency>
             <groupId>ca.watier.echechess.engine</groupId>
             <artifactId>echechess-engine</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>ca.watier.echechess.common</groupId>
             <artifactId>echechess-common</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>ca.watier.echechess.communication</groupId>
             <artifactId>echechess-communication</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
