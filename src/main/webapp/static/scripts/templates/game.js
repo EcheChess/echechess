@@ -53,7 +53,8 @@ const Game = {
                 <span class="board-pieces" draggable="true" v-bind:data-piece-side="mapSideByteToText(piece.side)" v-if="piece.unicodeIcon" v-html="piece.unicodeIcon"></span>
             </div>
         </div>
-        
+    </div>
+    
         <div id="game-points">
             <span>Black: {{blackPlayerScore}}</span>
             <span>White: {{whitePlayerScore}}</span>
@@ -70,7 +71,7 @@ const Game = {
             </div>
           </div>
         </div>
-    </div>
+    
     <!-- New Game Modal -->
     <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">

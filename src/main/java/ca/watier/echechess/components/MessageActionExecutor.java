@@ -16,7 +16,10 @@
 
 package ca.watier.echechess.components;
 
-import ca.watier.echechess.common.enums.*;
+import ca.watier.echechess.common.enums.CasePosition;
+import ca.watier.echechess.common.enums.KingStatus;
+import ca.watier.echechess.common.enums.MoveType;
+import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
@@ -74,7 +77,7 @@ public class MessageActionExecutor {
             KingStatus currentKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(playerSide);
             KingStatus otherKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide));
 
-            if(MoveType.PAWN_PROMOTION.equals(moveType)) {
+            if (MoveType.PAWN_PROMOTION.equals(moveType)) {
                 PawnPromotionViewModel viewModel = new PawnPromotionViewModel();
                 viewModel.setGameSide(playerSide);
                 viewModel.setFrom(from.name());

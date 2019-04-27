@@ -93,7 +93,7 @@ public class GameService {
     /**
      * Create a new game, and associate it to the player
      *
-     * @param specialGamePieces       - If null, create a {@link GenericGameHandler}
+     * @param specialGamePieces - If null, create a {@link GenericGameHandler}
      * @param side
      * @param againstComputer
      * @param observers
@@ -289,7 +289,7 @@ public class GameService {
 
         //Sorted small values fist (-3 -> 4)
         SetMultimap<Integer, Map.Entry<CasePosition, Pieces>> sortedByCol = TreeMultimap.create(Ordering.natural(), PIECE_LOCATION_COMPARATOR);
-        Map<CasePosition, Pieces> piecesLocation = new HashMap<>(gameFromUuid.getPiecesLocation());
+        Map<CasePosition, Pieces> piecesLocation = new EnumMap<>(gameFromUuid.getPiecesLocation());
 
         //Fill the empty positions
         for (CasePosition value : CasePosition.values()) {

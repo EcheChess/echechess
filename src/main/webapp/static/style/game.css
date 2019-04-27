@@ -17,6 +17,7 @@
 body {
     line-height: inherit !important;
     color: inherit !important;
+    overflow: auto;
 }
 
 html {
@@ -46,8 +47,6 @@ html {
 
 #board {
     max-width: 607px;
-    max-height: 607px;
-
     margin: 5px;
     display: grid;
     grid-gap: 1px 1px;

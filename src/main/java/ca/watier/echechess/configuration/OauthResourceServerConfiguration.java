@@ -18,7 +18,6 @@ package ca.watier.echechess.configuration;
 
 import ca.watier.echechess.components.UserDetailsServiceImpl;
 import ca.watier.echechess.repositories.UserRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,11 +61,6 @@ public class OauthResourceServerConfiguration extends ResourceServerConfigurerAd
                 .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler())
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authenticationProvider(daoAuthenticationProvider());
-    }
-
-
-    private boolean isApi(String url) {
-        return StringUtils.startsWithIgnoreCase(url, "/api/v");
     }
 
     @Bean

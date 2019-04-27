@@ -241,7 +241,7 @@ public class StandaloneMessageHandler implements RabbitOperations {
     private void handleMove(String[] headers, String uuid, GenericGameHandler genericGameHandler, CasePosition from) {
         Side playerSide;
         CasePosition to = CasePosition.valueOf(headers[2]);
-        playerSide = Side.getFromValue(Byte.valueOf(headers[3]));
+        playerSide = Side.getFromValue(Byte.parseByte(headers[3]));
         MoveType moveType = genericGameHandler.movePiece(from, to, playerSide);
 
         if (MoveType.isMoved(moveType)) {

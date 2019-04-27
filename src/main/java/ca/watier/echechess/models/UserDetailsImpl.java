@@ -21,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -105,5 +106,27 @@ public class UserDetailsImpl extends Player implements UserDetails {
 
     public boolean isEnabled() {
         return isEnabled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        UserDetailsImpl that = (UserDetailsImpl) o;
+        return userId == that.userId &&
+                isExpired == that.isExpired &&
+                isLocked == that.isLocked &&
+                isPwdExpired == that.isPwdExpired &&
+                isEnabled == that.isEnabled &&
+                Objects.equals(usr, that.usr) &&
+                Objects.equals(pwd, that.pwd) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(authorities, that.authorities);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), userId, usr, pwd, email, isExpired, isLocked, isPwdExpired, isEnabled, authorities);
     }
 }
