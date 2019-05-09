@@ -24,9 +24,9 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
+import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
-import ca.watier.echechess.engine.interfaces.GameConstraint;
 import ca.watier.echechess.engine.utils.FenGameParser;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
@@ -73,18 +73,18 @@ public class GameService {
         }
     };
 
-    private final GameConstraint gameConstraint;
+    private final PieceMoveConstraintDelegate pieceMoveConstraintDelegate;
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
     private final MessageClient messageClient;
 
     @Autowired
-    public GameService(GameConstraint gameConstraint,
+    public GameService(PieceMoveConstraintDelegate pieceMoveConstraintDelegate,
                        WebSocketService webSocketService,
                        GameRepository<GenericGameHandler> gameRepository,
                        MessageClient messageClient) {
 
-        this.gameConstraint = gameConstraint;
+        this.pieceMoveConstraintDelegate = pieceMoveConstraintDelegate;
         this.webSocketService = webSocketService;
         this.gameRepository = gameRepository;
         this.messageClient = messageClient;
@@ -104,18 +104,15 @@ public class GameService {
             throw new IllegalArgumentException();
         }
 
-        GameType gameType = GameType.CLASSIC;
         GenericGameHandler genericGameHandler;
 
         if (StringUtils.isNotBlank(specialGamePieces)) {
-            gameType = GameType.SPECIAL;
             genericGameHandler = FenGameParser.parse(specialGamePieces);
         } else {
-            genericGameHandler = new GenericGameHandler(gameConstraint);
+            genericGameHandler = new GenericGameHandler(pieceMoveConstraintDelegate);
         }
 
         UUID uui = UUID.randomUUID();
-        genericGameHandler.setGameType(gameType);
         String uuidAsString = uui.toString();
         genericGameHandler.setUuid(uuidAsString);
         player.addCreatedGame(uui);

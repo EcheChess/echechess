@@ -16,8 +16,6 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.engine.exceptions.FenParserException;
-import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.MoveType;
@@ -28,10 +26,13 @@ import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.tests.GameTest;
 import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.engine.factories.GameConstraintFactory;
-import ca.watier.echechess.engine.interfaces.GameConstraint;
+import ca.watier.echechess.engine.interfaces.PlayerHandler;
 import ca.watier.echechess.engine.utils.GameUtils;
+import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.repository.KeyValueRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
@@ -60,7 +61,7 @@ import static org.junit.Assert.*;
 public class GameServiceTest extends GameTest {
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
-    private static final GameConstraint CONSTRAINT_SERVICE = GameConstraintFactory.getDefaultGameConstraint();
+    private static final PieceMoveConstraintDelegate DEFAULT_GAME_MOVE_DELEGATE = GameConstraintFactory.getDefaultGameMoveDelegate();
     private WebSocketService currentWebSocketService;
     private GameService gameService;
     private Player player1;
@@ -75,7 +76,7 @@ public class GameServiceTest extends GameTest {
         player1 = new Player(UUID.randomUUID().toString());
         currentWebSocketService = new WebSocketServiceTestImpl();
         gameService = new GameService(
-                CONSTRAINT_SERVICE,
+                DEFAULT_GAME_MOVE_DELEGATE,
                 currentWebSocketService,
                 redisGameRepository,
                 messageClient);
@@ -123,18 +124,19 @@ public class GameServiceTest extends GameTest {
         Set<UUID> gameListIdFromPlayer = new HashSet<>(player1.getCreatedGameList());
         List<GenericGameHandler> allGames = new ArrayList<>(mapOfGames.values());
         GenericGameHandler normalGameHandler = allGames.get(0);
+        PlayerHandler playerHandler = normalGameHandler.getPlayerHandler();
 
         //Check if the player1 is set to black
         assertEquals(player1, normalGameHandler.getPlayerBlack());
-        assertNull(normalGameHandler.getPlayerWhite());
-        assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertNull(playerHandler.getPlayerWhite());
+        assertTrue(playerHandler.getObserverList().isEmpty());
 
         gameService.setSideOfPlayer(WHITE, uuid, player1);
 
         //Check if the player1 is set to white (was black before)
         assertNull(normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
-        assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(playerHandler.getObserverList().isEmpty());
 
         //compare the service vs player1 data
         assertEquals(allIdGamesFromGameService, gameListIdFromPlayer);
@@ -147,14 +149,14 @@ public class GameServiceTest extends GameTest {
         //Check if the player1 is still associated to black, player2 not set yet
         assertNull(normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
-        assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(playerHandler.getObserverList().isEmpty());
 
         //Try to associate the black to the player 2 (not set yet)
         gameService.setSideOfPlayer(BLACK, uuid, player2);
 
         assertEquals(player2, normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
-        assertTrue(normalGameHandler.getObserverList().isEmpty());
+        assertTrue(playerHandler.getObserverList().isEmpty());
 
         //Change both of the player to observers
         gameService.setSideOfPlayer(OBSERVER, uuid, player1);
@@ -162,7 +164,7 @@ public class GameServiceTest extends GameTest {
 
         assertNull(normalGameHandler.getPlayerBlack());
         assertNull(normalGameHandler.getPlayerWhite());
-        assertTrue(normalGameHandler.getObserverList().containsAll(asList(player1, player2)));
+        assertTrue(playerHandler.getObserverList().containsAll(asList(player1, player2)));
     }
 
     @Test
@@ -183,10 +185,6 @@ public class GameServiceTest extends GameTest {
 
         //Check the type of the game
         Assert.assertNotNull(gameFromUuidCustom);
-        assertEquals(SPECIAL, gameFromUuidCustom.getGameType());
-
-        Assert.assertNotNull(gameFromUuidCustom);
-        assertEquals(CLASSIC, gameFromUuid.getGameType());
 
         //Check if the pieces are set
         Map<CasePosition, Pieces> piecesLocationCustom = gameFromUuidCustom.getPiecesLocation();
