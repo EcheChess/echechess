@@ -19,10 +19,10 @@ package ca.watier.echechess.components;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 
-public class GameMessageHandler {
+public class DependentGameMessageHandler {
     private final MessageActionExecutor actionExecutor;
 
-    public GameMessageHandler(MessageActionExecutor actionExecutor) {
+    public DependentGameMessageHandler(MessageActionExecutor actionExecutor) {
         this.actionExecutor = actionExecutor;
     }
 

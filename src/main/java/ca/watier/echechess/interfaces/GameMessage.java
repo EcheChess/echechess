@@ -1,5 +1,5 @@
 /*
- *    Copyright 2014 - 2018 Yannick Watier
+ *    Copyright 2014 - 2019 Yannick Watier
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,18 +14,9 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.clients;
+package ca.watier.echechess.interfaces;
 
-import org.springframework.amqp.rabbit.core.RabbitOperations;
-
-public class MessageClient {
-    private RabbitOperations rabbitOperations;
-
-    public MessageClient(RabbitOperations rabbitOperations) {
-        this.rabbitOperations = rabbitOperations;
-    }
-
-    public void sendMessage(String queueName, String message) {
-        rabbitOperations.convertAndSend(queueName, message);
-    }
+public interface GameMessage {
+    void handleMoveMessage(String message);
+    void handleAvailableMoveMessage(String message);
 }

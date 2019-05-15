@@ -16,11 +16,9 @@
 
 package ca.watier.echechess.configuration.independent;
 
-import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.components.MessageActionExecutor;
-import ca.watier.echechess.components.StandaloneMessageHandler;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
@@ -51,11 +49,6 @@ public class IndependentModeConfiguration {
     @Bean
     public GameRepository<GenericGameHandler> gameRepository() {
         return new IndependentGameRepositoryImpl();
-    }
-
-    @Bean
-    public MessageClient rabbitStandaloneClient(MessageActionExecutor actionExecutor, GameRepository<GenericGameHandler> gameRepository, ObjectMapper objectMapper) {
-        return new MessageClient(new StandaloneMessageHandler(actionExecutor, gameRepository, objectMapper));
     }
 
     @Bean

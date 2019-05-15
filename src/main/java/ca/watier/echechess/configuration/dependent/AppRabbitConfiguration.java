@@ -16,12 +16,11 @@
 
 package ca.watier.echechess.configuration.dependent;
 
-import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
-import ca.watier.echechess.components.GameMessageHandler;
+import ca.watier.echechess.components.DependentGameMessageHandler;
 import ca.watier.echechess.components.MessageActionExecutor;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,13 +42,13 @@ public class AppRabbitConfiguration extends RabbitMqConfiguration {
     }
 
     @Bean
-    public MessageListenerAdapter messageListener(GameMessageHandler gameMessageHandler) {
-        return new MessageListenerAdapter(gameMessageHandler);
+    public MessageListenerAdapter messageListener(DependentGameMessageHandler dependentGameMessageHandler) {
+        return new MessageListenerAdapter(dependentGameMessageHandler);
     }
 
     @Bean
-    public GameMessageHandler gameMessageHandler(MessageActionExecutor actionExecutor) {
-        return new GameMessageHandler(actionExecutor);
+    public DependentGameMessageHandler gameMessageHandler(MessageActionExecutor actionExecutor) {
+        return new DependentGameMessageHandler(actionExecutor);
     }
 
     @Bean
@@ -57,10 +56,5 @@ public class AppRabbitConfiguration extends RabbitMqConfiguration {
                                                 WebSocketService webSocketService,
                                                 ObjectMapper objectMapper) {
         return new MessageActionExecutor(gameRepository, webSocketService, objectMapper);
-    }
-
-    @Bean
-    public MessageClient rabbitStandaloneClient(RabbitTemplate rabbitTemplate) {
-        return new MessageClient(rabbitTemplate);
     }
 }

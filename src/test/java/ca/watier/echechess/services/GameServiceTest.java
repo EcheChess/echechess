@@ -16,7 +16,6 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.MoveType;
 import ca.watier.echechess.common.enums.Pieces;
@@ -26,6 +25,7 @@ import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.tests.GameTest;
 import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
@@ -47,8 +47,6 @@ import java.util.*;
 
 import static ca.watier.echechess.common.enums.CasePosition.*;
 import static ca.watier.echechess.common.enums.ChessEventMessage.REFRESH_BOARD;
-import static ca.watier.echechess.common.enums.GameType.CLASSIC;
-import static ca.watier.echechess.common.enums.GameType.SPECIAL;
 import static ca.watier.echechess.common.enums.Pieces.B_KING;
 import static ca.watier.echechess.common.enums.Pieces.W_QUEEN;
 import static ca.watier.echechess.common.enums.Side.OBSERVER;
@@ -68,7 +66,7 @@ public class GameServiceTest extends GameTest {
     private KeyValueRepository redisGameRepository = new KeyValueRepository();
 
     @Mock
-    private MessageClient messageClient;
+    private GameMessageDelegate gameMessageDelegate;
 
 
     @Before
@@ -79,7 +77,7 @@ public class GameServiceTest extends GameTest {
                 DEFAULT_GAME_MOVE_DELEGATE,
                 currentWebSocketService,
                 redisGameRepository,
-                messageClient);
+                gameMessageDelegate);
     }
 
     @Test

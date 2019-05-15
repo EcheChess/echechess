@@ -16,7 +16,6 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.clients.MessageClient;
 import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.BooleanResponse;
@@ -24,6 +23,7 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
+import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
@@ -76,18 +76,18 @@ public class GameService {
     private final PieceMoveConstraintDelegate pieceMoveConstraintDelegate;
     private final WebSocketService webSocketService;
     private final GameRepository<GenericGameHandler> gameRepository;
-    private final MessageClient messageClient;
+    private final GameMessageDelegate gameMessageDelegate;
 
     @Autowired
     public GameService(PieceMoveConstraintDelegate pieceMoveConstraintDelegate,
                        WebSocketService webSocketService,
                        GameRepository<GenericGameHandler> gameRepository,
-                       MessageClient messageClient) {
+                       GameMessageDelegate gameMessageDelegate) {
 
         this.pieceMoveConstraintDelegate = pieceMoveConstraintDelegate;
         this.webSocketService = webSocketService;
         this.gameRepository = gameRepository;
-        this.messageClient = messageClient;
+        this.gameMessageDelegate = gameMessageDelegate;
     }
 
     /**
@@ -165,7 +165,7 @@ public class GameService {
 
         //UUID|FROM|TO|ID_PLAYER_SIDE
         String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
-        messageClient.sendMessage(MOVE_WORK_QUEUE_NAME, payload);
+        gameMessageDelegate.handleMoveMessage(payload);
     }
 
     /**
@@ -224,7 +224,7 @@ public class GameService {
         }
 
         String payload = uuid + '|' + from.name() + '|' + playerSide.getValue();
-        messageClient.sendMessage(AVAIL_MOVE_WORK_QUEUE_NAME, payload);
+        gameMessageDelegate.handleAvailableMoveMessage(payload);
     }
 
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) {
