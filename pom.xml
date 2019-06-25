@@ -21,7 +21,7 @@
 
     <groupId>ca.watier.echechess</groupId>
     <artifactId>echechess</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>ca.watier.echechess.engine</groupId>
             <artifactId>echechess-engine</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>1.3.0</version>
         </dependency>
 
         <dependency>

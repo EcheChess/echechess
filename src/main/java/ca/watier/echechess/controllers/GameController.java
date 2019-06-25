@@ -93,13 +93,6 @@ public class GameController {
         }
     }
 
-    private void addGameToPlayerSession(UUID newGameUuid) {
-        UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        principal.addCreatedGame(newGameUuid);
-
-        userService.addGameToUser(principal.getUsername(), newGameUuid);
-    }
-
     @ApiOperation("Move the selected piece")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @PostMapping(path = "/move", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -159,5 +152,12 @@ public class GameController {
     public ResponseEntity setSideOfPlayer(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                           @ApiParam(value = UUID_GAME, required = true) String uuid) {
         return ResponseEntity.ok(gameService.setSideOfPlayer(side, uuid, AuthenticationUtils.getUserDetail()));
+    }
+
+    private void addGameToPlayerSession(UUID newGameUuid) {
+        UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        principal.addCreatedGame(newGameUuid);
+
+        userService.addGameToUser(principal.getUsername(), newGameUuid);
     }
 }
