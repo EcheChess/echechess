@@ -19,6 +19,7 @@ package ca.watier.echechess.configuration.independent;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.components.MessageActionExecutor;
+import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
@@ -54,8 +55,9 @@ public class IndependentModeConfiguration {
     @Bean
     public MessageActionExecutor messageActionExecutor(GameRepository<GenericGameHandler> gameRepository,
                                                        WebSocketService webSocketService,
-                                                       ObjectMapper objectMapper) {
-        return new MessageActionExecutor(gameRepository, webSocketService, objectMapper);
+                                                       ObjectMapper objectMapper,
+                                                       PieceMoveConstraintDelegate gameMoveConstraintDelegate) {
+        return new MessageActionExecutor(gameMoveConstraintDelegate, gameRepository, webSocketService, objectMapper);
     }
 
     @Bean

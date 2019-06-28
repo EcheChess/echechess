@@ -22,9 +22,9 @@ import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
 import ca.watier.echechess.components.DependentGameMessageHandler;
 import ca.watier.echechess.components.MessageActionExecutor;
+import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +54,8 @@ public class AppRabbitConfiguration extends RabbitMqConfiguration {
     @Bean
     public MessageActionExecutor actionExecutor(GameRepository<GenericGameHandler> gameRepository,
                                                 WebSocketService webSocketService,
-                                                ObjectMapper objectMapper) {
-        return new MessageActionExecutor(gameRepository, webSocketService, objectMapper);
+                                                ObjectMapper objectMapper,
+                                                PieceMoveConstraintDelegate gameMoveConstraintDelegate) {
+        return new MessageActionExecutor(gameMoveConstraintDelegate, gameRepository, webSocketService, objectMapper);
     }
 }

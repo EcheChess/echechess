@@ -16,7 +16,10 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.common.enums.*;
+import ca.watier.echechess.common.enums.CasePosition;
+import ca.watier.echechess.common.enums.KingStatus;
+import ca.watier.echechess.common.enums.Pieces;
+import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.sessions.Player;
@@ -27,6 +30,10 @@ import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
+import ca.watier.echechess.engine.handlers.GameEventEvaluatorHandlerImpl;
+import ca.watier.echechess.engine.handlers.PlayerHandlerImpl;
+import ca.watier.echechess.engine.interfaces.GameEventEvaluatorHandler;
+import ca.watier.echechess.engine.interfaces.PlayerHandler;
 import ca.watier.echechess.engine.utils.FenGameParser;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
@@ -46,8 +53,6 @@ import static ca.watier.echechess.common.enums.ChessEventMessage.PLAYER_TURN;
 import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.Side.getOtherPlayerSide;
 import static ca.watier.echechess.common.utils.Constants.*;
-import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration.AVAIL_MOVE_WORK_QUEUE_NAME;
-import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration.MOVE_WORK_QUEUE_NAME;
 
 
 /**
@@ -104,13 +109,7 @@ public class GameService {
             throw new IllegalArgumentException();
         }
 
-        GenericGameHandler genericGameHandler;
-
-        if (StringUtils.isNotBlank(specialGamePieces)) {
-            genericGameHandler = FenGameParser.parse(specialGamePieces);
-        } else {
-            genericGameHandler = new GenericGameHandler(pieceMoveConstraintDelegate);
-        }
+        GenericGameHandler genericGameHandler = getGenericGameHandlerFromType(specialGamePieces);
 
         UUID uui = UUID.randomUUID();
         String uuidAsString = uui.toString();
@@ -124,6 +123,14 @@ public class GameService {
         gameRepository.add(new GenericGameHandlerWrapper<>(uuidAsString, genericGameHandler));
 
         return uui;
+    }
+
+    public GenericGameHandler getGenericGameHandlerFromType(String specialGamePieces) throws FenParserException {
+        if (StringUtils.isNotBlank(specialGamePieces)) {
+            return FenGameParser.parse(specialGamePieces);
+        } else {
+            return GenericGameHandler.newStandardHandlerFromConstraintDelegate(pieceMoveConstraintDelegate);
+        }
     }
 
     public Map<UUID, GenericGameHandler> getAllGames() {
@@ -155,10 +162,10 @@ public class GameService {
 
         if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused() || gameFromUuid.isGameDraw()) {
             return;
-        } else if (gameFromUuid.isGameDone()) {
+        } else if (gameFromUuid.isGameEnded()) {
             webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
             return;
-        } else if (KingStatus.STALEMATE.equals(gameFromUuid.getEvaluatedKingStatusBySide(playerSide))) {
+        } else if (gameFromUuid.isKing(KingStatus.STALEMATE, playerSide)) {
             webSocketService.fireSideEvent(uuid, playerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
             return;
         }

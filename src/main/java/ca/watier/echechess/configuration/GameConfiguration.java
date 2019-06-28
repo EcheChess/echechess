@@ -18,7 +18,6 @@ package ca.watier.echechess.configuration;
 
 
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
-import ca.watier.echechess.engine.factories.GameConstraintFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
 public class GameConfiguration {
     @Bean
     public PieceMoveConstraintDelegate gameMoveConstraintDelegate() {
-        return GameConstraintFactory.getDefaultGameMoveDelegate();
+        return new PieceMoveConstraintDelegate();
     }
 
     @Bean

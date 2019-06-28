@@ -29,7 +29,6 @@ import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
-import ca.watier.echechess.engine.factories.GameConstraintFactory;
 import ca.watier.echechess.engine.interfaces.PlayerHandler;
 import ca.watier.echechess.engine.utils.GameUtils;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
@@ -59,7 +58,7 @@ import static org.junit.Assert.*;
 public class GameServiceTest extends GameTest {
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
-    private static final PieceMoveConstraintDelegate DEFAULT_GAME_MOVE_DELEGATE = GameConstraintFactory.getDefaultGameMoveDelegate();
+    private static final PieceMoveConstraintDelegate DEFAULT_GAME_MOVE_DELEGATE = new PieceMoveConstraintDelegate();
     private WebSocketService currentWebSocketService;
     private GameService gameService;
     private Player player1;
@@ -87,8 +86,6 @@ public class GameServiceTest extends GameTest {
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
 
         Assert.assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
-
-        gameFromUuid.isGameDone();
 
         String uuid = gameFromUuid.getUuid();
         assertTrue(gameFromUuid.isGamePaused());

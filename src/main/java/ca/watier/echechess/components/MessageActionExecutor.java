@@ -24,12 +24,15 @@ import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
+import ca.watier.echechess.engine.abstracts.GameBoardData;
+import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.models.AvailableMove;
 import ca.watier.echechess.models.PawnPromotionViewModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,11 +45,14 @@ import static ca.watier.echechess.common.utils.Constants.PLAYER_MOVE;
 public class MessageActionExecutor {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MessageActionExecutor.class);
     private static final String REGEX_VALUE_SEPARATOR = "\\|";
+    private final PieceMoveConstraintDelegate gameMoveConstraintDelegate;
     private final GameRepository<GenericGameHandler> gameRepository;
     private final WebSocketService webSocketService;
     private final ObjectMapper objectMapper;
 
-    public MessageActionExecutor(GameRepository<GenericGameHandler> gameRepository, WebSocketService webSocketService, ObjectMapper objectMapper) {
+    @Autowired
+    public MessageActionExecutor(PieceMoveConstraintDelegate gameMoveConstraintDelegate, GameRepository<GenericGameHandler> gameRepository, WebSocketService webSocketService, ObjectMapper objectMapper) {
+        this.gameMoveConstraintDelegate = gameMoveConstraintDelegate;
         this.gameRepository = gameRepository;
         this.webSocketService = webSocketService;
         this.objectMapper = objectMapper;
@@ -74,9 +80,6 @@ public class MessageActionExecutor {
         GenericGameHandler gameFromUuid = handlerWrapper.getGenericGameHandler();
 
         if (MoveType.isMoved(moveType)) {
-            KingStatus currentKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(playerSide);
-            KingStatus otherKingStatus = gameFromUuid.getEvaluatedKingStatusBySide(Side.getOtherPlayerSide(playerSide));
-
             if (MoveType.PAWN_PROMOTION.equals(moveType)) {
                 PawnPromotionViewModel viewModel = new PawnPromotionViewModel();
                 viewModel.setGameSide(playerSide);
@@ -85,6 +88,12 @@ public class MessageActionExecutor {
 
                 webSocketService.fireGameEvent(uuid, PAWN_PROMOTION, viewModel);
             } else {
+
+                GameBoardData boardData = gameFromUuid.getCloneOfCurrentDataState();
+
+                KingStatus currentKingStatus = gameMoveConstraintDelegate.getKingStatus(playerSide, boardData);
+                KingStatus otherKingStatus = gameMoveConstraintDelegate.getKingStatus(Side.getOtherPlayerSide(playerSide), boardData);
+
                 sendMovedPieceMessage(from, to, uuid, gameFromUuid, playerSide);
                 sendCheckOrCheckmateMessagesIfNeeded(currentKingStatus, otherKingStatus, playerSide, uuid);
             }
