@@ -26,7 +26,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <spring.version>5.1.6.RELEASE</spring.version>
+        <spring.version>5.2.3.RELEASE</spring.version>
         <jetty.version>9.4.17.v20190418</jetty.version>
     </properties>
 
