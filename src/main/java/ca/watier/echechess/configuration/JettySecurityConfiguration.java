@@ -16,8 +16,11 @@
 
 package ca.watier.echechess.configuration;
 
-import ca.watier.echechess.common.utils.KeystoreGenerator;
+
 import ca.watier.echechess.components.HttpToHttpsJettyConfiguration;
+import ca.watier.keystore.generator.KeystoreGenerator;
+import ca.watier.keystore.generator.exceptions.GenerationException;
+import ca.watier.keystore.generator.models.KeystorePasswordHolder;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -30,9 +33,10 @@ import org.springframework.context.annotation.Configuration;
 import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import static ca.watier.echechess.common.utils.KeystoreGenerator.PRNG;
-import static ca.watier.echechess.common.utils.KeystoreGenerator.PROVIDER_NAME;
+import static ca.watier.keystore.generator.KeystoreGenerator.PRNG;
+import static ca.watier.keystore.generator.KeystoreGenerator.PROVIDER_NAME;
 import static org.bouncycastle.asn1.x500.style.BCStyle.GIVENNAME;
 import static org.bouncycastle.asn1.x500.style.BCStyle.O;
 
@@ -41,19 +45,22 @@ import static org.bouncycastle.asn1.x500.style.BCStyle.O;
 public class JettySecurityConfiguration {
     private static final int SECURE_PORT = 8443;
     private static final int WEB_PORT = 8080;
-    private static final Map<ASN1ObjectIdentifier, String> CERT_USER_INFOS;
-    private static final KeystoreGenerator.KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER;
+    private static final KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER = Objects.requireNonNull(buildKeystore());
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(JettySecurityConfiguration.class);
 
-    static {
-        CERT_USER_INFOS = new HashMap<>();
-        CERT_USER_INFOS.put(GIVENNAME, "Yannick Watier");
-        CERT_USER_INFOS.put(O, "Doi9t");
-        CURRENT_KEYSTORE_HOLDER =
-                KeystoreGenerator.createEcWithDefaultCurveKeystoreAndPassword(
-                        KeystoreGenerator.MAIN_SIGNING_ALG_SHA512_EC,
-                        36,
-                        CERT_USER_INFOS);
+
+    private static KeystorePasswordHolder buildKeystore() {
+        Map<ASN1ObjectIdentifier, String> objectIdentifierHashMap = new HashMap<>();
+        objectIdentifierHashMap.put(GIVENNAME, "Yannick Watier");
+        objectIdentifierHashMap.put(O, "Doi9t");
+        try {
+            return KeystoreGenerator.createEcWithDefaultCurveKeystoreAndPassword(
+                            KeystoreGenerator.MAIN_SIGNING_ALG_SHA512_EC,
+                            36,
+                            objectIdentifierHashMap);
+        } catch (GenerationException e) {
+            return null;
+        }
     }
 
 
@@ -69,10 +76,10 @@ public class JettySecurityConfiguration {
             httpConfig.addCustomizer(new SecureRequestCustomizer());
             httpConfig.setSecurePort(SECURE_PORT);
 
-            SslContextFactory sslContextFactory = new SslContextFactory();
-            sslContextFactory.setKeyStoreProvider(PROVIDER_NAME);
-            sslContextFactory.setSecureRandomAlgorithm(PRNG);
-            sslContextFactory.setIncludeProtocols("TLSv1.2");
+            SslContextFactory.Server sslServer = new SslContextFactory.Server();
+            sslServer.setKeyStoreProvider(PROVIDER_NAME);
+            sslServer.setSecureRandomAlgorithm(PRNG);
+            sslServer.setIncludeProtocols("TLSv1.2");
 
             if (CURRENT_KEYSTORE_HOLDER == null) {
                 LOGGER.error("INVALID KEYSTORE HOLDER (NULL)");
@@ -86,10 +93,9 @@ public class JettySecurityConfiguration {
                 System.exit(1);
             }
 
-            sslContextFactory.setKeyStore(keyStore);
-            sslContextFactory.setKeyStorePassword(CURRENT_KEYSTORE_HOLDER.getPassword());
-
-            sslContextFactory.setIncludeCipherSuites(
+            sslServer.setKeyStore(keyStore);
+            sslServer.setKeyStorePassword(CURRENT_KEYSTORE_HOLDER.getPassword());
+            sslServer.setIncludeCipherSuites(
                     "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
                     "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"
             );
@@ -97,7 +103,7 @@ public class JettySecurityConfiguration {
             ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
             http.setPort(WEB_PORT);
 
-            ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
+            ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslServer, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
             https.setPort(SECURE_PORT);
             https.setIdleTimeout(500000);
 
