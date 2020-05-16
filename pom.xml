@@ -58,6 +58,14 @@
             <name>bintray</name>
             <url>https://dl.bintray.com/doi9t/EcheChess</url>
         </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-doi9t-Utilities</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/doi9t/Utilities</url>
+        </repository>
     </repositories>
 
     <profiles>
