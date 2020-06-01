@@ -23,7 +23,7 @@ const router = new VueRouter({
     ]
 });
 
-new Vue({
+const vm = new Vue({
     router,
     el: '#app',
     data: {
@@ -31,7 +31,8 @@ new Vue({
         oauth_refresh: null,
         oauth_exp: null,
         oauth_scopes: null,
-        baseApi: `https://${window.location.hostname}:8443`
+        baseApi: `${API_PROTOCOL}://${API_URL}:${API_PORT}`,
+        baseApiWs: `${API_PROTOCOL_WS}://${API_URL_WS}:${API_PORT_WS}`
     },
     mounted: function () { //When created, will be executed
         this.csrf = this.getCsrfToken();

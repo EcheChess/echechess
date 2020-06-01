@@ -54,6 +54,10 @@
 <script src="scripts/sockjs.min.js"></script>
 <script src="scripts/stomp.min.js"></script>
 
+<script src="scripts/apiOverrides.js"></script>
+
+<script src="scripts/websocketDelegate.js"></script>
+
 <script src="scripts/vue/app.js"></script>
 </body>
 </html>

@@ -15,5 +15,4 @@ addons:
   sonarcloud:
     organization: "doi9t-github"
 script:
-  # other script steps might be done before running the actual SonarQube analysis
   - mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=ca.watier.echechess:echechess

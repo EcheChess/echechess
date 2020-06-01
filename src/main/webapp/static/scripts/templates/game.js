@@ -183,7 +183,7 @@ const Game = {
 `,
     data: function () {
         return {
-            stompClient: null,
+            websocketDelegate: new WebsocketDelegate(),
             blackPlayerScore: 0,
             whitePlayerScore: 0,
             pawnPromotionModel: {
@@ -684,25 +684,16 @@ const Game = {
         initGameComponents: function () {
             let ref = this;
             let parent = ref.$parent;
-
-            let stompClientRef = this.stompClient;
-            if (stompClientRef) {
-                stompClientRef.unsubscribe();
-            } else {
-                let sockJS = new SockJS(`/websocket?access_token=${parent.oauth}`, null, {transports: ['xhr-streaming']});
-                stompClientRef = Stomp.over(sockJS);
-                this.stompClient = stompClientRef;
-            }
+            let baseApiWs = parent.baseApiWs;
+            let oauth = parent.oauth;
+            let basePath = `/topic/${this.gameUuid}`;
+            let sideEventPath = `${basePath}/${this.gameSide}`;
 
             let headers = {
-                "Authorization": `Bearer ${parent.oauth}`
+                "Authorization": `Bearer ${oauth}`
             };
 
-            stompClientRef.connect(headers, function () {
-                let basePath = `/topic/${ref.gameUuid}`;
-                stompClientRef.subscribe(basePath, ref.onGameEvent);
-                stompClientRef.subscribe(`${basePath}/${ref.gameSide}`, ref.onGameSideEvent);
-            });
+            this.websocketDelegate.registerGameEvents(basePath, sideEventPath, baseApiWs, oauth, headers, this.onGameEvent, this.onGameSideEvent);
         },
         //---------------------------------------------------------------------------
         initNewGame: function (gameUuid, gameSide) {
