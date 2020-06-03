@@ -4,8 +4,8 @@ before_install:
   - unset _JAVA_OPTIONS  # https://github.com/travis-ci/travis-ci/issues/8408
 matrix:
   include:
-    - env: JDK='Oracle JDK 11'
-      install: . ./install-jdk.sh -F 11 -L BCL
+    - env: JDK='Oracle JDK 14'
+      install: . ./install-jdk.sh -f 14 -L BCL
 branches:
   only:
     - develop
