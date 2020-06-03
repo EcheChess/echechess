@@ -22,12 +22,17 @@ const Game = {
     template:
         `
 <div id="main-div">
-    <nav id="navbar-main-menu" class="navbar navbar-expand-lg">
-      <a class="navbar-brand" href="#">
-        <img src="images/EcheChess.svg" width="40" height="60" class="d-inline-block align-top">
-      </a>
-      <a class="nav-link" v-on:click="newGame">New Game</a>
-      <a class="nav-link" v-on:click="joinGame">Join Game</a>
+    <nav id="navbar-main-menu" class="navbar">
+        <nav id="navbar-left-menu" class="navbar">
+            <a class="navbar-brand" href="#">
+                <img src="images/EcheChess.svg" width="40" height="60" class="d-inline-block align-top">
+            </a>
+            <a class="nav-link nav-top-bar-game-link" v-on:click="newGame">New Game</a>
+            <a class="nav-link nav-top-bar-game-link" v-on:click="joinGame">Join Game</a>
+        </nav>
+        <nav id="navbar-right-menu" class="navbar">
+            <a class="nav-link nav-top-bar-game-link" href="/swagger-ui.html">Swagger-ui</a>
+        </nav>
     </nav>
     <div id="game">
         <div id="board">

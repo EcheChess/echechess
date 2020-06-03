@@ -66,18 +66,14 @@ public class IndependentGameMessageImpl implements GameMessage {
         CasePosition from = CasePosition.valueOf(headers[1]);
 
         switch (queueName) {
-            case AVAIL_MOVE_WORK_QUEUE_NAME:
-                handleAvailMoves(headers[2], uuid, genericGameHandler, from);
-                break;
-            case MOVE_WORK_QUEUE_NAME:
-                handleMove(headers, uuid, genericGameHandler, from);
-                break;
+            case AVAIL_MOVE_WORK_QUEUE_NAME -> handleAvailMoves(headers[2], uuid, genericGameHandler, from);
+            case MOVE_WORK_QUEUE_NAME -> handleMove(headers, uuid, genericGameHandler, from);
         }
     }
 
     private void handleAvailMoves(String header, String uuid, GenericGameHandler genericGameHandler, CasePosition from) {
         Side playerSide;
-        byte playerSideValue = Byte.valueOf(header);
+        byte playerSideValue = Byte.parseByte(header);
         playerSide = Side.getFromValue(playerSideValue);
 
 

@@ -27,41 +27,29 @@ public enum PawnPromotionPiecesModel {
             return null;
         }
 
-        switch (side) {
-            case BLACK:
-                return handleBlackSide(model);
-            case WHITE:
-                return handleWhiteSide(model);
-        }
+        return switch (side) {
+            case BLACK -> handleBlackSide(model);
+            case WHITE -> handleWhiteSide(model);
+            default -> null;
+        };
 
-        return null;
     }
 
     private static Pieces handleBlackSide(PawnPromotionPiecesModel model) {
-        switch (model) {
-            case QUEEN:
-                return Pieces.B_QUEEN;
-            case KNIGHT:
-                return Pieces.B_KNIGHT;
-            case ROOK:
-                return Pieces.B_ROOK;
-            case BISHOP:
-                return Pieces.B_BISHOP;
-        }
-        return null;
+        return switch (model) {
+            case QUEEN -> Pieces.B_QUEEN;
+            case KNIGHT -> Pieces.B_KNIGHT;
+            case ROOK -> Pieces.B_ROOK;
+            case BISHOP -> Pieces.B_BISHOP;
+        };
     }
 
     private static Pieces handleWhiteSide(PawnPromotionPiecesModel model) {
-        switch (model) {
-            case QUEEN:
-                return Pieces.W_QUEEN;
-            case KNIGHT:
-                return Pieces.W_KNIGHT;
-            case ROOK:
-                return Pieces.W_ROOK;
-            case BISHOP:
-                return Pieces.W_BISHOP;
-        }
-        return null;
+        return switch (model) {
+            case QUEEN -> Pieces.W_QUEEN;
+            case KNIGHT -> Pieces.W_KNIGHT;
+            case ROOK -> Pieces.W_ROOK;
+            case BISHOP -> Pieces.W_BISHOP;
+        };
     }
 }

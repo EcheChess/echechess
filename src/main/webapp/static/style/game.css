@@ -55,6 +55,14 @@ html {
     justify-items: center;
 }
 
+.nav-top-bar-game-link {
+    color: black !important;
+}
+
+.nav-top-bar-game-link:hover {
+    text-decoration: underline !important;
+}
+
 .modal-content {
     background-color: #726f6f !important;
 }

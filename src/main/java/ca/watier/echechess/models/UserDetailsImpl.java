@@ -31,16 +31,16 @@ public class UserDetailsImpl extends Player implements UserDetails {
 
     private static final long serialVersionUID = -124649164513355612L;
     private int userId;
-    private String usr;
+    private final String usr;
     private String pwd;
     private String email;
 
-    private boolean isExpired;
-    private boolean isLocked;
-    private boolean isPwdExpired;
-    private boolean isEnabled;
+    private final boolean isExpired;
+    private final boolean isLocked;
+    private final boolean isPwdExpired;
+    private final boolean isEnabled;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(int userId, String usr, String pwd, String email, boolean isExpired, boolean isLocked, boolean isPwdExpired, boolean isEnabled, Collection<? extends GrantedAuthority> authorities) {
         super(UUID.randomUUID().toString());

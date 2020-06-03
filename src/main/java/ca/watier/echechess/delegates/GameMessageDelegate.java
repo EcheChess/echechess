@@ -34,7 +34,7 @@ import static ca.watier.echechess.models.EnvironmentProfile.DEPENDENT_MODE;
 @Component
 public class GameMessageDelegate implements GameMessage {
 
-    private EnvironmentProfile activeProfile;
+    private final EnvironmentProfile activeProfile;
     private GameMessage independentGameMessage;
     private GameMessage dependentGameMessage;
 

@@ -26,13 +26,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
+import java.util.Objects;
+
 @Configuration
 @Profile("dependent-mode")
 public class DependentModeConfiguration {
 
     private final Environment environment;
-    private String rabbitIp;
-    private Short rabbitPort;
+    private final String rabbitIp;
+    private final Short rabbitPort;
 
     @Autowired
     public DependentModeConfiguration(Environment environment) {
@@ -64,8 +66,8 @@ public class DependentModeConfiguration {
         CachingConnectionFactory factory = new CachingConnectionFactory();
         factory.setHost(rabbitIp);
         factory.setPort(rabbitPort);
-        factory.setUsername(environment.getProperty("node.rabbit.user"));
-        factory.setPassword(environment.getProperty("node.rabbit.password"));
+        factory.setUsername(Objects.requireNonNull(environment.getProperty("node.rabbit.user")));
+        factory.setPassword(Objects.requireNonNull(environment.getProperty("node.rabbit.password")));
         return factory;
     }
 }

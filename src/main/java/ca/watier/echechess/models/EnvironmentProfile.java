@@ -19,7 +19,7 @@ package ca.watier.echechess.models;
 public enum EnvironmentProfile {
     INDEPENDENT_MODE("independent-mode"), DEPENDENT_MODE("dependent-mode");
 
-    private String mode;
+    private final String mode;
 
     EnvironmentProfile(String mode) {
         this.mode = mode;

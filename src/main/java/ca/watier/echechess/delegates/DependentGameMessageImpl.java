@@ -25,7 +25,7 @@ import static ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqC
 
 public class DependentGameMessageImpl implements GameMessage {
 
-    private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
 
     public DependentGameMessageImpl(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;

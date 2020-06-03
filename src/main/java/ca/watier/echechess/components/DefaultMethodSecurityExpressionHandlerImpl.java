@@ -24,15 +24,13 @@ import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecur
 
 public class DefaultMethodSecurityExpressionHandlerImpl extends OAuth2MethodSecurityExpressionHandler {
 
-    private AuthenticationTrustResolver trustResolver =
-            getTrustResolver();
+    private final AuthenticationTrustResolver trustResolver = getTrustResolver();
 
     @Override
     protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
             Authentication authentication, MethodInvocation invocation) {
 
-        EcheChessSecurityExpressionRootImpl root =
-                new EcheChessSecurityExpressionRootImpl(authentication);
+        EcheChessSecurityExpressionRootImpl root = new EcheChessSecurityExpressionRootImpl(authentication);
         root.setPermissionEvaluator(getPermissionEvaluator());
         root.setTrustResolver(this.trustResolver);
         root.setRoleHierarchy(getRoleHierarchy());

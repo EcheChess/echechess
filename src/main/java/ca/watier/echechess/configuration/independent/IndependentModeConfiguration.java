@@ -38,8 +38,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @Profile("independent-mode")
 public class IndependentModeConfiguration {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IndependentModeConfiguration.class);
-
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -62,18 +60,6 @@ public class IndependentModeConfiguration {
 
     @Bean
     public UserRepository userRepository() {
-        IndependentUserRepositoryImpl independentUserRepositoryImpl = new IndependentUserRepositoryImpl(passwordEncoder);
-
-        try {
-            User admin = new User("admin", "admin", "adminEmail");
-            User adminTwo = new User("admin2", "admin2", "adminEmail2");
-
-            independentUserRepositoryImpl.addNewUserWithRole(admin, Roles.ADMIN);
-            independentUserRepositoryImpl.addNewUserWithRole(adminTwo, Roles.ADMIN);
-        } catch (UserException e) {
-            LOGGER.error("Unable to create the default admin user!", e);
-        }
-
-        return independentUserRepositoryImpl;
+        return new IndependentUserRepositoryImpl(passwordEncoder);
     }
 }

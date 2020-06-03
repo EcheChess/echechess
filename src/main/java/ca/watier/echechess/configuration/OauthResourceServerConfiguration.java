@@ -56,6 +56,7 @@ public class OauthResourceServerConfiguration extends ResourceServerConfigurerAd
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/", "/favicon.ico", "/images/**", "/style/**", "/scripts/**", "/websocket/**").permitAll()
+                .antMatchers("/v2/api-docs/**", "/swagger-resources/**", "/webjars/springfox-swagger-ui/**", "/swagger-ui.html").permitAll() // swagger-ui
                 .antMatchers(HttpMethod.PUT, "/api/v1/user").permitAll()
                 .anyRequest().authenticated()
                 .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler())

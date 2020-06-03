@@ -30,11 +30,14 @@ import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.models.AvailableMove;
 import ca.watier.echechess.models.PawnPromotionViewModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static ca.watier.echechess.common.enums.ChessEventMessage.*;
@@ -49,6 +52,7 @@ public class MessageActionExecutor {
     private final GameRepository<GenericGameHandler> gameRepository;
     private final WebSocketService webSocketService;
     private final ObjectMapper objectMapper;
+    private final CollectionLikeType listStringType;
 
     @Autowired
     public MessageActionExecutor(PieceMoveConstraintDelegate gameMoveConstraintDelegate, GameRepository<GenericGameHandler> gameRepository, WebSocketService webSocketService, ObjectMapper objectMapper) {
@@ -56,6 +60,8 @@ public class MessageActionExecutor {
         this.gameRepository = gameRepository;
         this.webSocketService = webSocketService;
         this.objectMapper = objectMapper;
+        TypeFactory typeFactory = this.objectMapper.getTypeFactory();
+        listStringType = typeFactory.constructCollectionLikeType(ArrayList.class, String.class);
     }
 
     public void handleMoveResponseMessage(String message) {
@@ -135,10 +141,10 @@ public class MessageActionExecutor {
         String[] headers = message.split(REGEX_VALUE_SEPARATOR);
         String uuid = headers[0];
         String fromAsString = headers[1];
-        Side playerSide = Side.getFromValue(Byte.valueOf(headers[2]));
+        Side playerSide = Side.getFromValue(Byte.parseByte(headers[2]));
 
         try {
-            List<String> positions = objectMapper.readValue(headers[3], List.class);
+            List<String> positions = objectMapper.readValue(headers[3], listStringType);
 
             webSocketService.fireSideEvent(uuid, playerSide, AVAILABLE_MOVE, null, new AvailableMove(fromAsString, positions));
         } catch (IOException e) {
