@@ -5,7 +5,7 @@ before_install:
 matrix:
   include:
     - env: JDK='Oracle JDK 14'
-      install: . ./install-jdk.sh -f 14 -L BCL
+      install: . ./install-jdk.sh -f 14
 branches:
   only:
     - develop
@@ -15,4 +15,4 @@ addons:
   sonarcloud:
     organization: "doi9t-github"
 script:
-  - mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=ca.watier.echechess:echechess
+  - mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.6.0.1398:sonar -Pcoverage -Dsonar.projectKey=ca.watier.echechess:echechess
