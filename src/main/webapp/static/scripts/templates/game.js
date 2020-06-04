@@ -19,9 +19,15 @@
  */
 
 const Game = {
+    components: {
+        'alert-component': Alert,
+    },
     template:
         `
 <div id="main-div">
+    <alert-component
+        v-bind:alert-bus="alertBus">
+    </alert-component>
     <nav id="navbar-main-menu" class="navbar">
         <nav id="navbar-left-menu" class="navbar">
             <a class="navbar-brand" href="#">
@@ -489,7 +495,7 @@ const Game = {
             }).done(function () {
                 $('#pawn-promotion-game-modal').modal('toggle');
             }).fail(function () {
-                alertify.error("Unable to upgrade the pawn!", 5);
+                ref.addErrorAlert("Unable to upgrade the pawn!")
             });
         },
         //---------------------------------------------------------------------------
@@ -533,10 +539,10 @@ const Game = {
                 }).done(function (pieces) {
                     ref.updateBoardPieces(pieces);
                 }).fail(function () {
-                    alertify.error("Unable to fetch the pieces!", 5);
+                    ref.addErrorAlert("Unable to fetch the pieces!");
                 });
             } else {
-                alertify.error("Unable to fetch the pieces location (uuid is not available)!", 5);
+                this.addErrorAlert("Unable to fetch the pieces location (uuid is not available)!");
             }
         },
         //---------------------------------------------------------------------------
@@ -599,7 +605,7 @@ const Game = {
                         xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
                     }
                 }).fail(function () {
-                    alertify.error("Unable to get the moves positions!", 5);
+                    ref.addErrorAlert("Unable to get the moves positions!");
                 });
             });
 
@@ -622,13 +628,13 @@ const Game = {
                 //     window.setInterval(function () {
                 //         location.reload();
                 //     }, 10 * 1000);
-                //     alertify.error(message, 0);
+                //     this.addErrorAlert(message);
                 //     break;
                 case 'PLAYER_JOINED':
-                    alertify.success(message, 6);
+                    this.addSuccessAlert(message);
                     break;
                 case 'TRY_JOIN_GAME':
-                    alertify.error(message, 0);
+                    this.addErrorAlert(message);
                     break;
                 case 'MOVE':
                     this.refreshGamePieces();
@@ -651,7 +657,7 @@ const Game = {
                     this.handlePawnPromotion(message);
                     break;
                 case 'KING_CHECKMATE':
-                    alertify.warning(message, 5);
+                    this.addWarningAlert(message);
                     break;
             }
         },
@@ -665,13 +671,13 @@ const Game = {
             switch (chessEvent) {
                 case 'PLAYER_TURN':
                     this.eventLog.push(message);
-                    alertify.success(message, 3);
+                    this.addSuccessAlert(message);
                     break;
                 case 'PAWN_PROMOTION':
                     //FIXME
                     break;
                 case 'KING_CHECK':
-                    alertify.warning(message);
+                    this.addWarningAlert(message);
                     break;
                 case 'AVAILABLE_MOVE':
                     const from = obj.from;
@@ -740,10 +746,10 @@ const Game = {
                     ref.initNewGame(data.response);
                     $('#new-game-modal').modal('hide')
                 }).fail(function () {
-                    alertify.error("Unable to create a new game!", 5);
+                    ref.addErrorAlert("Unable to create a new game!");
                 });
             }, function () {
-                alertify.error("Unable to obtain a game id!", 5);
+                ref.addErrorAlert("Unable to obtain a game id!");
             });
         },
         //---------------------------------------------------------------------------
@@ -765,10 +771,10 @@ const Game = {
                     ref.initNewGame(ref.joinGameModel.gameUuid, ref.joinGameModel.gameSide);
                     $('#join-game-modal').modal('hide')
                 }).fail(function () {
-                    alertify.error("Unable to join the selected game!", 5);
+                    ref.addErrorAlert("Unable to join the selected game!");
                 });
             }, function () {
-                alertify.error("Unable to obtain a game id!", 5);
+                ref.addErrorAlert("Unable to obtain a game id!");
             });
         },
         //---------------------------------------------------------------------------
@@ -814,7 +820,7 @@ const Game = {
                         xhr.setRequestHeader("Authorization", `Bearer ${ref.$parent.oauth}`);
                     }
                 }).fail(function () {
-                    alertify.error("Unable to move to the selected position!", 5);
+                    ref.addErrorAlert("Unable to move to the selected position!");
                 });
             }
         },

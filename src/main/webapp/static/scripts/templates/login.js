@@ -15,6 +15,9 @@
  */
 
 const Login = {
+    components: {
+        'alert-component': Alert,
+    },
     template:
         `
 <div id="login-container" v-on:keyup.enter="login">
@@ -42,6 +45,9 @@ const Login = {
         </form>
         <div class="ui error message"></div>
     </div>
+    <alert-component
+        v-bind:alert-bus="alertBus">
+    </alert-component>
 </div>
 `,
     data: function () {
@@ -54,13 +60,13 @@ const Login = {
 
             let ref = this;
             let parent = ref.$parent;
-            let user = $('#username-input').val();
-            let pwd = $('#password-input').val();
+            let user = $('#username-input').val(); //FIXME: use a variable!
+            let pwd = $('#password-input').val(); //FIXME: use a variable!
 
             this.isLoginInProgress = true;
 
             if (!user || !pwd) {
-                alertify.error("Password or the username cannot be empty!", 5);
+                this.addErrorAlert("Password or the username cannot be empty!");
                 return;
             }
 
@@ -75,7 +81,7 @@ const Login = {
                     xhr.setRequestHeader("Authorization", "Basic Y2xpZW50SWQ6c2VjcmV0");
                 },
             }).done(parent.authSuccessEvent).fail(function () {
-                alertify.error("Bad credentials!", 5);
+                ref.addErrorAlert("Bad credentials!");
                 ref.isLoginInProgress = false;
             });
         },

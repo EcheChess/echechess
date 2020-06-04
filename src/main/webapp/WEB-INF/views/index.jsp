@@ -25,7 +25,6 @@
     <title>Login - EcheChess</title>
     <link rel="stylesheet" type="text/css" href="style/fontawesome-free/css/all.css">
     <link rel="stylesheet" type="text/css" href="style/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style/alertify.min.css">
     <link rel="stylesheet" type="text/css" href="style/login.css">
     <link rel="stylesheet" type="text/css" href="style/game.css">
 </head>
@@ -40,6 +39,7 @@
 <script src="scripts/jquery-3.3.1.min.js"></script>
 
 <!--Need to be before the router-link-->
+<script src="scripts/templates/alert.js"></script>
 <script src="scripts/templates/login.js"></script>
 <script src="scripts/templates/game.js"></script>
 
@@ -49,7 +49,7 @@
 <script src="scripts/vue-i18n.min.js"></script>
 <script src="scripts/vue-router.min.js"></script>
 
-<script src="scripts/alertify.min.js"></script>
+<script src="scripts/templates/globalMixins.js"></script>
 
 <script src="scripts/sockjs.min.js"></script>
 <script src="scripts/stomp.min.js"></script>
