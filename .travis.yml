@@ -8,11 +8,11 @@ matrix:
       install: . ./install-jdk.sh -f 14
 branches:
   only:
-    - develop
+    - master
 git:
   depth: false
 addons:
   sonarcloud:
     organization: "doi9t-github"
 script:
-  - mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.6.0.1398:sonar -Pcoverage -Dsonar.projectKey=ca.watier.echechess:echechess
+  - mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar -Pcoverage -Dsonar.projectKey=ca.watier.echechess:echechess
