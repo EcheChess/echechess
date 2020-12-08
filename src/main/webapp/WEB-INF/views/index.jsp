@@ -38,6 +38,8 @@
 
 <script src="scripts/jquery-3.3.1.min.js"></script>
 
+<script src="style/fontawesome-free/attribution.js"></script>
+
 <!--Need to be before the router-link-->
 <script src="scripts/templates/alert.js"></script>
 <script src="scripts/templates/login.js"></script>
