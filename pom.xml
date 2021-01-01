@@ -28,6 +28,8 @@
         <java.version>14</java.version>
         <spring.version>5.2.6.RELEASE</spring.version>
         <jetty.version>9.4.28.v20200408</jetty.version>
+        <sonar.projectKey>echechess_echechess</sonar.projectKey>
+        <sonar.organization>echechess</sonar.organization>
     </properties>
 
     <dependencyManagement>
