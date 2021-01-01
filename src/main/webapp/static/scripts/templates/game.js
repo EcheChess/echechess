@@ -19,15 +19,26 @@
  */
 
 const Game = {
-    components: {
-        'alert-component': Alert,
-    },
     template:
         `
 <div id="main-div">
-    <alert-component
-        v-bind:alert-bus="alertBus">
-    </alert-component>
+    <div id="alert-container">
+        <div v-for="(message, index) in this.$getGameMessages()"
+             v-bind:class="['d-flex', 'flex-row', 'justify-content-between', 'alert', message.level, 'alert-dismissible', 'fade', 'show']"
+             role="alert"
+             v-bind:key="message.alertId">
+
+            <i v-bind:class="[message.iconType, message.iconClass]" style="font-size:25px"></i>
+
+            <span class="alert-massage">{{message.message}}</span>&nbsp;<span v-if="message.haveMoreThanOneMessage()">
+            (x<span class="alert-count">{{message.numberOfMessages}}</span>)
+            </span>
+
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
     <nav id="navbar-main-menu" class="navbar">
         <nav id="navbar-left-menu" class="navbar">
             <a class="navbar-brand" href="#">
@@ -194,7 +205,6 @@ const Game = {
 `,
     data: function () {
         return {
-            websocketDelegate: new WebsocketDelegate(),
             blackPlayerScore: 0,
             whitePlayerScore: 0,
             pawnPromotionModel: {
@@ -478,25 +488,25 @@ const Game = {
     mounted: function () {
         this.registerEvents();
     },
+    beforeRouteEnter (to, from, next) { // https://next.router.vuejs.org/guide/advanced/navigation-guards.html#using-the-options-api
+        next(vm => {
+            if(!vm.$isAuthenticated()) { //TODO: Find a better way by using the pre-guard
+                vm.$router.push({ path: '/' });
+            }
+        })
+    },
     methods: {
         confirmPawnPromotion: function () {
             let ref = this;
             let pawnPromotionModel = this.pawnPromotionModel;
 
-            $.ajax({
-                url: `${this.$parent.baseApi}/api/v1/game/piece/pawn/promotion`,
-                type: "POST",
-                cache: false,
-                timeout: 30000,
-                data: `to=${pawnPromotionModel.to}&uuid=${this.gameUuid}&piece=${pawnPromotionModel.piece}`,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", `Bearer ${ref.$parent.oauth}`);
-                }
-            }).done(function () {
-                $('#pawn-promotion-game-modal').modal('toggle');
-            }).fail(function () {
-                ref.addErrorAlert("Unable to upgrade the pawn!")
-            });
+
+            this.$postV1('/game/piece/pawn/promotion', `to=${pawnPromotionModel.to}&uuid=${this.gameUuid}&piece=${pawnPromotionModel.piece}`,
+                function () {
+                    $('#pawn-promotion-game-modal').modal('toggle');
+                }, function () {
+                    ref.$addErrorAlert("Unable to upgrade the pawn!")
+                });
         },
         //---------------------------------------------------------------------------
         mapSideByteToText: function (value) {
@@ -524,31 +534,21 @@ const Game = {
         //---------------------------------------------------------------------------
         refreshGamePieces: function () {
             let ref = this;
-            let parent = ref.$parent;
 
             if (this.gameUuid) {
-                $.ajax({
-                    url: `${parent.baseApi}/api/v1/game/pieces`,
-                    type: "GET",
-                    cache: false,
-                    timeout: 30000,
-                    data: `uuid=${this.gameUuid}`,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                    },
-                }).done(function (pieces) {
-                    ref.updateBoardPieces(pieces);
-                }).fail(function () {
-                    ref.addErrorAlert("Unable to fetch the pieces!");
-                });
+                this.$getV1(`/game/pieces?uuid=${this.gameUuid}`,
+                    function (pieces) {
+                        ref.updateBoardPieces(pieces);
+                    }, function () {
+                        ref.$addErrorAlert("Unable to fetch the pieces!");
+                    });
             } else {
-                this.addErrorAlert("Unable to fetch the pieces location (uuid is not available)!");
+                this.$addErrorAlert("Unable to fetch the pieces location (uuid is not available)!");
             }
         },
         //---------------------------------------------------------------------------
         registerEvents: function () {
             let ref = this;
-            let parent = ref.$parent;
 
             /**
              * Drag events
@@ -595,18 +595,11 @@ const Game = {
                     return;
                 }
 
-                $.ajax({
-                    url: `${ref.$parent.baseApi}/api/v1/game/moves`,
-                    type: "GET",
-                    cache: false,
-                    timeout: 30000,
-                    data: `from=${from}&uuid=${ref.gameUuid}`,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                    }
-                }).fail(function () {
-                    ref.addErrorAlert("Unable to get the moves positions!");
-                });
+                ref.$getV1(`/game/moves?from=${from}&uuid=${ref.gameUuid}`,
+                    null,
+                    function () {
+                        ref.$addErrorAlert("Unable to get the moves positions!");
+                    })
             });
 
             $boardCaseWithPieceSelector.on("mouseleave", ".bord-case > span.board-pieces", function () {
@@ -628,13 +621,13 @@ const Game = {
                 //     window.setInterval(function () {
                 //         location.reload();
                 //     }, 10 * 1000);
-                //     this.addErrorAlert(message);
+                //     this.$addErrorAlert(message);
                 //     break;
                 case 'PLAYER_JOINED':
-                    this.addSuccessAlert(message);
+                    this.$addSuccessAlert(message);
                     break;
                 case 'TRY_JOIN_GAME':
-                    this.addErrorAlert(message);
+                    this.$addErrorAlert(message);
                     break;
                 case 'MOVE':
                     this.refreshGamePieces();
@@ -657,7 +650,7 @@ const Game = {
                     this.handlePawnPromotion(message);
                     break;
                 case 'KING_CHECKMATE':
-                    this.addWarningAlert(message);
+                    this.$addWarningAlert(message);
                     break;
             }
         },
@@ -671,13 +664,13 @@ const Game = {
             switch (chessEvent) {
                 case 'PLAYER_TURN':
                     this.eventLog.push(message);
-                    this.addSuccessAlert(message);
+                    this.$addSuccessAlert(message);
                     break;
                 case 'PAWN_PROMOTION':
                     //FIXME
                     break;
                 case 'KING_CHECK':
-                    this.addWarningAlert(message);
+                    this.$addWarningAlert(message);
                     break;
                 case 'AVAILABLE_MOVE':
                     const from = obj.from;
@@ -693,18 +686,9 @@ const Game = {
         },
         //---------------------------------------------------------------------------
         initGameComponents: function () {
-            let ref = this;
-            let parent = ref.$parent;
-            let baseApiWs = parent.baseApiWs;
-            let oauth = parent.oauth;
             let basePath = `/topic/${this.gameUuid}`;
             let sideEventPath = `${basePath}/${this.gameSide}`;
-
-            let headers = {
-                "Authorization": `Bearer ${oauth}`
-            };
-
-            this.websocketDelegate.registerGameEvents(basePath, sideEventPath, baseApiWs, oauth, headers, this.onGameEvent, this.onGameSideEvent);
+            this.$registerGameEvents(basePath, sideEventPath, this.onGameEvent, this.onGameSideEvent);
         },
         //---------------------------------------------------------------------------
         initNewGame: function (gameUuid, gameSide) {
@@ -724,7 +708,6 @@ const Game = {
         //---------------------------------------------------------------------------
         createNewGameWithProperties: function () {
             let ref = this;
-            let parent = ref.$parent;
 
             this.fetchNewUiUuidAndExecute(function () {
                 let dataAsStr = `side=${ref.gameSide}&againstComputer=${ref.againstComputer}&observers=${ref.observers}`;
@@ -733,69 +716,46 @@ const Game = {
                     dataAsStr += `&specialGamePieces=${ref.specialGamePattern}`;
                 }
 
-                $.ajax({
-                    url: `${parent.baseApi}/api/v1/game/create`,
-                    type: "POST",
-                    cache: false,
-                    timeout: 30000,
-                    data: dataAsStr,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                    }
-                }).done(function (data) {
-                    ref.initNewGame(data.response);
-                    $('#new-game-modal').modal('hide')
-                }).fail(function () {
-                    ref.addErrorAlert("Unable to create a new game!");
-                });
+                ref.$postV1('/game/create', dataAsStr,
+                    function (data) {
+                        ref.initNewGame(data.response);
+                        $('#new-game-modal').modal('hide')
+                    }, function () {
+                        ref.$addErrorAlert("Unable to create a new game!");
+                    })
+
             }, function () {
-                ref.addErrorAlert("Unable to obtain a game id!");
+                ref.$addErrorAlert("Unable to obtain a game id!");
             });
         },
         //---------------------------------------------------------------------------
         joinGameWithProperties: function () {
             let ref = this;
-            let parent = ref.$parent;
 
             this.fetchNewUiUuidAndExecute(function () {
-                $.ajax({
-                    url: `${parent.baseApi}/api/v1/game/join`,
-                    type: "POST",
-                    cache: false,
-                    timeout: 30000,
-                    data: `uuid=${ref.joinGameModel.gameUuid}&side=${ref.joinGameModel.gameSide}&uiUuid=${ref.uiUuid}`,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                    }
-                }).done(function (data) {
-                    ref.initNewGame(ref.joinGameModel.gameUuid, ref.joinGameModel.gameSide);
-                    $('#join-game-modal').modal('hide')
-                }).fail(function () {
-                    ref.addErrorAlert("Unable to join the selected game!");
-                });
+                ref.$postV1('/game/join', `uuid=${ref.joinGameModel.gameUuid}&side=${ref.joinGameModel.gameSide}&uiUuid=${ref.uiUuid}`,
+                    function () {
+                        ref.initNewGame(ref.joinGameModel.gameUuid, ref.joinGameModel.gameSide);
+                        $('#join-game-modal').modal('hide')
+                    }, function () {
+                        ref.$addErrorAlert("Unable to join the selected game!");
+                    })
             }, function () {
-                ref.addErrorAlert("Unable to obtain a game id!");
+                ref.$addErrorAlert("Unable to obtain a game id!");
             });
         },
         //---------------------------------------------------------------------------
         fetchNewUiUuidAndExecute: function (passCallback, failCallback) {
             let ref = this;
-            let parent = ref.$parent;
 
-            $.ajax({
-                url: `${this.$parent.baseApi}/api/v1/ui/id`,
-                type: "GET",
-                cache: false,
-                timeout: 30000,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", `Bearer ${parent.oauth}`);
-                }
-            }).done(function (data) {
-                passCallback(data);
-                ref.uiUuid = data.response;
-            }).fail(function () {
-                failCallback();
-            });
+            this.$getV1('/ui/id',
+                function (data) {
+                    passCallback(data);
+                    ref.uiUuid = data.response;
+                },
+                function () {
+                    failCallback();
+                });
         },
         //---------------------------------------------------------------------------
         newGame: function () {
@@ -810,18 +770,10 @@ const Game = {
             let ref = this;
 
             if (this.gameUuid && from && to && (from !== to)) {
-                $.ajax({
-                    url: `${this.$parent.baseApi}/api/v1/game/move`,
-                    type: "POST",
-                    cache: false,
-                    timeout: 30000,
-                    data: `from=${from}&to=${to}&uuid=${ref.gameUuid}`,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", `Bearer ${ref.$parent.oauth}`);
-                    }
-                }).fail(function () {
-                    ref.addErrorAlert("Unable to move to the selected position!");
-                });
+                this.$postV1('/game/move', `from=${from}&to=${to}&uuid=${ref.gameUuid}`, null,
+                    function () {
+                        ref.$addErrorAlert("Unable to move to the selected position!");
+                    });
             }
         },
         //---------------------------------------------------------------------------

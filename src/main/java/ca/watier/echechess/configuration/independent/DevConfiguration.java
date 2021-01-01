@@ -35,9 +35,11 @@ public class DevConfiguration {
         try {
             User admin = new User("admin", "admin", "adminEmail");
             User adminTwo = new User("admin2", "admin2", "adminEmail2");
+            User observer = new User("observer", "observer", "observerEmail");
 
             userRepository.addNewUserWithRole(admin, Roles.ADMIN);
             userRepository.addNewUserWithRole(adminTwo, Roles.ADMIN);
+            userRepository.addNewUserWithRole(observer, Roles.USER);
         } catch (UserException e) {
             LOGGER.error("Unable to create the default admin user!", e);
         }

@@ -15,9 +15,6 @@
  */
 
 const Login = {
-    components: {
-        'alert-component': Alert,
-    },
     template:
         `
 <div id="login-container" v-on:keyup.enter="login">
@@ -28,14 +25,14 @@ const Login = {
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
                 </div>
-                <input type="text" id="username-input" name="username" class="form-control" placeholder="Username"  autofocus="">
+                <input v-model="username" type="text" name="username" class="form-control" placeholder="Username" autofocus="">
             </div>
           
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
                 </div>
-                <input type="password" id="password-input" name="password" class="form-control" placeholder="Password">
+                <input v-model="password" type="password" name="password" class="form-control" placeholder="Password">
             </div>
           
             <button id="login-button" type="button" class="btn btn-secondary btn-lg" v-on:click="login"  :disabled="isLoginInProgress">
@@ -45,45 +42,50 @@ const Login = {
         </form>
         <div class="ui error message"></div>
     </div>
-    <alert-component
-        v-bind:alert-bus="alertBus">
-    </alert-component>
+    <div id="alert-container">
+        <div v-for="(message, index) in this.$getGameMessages()"
+             v-bind:class="['d-flex', 'flex-row', 'justify-content-between', 'alert', message.level, 'alert-dismissible', 'fade', 'show']"
+             role="alert"
+             v-bind:key="message.alertId">
+
+            <i v-bind:class="[message.iconType, message.iconClass]" style="font-size:25px"></i>
+
+            <span class="alert-massage">{{message.message}}</span>&nbsp;<span v-if="message.haveMoreThanOneMessage()">
+            (x<span class="alert-count">{{message.numberOfMessages}}</span>)
+            </span>
+
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
 </div>
 `,
     data: function () {
         return {
-            isLoginInProgress: false
+            isLoginInProgress: false,
+            username: null,
+            password: null
         };
     },
     methods: {
         login: function () {
-
             let ref = this;
-            let parent = ref.$parent;
-            let user = $('#username-input').val(); //FIXME: use a variable!
-            let pwd = $('#password-input').val(); //FIXME: use a variable!
 
             this.isLoginInProgress = true;
 
-            if (!user || !pwd) {
-                this.addErrorAlert("Password or the username cannot be empty!");
+            if (!this.username || !this.password) {
+                this.$addErrorAlert("Password or the username cannot be empty!");
                 return;
             }
 
-            $.ajax({
-                url: `${parent.baseApi}/oauth/token`,
-                type: "POST",
-                cache: false,
-                timeout: 30000,
-                datatype: "x-www-form-urlencoded",
-                data: `username=${user}&password=${pwd}&grant_type=password`,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", "Basic Y2xpZW50SWQ6c2VjcmV0");
-                },
-            }).done(parent.authSuccessEvent).fail(function () {
-                ref.addErrorAlert("Bad credentials!");
-                ref.isLoginInProgress = false;
-            });
-        },
+            this.$login(this.username, this.password,
+                function () {
+                    ref.$router.push({path: '/game'});
+                }, function () {
+                    ref.$addErrorAlert("Bad credentials!");
+                    ref.isLoginInProgress = false;
+                })
+        }
     }
 };

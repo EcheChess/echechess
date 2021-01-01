@@ -41,25 +41,19 @@
 <script src="style/fontawesome-free/attribution.js"></script>
 
 <!--Need to be before the router-link-->
-<script src="scripts/templates/alert.js"></script>
+<script src="scripts/plugins/UiMessages.js"></script>
+<script src="scripts/plugins/Utils.js"></script>
+<script src="scripts/plugins/StompAndJqueryAjaxWebApi.js"></script>
 <script src="scripts/templates/login.js"></script>
 <script src="scripts/templates/game.js"></script>
 
 <script src="scripts/bootstrap.bundle.min.js"></script>
 
-<script src="scripts/vue.min.js"></script>
-<script src="scripts/vue-i18n.min.js"></script>
-<script src="scripts/vue-router.min.js"></script>
-
-<script src="scripts/templates/globalMixins.js"></script>
+<script src="scripts/vue.global.prod.js"></script>
+<script src="scripts/vue-router.global.prod.js"></script>
 
 <script src="scripts/sockjs.min.js"></script>
 <script src="scripts/stomp.min.js"></script>
-
-<script src="scripts/apiOverrides.js"></script>
-
-<script src="scripts/websocketDelegate.js"></script>
-
 <script src="scripts/vue/app.js"></script>
 </body>
 </html>

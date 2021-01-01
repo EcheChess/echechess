@@ -14,44 +14,23 @@
  *    limitations under the License.
  */
 
-const router = new VueRouter({
-    mode: 'history',
+
+<!-- TODO: Create a static builder to be able to reuse the `router` variables, ect  -->
+
+const router = VueRouter.createRouter({
+    history: VueRouter.createWebHashHistory(),
     routes: [
-        {path: '*', redirect: '/'},
+        {path: '/:pathMatch(.*)*', component: Login},
         {path: '/', component: Login},
         {path: '/game', component: Game}
     ]
 });
 
-const vm = new Vue({
-    router,
-    el: '#app',
-    data: {
-        oauth: null,
-        oauth_refresh: null,
-        oauth_exp: null,
-        oauth_scopes: null,
-        baseApi: `${API_PROTOCOL}://${API_URL}:${API_PORT}`,
-        baseApiWs: `${API_PROTOCOL_WS}://${API_URL_WS}:${API_PORT_WS}`
-    },
-    mounted: function () { //When created, will be executed
-        this.csrf = this.getCsrfToken();
-    },
-    methods: {
-        storeAuthInfos: function (body) {
-            this.oauth = body["access_token"];
-            this.oauth_refresh = body["refresh_token"];
-            this.oauth_exp = body["expires_in"];
-            this.oauth_scopes = body["scope"].split(" ");
-        },
-        //---------------------------------------------------------------------------
-        authSuccessEvent: function (body) {
-            this.storeAuthInfos(body);
-            router.push('game')
-        },
-        //---------------------------------------------------------------------------
-        getCsrfToken: function () {
-            return $('meta[name=_csrf]').attr("content");
-        }
-    }
-});
+const vm = Vue.createApp({});
+
+vm.use(router);
+vm.use(new UiMessages());
+vm.use(new Utils());
+vm.use(new StompAndJqueryAjaxWebApi());
+
+vm.mount('#app');
