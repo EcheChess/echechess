@@ -53,52 +53,37 @@ class StompAndJqueryAjaxWebApi {
         }
 
         app.config.globalProperties.$get = function (baseUrl, success, fail) {
-            $.ajax({
-                url: app.config.globalProperties.api.restUrl + StompAndJqueryAjaxWebApi.makeBaseUrlValid(baseUrl),
-                type: "GET",
-                cache: false,
-                timeout: 30000,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", `Bearer ${app.config.globalProperties.oauth.token}`);
+            const correctedUrl = app.config.globalProperties.api.restUrl + makeBaseUrlValid(baseUrl);
+            fetch(correctedUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${app.config.globalProperties.oauth.token}`,
                 }
-            }).done(function (data) {
-                if (success) {
-                    success(data);
-                }
-            }).fail(function (data) {
-                if (fail) {
-                    fail(data);
-                }
-            });
+            }).then(response => {
+                handleFetchRequestResponseWithCallback(response, success, fail);
+            })
         }
 
         app.config.globalProperties.$post = function (baseUrl, body, success, fail) {
-            $.ajax({
-                url: app.config.globalProperties.api.restUrl + StompAndJqueryAjaxWebApi.makeBaseUrlValid(baseUrl),
-                type: "POST",
-                cache: false,
-                timeout: 30000,
-                data: body,
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", `Bearer ${app.config.globalProperties.oauth.token}`);
-                }
-            }).done(function (data) {
-                if (success) {
-                    success(data);
-                }
-            }).fail(function (data) {
-                if (fail) {
-                    fail(data);
-                }
-            });
+            const correctedUrl = app.config.globalProperties.api.restUrl + makeBaseUrlValid(baseUrl);
+            fetch(correctedUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${app.config.globalProperties.oauth.token}`,
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: encodeURI(body),
+            }).then(response => {
+                handleFetchRequestResponseWithCallback(response, success, fail);
+            })
         }
 
         app.config.globalProperties.$getV1 = function (baseUrl, success, fail) {
-            app.config.globalProperties.$get(`/api/v1${StompAndJqueryAjaxWebApi.makeBaseUrlValid(baseUrl)}`, success, fail);
+            app.config.globalProperties.$get(`/api/v1${makeBaseUrlValid(baseUrl)}`, success, fail);
         }
 
         app.config.globalProperties.$postV1 = function (baseUrl, body, success, fail) {
-            app.config.globalProperties.$post(`/api/v1${StompAndJqueryAjaxWebApi.makeBaseUrlValid(baseUrl)}`, body, success, fail);
+            app.config.globalProperties.$post(`/api/v1${makeBaseUrlValid(baseUrl)}`, body, success, fail);
         }
 
         app.config.globalProperties.$registerGameEvents = function (basePath, sideEventPath, gameEventCallback, sideEventCallback) {
@@ -118,17 +103,33 @@ class StompAndJqueryAjaxWebApi {
                 app.config.globalProperties.websocketClient.subscribe(sideEventPath, sideEventCallback);
             });
         }
-    }
 
-    static makeBaseUrlValid(url) {
-        if (url === '/') {
-            throw new Error("Unable to handle root URL in the API!");
+        function handleFetchRequestResponseWithCallback(response, success, fail) {
+            if (response.ok) {
+                if (success) { //TODO: Check if the return code is valid (! 4xx & 5xx, ect)
+                    response.text().then(text => {
+                        if (_.trim(text) !== '') {
+                            success(JSON.parse(text));
+                        } else {
+                            success();
+                        }
+                    });
+                }
+            } else if (fail) {
+                fail();
+            }
         }
 
-        if (!_.startsWith(url, '/')) {
-            return `/${url}`;
-        }
+        function makeBaseUrlValid(url) {
+            if (url === '/') {
+                throw new Error("Unable to handle root URL in the API!");
+            }
 
-        return url;
+            if (!_.startsWith(url, '/')) {
+                return `/${url}`;
+            }
+
+            return url;
+        }
     }
 }

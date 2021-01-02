@@ -16,6 +16,9 @@
 
 package ca.watier.echechess.exceptions;
 
+import java.io.Serial;
+
 public class UserException extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = 8543669481800730168L;
 }

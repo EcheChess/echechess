@@ -16,6 +16,9 @@
 
 package ca.watier.echechess.exceptions;
 
+import java.io.Serial;
+
 public class UserAlreadyExistException extends UserException {
+    @Serial
     private static final long serialVersionUID = 1699472448059068454L;
 }

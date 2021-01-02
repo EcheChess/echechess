@@ -20,16 +20,20 @@ import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Pieces;
 import ca.watier.echechess.common.enums.Side;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
 
 public class PieceLocationModel implements Serializable {
-    private static final long serialVersionUID = 826241513797550414L;
+    @Serial
+    private static final long serialVersionUID = -4788739945570270875L;
+
     private final String unicodeIcon;
     private final String name;
     private final String rawPosition;
     private final byte side;
+    private boolean isSelected = false; // Used in Vue to show the green border
 
     public PieceLocationModel(Pieces pieces, CasePosition position) {
 
@@ -70,5 +74,13 @@ public class PieceLocationModel implements Serializable {
 
     public byte getSide() {
         return side;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 }

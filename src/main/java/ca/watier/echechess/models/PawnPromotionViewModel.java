@@ -18,10 +18,13 @@ package ca.watier.echechess.models;
 
 import ca.watier.echechess.common.enums.Side;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class PawnPromotionViewModel implements Serializable {
+    @Serial
     private static final long serialVersionUID = -1770750370916758813L;
+
     private Side gameSide;
     private String from;
     private String to;

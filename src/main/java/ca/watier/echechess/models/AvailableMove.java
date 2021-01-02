@@ -16,10 +16,12 @@
 
 package ca.watier.echechess.models;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
 public class AvailableMove implements Serializable {
+    @Serial
     private static final long serialVersionUID = 8612686569088965026L;
 
     private final String from;

@@ -71,7 +71,7 @@ const Game = {
                     </a>
                 </div>
             </div>
-            <div class="bord-case" v-bind:data-case-id="piece.rawPosition" v-for="(piece, index) in board">
+            <div v-bind:class="['board-case', (piece.isSelected ? 'piece-available-moves' : null)]" v-bind:data-case-id="piece.rawPosition" v-for="(piece, index) in board">
                 <span class="board-pieces" draggable="true" v-bind:data-piece-side="mapSideByteToText(piece.side)" v-if="piece.unicodeIcon" v-html="piece.unicodeIcon"></span>
             </div>
         </div>
@@ -226,259 +226,323 @@ const Game = {
             board: [
                 {
                     "unicodeIcon": "&#9820;",
-                    "rawPosition": "A8"
+                    "rawPosition": "A8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": " &#9822;",
-                    "rawPosition": "B8"
+                    "rawPosition": "B8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9821;",
-                    "rawPosition": "C8"
+                    "rawPosition": "C8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9819;",
-                    "rawPosition": "D8"
+                    "rawPosition": "D8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9818;",
-                    "rawPosition": "E8"
+                    "rawPosition": "E8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9821;",
-                    "rawPosition": "F8"
+                    "rawPosition": "F8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": " &#9822;",
-                    "rawPosition": "G8"
+                    "rawPosition": "G8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9820;",
-                    "rawPosition": "H8"
+                    "rawPosition": "H8",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "A7"
+                    "rawPosition": "A7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "B7"
+                    "rawPosition": "B7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "C7"
+                    "rawPosition": "C7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "D7"
+                    "rawPosition": "D7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "E7"
+                    "rawPosition": "E7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "F7"
+                    "rawPosition": "F7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "G7"
+                    "rawPosition": "G7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "H7"
+                    "rawPosition": "H7",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A6"
+                    "rawPosition": "A6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B6"
+                    "rawPosition": "B6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C6"
+                    "rawPosition": "C6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D6"
+                    "rawPosition": "D6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E6"
+                    "rawPosition": "E6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F6"
+                    "rawPosition": "F6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G6"
+                    "rawPosition": "G6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H6"
+                    "rawPosition": "H6",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A5"
+                    "rawPosition": "A5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B5"
+                    "rawPosition": "B5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C5"
+                    "rawPosition": "C5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D5"
+                    "rawPosition": "D5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E5"
+                    "rawPosition": "E5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F5"
+                    "rawPosition": "F5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G5"
+                    "rawPosition": "G5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H5"
+                    "rawPosition": "H5",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A4"
+                    "rawPosition": "A4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B4"
+                    "rawPosition": "B4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C4"
+                    "rawPosition": "C4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D4"
+                    "rawPosition": "D4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E4"
+                    "rawPosition": "E4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F4"
+                    "rawPosition": "F4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G4"
+                    "rawPosition": "G4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H4"
+                    "rawPosition": "H4",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A3"
+                    "rawPosition": "A3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B3"
+                    "rawPosition": "B3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C3"
+                    "rawPosition": "C3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D3"
+                    "rawPosition": "D3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E3"
+                    "rawPosition": "E3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F3"
+                    "rawPosition": "F3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G3"
+                    "rawPosition": "G3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H3"
+                    "rawPosition": "H3",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "A2"
+                    "rawPosition": "A2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "B2"
+                    "rawPosition": "B2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "C2"
+                    "rawPosition": "C2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "D2"
+                    "rawPosition": "D2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "E2"
+                    "rawPosition": "E2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "F2"
+                    "rawPosition": "F2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "G2"
+                    "rawPosition": "G2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "H2"
+                    "rawPosition": "H2",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9814;",
-                    "rawPosition": "A1"
+                    "rawPosition": "A1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9816;",
-                    "rawPosition": "B1"
+                    "rawPosition": "B1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9815;",
-                    "rawPosition": "C1"
+                    "rawPosition": "C1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9813;",
-                    "rawPosition": "D1"
+                    "rawPosition": "D1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9812;",
-                    "rawPosition": "E1"
+                    "rawPosition": "E1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9815;",
-                    "rawPosition": "F1"
+                    "rawPosition": "F1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9816;",
-                    "rawPosition": "G1"
+                    "rawPosition": "G1",
+                    "isSelected": false
                 },
                 {
                     "unicodeIcon": "&#9814;",
-                    "rawPosition": "H1"
+                    "rawPosition": "H1",
+                    "isSelected": false
                 }
             ],
             eventLog: [],
@@ -488,10 +552,10 @@ const Game = {
     mounted: function () {
         this.registerEvents();
     },
-    beforeRouteEnter (to, from, next) { // https://next.router.vuejs.org/guide/advanced/navigation-guards.html#using-the-options-api
+    beforeRouteEnter(to, from, next) { // https://next.router.vuejs.org/guide/advanced/navigation-guards.html#using-the-options-api
         next(vm => {
-            if(!vm.$isAuthenticated()) { //TODO: Find a better way by using the pre-guard
-                vm.$router.push({ path: '/' });
+            if (!vm.$isAuthenticated()) { //TODO: Find a better way by using the pre-guard
+                vm.$router.push({path: '/'});
             }
         })
     },
@@ -499,7 +563,6 @@ const Game = {
         confirmPawnPromotion: function () {
             let ref = this;
             let pawnPromotionModel = this.pawnPromotionModel;
-
 
             this.$postV1('/game/piece/pawn/promotion', `to=${pawnPromotionModel.to}&uuid=${this.gameUuid}&piece=${pawnPromotionModel.piece}`,
                 function () {
@@ -547,7 +610,23 @@ const Game = {
             }
         },
         //---------------------------------------------------------------------------
-        registerEvents: function () {
+        getCaseIdFromTargetWhenPieceDragEvent: function (target) {
+            const parentElement = _.get(target, 'parentElement');
+
+            if (!parentElement) {
+                return '';
+            }
+
+            return parentElement.getAttribute('data-case-id');
+        },
+        //---------------------------------------------------------------------------
+        clearAvailableMoveIndicators: function () {
+            for (const currentCase of this.board) {
+                currentCase.isSelected = false;
+            }
+        },
+        //---------------------------------------------------------------------------
+        registerEvents: function () { //TODO: Unregister the events, before adding them!
             let ref = this;
 
             /**
@@ -557,53 +636,102 @@ const Game = {
                 event.preventDefault();
             });
 
-            $(document).on("dragstart", ".board-pieces", function (event) {
-                let dataTransfer = event.originalEvent.dataTransfer;
-                dataTransfer.setData("from", $(event.target).parent().data('case-id'));
-            });
-
-            $(document).on("drop", ".bord-case", function (event) {
-                let dataTransfer = event.originalEvent.dataTransfer;
-                let from = dataTransfer.getData("from");
-                let to = $(event.target).data('case-id');
-
-                ref.whenPieceDraggedEvent(from, to);
-            });
-
-            $(document).on("drop", ".board-pieces", function (event) {
-                let dataTransfer = event.originalEvent.dataTransfer;
-                let from = dataTransfer.getData("from");
-                let pieceCase = $(event.target).parent();
-                let to = $(pieceCase).data('case-id');
-
-                ref.whenPieceDraggedEvent(from, to);
-            });
-
-            let $boardCaseWithPieceSelector = $(document);
-
-            $boardCaseWithPieceSelector.on("mouseover", ".bord-case > span.board-pieces", function () {
-
+            document.addEventListener("dragstart", function (event) {
                 if (!ref.gameUuid) {
+                    event.preventDefault();
+                    return; // Game is not started!
+                }
+
+                const target = event.target;
+                if (!target.classList.contains("board-pieces")) {
+                    event.preventDefault();
+                    return; // Not a piece
+                }
+
+                let dataTransfer = event.dataTransfer;
+                dataTransfer.setData("from", ref.getCaseIdFromTargetWhenPieceDragEvent(target));
+            });
+
+            document.addEventListener("drop", function (event) {
+                if (!ref.gameUuid) {
+                    event.preventDefault();
+                    return; // Game is not started!
+                }
+
+                const target = event.target;
+                const classList = target.classList;
+
+                const isBoardCase = classList.contains("board-case");
+                const isBoardPiece = classList.contains("board-pieces");
+                let dataTransfer = event.dataTransfer;
+
+                if ((!isBoardCase && !isBoardPiece) || !dataTransfer) {
+                    event.preventDefault();
                     return;
                 }
 
-                let piece = $(this);
-                let from = piece.parent().data("case-id");
-                let side = piece.data("piece-side");
+                let from = dataTransfer.getData("from");
 
-                if (side !== ref.gameSide) {
+                if (from === '') {
+                    event.preventDefault();
                     return;
                 }
+
+                let to;
+                if (isBoardCase) {
+                    to = target.getAttribute('data-case-id');
+                } else if (isBoardPiece) {
+                    to = ref.getCaseIdFromTargetWhenPieceDragEvent(target);
+                }
+
+                ref.whenPieceDraggedEvent(from, to);
+            });
+
+            document.addEventListener("mouseover", function (event) {
+                if (!ref.gameUuid) {
+                    event.preventDefault();
+                    return; // Game is not started!
+                }
+
+                const target = event.target;
+                const classList = target.classList;
+                const isBoardPiece = classList.contains("board-pieces");
+
+                if ((!isBoardPiece)) {
+                    event.preventDefault();
+                    return;
+                }
+
+                if (target.getAttribute('data-piece-side') !== ref.gameSide) {
+                    event.preventDefault();
+                    return;
+                }
+
+                const from = ref.getCaseIdFromTargetWhenPieceDragEvent(target);
 
                 ref.$getV1(`/game/moves?from=${from}&uuid=${ref.gameUuid}`,
                     null,
                     function () {
                         ref.$addErrorAlert("Unable to get the moves positions!");
-                    })
+                    });
             });
 
-            $boardCaseWithPieceSelector.on("mouseleave", ".bord-case > span.board-pieces", function () {
-                $("div").removeClass("piece-available-moves");
+            document.addEventListener("mouseout", function (event) {
+                if (!ref.gameUuid) {
+                    event.preventDefault();
+                    return; // Game is not started!
+                }
+
+                const target = event.target;
+                const classList = target.classList;
+                const isBoardPiece = classList.contains("board-pieces");
+
+                if ((!isBoardPiece)) {
+                    event.preventDefault();
+                    return;
+                }
+
+                ref.clearAvailableMoveIndicators();
             });
         },
         //---------------------------------------------------------------------------
@@ -675,10 +803,22 @@ const Game = {
                 case 'AVAILABLE_MOVE':
                     const from = obj.from;
                     if (from) {
-                        $("div").removeClass("piece-available-moves"); //clear
                         var positions = obj.positions;
-                        for (let i = 0; i < positions.length; i++) {
-                            $(`[data-case-id='${positions[i]}']`).addClass("piece-available-moves");
+                        for (const currentCase of this.board) {
+                            currentCase.isSelected = false; // Unselect
+                            const numberOfSelected = positions.length;
+
+                            if(numberOfSelected === 0) {
+                                break; // None left
+                            }
+
+                            for (let i = 0; i < numberOfSelected; i++) {
+                                if(currentCase.rawPosition === positions[i]) {
+                                    currentCase.isSelected = true;
+                                    positions.splice(i, 1); // already found
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;

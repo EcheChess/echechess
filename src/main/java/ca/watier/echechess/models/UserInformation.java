@@ -16,11 +16,14 @@
 
 package ca.watier.echechess.models;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
 public class UserInformation implements Serializable {
+    @Serial
     private static final long serialVersionUID = 8210548561304905969L;
+
     private final List<UUID> listOfGames = new ArrayList<>();
     private String name;
     private String hash;

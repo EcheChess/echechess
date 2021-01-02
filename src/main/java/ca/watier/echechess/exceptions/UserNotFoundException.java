@@ -16,6 +16,9 @@
 
 package ca.watier.echechess.exceptions;
 
+import java.io.Serial;
+
 public class UserNotFoundException extends UserException {
+    @Serial
     private static final long serialVersionUID = 6604583850678272035L;
 }
