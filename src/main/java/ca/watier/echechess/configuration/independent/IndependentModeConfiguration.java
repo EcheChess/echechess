@@ -16,19 +16,15 @@
 
 package ca.watier.echechess.configuration.independent;
 
-import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.services.WebSocketService;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.components.MessageActionExecutor;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
-import ca.watier.echechess.exceptions.UserException;
-import ca.watier.echechess.models.Roles;
-import ca.watier.echechess.models.User;
 import ca.watier.echechess.repositories.IndependentGameRepositoryImpl;
 import ca.watier.echechess.repositories.IndependentUserRepositoryImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

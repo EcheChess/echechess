@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class KeyValueRepository implements GameRepository<GenericGameHandler> {
 
-    private Map<String, GenericGameHandlerWrapper<GenericGameHandler>> repo = new HashMap<>();
+    private final Map<String, GenericGameHandlerWrapper<GenericGameHandler>> repo = new HashMap<>();
 
     @Override
     public void add(GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper) {

@@ -18,8 +18,8 @@ package ca.watier.echechess.services;
 
 import ca.watier.echechess.common.enums.ChessEventMessage;
 import ca.watier.echechess.common.enums.Side;
-import ca.watier.echechess.common.interfaces.WebSocketService;
 import ca.watier.echechess.common.responses.ChessEvent;
+import ca.watier.echechess.common.services.WebSocketService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

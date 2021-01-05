@@ -16,7 +16,7 @@
 
 package ca.watier.echechess.configuration.dependent;
 
-import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.services.WebSocketService;
 import ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;

@@ -35,11 +35,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static ca.watier.keystore.generator.KeystoreGenerator.PRNG;
 import static ca.watier.keystore.generator.KeystoreGenerator.PROVIDER_NAME;
 import static org.bouncycastle.asn1.x500.style.BCStyle.GIVENNAME;
 import static org.bouncycastle.asn1.x500.style.BCStyle.O;
-
 
 @Configuration
 public class JettySecurityConfiguration {
@@ -54,10 +52,12 @@ public class JettySecurityConfiguration {
         objectIdentifierHashMap.put(GIVENNAME, "Yannick Watier");
         objectIdentifierHashMap.put(O, "Doi9t");
         try {
-            return KeystoreGenerator.createEcWithDefaultCurveKeystoreAndPassword(
-                            KeystoreGenerator.MAIN_SIGNING_ALG_SHA512_EC,
-                            36,
-                            objectIdentifierHashMap);
+            return KeystoreGenerator.createEcPkcs12Keystore(
+                    "SHA512withECDSA",
+                    "secp384r1",
+                    null,
+                    36,
+                    objectIdentifierHashMap);
         } catch (GenerationException e) {
             return null;
         }
@@ -78,7 +78,7 @@ public class JettySecurityConfiguration {
 
             SslContextFactory.Server sslServer = new SslContextFactory.Server();
             sslServer.setKeyStoreProvider(PROVIDER_NAME);
-            sslServer.setSecureRandomAlgorithm(PRNG);
+            sslServer.setSecureRandomAlgorithm("SHA1PRNG");
             sslServer.setIncludeProtocols("TLSv1.2");
 
             if (CURRENT_KEYSTORE_HOLDER == null) {

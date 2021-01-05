@@ -17,7 +17,13 @@
 package ca.watier.echechess.configuration;
 
 
+import ca.watier.echechess.common.services.WebSocketService;
+import ca.watier.echechess.communication.redis.interfaces.GameRepository;
+import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
+import ca.watier.echechess.engine.engines.GenericGameHandler;
+import ca.watier.echechess.services.GameService;
+import ca.watier.echechess.services.GameServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +33,16 @@ public class GameConfiguration {
     @Bean
     public PieceMoveConstraintDelegate gameMoveConstraintDelegate() {
         return new PieceMoveConstraintDelegate();
+    }
+
+
+    @Bean
+    public GameService gameService(PieceMoveConstraintDelegate pieceMoveConstraintDelegate,
+                                   WebSocketService webSocketService,
+                                   GameRepository<GenericGameHandler> gameRepository,
+                                   GameMessageDelegate gameMessageDelegate) {
+
+        return new GameServiceImpl(pieceMoveConstraintDelegate, webSocketService, gameRepository, gameMessageDelegate);
     }
 
     @Bean

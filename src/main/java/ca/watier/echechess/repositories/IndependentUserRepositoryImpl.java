@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class IndependentUserRepositoryImpl extends AbstractUserRepository {
-    protected final Map<String, UserInformation> users = new HashMap<>();
+    protected final Map<String, UserInformation> users = new HashMap<>(); //FIXME: Synchronize the map!
 
     public IndependentUserRepositoryImpl(PasswordEncoder passwordEncoder) {
         super(passwordEncoder);

@@ -17,11 +17,11 @@
 package ca.watier.enums;
 
 import ca.watier.echechess.common.enums.Pieces;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static ca.watier.echechess.common.enums.Pieces.*;
 import static ca.watier.echechess.common.enums.Side.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by yannick on 6/20/2017.
@@ -29,30 +29,30 @@ import static ca.watier.echechess.common.enums.Side.*;
 public class PiecesTest {
     @Test
     public void getName() {
-        Assert.assertEquals("Black King", B_KING.getName());
-        Assert.assertEquals("White King", W_KING.getName());
+        assertEquals("Black King", B_KING.getName());
+        assertEquals("White King", W_KING.getName());
     }
 
     @Test
     public void isKing() {
-        Assert.assertTrue(Pieces.isKing(B_KING));
-        Assert.assertTrue(Pieces.isKing(W_KING));
-        Assert.assertFalse(Pieces.isKing(W_BISHOP));
-        Assert.assertFalse(Pieces.isKing(B_BISHOP));
+        assertTrue(Pieces.isKing(B_KING));
+        assertTrue(Pieces.isKing(W_KING));
+        assertFalse(Pieces.isKing(W_BISHOP));
+        assertFalse(Pieces.isKing(B_BISHOP));
     }
 
     @Test
     public void isKnight() {
-        Assert.assertTrue(Pieces.isKnight(B_KNIGHT));
-        Assert.assertTrue(Pieces.isKnight(W_KNIGHT));
-        Assert.assertFalse(Pieces.isKnight(W_BISHOP));
-        Assert.assertFalse(Pieces.isKnight(B_BISHOP));
+        assertTrue(Pieces.isKnight(B_KNIGHT));
+        assertTrue(Pieces.isKnight(W_KNIGHT));
+        assertFalse(Pieces.isKnight(W_BISHOP));
+        assertFalse(Pieces.isKnight(B_BISHOP));
     }
 
     @Test
     public void getKingBySide() {
-        Assert.assertEquals(B_KING, Pieces.getKingBySide(BLACK));
-        Assert.assertEquals(W_KING, Pieces.getKingBySide(WHITE));
-        Assert.assertNull(Pieces.getKingBySide(OBSERVER));
+        assertEquals(B_KING, Pieces.getKingBySide(BLACK));
+        assertEquals(W_KING, Pieces.getKingBySide(WHITE));
+        assertNull(Pieces.getKingBySide(OBSERVER));
     }
 }

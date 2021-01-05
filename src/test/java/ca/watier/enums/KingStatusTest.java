@@ -18,8 +18,9 @@ package ca.watier.enums;
 
 
 import ca.watier.echechess.common.enums.KingStatus;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by yannick on 6/20/2017.
@@ -28,9 +29,8 @@ public class KingStatusTest {
 
     @Test
     public void isCheckOrCheckMate() {
-
-        Assert.assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECKMATE));
-        Assert.assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECK));
-        Assert.assertFalse(KingStatus.isCheckOrCheckMate(KingStatus.OK));
+        assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECKMATE));
+        assertTrue(KingStatus.isCheckOrCheckMate(KingStatus.CHECK));
+        assertFalse(KingStatus.isCheckOrCheckMate(KingStatus.OK));
     }
 }

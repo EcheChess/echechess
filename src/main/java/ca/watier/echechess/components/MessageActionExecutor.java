@@ -20,7 +20,7 @@ import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.KingStatus;
 import ca.watier.echechess.common.enums.MoveType;
 import ca.watier.echechess.common.enums.Side;
-import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.services.WebSocketService;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;

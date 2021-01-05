@@ -16,39 +16,39 @@
 
 package ca.watier.enums;
 
-import ca.watier.echechess.common.tests.GameTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static ca.watier.echechess.common.enums.CasePosition.*;
 import static ca.watier.echechess.common.enums.Ranks.*;
+import static ca.watier.echechess.common.enums.Side.BLACK;
+import static ca.watier.echechess.common.enums.Side.WHITE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by yannick on 7/5/2017.
  */
-public class RanksTest extends GameTest {
+public class RanksTest  {
     @Test
     public void getRankWhite() {
-        Assert.assertEquals(ONE, getRank(A1, WHITE));
-        Assert.assertEquals(TWO, getRank(B2, WHITE));
-        Assert.assertEquals(THREE, getRank(C3, WHITE));
-        Assert.assertEquals(FOUR, getRank(D4, WHITE));
-        Assert.assertEquals(FIVE, getRank(E5, WHITE));
-        Assert.assertEquals(SIX, getRank(F6, WHITE));
-        Assert.assertEquals(SEVEN, getRank(G7, WHITE));
-        Assert.assertEquals(EIGHT, getRank(H8, WHITE));
+        assertEquals(ONE, getRank(A1, WHITE));
+        assertEquals(TWO, getRank(B2, WHITE));
+        assertEquals(THREE, getRank(C3, WHITE));
+        assertEquals(FOUR, getRank(D4, WHITE));
+        assertEquals(FIVE, getRank(E5, WHITE));
+        assertEquals(SIX, getRank(F6, WHITE));
+        assertEquals(SEVEN, getRank(G7, WHITE));
+        assertEquals(EIGHT, getRank(H8, WHITE));
     }
 
     @Test
     public void getRankBlack() {
-        Assert.assertEquals(ONE, getRank(H8, BLACK));
-        Assert.assertEquals(TWO, getRank(G7, BLACK));
-        Assert.assertEquals(THREE, getRank(F6, BLACK));
-        Assert.assertEquals(FOUR, getRank(E5, BLACK));
-        Assert.assertEquals(FIVE, getRank(D4, BLACK));
-        Assert.assertEquals(SIX, getRank(C3, BLACK));
-        Assert.assertEquals(SEVEN, getRank(B2, BLACK));
-        Assert.assertEquals(EIGHT, getRank(A1, BLACK));
+        assertEquals(ONE, getRank(H8, BLACK));
+        assertEquals(TWO, getRank(G7, BLACK));
+        assertEquals(THREE, getRank(F6, BLACK));
+        assertEquals(FOUR, getRank(E5, BLACK));
+        assertEquals(FIVE, getRank(D4, BLACK));
+        assertEquals(SIX, getRank(C3, BLACK));
+        assertEquals(SEVEN, getRank(B2, BLACK));
+        assertEquals(EIGHT, getRank(A1, BLACK));
     }
-
 }

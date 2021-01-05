@@ -16,83 +16,91 @@
 
 package ca.watier.echechess.services;
 
-import ca.watier.echechess.common.enums.CasePosition;
-import ca.watier.echechess.common.enums.MoveType;
-import ca.watier.echechess.common.enums.Pieces;
-import ca.watier.echechess.common.impl.WebSocketServiceTestImpl;
-import ca.watier.echechess.common.interfaces.WebSocketService;
+import ca.watier.echechess.common.enums.*;
 import ca.watier.echechess.common.responses.BooleanResponse;
+import ca.watier.echechess.common.responses.GameScoreResponse;
+import ca.watier.echechess.common.services.WebSocketService;
+import ca.watier.echechess.common.services.WebSocketServiceTestImpl;
 import ca.watier.echechess.common.sessions.Player;
-import ca.watier.echechess.common.tests.GameTest;
 import ca.watier.echechess.common.utils.Constants;
+import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
+import ca.watier.echechess.engine.interfaces.GameEventEvaluatorHandler;
+import ca.watier.echechess.engine.interfaces.GameHandler;
 import ca.watier.echechess.engine.interfaces.PlayerHandler;
 import ca.watier.echechess.engine.utils.GameUtils;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
+import ca.watier.echechess.models.PieceLocationModel;
 import ca.watier.repository.KeyValueRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static ca.watier.echechess.common.enums.CasePosition.*;
-import static ca.watier.echechess.common.enums.ChessEventMessage.REFRESH_BOARD;
+import static ca.watier.echechess.common.enums.ChessEventMessage.*;
 import static ca.watier.echechess.common.enums.Pieces.B_KING;
 import static ca.watier.echechess.common.enums.Pieces.W_QUEEN;
-import static ca.watier.echechess.common.enums.Side.OBSERVER;
+import static ca.watier.echechess.common.enums.Side.*;
+import static ca.watier.echechess.common.utils.Constants.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@ActiveProfiles(profiles = "test")
-@RunWith(MockitoJUnitRunner.class)
-public class GameServiceTest extends GameTest {
+@ExtendWith(MockitoExtension.class)
+public class GameServiceTest {
     private static final BooleanResponse FALSE_BOOLEAN_RESPONSE = new BooleanResponse(false);
     private static final BooleanResponse TRUE_BOOLEAN_RESPONSE = new BooleanResponse(true);
     private static final PieceMoveConstraintDelegate DEFAULT_GAME_MOVE_DELEGATE = new PieceMoveConstraintDelegate();
+    private static final GameScoreResponse EMPTY_GAME_SCORE_RESPONSE = new GameScoreResponse((short) 0, (short) 0);
+
+
+    private GenericGameHandler givenGameHandler;
+    private GameEventEvaluatorHandler gameEventEvaluatorHandler;
+    private PlayerHandler playerHandler;
+    private GameMessageDelegate gameMessageDelegate;
+    private KeyValueRepository redisGameRepository;
     private WebSocketService currentWebSocketService;
     private GameService gameService;
-    private Player player1;
-    private KeyValueRepository redisGameRepository = new KeyValueRepository();
+    private Player firstPlayer;
 
-    @Mock
-    private GameMessageDelegate gameMessageDelegate;
-
-
-    @Before
+    @BeforeEach
     public void setup() {
-        player1 = new Player(UUID.randomUUID().toString());
-        currentWebSocketService = new WebSocketServiceTestImpl();
-        gameService = new GameService(
+        playerHandler = mock(PlayerHandler.class);
+        gameEventEvaluatorHandler = mock(GameEventEvaluatorHandler.class);
+        givenGameHandler = spy(new GenericGameHandler(DEFAULT_GAME_MOVE_DELEGATE, playerHandler, gameEventEvaluatorHandler));
+        gameMessageDelegate = mock(GameMessageDelegate.class);
+        firstPlayer = spy(new Player(UUID.randomUUID().toString()));
+        currentWebSocketService = spy(new WebSocketServiceTestImpl());
+        redisGameRepository = spy(new KeyValueRepository());
+        gameService = spy(new GameServiceImpl(
                 DEFAULT_GAME_MOVE_DELEGATE,
                 currentWebSocketService,
                 redisGameRepository,
-                gameMessageDelegate);
+                gameMessageDelegate));
     }
 
     @Test
     public void upgradePiece() throws FenParserException {
         WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        UUID gameUuid = gameService.createNewGame("K7/6P1/8/8/8/8/6p1/k7 w", WHITE, false, false, player1);
+        UUID gameUuid = gameService.createNewGame("K7/6P1/8/8/8/8/6p1/k7 w", WHITE, false, false, firstPlayer);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
 
-        Assert.assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
+        assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
 
         String uuid = gameFromUuid.getUuid();
         assertTrue(gameFromUuid.isGamePaused());
-        Assert.assertTrue(gameService.upgradePiece(G8, uuid, PawnPromotionPiecesModel.QUEEN, player1));
-        Assert.assertFalse(gameFromUuid.isGamePaused());
+        assertTrue(gameService.upgradePiece(G8, uuid, PawnPromotionPiecesModel.QUEEN, firstPlayer));
+        assertFalse(gameFromUuid.isGamePaused());
 
-        Assertions.assertThat(currentWebSocketService.getMessages()).containsOnly(
+        assertThat(currentWebSocketService.getMessages()).containsOnly(
                 "G8",
                 String.format(Constants.GAME_PAUSED_PAWN_PROMOTION, "WHITE"),
                 "G8",
@@ -179,7 +187,7 @@ public class GameServiceTest extends GameTest {
         assertThat(player1.getCreatedGameList()).containsOnly(specialGame, normalGame);
 
         //Check the type of the game
-        Assert.assertNotNull(gameFromUuidCustom);
+        assertNotNull(gameFromUuidCustom);
 
         //Check if the pieces are set
         Map<CasePosition, Pieces> piecesLocationCustom = gameFromUuidCustom.getPiecesLocation();
@@ -225,7 +233,6 @@ public class GameServiceTest extends GameTest {
         //Not supposed to be able to choose the other color, but able to join as observer
         currentWebSocketService.clearMessages();
 
-
         UUID gameUuid2 = gameService.createNewGame("", WHITE, true, true, player1);
         GenericGameHandler game2 = gameService.getGameFromUuid(gameUuid2.toString());
         String uuidGame2 = game2.getUuid();
@@ -256,20 +263,287 @@ public class GameServiceTest extends GameTest {
     }
 
     @Test
-    public void getPieceLocationsTest() throws FenParserException {
-        Player player1 = new Player(UUID.randomUUID().toString());
-        Player player2 = new Player(UUID.randomUUID().toString());
-        Player playerNotInGame = new Player(UUID.randomUUID().toString());
+    public void movePiece_player_not_in_game() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
 
-        UUID gameUuid = gameService.createNewGame("", WHITE, false, true, player1);
-        GenericGameHandler game = gameService.getGameFromUuid(gameUuid.toString());
-        String uuid = game.getUuid();
-        game.setPlayerToSide(player2, BLACK);
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
-        assertThat(gameService.getPieceLocations(uuid, player1)).isNotEmpty();
-        assertThat(gameService.getPieceLocations(uuid, player2)).isNotEmpty();
+        gameService.movePiece(H7, H4, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(currentWebSocketService);
+    }
 
 
-        assertThat(gameService.getPieceLocations(uuid, playerNotInGame)).isEmpty();
+    @Test
+    public void movePiece_game_paused() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        when(givenGameHandler.isGamePaused()).thenReturn(true);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.movePiece(H7, H4, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(currentWebSocketService);
+    }
+
+
+    @Test
+    public void movePiece_game_draw() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        when(givenGameHandler.isGamePaused()).thenReturn(false);
+        when(givenGameHandler.isGameDraw()).thenReturn(true);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.movePiece(H7, H4, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(currentWebSocketService);
+    }
+
+
+    @Test
+    public void movePiece_game_ended() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+        Side givenPlayerSide = WHITE;
+
+        // when
+        when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenPlayerSide);
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        when(givenGameHandler.isGamePaused()).thenReturn(false);
+        when(givenGameHandler.isGameDraw()).thenReturn(false);
+        when(givenGameHandler.isGameEnded()).thenReturn(true);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.movePiece(H7, H4, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+        verify(currentWebSocketService).fireSideEvent(givenUuid, givenPlayerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+    }
+
+
+    @Test
+    public void movePiece_game_stalemate() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+        Side givenPlayerSide = WHITE;
+
+        // when
+        when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenPlayerSide);
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        when(givenGameHandler.isGamePaused()).thenReturn(false);
+        when(givenGameHandler.isGameDraw()).thenReturn(false);
+        when(givenGameHandler.isGameEnded()).thenReturn(false);
+        when(givenGameHandler.isKing(KingStatus.STALEMATE, givenPlayerSide)).thenReturn(true);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.movePiece(H7, H4, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+        verify(currentWebSocketService).fireSideEvent(givenUuid, givenPlayerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
+    }
+
+
+    @Test
+    void getAllAvailableMoves_player_not_in_game() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+        CasePosition givenPosition = H7;
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+    }
+
+
+    @Test
+    void getAllAvailableMoves_player_wrong_color_move() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+        CasePosition givenPosition = A7; // Black PAWN
+        Side givenSide = WHITE;
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenSide);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+
+        // then
+        verifyNoInteractions(gameMessageDelegate);
+    }
+
+
+    @Test
+    void getAllAvailableMoves_player_same_color_move() {
+        // given
+        String givenUuid = "superUUID";
+        Player givenPlayer = mock(Player.class);
+        CasePosition givenPosition = A7; // Black PAWN
+        Side givenSide = BLACK;
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenSide);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+
+        // then
+        verify(gameMessageDelegate).handleAvailableMoveMessage(anyString());
+    }
+
+
+    @Test
+    void joinGame_wrong_id() {
+        // given
+        String givenGameUuid = "superUUID";
+        String givenUiUuid = "superUIID";
+        Player givenPlayer = mock(Player.class);
+        Side givenSide = BLACK;
+
+        // when
+        doReturn(null).when(gameService).getGameFromUuid(any(String.class));
+
+        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+
+        // then
+        assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
+        verifyNoInteractions(gameMessageDelegate);
+    }
+
+    @Test
+    void joinGame_not_allowed_single_player_no_observers() {
+        // given
+        String givenGameUuid = "superUUID";
+        String givenUiUuid = "superUIID";
+        Player givenPlayer = mock(Player.class);
+        Side givenSide = BLACK;
+
+        // when
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        doReturn(false).when(givenGameHandler).isAllowObservers();
+        doReturn(false).when(givenGameHandler).isAllowOtherToJoin();
+
+        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+
+        // then
+        assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
+        verifyNoInteractions(gameMessageDelegate);
+    }
+
+    @Test
+    void joinGame_allowed_except_observers_choose_observer() {
+        // given
+        String givenGameUuid = "superUUID";
+        String givenUiUuid = "superUIID";
+        Player givenPlayer = mock(Player.class);
+        Side givenSide = OBSERVER;
+
+        // when
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        doReturn(false).when(givenGameHandler).isAllowObservers();
+        doReturn(true).when(givenGameHandler).isAllowOtherToJoin();
+
+        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+
+        // then
+        assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
+        verifyNoInteractions(gameMessageDelegate);
+    }
+
+    @Test
+    void joinGame_allowed_except_observers_choose_black() {
+        // given
+        String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
+        String givenUiUuid = "07693684-082b-4f3c-9ea7-a8133a78225a";
+        Player givenPlayer = mock(Player.class);
+        Side givenSide = BLACK;
+
+        // when
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        doReturn(false).when(givenGameHandler).isAllowObservers();
+        doReturn(true).when(givenGameHandler).isAllowOtherToJoin();
+        doReturn(true).when(playerHandler).setPlayerToSide(givenPlayer, givenSide);
+
+        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+
+        // then
+        assertThat(booleanResponse).isEqualTo(BooleanResponse.YES);
+        verifyNoInteractions(gameMessageDelegate);
+
+        verify(givenPlayer).addJoinedGame(UUID.fromString(givenGameUuid));
+        verify(currentWebSocketService).fireGameEvent(givenGameUuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, givenSide));
+        verify(currentWebSocketService).fireUiEvent(givenUiUuid, PLAYER_JOINED, String.format(JOINING_GAME, givenGameUuid));
+        verify(redisGameRepository).add(any(GenericGameHandlerWrapper.class));
+    }
+
+    @Test
+    void joinGame_allowed_except_observers_unable_to_join() {
+        // given
+        String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
+        String givenUiUuid = "07693684-082b-4f3c-9ea7-a8133a78225a";
+        Player givenPlayer = mock(Player.class);
+        Side givenSide = BLACK;
+
+        // when
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        doReturn(false).when(givenGameHandler).isAllowObservers();
+        doReturn(true).when(givenGameHandler).isAllowOtherToJoin();
+        doReturn(false).when(playerHandler).setPlayerToSide(givenPlayer, givenSide);
+
+        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+
+        // then
+        assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
+        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(currentWebSocketService);
+        verifyNoInteractions(redisGameRepository);
+    }
+
+    @Test
+    public void getPieceLocations_start_pieces_player_not_in_game()  {
+        // given
+        String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
+        Player givenPlayer = mock(Player.class);
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        List<PieceLocationModel> pieceLocations = gameService.getPieceLocations(givenGameUuid, givenPlayer);
+
+        // then
+        assertThat(pieceLocations).isEmpty();
     }
 }
