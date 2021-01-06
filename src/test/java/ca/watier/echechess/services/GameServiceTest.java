@@ -31,6 +31,7 @@ import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.engine.interfaces.GameEventEvaluatorHandler;
 import ca.watier.echechess.engine.interfaces.PlayerHandler;
 import ca.watier.echechess.engine.utils.GameUtils;
+import ca.watier.echechess.exceptions.GameException;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
 import ca.watier.repository.KeyValueRepository;
@@ -58,43 +59,47 @@ public class GameServiceTest {
     private static final PieceMoveConstraintDelegate DEFAULT_GAME_MOVE_DELEGATE = new PieceMoveConstraintDelegate();
     private static final GameScoreResponse EMPTY_GAME_SCORE_RESPONSE = new GameScoreResponse((short) 0, (short) 0);
 
-
+    private GenericGameHandlerWrapper<GenericGameHandler> gameHandlerWrapper;
     private GenericGameHandler givenGameHandler;
-    private GameEventEvaluatorHandler gameEventEvaluatorHandler;
-    private PlayerHandler playerHandler;
-    private GameMessageDelegate gameMessageDelegate;
-    private KeyValueRepository redisGameRepository;
-    private WebSocketService currentWebSocketService;
+    private PlayerHandler givenPlayerHandler;
+    private GameMessageDelegate givenGameMessageDelegate;
+    private KeyValueRepository givenRedisGameRepository;
+    private WebSocketService givenWebSocketService;
     private GameService gameService;
-    private Player firstPlayer;
+    private Player givenPlayer;
 
     @BeforeEach
     public void setup() {
-        playerHandler = mock(PlayerHandler.class);
-        gameEventEvaluatorHandler = mock(GameEventEvaluatorHandler.class);
-        givenGameHandler = spy(new GenericGameHandler(DEFAULT_GAME_MOVE_DELEGATE, playerHandler, gameEventEvaluatorHandler));
-        gameMessageDelegate = mock(GameMessageDelegate.class);
-        firstPlayer = spy(new Player(UUID.randomUUID().toString()));
-        currentWebSocketService = spy(new WebSocketServiceTestImpl());
-        redisGameRepository = spy(new KeyValueRepository());
+        gameHandlerWrapper = mock(GenericGameHandlerWrapper.class);
+        givenPlayerHandler = mock(PlayerHandler.class);
+        GameEventEvaluatorHandler gameEventEvaluatorHandler = mock(GameEventEvaluatorHandler.class);
+        givenGameHandler = spy(new GenericGameHandler(DEFAULT_GAME_MOVE_DELEGATE, givenPlayerHandler, gameEventEvaluatorHandler));
+        givenGameMessageDelegate = mock(GameMessageDelegate.class);
+        givenPlayer = spy(new Player(UUID.randomUUID().toString()));
+        givenWebSocketService = spy(new WebSocketServiceTestImpl());
+        givenRedisGameRepository = spy(new KeyValueRepository());
         gameService = spy(new GameServiceImpl(
                 DEFAULT_GAME_MOVE_DELEGATE,
-                currentWebSocketService,
-                redisGameRepository,
-                gameMessageDelegate));
+                givenWebSocketService,
+                givenRedisGameRepository,
+                givenGameMessageDelegate));
     }
 
     @Test
     public void upgradePiece() throws FenParserException {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
-        UUID gameUuid = gameService.createNewGame("K7/6P1/8/8/8/8/6p1/k7 w", WHITE, false, false, firstPlayer);
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.givenWebSocketService;
+        UUID gameUuid = gameService.createNewGame("K7/6P1/8/8/8/8/6p1/k7 w", WHITE, false, false, givenPlayer);
         GenericGameHandler gameFromUuid = gameService.getGameFromUuid(gameUuid.toString());
 
         assertEquals(MoveType.PAWN_PROMOTION, gameFromUuid.movePiece(G7, G8, WHITE));
 
         String uuid = gameFromUuid.getUuid();
         assertTrue(gameFromUuid.isGamePaused());
-        assertTrue(gameService.upgradePiece(G8, uuid, PawnPromotionPiecesModel.QUEEN, firstPlayer));
+        try {
+            assertTrue(gameService.upgradePiece(G8, uuid, PawnPromotionPiecesModel.QUEEN, givenPlayer));
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
         assertFalse(gameFromUuid.isGamePaused());
 
         assertThat(currentWebSocketService.getMessages()).containsOnly(
@@ -115,7 +120,11 @@ public class GameServiceTest {
         UUID gameUuid = gameService.createNewGame("", WHITE, false, false, player1);
         String uuid = gameUuid.toString();
 
-        gameService.setSideOfPlayer(BLACK, uuid, player1);
+        try {
+            gameService.setSideOfPlayer(BLACK, uuid, player1);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         Map<UUID, GenericGameHandler> mapOfGames = gameService.getAllGames();
         Set<UUID> allIdGamesFromGameService = mapOfGames.keySet();
@@ -131,7 +140,11 @@ public class GameServiceTest {
         assertNull(playerHandler.getPlayerWhite());
         assertTrue(playerHandler.getObserverList().isEmpty());
 
-        gameService.setSideOfPlayer(WHITE, uuid, player1);
+        try {
+            gameService.setSideOfPlayer(WHITE, uuid, player1);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         //Check if the player1 is set to white (was black before)
         assertNull(normalGameHandler.getPlayerBlack());
@@ -144,7 +157,11 @@ public class GameServiceTest {
         assertEquals(1, gameListIdFromPlayer.size());
 
         //Try to associate the white to the player 2 (already set to player 1)
-        gameService.setSideOfPlayer(WHITE, uuid, player2);
+        try {
+            gameService.setSideOfPlayer(WHITE, uuid, player2);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         //Check if the player1 is still associated to black, player2 not set yet
         assertNull(normalGameHandler.getPlayerBlack());
@@ -152,15 +169,27 @@ public class GameServiceTest {
         assertTrue(playerHandler.getObserverList().isEmpty());
 
         //Try to associate the black to the player 2 (not set yet)
-        gameService.setSideOfPlayer(BLACK, uuid, player2);
+        try {
+            gameService.setSideOfPlayer(BLACK, uuid, player2);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         assertEquals(player2, normalGameHandler.getPlayerBlack());
         assertEquals(player1, normalGameHandler.getPlayerWhite());
         assertTrue(playerHandler.getObserverList().isEmpty());
 
         //Change both of the player to observers
-        gameService.setSideOfPlayer(OBSERVER, uuid, player1);
-        gameService.setSideOfPlayer(OBSERVER, uuid, player2);
+        try {
+            gameService.setSideOfPlayer(OBSERVER, uuid, player1);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            gameService.setSideOfPlayer(OBSERVER, uuid, player2);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         assertNull(normalGameHandler.getPlayerBlack());
         assertNull(normalGameHandler.getPlayerWhite());
@@ -171,17 +200,17 @@ public class GameServiceTest {
     public void createNewGameTest() throws FenParserException {
         Player player1 = new Player(UUID.randomUUID().toString());
 
-        UUID specialGame = gameService.createNewGame("", WHITE, false, false, player1);
-        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(specialGame.toString());
+        UUID normalGame = gameService.createNewGame("", WHITE, false, false, player1);
+        GenericGameHandler gameFromUuid = gameService.getGameFromUuid(normalGame.toString());
 
-        UUID normalGame = gameService.createNewGame("8/3Q4/8/1Q1k1Q2/8/3Q4/8/8 w", WHITE, false, false, player1);
-        GenericGameHandler gameFromUuidCustom = gameService.getGameFromUuid(normalGame.toString());
+        UUID specialGame = gameService.createNewGame("8/3Q4/8/1Q1k1Q2/8/3Q4/8/8 w", WHITE, false, false, player1);
+        GenericGameHandler gameFromUuidCustom = gameService.getGameFromUuid(specialGame.toString());
 
 
         //Check if the game is associated with the player
-        assertThat(specialGame).isNotNull();
         assertThat(normalGame).isNotNull();
-        assertThat(player1.getCreatedGameList()).containsOnly(specialGame, normalGame);
+        assertThat(specialGame).isNotNull();
+        assertThat(player1.getCreatedGameList()).containsOnly(normalGame, specialGame);
 
         //Check the type of the game
         assertNotNull(gameFromUuidCustom);
@@ -204,7 +233,7 @@ public class GameServiceTest {
 
     @Test
     public void joinGameTest() throws FenParserException {
-        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.currentWebSocketService;
+        WebSocketServiceTestImpl currentWebSocketService = (WebSocketServiceTestImpl) this.givenWebSocketService;
 
         Player player1 = new Player(UUID.randomUUID().toString());
         Player player2 = new Player(UUID.randomUUID().toString());
@@ -217,9 +246,21 @@ public class GameServiceTest {
         GenericGameHandler game1 = gameService.getGameFromUuid(gameUuid1.toString());
         String uuidGame1 = game1.getUuid();
 
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
-        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // Valid choice
-        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        try {
+            assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // Valid choice
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame1, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
         assertThat(messages).containsOnly(
                 "New player joined the BLACK side",
                 "Joining the game " + uuidGame1, //Black player
@@ -234,9 +275,21 @@ public class GameServiceTest {
         GenericGameHandler game2 = gameService.getGameFromUuid(gameUuid2.toString());
         String uuidGame2 = game2.getUuid();
 
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
-        assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        try {
+            assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            assertEquals(TRUE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame2, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); // Valid choice
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
         assertThat(messages).containsOnly(
                 "You are not authorized to join this game !", //Private message
                 "You are not authorized to join this game !", //Private message
@@ -252,98 +305,111 @@ public class GameServiceTest {
         GenericGameHandler game3 = gameService.getGameFromUuid(gameUuid3.toString());
         String uuidGame3 = game3.getUuid();
 
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
-        assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); //Cannot join observers
+        try {
+            assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, WHITE, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); //Unable to join, the WHITE is already taken
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, BLACK, "8ddf1de9-d366-40c5-acdb-703e1438f543", player2)); // AI, cannot join
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+        try {
+            assertEquals(FALSE_BOOLEAN_RESPONSE, gameService.joinGame(uuidGame3, OBSERVER, "8ddf1de9-d366-40c5-acdb-703e1438f543", playerObserver)); //Cannot join observers
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         assertThat(messages).containsOnly("You are not authorized to join this game !"); //Private message (x3)
     }
 
     @Test
-    public void movePiece_player_not_in_game() {
+    public void movePiece_player_not_in_game() throws GameException {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
         gameService.movePiece(H7, H4, givenUuid, givenPlayer);
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
-        verifyNoInteractions(currentWebSocketService);
+        verifyNoInteractions(givenGameMessageDelegate);
+        verifyNoInteractions(givenWebSocketService);
+    }
+
+    public void mockRedisRepository() {
+        lenient().doReturn(gameHandlerWrapper).when(givenRedisGameRepository).get(any(String.class));
+        lenient().doReturn(givenGameHandler).when(gameHandlerWrapper).getGenericGameHandler();
     }
 
 
     @Test
-    public void movePiece_game_paused() {
+    public void movePiece_game_paused() throws GameException {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
 
         // when
+        mockRedisRepository();
+        when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(WHITE);
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
         when(givenGameHandler.isGamePaused()).thenReturn(true);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
         gameService.movePiece(H7, H4, givenUuid, givenPlayer);
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
-        verifyNoInteractions(currentWebSocketService);
+        verifyNoInteractions(givenGameMessageDelegate);
+        verifyNoInteractions(givenWebSocketService);
     }
 
 
     @Test
-    public void movePiece_game_draw() {
+    public void movePiece_game_draw() throws GameException {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
         when(givenGameHandler.isGamePaused()).thenReturn(false);
         when(givenGameHandler.isGameDraw()).thenReturn(true);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
         gameService.movePiece(H7, H4, givenUuid, givenPlayer);
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
-        verifyNoInteractions(currentWebSocketService);
+        verifyNoInteractions(givenGameMessageDelegate);
+        verifyNoInteractions(givenWebSocketService);
     }
 
 
     @Test
-    public void movePiece_game_ended() {
+    public void movePiece_game_ended() throws GameException {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
         Side givenPlayerSide = WHITE;
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenPlayerSide);
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
         when(givenGameHandler.isGamePaused()).thenReturn(false);
         when(givenGameHandler.isGameDraw()).thenReturn(false);
         when(givenGameHandler.isGameEnded()).thenReturn(true);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
         gameService.movePiece(H7, H4, givenUuid, givenPlayer);
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
-        verify(currentWebSocketService).fireSideEvent(givenUuid, givenPlayerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
+        verifyNoInteractions(givenGameMessageDelegate);
+        verify(givenWebSocketService).fireSideEvent(givenUuid, givenPlayerSide, GAME_WON_EVENT_MOVE, GAME_ENDED);
     }
 
 
     @Test
-    public void movePiece_game_stalemate() {
+    public void movePiece_game_stalemate() throws GameException {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
         Side givenPlayerSide = WHITE;
 
         // when
@@ -353,13 +419,13 @@ public class GameServiceTest {
         when(givenGameHandler.isGameDraw()).thenReturn(false);
         when(givenGameHandler.isGameEnded()).thenReturn(false);
         when(givenGameHandler.isKing(KingStatus.STALEMATE, givenPlayerSide)).thenReturn(true);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        mockRedisRepository();
 
         gameService.movePiece(H7, H4, givenUuid, givenPlayer);
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
-        verify(currentWebSocketService).fireSideEvent(givenUuid, givenPlayerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
+        verifyNoInteractions(givenGameMessageDelegate);
+        verify(givenWebSocketService).fireSideEvent(givenUuid, givenPlayerSide, GAME_WON_EVENT_MOVE, PLAYER_KING_STALEMATE);
     }
 
 
@@ -367,17 +433,20 @@ public class GameServiceTest {
     void getAllAvailableMoves_player_not_in_game() {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
         CasePosition givenPosition = H7;
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
-        gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+        try {
+            gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(givenGameMessageDelegate);
     }
 
 
@@ -385,19 +454,22 @@ public class GameServiceTest {
     void getAllAvailableMoves_player_wrong_color_move() {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
         CasePosition givenPosition = A7; // Black PAWN
         Side givenSide = WHITE;
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
         when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenSide);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
-        gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+        try {
+            gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
-        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(givenGameMessageDelegate);
     }
 
 
@@ -405,19 +477,22 @@ public class GameServiceTest {
     void getAllAvailableMoves_player_same_color_move() {
         // given
         String givenUuid = "superUUID";
-        Player givenPlayer = mock(Player.class);
         CasePosition givenPosition = A7; // Black PAWN
         Side givenSide = BLACK;
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
         when(givenGameHandler.getPlayerSide(givenPlayer)).thenReturn(givenSide);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
-        gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+        try {
+            gameService.getAllAvailableMoves(givenPosition, givenUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
-        verify(gameMessageDelegate).handleAvailableMoveMessage(anyString());
+        verify(givenGameMessageDelegate).handleAvailableMoveMessage(anyString());
     }
 
 
@@ -426,17 +501,20 @@ public class GameServiceTest {
         // given
         String givenGameUuid = "superUUID";
         String givenUiUuid = "superUIID";
-        Player givenPlayer = mock(Player.class);
         Side givenSide = BLACK;
 
         // when
-        doReturn(null).when(gameService).getGameFromUuid(any(String.class));
-
-        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        mockRedisRepository();
+        BooleanResponse booleanResponse = null;
+        try {
+            booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
-        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(givenGameMessageDelegate);
     }
 
     @Test
@@ -444,19 +522,23 @@ public class GameServiceTest {
         // given
         String givenGameUuid = "superUUID";
         String givenUiUuid = "superUIID";
-        Player givenPlayer = mock(Player.class);
         Side givenSide = BLACK;
 
         // when
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        mockRedisRepository();
         doReturn(false).when(givenGameHandler).isAllowObservers();
         doReturn(false).when(givenGameHandler).isAllowOtherToJoin();
 
-        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        BooleanResponse booleanResponse = null;
+        try {
+            booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
-        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(givenGameMessageDelegate);
     }
 
     @Test
@@ -464,19 +546,23 @@ public class GameServiceTest {
         // given
         String givenGameUuid = "superUUID";
         String givenUiUuid = "superUIID";
-        Player givenPlayer = mock(Player.class);
         Side givenSide = OBSERVER;
 
         // when
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        mockRedisRepository();
         doReturn(false).when(givenGameHandler).isAllowObservers();
         doReturn(true).when(givenGameHandler).isAllowOtherToJoin();
 
-        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        BooleanResponse booleanResponse = null;
+        try {
+            booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
-        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(givenGameMessageDelegate);
     }
 
     @Test
@@ -484,25 +570,29 @@ public class GameServiceTest {
         // given
         String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
         String givenUiUuid = "07693684-082b-4f3c-9ea7-a8133a78225a";
-        Player givenPlayer = mock(Player.class);
         Side givenSide = BLACK;
 
         // when
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        mockRedisRepository();
         doReturn(false).when(givenGameHandler).isAllowObservers();
         doReturn(true).when(givenGameHandler).isAllowOtherToJoin();
-        doReturn(true).when(playerHandler).setPlayerToSide(givenPlayer, givenSide);
+        doReturn(true).when(givenPlayerHandler).setPlayerToSide(givenPlayer, givenSide);
 
-        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        BooleanResponse booleanResponse = null;
+        try {
+            booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(booleanResponse).isEqualTo(BooleanResponse.YES);
-        verifyNoInteractions(gameMessageDelegate);
+        verifyNoInteractions(givenGameMessageDelegate);
 
         verify(givenPlayer).addJoinedGame(UUID.fromString(givenGameUuid));
-        verify(currentWebSocketService).fireGameEvent(givenGameUuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, givenSide));
-        verify(currentWebSocketService).fireUiEvent(givenUiUuid, PLAYER_JOINED, String.format(JOINING_GAME, givenGameUuid));
-        verify(redisGameRepository).add(any(GenericGameHandlerWrapper.class));
+        verify(givenWebSocketService).fireGameEvent(givenGameUuid, PLAYER_JOINED, String.format(NEW_PLAYER_JOINED_SIDE, givenSide));
+        verify(givenWebSocketService).fireUiEvent(givenUiUuid, PLAYER_JOINED, String.format(JOINING_GAME, givenGameUuid));
+        verify(givenRedisGameRepository).add(any(GenericGameHandlerWrapper.class));
     }
 
     @Test
@@ -510,35 +600,42 @@ public class GameServiceTest {
         // given
         String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
         String givenUiUuid = "07693684-082b-4f3c-9ea7-a8133a78225a";
-        Player givenPlayer = mock(Player.class);
         Side givenSide = BLACK;
 
         // when
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        mockRedisRepository();
         doReturn(false).when(givenGameHandler).isAllowObservers();
         doReturn(true).when(givenGameHandler).isAllowOtherToJoin();
-        doReturn(false).when(playerHandler).setPlayerToSide(givenPlayer, givenSide);
+        doReturn(false).when(givenPlayerHandler).setPlayerToSide(givenPlayer, givenSide);
 
-        BooleanResponse booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        BooleanResponse booleanResponse = null;
+        try {
+            booleanResponse = gameService.joinGame(givenGameUuid, givenSide, givenUiUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(booleanResponse).isEqualTo(BooleanResponse.NO);
-        verifyNoInteractions(gameMessageDelegate);
-        verifyNoInteractions(currentWebSocketService);
-        verifyNoInteractions(redisGameRepository);
+        verifyNoInteractions(givenGameMessageDelegate);
+        verifyNoInteractions(givenWebSocketService);
     }
 
     @Test
     public void getPieceLocations_start_pieces_player_not_in_game() {
         // given
         String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
-        Player givenPlayer = mock(Player.class);
 
         // when
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+        mockRedisRepository();
 
-        List<PieceLocationModel> pieceLocations = gameService.getIterableBoard(givenGameUuid, givenPlayer);
+        List<PieceLocationModel> pieceLocations = null;
+        try {
+            pieceLocations = gameService.getIterableBoard(givenGameUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(pieceLocations).isEmpty();
@@ -614,15 +711,41 @@ public class GameServiceTest {
 
 
         String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
-        Player givenPlayer = mock(Player.class);
 
         // when
+        mockRedisRepository();
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
-        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
-        List<PieceLocationModel> pieceLocations = gameService.getIterableBoard(givenGameUuid, givenPlayer);
+        List<PieceLocationModel> pieceLocations = null;
+        try {
+            pieceLocations = gameService.getIterableBoard(givenGameUuid, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertThat(pieceLocations).isEqualTo(givenNormalBoard);
+    }
+
+    @Test
+    void upgradePiece_game_not_found() {
+        // given
+        CasePosition givenTo = A1;
+        String givenGameUuid = "superUUID";
+        PawnPromotionPiecesModel pawnPromotionPiecesModel = PawnPromotionPiecesModel.QUEEN;
+
+        // when
+        mockRedisRepository();
+        doReturn(null).when(gameHandlerWrapper).getGenericGameHandler();
+
+        boolean isUpgraded = false;
+        try {
+            isUpgraded = gameService.upgradePiece(givenTo, givenGameUuid, pawnPromotionPiecesModel, givenPlayer);
+        } catch (ca.watier.echechess.exceptions.GameException e) {
+            e.printStackTrace();
+        }
+
+        // then
+        assertThat(isUpgraded).isFalse();
     }
 }

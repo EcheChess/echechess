@@ -21,6 +21,7 @@ import ca.watier.echechess.common.enums.Side;
 import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.responses.StringResponse;
 import ca.watier.echechess.engine.exceptions.FenParserException;
+import ca.watier.echechess.exceptions.GameException;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
 import ca.watier.echechess.models.UserDetailsImpl;
@@ -61,8 +62,8 @@ public class GameController {
     private static final String PLAY_AGAINST_THE_AI = "Create a new game to play against the AI";
     private static final String WITH_OR_WITHOUT_OBSERVERS = "Create a new game with or without observers";
     private static final String PATTERN_CUSTOM_GAME = "Pattern used to create a custom game";
-    private static final ResponseEntity<Void> NO_CONTENT_RESPONSE_ENTITY = ResponseEntity.noContent().build();
-    private static final ResponseEntity<Void> BAD_REQUEST_RESPONSE_ENTITY = ResponseEntity.badRequest().build();
+    private static final ResponseEntity NO_CONTENT_RESPONSE_ENTITY = ResponseEntity.noContent().build();
+    private static final ResponseEntity BAD_REQUEST_RESPONSE_ENTITY = ResponseEntity.badRequest().build();
 
     private final GameService gameService;
     private final UserService userService;
@@ -105,7 +106,12 @@ public class GameController {
                                                   @ApiParam(value = TO_POSITION, required = true) CasePosition to,
                                                   @ApiParam(value = UUID_GAME, required = true) String uuid) {
 
-        gameService.movePiece(from, to, uuid, AuthenticationUtils.getUserDetail());
+        try {
+            gameService.movePiece(from, to, uuid, AuthenticationUtils.getUserDetail());
+        } catch (GameException e) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
+
         return NO_CONTENT_RESPONSE_ENTITY;
     }
 
@@ -115,7 +121,12 @@ public class GameController {
     public ResponseEntity<Void> getMovesOfAPiece(@ApiParam(value = FROM_POSITION, required = true) CasePosition from,
                                                  @ApiParam(value = UUID_GAME, required = true) String uuid) {
 
-        gameService.getAllAvailableMoves(from, uuid, AuthenticationUtils.getUserDetail());
+        try {
+            gameService.getAllAvailableMoves(from, uuid, AuthenticationUtils.getUserDetail());
+        } catch (GameException e) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
+
         return NO_CONTENT_RESPONSE_ENTITY;
     }
 
@@ -125,14 +136,22 @@ public class GameController {
     public ResponseEntity<Boolean> pawnPromotion(@ApiParam(value = TO_POSITION, required = true) CasePosition to,
                                                  @ApiParam(value = UUID_GAME, required = true) String uuid,
                                                  @ApiParam(value = UPGRADED_PIECE, required = true) PawnPromotionPiecesModel piece) {
-        return ResponseEntity.ok(gameService.upgradePiece(to, uuid, piece, AuthenticationUtils.getUserDetail()));
+        try {
+            return ResponseEntity.ok(gameService.upgradePiece(to, uuid, piece, AuthenticationUtils.getUserDetail()));
+        } catch (GameException exception) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
     }
 
     @ApiOperation("Gets the pieces location")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @GetMapping(path = "/pieces", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PieceLocationModel>> getPieceLocations(@ApiParam(value = UUID_GAME, required = true) String uuid) {
-        return ResponseEntity.ok(gameService.getIterableBoard(uuid, AuthenticationUtils.getUserDetail()));
+        try {
+            return ResponseEntity.ok(gameService.getIterableBoard(uuid, AuthenticationUtils.getUserDetail()));
+        } catch (GameException e) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
     }
 
     @ApiOperation("Join a game for the current player")
@@ -142,7 +161,12 @@ public class GameController {
                                                     @ApiParam(value = UI_UUID_PLAYER, required = true) String uiUuid) {
 
 
-        BooleanResponse response = gameService.joinGame(uuid, side, uiUuid, AuthenticationUtils.getUserDetail());
+        BooleanResponse response;
+        try {
+            response = gameService.joinGame(uuid, side, uiUuid, AuthenticationUtils.getUserDetail());
+        } catch (GameException e) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
 
         if (response.isResponse()) {
             UUID newGameUuid = UUID.fromString(uuid);
@@ -160,6 +184,10 @@ public class GameController {
     @PostMapping(path = "/side")
     public ResponseEntity<Boolean> setSideOfPlayer(@ApiParam(value = SIDE_PLAYER, required = true) Side side,
                                                    @ApiParam(value = UUID_GAME, required = true) String uuid) {
-        return ResponseEntity.ok(gameService.setSideOfPlayer(side, uuid, AuthenticationUtils.getUserDetail()));
+        try {
+            return ResponseEntity.ok(gameService.setSideOfPlayer(side, uuid, AuthenticationUtils.getUserDetail()));
+        } catch (GameException e) {
+            return BAD_REQUEST_RESPONSE_ENTITY;
+        }
     }
 }

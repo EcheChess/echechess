@@ -22,6 +22,7 @@ import ca.watier.echechess.common.responses.BooleanResponse;
 import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
+import ca.watier.echechess.exceptions.GameException;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
 
@@ -32,21 +33,21 @@ import java.util.UUID;
 public interface GameService {
     UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) throws FenParserException;
 
-    void movePiece(CasePosition from, CasePosition to, String uuid, Player player);
+    void movePiece(CasePosition from, CasePosition to, String uuid, Player player) throws GameException;
 
     GenericGameHandler getGameFromUuid(String uuid);
 
     Side getPlayerSide(String uuid, Player player);
 
-    void getAllAvailableMoves(CasePosition from, String uuid, Player player);
+    void getAllAvailableMoves(CasePosition from, String uuid, Player player) throws GameException;
 
-    BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player);
+    BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) throws GameException;
 
-    List<PieceLocationModel> getIterableBoard(String uuid, Player player);
+    List<PieceLocationModel> getIterableBoard(String uuid, Player player) throws GameException;
 
-    boolean setSideOfPlayer(Side side, String uuid, Player player);
+    boolean setSideOfPlayer(Side side, String uuid, Player player) throws GameException;
 
-    boolean upgradePiece(CasePosition to, String uuid, PawnPromotionPiecesModel piece, Player player);
+    boolean upgradePiece(CasePosition to, String uuid, PawnPromotionPiecesModel piece, Player player) throws GameException;
 
     Map<UUID, GenericGameHandler> getAllGames();
 }
