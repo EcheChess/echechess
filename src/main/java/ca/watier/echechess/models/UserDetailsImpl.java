@@ -20,6 +20,7 @@ import ca.watier.echechess.common.sessions.Player;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
@@ -29,7 +30,9 @@ import java.util.UUID;
  */
 public class UserDetailsImpl extends Player implements UserDetails {
 
+    @Serial
     private static final long serialVersionUID = -124649164513355612L;
+
     private int userId;
     private final String usr;
     private String pwd;

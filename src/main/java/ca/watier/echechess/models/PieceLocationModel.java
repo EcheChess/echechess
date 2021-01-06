@@ -19,6 +19,7 @@ package ca.watier.echechess.models;
 import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.common.enums.Pieces;
 import ca.watier.echechess.common.enums.Side;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -29,24 +30,22 @@ public class PieceLocationModel implements Serializable {
     @Serial
     private static final long serialVersionUID = -4788739945570270875L;
 
-    private final String unicodeIcon;
-    private final String name;
+    @JsonIgnore
+    private transient final Pieces pieces;
+
+    @JsonIgnore
+    private transient final CasePosition position;
+
     private final String rawPosition;
     private final byte side;
     private boolean isSelected = false; // Used in Vue to show the green border
 
     public PieceLocationModel(Pieces pieces, CasePosition position) {
+        this.pieces = pieces;
+        this.position = position;
 
-        if (Objects.isNull(position)) {
+        if (position == null) {
             throw new IllegalArgumentException("The piece position cannot be null");
-        }
-
-        if (Objects.nonNull(pieces)) {
-            this.unicodeIcon = pieces.getUnicodeIcon();
-            this.name = pieces.getName();
-        } else {
-            this.unicodeIcon = "";
-            this.name = "";
         }
 
         this.side = initSide(pieces);
@@ -61,11 +60,15 @@ public class PieceLocationModel implements Serializable {
     }
 
     public String getUnicodeIcon() {
-        return unicodeIcon;
+        return Optional.ofNullable(pieces)
+                .map(Pieces::getUnicodeIcon)
+                .orElse("");
     }
 
     public String getName() {
-        return name;
+        return Optional.ofNullable(pieces)
+                .map(Pieces::getName)
+                .orElse("");
     }
 
     public String getRawPosition() {
@@ -82,5 +85,34 @@ public class PieceLocationModel implements Serializable {
 
     public void setSelected(boolean selected) {
         isSelected = selected;
+    }
+
+    public Pieces getPieces() {
+        return pieces;
+    }
+
+    public CasePosition getPosition() {
+        return position;
+    }
+
+    @Override
+    public String toString() {
+        return "PieceLocationModel{" +
+                "pieces=" + pieces +
+                ", position=" + position +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PieceLocationModel that = (PieceLocationModel) o;
+        return pieces == that.pieces && position == that.position;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieces, position);
     }
 }

@@ -42,7 +42,7 @@ public interface GameService {
 
     BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player);
 
-    List<PieceLocationModel> getPieceLocations(String uuid, Player player);
+    List<PieceLocationModel> getIterableBoard(String uuid, Player player);
 
     boolean setSideOfPlayer(Side side, String uuid, Player player);
 

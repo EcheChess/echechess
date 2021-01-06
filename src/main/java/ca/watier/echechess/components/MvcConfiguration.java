@@ -37,12 +37,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
     private static final CacheControl CACHE_CONTROL_TWO_HOURS = CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic();
 
     @Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
-    }
-
-
-    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/scripts/**").addResourceLocations("/static/scripts/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
         registry.addResourceHandler("/images/**").addResourceLocations("/static/images/").setCacheControl(CACHE_CONTROL_TWO_HOURS);

@@ -29,13 +29,11 @@ import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.engine.interfaces.GameEventEvaluatorHandler;
-import ca.watier.echechess.engine.interfaces.GameHandler;
 import ca.watier.echechess.engine.interfaces.PlayerHandler;
 import ca.watier.echechess.engine.utils.GameUtils;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
 import ca.watier.repository.KeyValueRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,8 +43,7 @@ import java.util.*;
 
 import static ca.watier.echechess.common.enums.CasePosition.*;
 import static ca.watier.echechess.common.enums.ChessEventMessage.*;
-import static ca.watier.echechess.common.enums.Pieces.B_KING;
-import static ca.watier.echechess.common.enums.Pieces.W_QUEEN;
+import static ca.watier.echechess.common.enums.Pieces.*;
 import static ca.watier.echechess.common.enums.Side.*;
 import static ca.watier.echechess.common.utils.Constants.*;
 import static java.util.Arrays.asList;
@@ -532,7 +529,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getPieceLocations_start_pieces_player_not_in_game()  {
+    public void getPieceLocations_start_pieces_player_not_in_game() {
         // given
         String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
         Player givenPlayer = mock(Player.class);
@@ -541,9 +538,91 @@ public class GameServiceTest {
         when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(false);
         doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
 
-        List<PieceLocationModel> pieceLocations = gameService.getPieceLocations(givenGameUuid, givenPlayer);
+        List<PieceLocationModel> pieceLocations = gameService.getIterableBoard(givenGameUuid, givenPlayer);
 
         // then
         assertThat(pieceLocations).isEmpty();
+    }
+
+    @Test
+    public void getIterableBoard_start_pieces() {
+        // given
+        List<PieceLocationModel> givenNormalBoard = List.of(new PieceLocationModel(B_ROOK, A8),
+                new PieceLocationModel(B_KNIGHT, B8),
+                new PieceLocationModel(B_BISHOP, C8),
+                new PieceLocationModel(B_QUEEN, D8),
+                new PieceLocationModel(B_KING, E8),
+                new PieceLocationModel(B_BISHOP, F8),
+                new PieceLocationModel(B_KNIGHT, G8),
+                new PieceLocationModel(B_ROOK, H8),
+                new PieceLocationModel(B_PAWN, A7),
+                new PieceLocationModel(B_PAWN, B7),
+                new PieceLocationModel(B_PAWN, C7),
+                new PieceLocationModel(B_PAWN, D7),
+                new PieceLocationModel(B_PAWN, E7),
+                new PieceLocationModel(B_PAWN, F7),
+                new PieceLocationModel(B_PAWN, G7),
+                new PieceLocationModel(B_PAWN, H7),
+                new PieceLocationModel(null, A6),
+                new PieceLocationModel(null, B6),
+                new PieceLocationModel(null, C6),
+                new PieceLocationModel(null, D6),
+                new PieceLocationModel(null, E6),
+                new PieceLocationModel(null, F6),
+                new PieceLocationModel(null, G6),
+                new PieceLocationModel(null, H6),
+                new PieceLocationModel(null, A5),
+                new PieceLocationModel(null, B5),
+                new PieceLocationModel(null, C5),
+                new PieceLocationModel(null, D5),
+                new PieceLocationModel(null, E5),
+                new PieceLocationModel(null, F5),
+                new PieceLocationModel(null, G5),
+                new PieceLocationModel(null, H5),
+                new PieceLocationModel(null, A4),
+                new PieceLocationModel(null, B4),
+                new PieceLocationModel(null, C4),
+                new PieceLocationModel(null, D4),
+                new PieceLocationModel(null, E4),
+                new PieceLocationModel(null, F4),
+                new PieceLocationModel(null, G4),
+                new PieceLocationModel(null, H4),
+                new PieceLocationModel(null, A3),
+                new PieceLocationModel(null, B3),
+                new PieceLocationModel(null, C3),
+                new PieceLocationModel(null, D3),
+                new PieceLocationModel(null, E3),
+                new PieceLocationModel(null, F3),
+                new PieceLocationModel(null, G3),
+                new PieceLocationModel(null, H3),
+                new PieceLocationModel(W_PAWN, A2),
+                new PieceLocationModel(W_PAWN, B2),
+                new PieceLocationModel(W_PAWN, C2),
+                new PieceLocationModel(W_PAWN, D2),
+                new PieceLocationModel(W_PAWN, E2),
+                new PieceLocationModel(W_PAWN, F2),
+                new PieceLocationModel(W_PAWN, G2),
+                new PieceLocationModel(W_PAWN, H2),
+                new PieceLocationModel(W_ROOK, A1),
+                new PieceLocationModel(W_KNIGHT, B1),
+                new PieceLocationModel(W_BISHOP, C1),
+                new PieceLocationModel(W_QUEEN, D1),
+                new PieceLocationModel(W_KING, E1),
+                new PieceLocationModel(W_BISHOP, F1),
+                new PieceLocationModel(W_KNIGHT, G1),
+                new PieceLocationModel(W_ROOK, H1));
+
+
+        String givenGameUuid = "23770896-069d-43c3-9a83-336031b153fe";
+        Player givenPlayer = mock(Player.class);
+
+        // when
+        when(givenGameHandler.hasPlayer(givenPlayer)).thenReturn(true);
+        doReturn(givenGameHandler).when(gameService).getGameFromUuid(any(String.class));
+
+        List<PieceLocationModel> pieceLocations = gameService.getIterableBoard(givenGameUuid, givenPlayer);
+
+        // then
+        assertThat(pieceLocations).isEqualTo(givenNormalBoard);
     }
 }

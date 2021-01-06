@@ -262,7 +262,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<PieceLocationModel> getPieceLocations(String uuid, Player player) {
+    public List<PieceLocationModel> getIterableBoard(String uuid, Player player) {
         if (player == null || StringUtils.isBlank(uuid)) {
             throw new IllegalArgumentException();
         }
@@ -291,6 +291,7 @@ public class GameServiceImpl implements GameService {
             pairs.add(casePositionPiecesEntry);
         }
 
+        // Convert the` java.util.Map.Entry` to `ca.watier.echechess.models.ui.PieceLocationUiModel`
         List<List<PieceLocationModel>> sortedBoardWithColumns = new ArrayList<>();
         for (Integer key : sortedByCol.keySet()) {
             List<PieceLocationModel> currentRow = new ArrayList<>(8);
