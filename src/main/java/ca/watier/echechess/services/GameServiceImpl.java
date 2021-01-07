@@ -26,6 +26,7 @@ import ca.watier.echechess.common.sessions.Player;
 import ca.watier.echechess.common.utils.Constants;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
+import ca.watier.echechess.components.CasePositionPiecesMapEntryComparator;
 import ca.watier.echechess.delegates.GameMessageDelegate;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
@@ -33,6 +34,7 @@ import ca.watier.echechess.engine.exceptions.FenParserException;
 import ca.watier.echechess.engine.utils.FenGameParser;
 import ca.watier.echechess.exceptions.GameException;
 import ca.watier.echechess.exceptions.GameNotFoundException;
+import ca.watier.echechess.exceptions.InvalidGameParameterException;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,19 +57,8 @@ public class GameServiceImpl implements GameService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GameServiceImpl.class);
     private static final BooleanResponse NO = BooleanResponse.NO;
 
-    private static final Comparator<Map.Entry<CasePosition, Pieces>> PIECE_LOCATION_COMPARATOR = new Comparator<>() {
-        @Override
-        public int compare(Map.Entry<CasePosition, Pieces> first, Map.Entry<CasePosition, Pieces> second) {
-            if (ObjectUtils.anyNull(first, second)) {
-                throw new NullPointerException();
-            }
-
-            CasePosition firstPosition = first.getKey();
-            CasePosition secondPosition = second.getKey();
-
-            return Integer.compare(firstPosition.getX(), secondPosition.getX());
-        }
-    };
+    private static final CasePositionPiecesMapEntryComparator PIECE_LOCATION_COMPARATOR =
+            new CasePositionPiecesMapEntryComparator();
 
     private final PieceMoveConstraintDelegate pieceMoveConstraintDelegate;
     private final WebSocketService webSocketService;
@@ -95,9 +86,9 @@ public class GameServiceImpl implements GameService {
      * @param player
      */
     @Override
-    public UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) throws FenParserException {
-        if (player == null || side == null) {
-            throw new IllegalArgumentException();  //TODO: Change to a checked exception
+    public UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) throws FenParserException, GameException {
+        if (ObjectUtils.anyNull(player, side)) {
+            throw new InvalidGameParameterException();
         }
 
         GenericGameHandler genericGameHandler;
@@ -132,17 +123,11 @@ public class GameServiceImpl implements GameService {
      */
     @Override
     public void movePiece(CasePosition from, CasePosition to, String uuid, Player player) throws GameException {
-
         if (ObjectUtils.anyNull(from, to, uuid, player)) {
-            throw new IllegalArgumentException();  //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-
-        if(gameFromUuid == null) {
-            throw new GameNotFoundException();
-        }
-
         Side playerSide = getPlayerSide(uuid, player);
 
         if (!gameFromUuid.hasPlayer(player) || gameFromUuid.isGamePaused() || gameFromUuid.isGameDraw()) {
@@ -164,17 +149,18 @@ public class GameServiceImpl implements GameService {
      * Get the game associated to the uuid
      *
      * @param uuid
-     * @return
+     * @throws {@link GameNotFoundException} when the game is not found, or {@link InvalidGameParameterException}
+     * when any of the required parameters are invalid.
      */
     @Override
-    public GenericGameHandler getGameFromUuid(String uuid) {
+    public GenericGameHandler getGameFromUuid(String uuid) throws GameException {
         if (StringUtils.isBlank(uuid)) {
-            throw new IllegalArgumentException();  //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
-        GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper = gameRepository.get(uuid);
-
-        return genericGameHandlerWrapper.getGenericGameHandler();
+        return Optional.ofNullable(gameRepository.get(uuid))
+                .map(GenericGameHandlerWrapper::getGenericGameHandler)
+                .orElseThrow(GameNotFoundException::new);
     }
 
     /**
@@ -184,9 +170,9 @@ public class GameServiceImpl implements GameService {
      * @return
      */
     @Override
-    public Side getPlayerSide(String uuid, Player player) {
+    public Side getPlayerSide(String uuid, Player player) throws GameException {
         if (StringUtils.isBlank(uuid)) {
-            throw new IllegalArgumentException();  //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
         return getGameFromUuid(uuid).getPlayerSide(player);
@@ -203,15 +189,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public void getAllAvailableMoves(CasePosition from, String uuid, Player player) throws GameException {
         if (ObjectUtils.anyNull(from, player) || StringUtils.isBlank(uuid)) {
-            throw new IllegalArgumentException();  //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-
-        if(gameFromUuid == null) {
-            throw new GameNotFoundException();
-        }
-
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
         if (!gameFromUuid.hasPlayer(player) || !isPlayerSameColorThanPiece(from, gameFromUuid, playerSide)) {
@@ -231,15 +212,11 @@ public class GameServiceImpl implements GameService {
     @Override
     public BooleanResponse joinGame(String uuid, Side side, String uiUuid, Player player) throws GameException {
         if (StringUtils.isBlank(uiUuid) || player == null || StringUtils.isBlank(uuid)) {
-            throw new IllegalArgumentException(); //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
         boolean joined = false;
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-
-        if(gameFromUuid == null) {
-            throw new GameNotFoundException();
-        }
 
         if (isNotAllowedToJoinGame(side, gameFromUuid)) {
             webSocketService.fireUiEvent(uiUuid, TRY_JOIN_GAME, NOT_AUTHORIZED_TO_JOIN);
@@ -276,14 +253,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public List<PieceLocationModel> getIterableBoard(String uuid, Player player) throws GameException {
         if (player == null || StringUtils.isBlank(uuid)) {
-            throw new IllegalArgumentException(); //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-
-        if(gameFromUuid == null) {
-            throw new GameNotFoundException();
-        }
 
         if (!gameFromUuid.hasPlayer(player)) {
             return Collections.emptyList();
@@ -335,13 +308,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public boolean setSideOfPlayer(Side side, String uuid, Player player) throws GameException {
-        GenericGameHandler game = getGameFromUuid(uuid);
-
-        if(game == null) {
-            throw new GameNotFoundException();
-        }
-
-        return game.setPlayerToSide(player, side);
+        return getGameFromUuid(uuid).setPlayerToSide(player, side);
     }
 
     /**
@@ -355,15 +322,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public boolean upgradePiece(CasePosition to, String uuid, PawnPromotionPiecesModel piece, Player player) throws GameException {
         if (player == null || StringUtils.isBlank(uuid) || piece == null || to == null) {
-            throw new IllegalArgumentException(); //TODO: Change to a checked exception
+            throw new InvalidGameParameterException();
         }
 
         GenericGameHandler gameFromUuid = getGameFromUuid(uuid);
-
-        if(gameFromUuid == null) {
-            throw new GameNotFoundException();
-        }
-
         Side playerSide = gameFromUuid.getPlayerSide(player);
 
         webSocketService.fireSideEvent(uuid, playerSide, PAWN_PROMOTION, to.name());

@@ -31,13 +31,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface GameService {
-    UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) throws FenParserException;
+    UUID createNewGame(String specialGamePieces, Side side, boolean againstComputer, boolean observers, Player player) throws FenParserException, GameException;
 
     void movePiece(CasePosition from, CasePosition to, String uuid, Player player) throws GameException;
 
-    GenericGameHandler getGameFromUuid(String uuid);
+    GenericGameHandler getGameFromUuid(String uuid) throws GameException;
 
-    Side getPlayerSide(String uuid, Player player);
+    Side getPlayerSide(String uuid, Player player) throws GameException;
 
     void getAllAvailableMoves(CasePosition from, String uuid, Player player) throws GameException;
 

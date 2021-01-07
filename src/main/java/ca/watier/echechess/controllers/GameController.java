@@ -94,7 +94,7 @@ public class GameController {
 
             userService.addGameToUser(principal.getUsername(), newGameUuid);
             return ResponseEntity.ok(new StringResponse(newGameUuid.toString()));
-        } catch (FenParserException ignored) {
+        } catch (FenParserException | GameException ignored) {
             return BAD_REQUEST_RESPONSE_ENTITY;
         }
     }
