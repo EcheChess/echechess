@@ -20,17 +20,25 @@ import ca.watier.echechess.common.enums.CasePosition;
 import ca.watier.echechess.models.CasePositionModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.OAuthBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Configuration
 @EnableSwagger2
 public class SpringFoxConfiguration {
+    public static final AuthorizationScope READ_SCOPE = new AuthorizationScope("read", null);
+
     @Bean
     public Docket apiDocket() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -39,6 +47,46 @@ public class SpringFoxConfiguration {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("ca.watier"))
                 .paths(PathSelectors.any())
+                .build()
+                .securitySchemes(securitySchemes())
+                .securityContexts(securityContextes());
+    }
+
+
+    @Bean
+    public SecurityConfiguration swaggerSecurityConfiguration() {
+        return SecurityConfigurationBuilder
+                .builder()
+                .clientId("clientId")
+                .clientSecret("secret")
+                .useBasicAuthenticationWithAccessCodeGrant(true)
+                .scopeSeparator(",")
                 .build();
     }
+
+    private List<SecurityScheme> securitySchemes() {
+        GrantType grantType = new ResourceOwnerPasswordCredentialsGrant("/oauth/token");
+        return List.of(
+                new OAuthBuilder()
+                        .name("oauth2")
+                        .scopes(List.of(READ_SCOPE))
+                        .grantTypes(List.of(grantType))
+                        .build());
+    }
+
+    private List<SecurityContext> securityContextes() {
+        return List.of(SecurityContext.builder()
+                .securityReferences(securityReferences())
+                .operationSelector(operationContext -> true)
+                .build());
+    }
+
+    private List<SecurityReference> securityReferences() {
+        AuthorizationScope[] authorizationScopes = {
+                READ_SCOPE
+        };
+
+        return List.of(new SecurityReference("oauth2", authorizationScopes));
+    }
+
 }
