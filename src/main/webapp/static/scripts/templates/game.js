@@ -48,7 +48,7 @@ const Game = {
             <a class="nav-link nav-top-bar-game-link" v-on:click="joinGame">Join Game</a>
         </nav>
         <nav id="navbar-right-menu" class="navbar">
-            <a class="nav-link nav-top-bar-game-link" href="/swagger-ui.html">Swagger-ui</a>
+            <a class="nav-link nav-top-bar-game-link" href="/swagger-ui/index.html">Swagger-ui</a>
         </nav>
     </nav>
     <div id="game">

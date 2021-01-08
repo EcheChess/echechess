@@ -99,6 +99,10 @@ public class GameController {
         }
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue with when moving the piece."),
+            @ApiResponse(code = 204, message = "The result of this query will be sent on the web socket, when ready.")
+    })
     @ApiOperation("Move the selected piece")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @PostMapping(path = "/move", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -115,6 +119,11 @@ public class GameController {
         return NO_CONTENT_RESPONSE_ENTITY;
     }
 
+
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue when fetching the available moves."),
+            @ApiResponse(code = 204, message = "The result of this query will be sent on the web socket, when ready.")
+    })
     @ApiOperation("Get a list of position that the piece can moves")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @GetMapping(path = "/moves", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -130,6 +139,10 @@ public class GameController {
         return NO_CONTENT_RESPONSE_ENTITY;
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue when promoting the pawn."),
+            @ApiResponse(code = 200, message = "The result of the promoting (true / false).")
+    })
     @ApiOperation("Used when there's a pawn promotion")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @PostMapping(path = "/piece/pawn/promotion", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -143,6 +156,10 @@ public class GameController {
         }
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue when fetching the pieces of the game."),
+            @ApiResponse(code = 200, message = "The pieces with their location.")
+    })
     @ApiOperation("Gets the pieces location")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @GetMapping(path = "/pieces", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -154,6 +171,10 @@ public class GameController {
         }
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue when joining the game."),
+            @ApiResponse(code = 200, message = "The player has joined the game successfully.")
+    })
     @ApiOperation("Join a game for the current player")
     @PostMapping(path = "/join", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BooleanResponse> joinGame(@ApiParam(value = UUID_GAME, required = true) String uuid,
@@ -179,6 +200,10 @@ public class GameController {
         return ResponseEntity.ok(response);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "There's an issue when switching the side of the player."),
+            @ApiResponse(code = 200, message = "The result if the player side is changed (true / false)")
+    })
     @ApiOperation("Change the side of the current player")
     @PreAuthorize("isPlayerInGame(#uuid)")
     @PostMapping(path = "/side")
