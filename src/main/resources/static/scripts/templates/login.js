@@ -23,14 +23,14 @@ const Login = {
             <h1 id="login-header-text" class="h3 mb-3 font-weight-normal">Log-in</h1>
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-user"></i></span>
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
                 </div>
                 <input v-model="username" type="text" name="username" class="form-control" placeholder="Username" autofocus="">
             </div>
           
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1"><i class="fas fa-lock"></i></span>
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
                 </div>
                 <input v-model="password" type="password" name="password" class="form-control" placeholder="Password">
             </div>

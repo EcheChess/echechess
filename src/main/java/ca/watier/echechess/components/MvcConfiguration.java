@@ -16,16 +16,11 @@
 
 package ca.watier.echechess.components;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
-import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,35 +28,12 @@ import java.util.concurrent.TimeUnit;
  * Created by yannick on 6/12/2017.
  */
 
-@EnableWebMvc
 @Configuration
 public class MvcConfiguration implements WebMvcConfigurer {
-
-    private static final CacheControl CACHE_CONTROL_TWO_HOURS = CacheControl.maxAge(2, TimeUnit.HOURS).cachePublic();
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/scripts/**").addResourceLocations("/static/scripts/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
-        registry.addResourceHandler("/images/**").addResourceLocations("/static/images/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
-        registry.addResourceHandler("/style/**").addResourceLocations("/static/style/").setCacheControl(CACHE_CONTROL_TWO_HOURS);
-
         registry.addResourceHandler("/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
                 .resourceChain(false);
-    }
-
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
-    }
-
-    @Bean
-    public ViewResolver viewResolver() {
-        InternalResourceViewResolver resolver =
-                new InternalResourceViewResolver();
-        resolver.setViewClass(JstlView.class);
-        resolver.setPrefix("/WEB-INF/views/");
-        resolver.setSuffix(".jsp");
-        return resolver;
     }
 }
