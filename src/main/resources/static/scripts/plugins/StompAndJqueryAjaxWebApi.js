@@ -5,9 +5,14 @@ class StompAndJqueryAjaxWebApi {
     install(app) {
         app.config.globalProperties.websocketClient = undefined;
 
+        const protocol = `${window.location.protocol}`;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const isSecure = protocol === 'https:';
+
         app.config.globalProperties.api = {
-            "restUrl": `https://${window.location.hostname}:${window.location.port}`,
-            "websocketUrl": `https://${window.location.hostname}:${window.location.port}`
+            "restUrl": `${protocol}//${hostname}:${port}`,
+            "websocketUrl": `${isSecure ? 'wss' : 'ws'}://${hostname}:${port}`
         };
 
         app.config.globalProperties.oauth = {
@@ -90,8 +95,8 @@ class StompAndJqueryAjaxWebApi {
             if (app.config.globalProperties.websocketClient) {
                 app.config.globalProperties.websocketClient.unsubscribe();
             } else {
-                let sockJS = new SockJS(`${app.config.globalProperties.api.websocketUrl}/websocket?access_token=${app.config.globalProperties.oauth.token}`, {transports: ['xhr-streaming']});
-                app.config.globalProperties.websocketClient = Stomp.over(sockJS);
+                let url = `${app.config.globalProperties.api.websocketUrl}/websocket?access_token=${app.config.globalProperties.oauth.token}`;
+                app.config.globalProperties.websocketClient = Stomp.over(new WebSocket(url));
             }
 
             let headers = {
@@ -99,8 +104,8 @@ class StompAndJqueryAjaxWebApi {
             };
 
             app.config.globalProperties.websocketClient.connect(headers, function () {
-                app.config.globalProperties.websocketClient.subscribe(basePath, gameEventCallback);
                 app.config.globalProperties.websocketClient.subscribe(sideEventPath, sideEventCallback);
+                app.config.globalProperties.websocketClient.subscribe(basePath, gameEventCallback);
             });
         }
 

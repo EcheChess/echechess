@@ -24,7 +24,9 @@ import ca.watier.keystore.generator.models.KeystorePasswordHolder;
 import io.undertow.Undertow;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.undertow.UndertowBuilderCustomizer;
+import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -43,11 +45,21 @@ import static org.bouncycastle.asn1.x500.style.BCStyle.O;
 
 @Configuration
 public class UndertowConfiguration implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> {
-    private static final int SECURE_PORT = 8443;
     private static final KeystorePasswordHolder CURRENT_KEYSTORE_HOLDER = Objects.requireNonNull(buildKeystore());
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UndertowConfiguration.class);
     public static final String LOCALHOST = "127.0.0.1";
 
+    private final boolean redirectHttpToHttps;
+    private final int securePort;
+    private final int httpPort;
+
+    public UndertowConfiguration(@Value("${app.transport.http.redirect-to-https:true}") boolean redirectHttpToHttps,
+                                 @Value("${app.transport.https.port:8443}") int httpsPort,
+                                 @Value("${app.transport.http.port:8080}") int httpPort) {
+        this.redirectHttpToHttps = redirectHttpToHttps;
+        this.securePort = httpsPort;
+        this.httpPort = httpPort;
+    }
 
     private static KeystorePasswordHolder buildKeystore() {
         Map<ASN1ObjectIdentifier, String> objectIdentifierHashMap = new HashMap<>();
@@ -67,7 +79,16 @@ public class UndertowConfiguration implements WebServerFactoryCustomizer<Underto
 
     @Override
     public void customize(UndertowServletWebServerFactory factory) {
-        factory.addDeploymentInfoCustomizers(new UndertowHttpToHttpsCustomizerImpl(SECURE_PORT));
+        if(redirectHttpToHttps) {
+            factory.addDeploymentInfoCustomizers(undertowHttpToHttpsCustomizer());
+        }
+
+        factory.setPort(httpPort);
+    }
+
+    @Bean
+    public UndertowDeploymentInfoCustomizer undertowHttpToHttpsCustomizer() {
+        return new UndertowHttpToHttpsCustomizerImpl(securePort);
     }
 
     @Bean
@@ -80,7 +101,7 @@ public class UndertowConfiguration implements WebServerFactoryCustomizer<Underto
                 try {
                     SSLContext sslContext = buildSslContextFromKeystore();
 
-                    builder.addHttpsListener(SECURE_PORT, LOCALHOST, sslContext);
+                    builder.addHttpsListener(securePort, LOCALHOST, sslContext);
                 } catch (NoSuchAlgorithmException | KeyManagementException | UnrecoverableKeyException | KeyStoreException e) {
                     LOGGER.error(e.getMessage(), e);
                 }
