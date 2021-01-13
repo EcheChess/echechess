@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration.dependent;
+package ca.watier.echechess.configuration.mode.dependent;
 
 import ca.watier.echechess.common.services.WebSocketService;
 import ca.watier.echechess.communication.rabbitmq.configuration.RabbitMqConfiguration;
@@ -22,6 +22,7 @@ import ca.watier.echechess.communication.redis.interfaces.GameRepository;
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
 import ca.watier.echechess.components.DependentGameMessageHandler;
 import ca.watier.echechess.components.MessageActionExecutor;
+import ca.watier.echechess.components.MessageActionExecutorImpl;
 import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +57,6 @@ public class AppRabbitConfiguration extends RabbitMqConfiguration {
                                                 WebSocketService webSocketService,
                                                 ObjectMapper objectMapper,
                                                 PieceMoveConstraintDelegate gameMoveConstraintDelegate) {
-        return new MessageActionExecutor(gameMoveConstraintDelegate, gameRepository, webSocketService, objectMapper);
+        return new MessageActionExecutorImpl(gameMoveConstraintDelegate, gameRepository, webSocketService, objectMapper);
     }
 }

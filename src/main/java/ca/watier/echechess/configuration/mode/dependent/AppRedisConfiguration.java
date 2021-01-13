@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration.dependent;
+package ca.watier.echechess.configuration.mode.dependent;
 
 import ca.watier.echechess.communication.redis.configuration.RedisConfiguration;
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;

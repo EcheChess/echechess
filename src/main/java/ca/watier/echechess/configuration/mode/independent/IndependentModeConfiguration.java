@@ -14,17 +14,13 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration.independent;
+package ca.watier.echechess.configuration.mode.independent;
 
-import ca.watier.echechess.common.services.WebSocketService;
 import ca.watier.echechess.communication.redis.interfaces.GameRepository;
-import ca.watier.echechess.components.MessageActionExecutor;
-import ca.watier.echechess.engine.delegates.PieceMoveConstraintDelegate;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.repositories.IndependentGameRepositoryImpl;
 import ca.watier.echechess.repositories.IndependentUserRepositoryImpl;
 import ca.watier.echechess.repositories.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,14 +40,6 @@ public class IndependentModeConfiguration {
     @Bean
     public GameRepository<GenericGameHandler> gameRepository() {
         return new IndependentGameRepositoryImpl();
-    }
-
-    @Bean
-    public MessageActionExecutor messageActionExecutor(GameRepository<GenericGameHandler> gameRepository,
-                                                       WebSocketService webSocketService,
-                                                       ObjectMapper objectMapper,
-                                                       PieceMoveConstraintDelegate gameMoveConstraintDelegate) {
-        return new MessageActionExecutor(gameMoveConstraintDelegate, gameRepository, webSocketService, objectMapper);
     }
 
     @Bean

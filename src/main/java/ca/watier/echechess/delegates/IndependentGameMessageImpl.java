@@ -25,6 +25,7 @@ import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.components.MessageActionExecutor;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import ca.watier.echechess.interfaces.GameMessage;
+import ca.watier.echechess.utils.MessageQueueUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class IndependentGameMessageImpl implements GameMessage {
         }
 
         try {
-            String payload = uuid + '|' + from + '|' + playerSideValue + '|' + objectMapper.writeValueAsString(postionsAsString);
+            String payload = MessageQueueUtils.convertToMessage(uuid, from, playerSideValue, objectMapper.writeValueAsString(postionsAsString));
             actionExecutor.handleAvailMoveResponseMessage(payload);
         } catch (JsonProcessingException e) {
             LOGGER.error(e.getMessage(), e);
@@ -97,7 +98,8 @@ public class IndependentGameMessageImpl implements GameMessage {
         MoveType moveType = genericGameHandler.movePiece(from, to, playerSide);
 
         if (MoveType.isMoved(moveType)) {
-            actionExecutor.handleMoveResponseMessage(uuid + '|' + from + '|' + to + '|' + moveType.getValue() + '|' + playerSide.getValue());
+            String message = MessageQueueUtils.convertToMessage(uuid, from, to, moveType.getValue(), playerSide.getValue());
+            actionExecutor.handleMoveResponseMessage(message);
         }
     }
 

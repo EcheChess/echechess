@@ -14,10 +14,17 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.components;
+package ca.watier.echechess.utils;
 
-public interface MessageActionExecutor {
-    void handleMoveResponseMessage(String message);
+import org.apache.commons.lang3.StringUtils;
 
-    void handleAvailMoveResponseMessage(String message);
+public final class MessageQueueUtils {
+
+    private MessageQueueUtils() {
+    }
+
+    public static String convertToMessage(Object... sections) {
+        String joinString = StringUtils.join(sections, '|');
+        return StringUtils.defaultString(joinString);
+    }
 }

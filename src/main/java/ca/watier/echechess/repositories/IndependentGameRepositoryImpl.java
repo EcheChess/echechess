@@ -21,14 +21,11 @@ import ca.watier.echechess.communication.redis.model.GenericGameHandlerWrapper;
 import ca.watier.echechess.engine.engines.GenericGameHandler;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IndependentGameRepositoryImpl implements GameRepository<GenericGameHandler> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IndependentGameRepositoryImpl.class);
-    private final Map<String, GenericGameHandlerWrapper<GenericGameHandler>> games = new HashMap<>();
+    private final Map<String, GenericGameHandlerWrapper<GenericGameHandler>> games = Collections.synchronizedMap(new HashMap<>(256));
 
     @Override
     public void add(GenericGameHandlerWrapper<GenericGameHandler> genericGameHandlerWrapper) {

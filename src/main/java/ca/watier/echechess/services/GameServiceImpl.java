@@ -37,6 +37,7 @@ import ca.watier.echechess.exceptions.GameNotFoundException;
 import ca.watier.echechess.exceptions.InvalidGameParameterException;
 import ca.watier.echechess.models.PawnPromotionPiecesModel;
 import ca.watier.echechess.models.PieceLocationModel;
+import ca.watier.echechess.utils.MessageQueueUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -141,7 +142,7 @@ public class GameServiceImpl implements GameService {
         }
 
         //UUID|FROM|TO|ID_PLAYER_SIDE
-        String payload = uuid + '|' + from + '|' + to + '|' + playerSide.getValue();
+        String payload =  MessageQueueUtils.convertToMessage(uuid, from, to, playerSide.getValue());
         gameMessageDelegate.handleMoveMessage(payload);
     }
 
@@ -199,7 +200,7 @@ public class GameServiceImpl implements GameService {
             return;  //TODO: Add a checked exception
         }
 
-        String payload = uuid + '|' + from.name() + '|' + playerSide.getValue();
+        String payload = MessageQueueUtils.convertToMessage(uuid, from.name(), playerSide.getValue());
         gameMessageDelegate.handleAvailableMoveMessage(payload);
     }
 

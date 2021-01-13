@@ -14,9 +14,10 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration.dependent;
+package ca.watier.echechess.configuration.mode.dependent;
 
 import ca.watier.echechess.communication.redis.pojos.ServerInfoPojo;
+import ca.watier.echechess.repositories.DependentUserRepositoryImpl;
 import ca.watier.echechess.repositories.UserRepository;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -25,35 +26,38 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
-
-import java.util.Objects;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @Profile("dependent-mode")
 public class DependentModeConfiguration {
 
-    private final Environment environment;
     private final String rabbitIp;
     private final Short rabbitPort;
+    private final String redisIp;
+    private final Short redisPort;
+    private final String rabbitUser;
+    private final String rabbitPassword;
 
     @Autowired
     public DependentModeConfiguration(Environment environment) {
-        this.environment = environment;
-        rabbitIp = environment.getProperty("node.rabbit.ip");
-        rabbitPort = environment.getProperty("node.rabbit.port", Short.class);
+        rabbitIp = environment.getRequiredProperty("node.rabbit.ip");
+        rabbitPort = environment.getRequiredProperty("node.rabbit.port", Short.class);
+        redisIp = environment.getRequiredProperty("node.redis.ip");
+        redisPort = environment.getRequiredProperty("node.redis.port", Short.class);
+        rabbitUser = environment.getRequiredProperty("node.rabbit.user");
+        rabbitPassword = environment.getRequiredProperty("node.rabbit.password");
     }
 
     @Bean
-    public UserRepository userRepository() {
-        throw new UnsupportedOperationException();
+    public UserRepository userRepository(PasswordEncoder passwordEncoder) {
+        //TODO: Implements a new transactional database repository and find a proper database (PostgreSQL ?) to store the settings.
+        return new DependentUserRepositoryImpl(passwordEncoder);
     }
 
     @Bean
     public ServerInfoPojo redisServerPojo() {
-        String ip = environment.getProperty("node.redis.ip");
-        Short port = environment.getProperty("node.redis.port", Short.class);
-
-        return new ServerInfoPojo(ip, port);
+        return new ServerInfoPojo(redisIp, redisPort);
     }
 
     @Bean
@@ -66,8 +70,8 @@ public class DependentModeConfiguration {
         CachingConnectionFactory factory = new CachingConnectionFactory();
         factory.setHost(rabbitIp);
         factory.setPort(rabbitPort);
-        factory.setUsername(Objects.requireNonNull(environment.getProperty("node.rabbit.user")));
-        factory.setPassword(Objects.requireNonNull(environment.getProperty("node.rabbit.password")));
+        factory.setUsername(rabbitUser);
+        factory.setPassword(rabbitPassword);
         return factory;
     }
 }

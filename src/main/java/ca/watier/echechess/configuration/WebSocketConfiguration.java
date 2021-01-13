@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+public class WebSocketConfiguration extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
     private static final long TIMEOUT_SESSION_IN_MILLIS = TimeUnit.MINUTES.toMillis(2);
     private static final long SESSION_HEARTH_BEAT_INTERVAL_IN_MILLIS = TimeUnit.SECONDS.toMillis(10);

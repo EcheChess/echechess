@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package ca.watier.echechess.configuration.independent;
+package ca.watier.echechess.configuration.mode.independent;
 
 import ca.watier.echechess.exceptions.UserException;
 import ca.watier.echechess.models.Roles;
