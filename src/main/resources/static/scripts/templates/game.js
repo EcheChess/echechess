@@ -71,29 +71,40 @@ const Game = {
                     </a>
                 </div>
             </div>
-            <div v-bind:class="['board-case', (piece.isSelected ? 'piece-available-moves' : null)]" v-bind:data-case-id="piece.rawPosition" v-for="(piece, index) in board">
-                <span class="board-pieces" draggable="true" v-bind:data-piece-side="mapSideByteToText(piece.side)" v-if="piece.unicodeIcon" v-html="piece.unicodeIcon"></span>
+            <div v-bind:class="['board-case', (piece.isSelected ? 'piece-available-moves' : null)]"
+                 v-bind:data-case-id="piece.rawPosition"
+                 @dragover.prevent
+                 @drop="dragFinishPieceEvent(piece.rawPosition, $event)"
+                 v-for="piece in board">
+                
+                <span class="board-pieces"
+                      @dragstart="dragStartPieceEvent(piece.rawPosition, $event)"
+                      v-bind:draggable="isGameStarted"
+                      v-bind:data-piece-side="mapSideByteToText(piece.side)"
+                      v-if="piece.unicodeIcon"
+                      v-html="piece.unicodeIcon"></span>
             </div>
         </div>
     </div>
-    
-        <div id="game-points">
-            <span>Black: {{blackPlayerScore}}</span>
-            <span>White: {{whitePlayerScore}}</span>
-        </div>
-        
-        <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#collapseGameLog">
-            Show logs
-        </button>
-        
-        <div class="collapse" id="collapseGameLog">
-          <div class="card card-body">
+
+    <div id="game-points">
+        <span>Black: {{blackPlayerScore}}</span>
+        <br/>
+        <span>White: {{whitePlayerScore}}</span>
+    </div>
+
+    <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#collapseGameLog">
+        Show logs
+    </button>
+
+    <div class="collapse" id="collapseGameLog">
+        <div class="card card-body">
             <div class="form-control" v-for="(log, index) in eventLog">
                 {{log}}<br/>
             </div>
-          </div>
         </div>
-    
+    </div>
+
     <!-- New Game Modal -->
     <div class="modal" id="new-game-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -105,36 +116,44 @@ const Game = {
                     </button>
                 </div>
                 <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label for="new-game-side">Side</label>
-                        <select id="new-game-side" class="form-control form-control-sm" v-model="gameSide">
-                            <option>WHITE</option>
-                            <option>BLACK</option>
-                            <option>OBSERVER</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <div class="form-check">
-                            <input type="checkbox" v-model="againstComputer" class="form-check-input" id="new-game-against-computer">
-                            <label class="form-check-label" for="new-game-against-computer">Play against computer</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" v-model="observers" class="form-check-input" id="new-game-observer">
-                            <label class="form-check-label" for="new-game-observer">Allows observers</label>
+                    <form>
+                        <div class="form-group">
+                            <label for="new-game-side">Side</label>
+                            <select id="new-game-side" class="form-control form-control-sm" v-model="gameSide">
+                                <option>WHITE</option>
+                                <option>BLACK</option>
+                                <option>OBSERVER</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <div class="form-check">
-                                <input type="checkbox" v-model="specialGamePatternEnabled" class="form-check-input" id="game-special-game-enable">
-                                <label class="form-check-label" for="game-special-game-enable">FEN game pattern</label>
-                                <input type="text" v-model="specialGamePattern" v-if="specialGamePatternEnabled" class="form-control form-control-sm" id="new-game-special-game" placeholder="8/3Q4/8/1Q1k1Q2/8/3Q4/8/8 w">
+                                <input type="checkbox" v-model="againstComputer" class="form-check-input"
+                                       id="new-game-against-computer">
+                                <label class="form-check-label" for="new-game-against-computer">Play against
+                                    computer</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" v-model="observers" class="form-check-input"
+                                       id="new-game-observer">
+                                <label class="form-check-label" for="new-game-observer">Allows observers</label>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" v-model="specialGamePatternEnabled" class="form-check-input"
+                                           id="game-special-game-enable">
+                                    <label class="form-check-label" for="game-special-game-enable">FEN game
+                                        pattern</label>
+                                    <input type="text" v-model="specialGamePattern" v-if="specialGamePatternEnabled"
+                                           class="form-control form-control-sm" id="new-game-special-game"
+                                           placeholder="8/3Q4/8/1Q1k1Q2/8/3Q4/8/8 w">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" v-on:click="createNewGameWithProperties" class="btn btn-primary">Create game</button>
+                    <button type="button" v-on:click="createNewGameWithProperties" class="btn btn-primary">Create game
+                    </button>
                     <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -154,7 +173,8 @@ const Game = {
                     <form>
                         <div class="form-group">
                             <label for="join-game-side">Side</label>
-                            <select id="join-game-side" class="form-control form-control-sm" v-model="joinGameModel.gameSide">
+                            <select id="join-game-side" class="form-control form-control-sm"
+                                    v-model="joinGameModel.gameSide">
                                 <option>WHITE</option>
                                 <option>BLACK</option>
                                 <option>OBSERVER</option>
@@ -162,7 +182,8 @@ const Game = {
                         </div>
                         <div class="form-group">
                             <label for="join-game-uuid">Game ID</label>
-                            <input type="text" maxlength="36" minlength="36" class="form-control" id="join-game-uuid" placeholder="Game ID" v-model="joinGameModel.gameUuid">
+                            <input type="text" maxlength="36" minlength="36" class="form-control" id="join-game-uuid"
+                                   placeholder="Game ID" v-model="joinGameModel.gameUuid">
                         </div>
                     </form>
                 </div>
@@ -216,6 +237,7 @@ const Game = {
                 gameUuid: null,
                 gameSide: "WHITE"
             },
+            lastDraggedPieceStartPosition: null,
             uiUuid: null,
             gameUuid: null,
             gameSide: "WHITE",
@@ -223,6 +245,8 @@ const Game = {
             observers: true,
             specialGamePattern: null,
             specialGamePatternEnabled: false,
+            isPlayerTurn: null, //TODO: Bind and switch
+            isGameStarted: false,
             board: [
                 {
                     "unicodeIcon": "&#9820;",
@@ -560,6 +584,14 @@ const Game = {
         })
     },
     methods: {
+        dragStartPieceEvent: function (from, event) {
+            this.lastDraggedPieceStartPosition = _.cloneDeep(from);
+        },
+        //---------------------------------------------------------------------------
+        dragFinishPieceEvent: function (to, event) {
+            this.whenPieceDraggedEvent(this.lastDraggedPieceStartPosition, to);
+        },
+        //---------------------------------------------------------------------------
         confirmPawnPromotion: function () {
             let ref = this;
             let pawnPromotionModel = this.pawnPromotionModel;
@@ -628,64 +660,6 @@ const Game = {
         //---------------------------------------------------------------------------
         registerEvents: function () { //TODO: Unregister the events, before adding them!
             let ref = this;
-
-            /**
-             * Drag events
-             */
-            document.addEventListener("dragover", function (event) {
-                event.preventDefault();
-            });
-
-            document.addEventListener("dragstart", function (event) {
-                if (!ref.gameUuid) {
-                    event.preventDefault();
-                    return; // Game is not started!
-                }
-
-                const target = event.target;
-                if (!target.classList.contains("board-pieces")) {
-                    event.preventDefault();
-                    return; // Not a piece
-                }
-
-                let dataTransfer = event.dataTransfer;
-                dataTransfer.setData("from", ref.getCaseIdFromTargetWhenPieceDragEvent(target));
-            });
-
-            document.addEventListener("drop", function (event) {
-                if (!ref.gameUuid) {
-                    event.preventDefault();
-                    return; // Game is not started!
-                }
-
-                const target = event.target;
-                const classList = target.classList;
-
-                const isBoardCase = classList.contains("board-case");
-                const isBoardPiece = classList.contains("board-pieces");
-                let dataTransfer = event.dataTransfer;
-
-                if ((!isBoardCase && !isBoardPiece) || !dataTransfer) {
-                    event.preventDefault();
-                    return;
-                }
-
-                let from = dataTransfer.getData("from");
-
-                if (from === '') {
-                    event.preventDefault();
-                    return;
-                }
-
-                let to;
-                if (isBoardCase) {
-                    to = target.getAttribute('data-case-id');
-                } else if (isBoardPiece) {
-                    to = ref.getCaseIdFromTargetWhenPieceDragEvent(target);
-                }
-
-                ref.whenPieceDraggedEvent(from, to);
-            });
 
             document.addEventListener("mouseover", function (event) {
                 if (!ref.gameUuid) {
@@ -783,6 +757,10 @@ const Game = {
             }
         },
         //---------------------------------------------------------------------------
+        onGameStart: function () {
+            this.isGameStarted = true;
+        },
+        //---------------------------------------------------------------------------
         onGameSideEvent: function (payload) {
             let parsed = JSON.parse(payload.body);
             let chessEvent = parsed.event;
@@ -828,7 +806,7 @@ const Game = {
         initGameComponents: function () {
             let basePath = `/topic/${this.gameUuid}`;
             let sideEventPath = `${basePath}/${this.gameSide}`;
-            this.$registerGameEvents(basePath, sideEventPath, this.onGameEvent, this.onGameSideEvent);
+            this.$registerGameEvents(basePath, sideEventPath, this.onGameEvent, this.onGameSideEvent, this.onGameStart);
         },
         //---------------------------------------------------------------------------
         initNewGame: function (gameUuid, gameSide) {

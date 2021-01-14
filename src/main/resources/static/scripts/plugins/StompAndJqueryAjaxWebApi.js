@@ -91,7 +91,8 @@ class StompAndJqueryAjaxWebApi {
             app.config.globalProperties.$post(`/api/v1${makeBaseUrlValid(baseUrl)}`, body, success, fail);
         }
 
-        app.config.globalProperties.$registerGameEvents = function (basePath, sideEventPath, gameEventCallback, sideEventCallback) {
+        //TODO: find a better than using callbacks
+        app.config.globalProperties.$registerGameEvents = function (basePath, sideEventPath, gameEventCallback, sideEventCallback, gameStartCallback) {
             if (app.config.globalProperties.websocketClient) {
                 app.config.globalProperties.websocketClient.unsubscribe();
             } else {
@@ -104,6 +105,10 @@ class StompAndJqueryAjaxWebApi {
             };
 
             app.config.globalProperties.websocketClient.connect(headers, function () {
+                if(gameStartCallback) {
+                    gameStartCallback();
+                }
+
                 app.config.globalProperties.websocketClient.subscribe(sideEventPath, sideEventCallback);
                 app.config.globalProperties.websocketClient.subscribe(basePath, gameEventCallback);
             });
