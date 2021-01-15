@@ -38,7 +38,7 @@ public class PieceLocationModel implements Serializable {
 
     private final String rawPosition;
     private final byte side;
-    private boolean isSelected = false; // Used in Vue to show the green border
+    private String borderColor = null; // Used in Vue to change the border color (selection, ect)
 
     public PieceLocationModel(Pieces pieces, CasePosition position) {
         this.pieces = pieces;
@@ -79,12 +79,12 @@ public class PieceLocationModel implements Serializable {
         return side;
     }
 
-    public boolean isSelected() {
-        return isSelected;
+    public String getBorderColor() {
+        return borderColor;
     }
 
-    public void setSelected(boolean selected) {
-        isSelected = selected;
+    public void setBorderColor(String borderColor) {
+        this.borderColor = borderColor;
     }
 
     public Pieces getPieces() {

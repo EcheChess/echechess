@@ -45,6 +45,16 @@ html {
     grid-row: 1;
 }
 
+/* Thanks to @Blowsie on SO https://stackoverflow.com/a/4407335 */
+.no-text-selection {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 #board {
     max-width: 607px;
     margin: 5px;
@@ -78,10 +88,6 @@ html {
 
 .nav-link {
     cursor: pointer !important;
-}
-
-.piece-available-moves {
-    border: 4px solid #36ff004a !important;
 }
 
 #navbar-main-menu {

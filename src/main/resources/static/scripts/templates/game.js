@@ -71,13 +71,14 @@ const Game = {
                     </a>
                 </div>
             </div>
-            <div v-bind:class="['board-case', (piece.isSelected ? 'piece-available-moves' : null)]"
+            <div v-bind:class="['board-case']"
+                 v-bind:style="buildCaseBorderClass(piece.borderColor)"
                  v-bind:data-case-id="piece.rawPosition"
                  @dragover.prevent
                  @drop="dragFinishPieceEvent(piece.rawPosition, $event)"
                  v-for="piece in board">
                 
-                <span class="board-pieces"
+                <span class="board-pieces no-text-selection"
                       @dragstart="dragStartPieceEvent(piece.rawPosition, $event)"
                       v-bind:draggable="isGameStarted"
                       v-bind:data-piece-side="mapSideByteToText(piece.side)"
@@ -250,323 +251,259 @@ const Game = {
             board: [
                 {
                     "unicodeIcon": "&#9820;",
-                    "rawPosition": "A8",
-                    "isSelected": false
+                    "rawPosition": "A8"
                 },
                 {
                     "unicodeIcon": " &#9822;",
-                    "rawPosition": "B8",
-                    "isSelected": false
+                    "rawPosition": "B8"
                 },
                 {
                     "unicodeIcon": "&#9821;",
-                    "rawPosition": "C8",
-                    "isSelected": false
+                    "rawPosition": "C8"
                 },
                 {
                     "unicodeIcon": "&#9819;",
-                    "rawPosition": "D8",
-                    "isSelected": false
+                    "rawPosition": "D8"
                 },
                 {
                     "unicodeIcon": "&#9818;",
-                    "rawPosition": "E8",
-                    "isSelected": false
+                    "rawPosition": "E8"
                 },
                 {
                     "unicodeIcon": "&#9821;",
-                    "rawPosition": "F8",
-                    "isSelected": false
+                    "rawPosition": "F8"
                 },
                 {
                     "unicodeIcon": " &#9822;",
-                    "rawPosition": "G8",
-                    "isSelected": false
+                    "rawPosition": "G8"
                 },
                 {
                     "unicodeIcon": "&#9820;",
-                    "rawPosition": "H8",
-                    "isSelected": false
+                    "rawPosition": "H8"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "A7",
-                    "isSelected": false
+                    "rawPosition": "A7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "B7",
-                    "isSelected": false
+                    "rawPosition": "B7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "C7",
-                    "isSelected": false
+                    "rawPosition": "C7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "D7",
-                    "isSelected": false
+                    "rawPosition": "D7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "E7",
-                    "isSelected": false
+                    "rawPosition": "E7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "F7",
-                    "isSelected": false
+                    "rawPosition": "F7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "G7",
-                    "isSelected": false
+                    "rawPosition": "G7"
                 },
                 {
                     "unicodeIcon": "&#9823;",
-                    "rawPosition": "H7",
-                    "isSelected": false
+                    "rawPosition": "H7"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A6",
-                    "isSelected": false
+                    "rawPosition": "A6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B6",
-                    "isSelected": false
+                    "rawPosition": "B6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C6",
-                    "isSelected": false
+                    "rawPosition": "C6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D6",
-                    "isSelected": false
+                    "rawPosition": "D6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E6",
-                    "isSelected": false
+                    "rawPosition": "E6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F6",
-                    "isSelected": false
+                    "rawPosition": "F6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G6",
-                    "isSelected": false
+                    "rawPosition": "G6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H6",
-                    "isSelected": false
+                    "rawPosition": "H6"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A5",
-                    "isSelected": false
+                    "rawPosition": "A5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B5",
-                    "isSelected": false
+                    "rawPosition": "B5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C5",
-                    "isSelected": false
+                    "rawPosition": "C5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D5",
-                    "isSelected": false
+                    "rawPosition": "D5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E5",
-                    "isSelected": false
+                    "rawPosition": "E5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F5",
-                    "isSelected": false
+                    "rawPosition": "F5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G5",
-                    "isSelected": false
+                    "rawPosition": "G5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H5",
-                    "isSelected": false
+                    "rawPosition": "H5"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A4",
-                    "isSelected": false
+                    "rawPosition": "A4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B4",
-                    "isSelected": false
+                    "rawPosition": "B4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C4",
-                    "isSelected": false
+                    "rawPosition": "C4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D4",
-                    "isSelected": false
+                    "rawPosition": "D4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E4",
-                    "isSelected": false
+                    "rawPosition": "E4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F4",
-                    "isSelected": false
+                    "rawPosition": "F4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G4",
-                    "isSelected": false
+                    "rawPosition": "G4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H4",
-                    "isSelected": false
+                    "rawPosition": "H4"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "A3",
-                    "isSelected": false
+                    "rawPosition": "A3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "B3",
-                    "isSelected": false
+                    "rawPosition": "B3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "C3",
-                    "isSelected": false
+                    "rawPosition": "C3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "D3",
-                    "isSelected": false
+                    "rawPosition": "D3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "E3",
-                    "isSelected": false
+                    "rawPosition": "E3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "F3",
-                    "isSelected": false
+                    "rawPosition": "F3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "G3",
-                    "isSelected": false
+                    "rawPosition": "G3"
                 },
                 {
                     "unicodeIcon": "",
-                    "rawPosition": "H3",
-                    "isSelected": false
+                    "rawPosition": "H3"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "A2",
-                    "isSelected": false
+                    "rawPosition": "A2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "B2",
-                    "isSelected": false
+                    "rawPosition": "B2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "C2",
-                    "isSelected": false
+                    "rawPosition": "C2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "D2",
-                    "isSelected": false
+                    "rawPosition": "D2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "E2",
-                    "isSelected": false
+                    "rawPosition": "E2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "F2",
-                    "isSelected": false
+                    "rawPosition": "F2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "G2",
-                    "isSelected": false
+                    "rawPosition": "G2"
                 },
                 {
                     "unicodeIcon": "&#9817;",
-                    "rawPosition": "H2",
-                    "isSelected": false
+                    "rawPosition": "H2"
                 },
                 {
                     "unicodeIcon": "&#9814;",
-                    "rawPosition": "A1",
-                    "isSelected": false
+                    "rawPosition": "A1"
                 },
                 {
                     "unicodeIcon": "&#9816;",
-                    "rawPosition": "B1",
-                    "isSelected": false
+                    "rawPosition": "B1"
                 },
                 {
                     "unicodeIcon": "&#9815;",
-                    "rawPosition": "C1",
-                    "isSelected": false
+                    "rawPosition": "C1"
                 },
                 {
                     "unicodeIcon": "&#9813;",
-                    "rawPosition": "D1",
-                    "isSelected": false
+                    "rawPosition": "D1"
                 },
                 {
                     "unicodeIcon": "&#9812;",
-                    "rawPosition": "E1",
-                    "isSelected": false
+                    "rawPosition": "E1"
                 },
                 {
                     "unicodeIcon": "&#9815;",
-                    "rawPosition": "F1",
-                    "isSelected": false
+                    "rawPosition": "F1"
                 },
                 {
                     "unicodeIcon": "&#9816;",
-                    "rawPosition": "G1",
-                    "isSelected": false
+                    "rawPosition": "G1"
                 },
                 {
                     "unicodeIcon": "&#9814;",
-                    "rawPosition": "H1",
-                    "isSelected": false
+                    "rawPosition": "H1"
                 }
             ],
             eventLog: [],
@@ -584,14 +521,25 @@ const Game = {
         })
     },
     methods: {
+        buildCaseBorderClass: function (colorCode) {
+            if (!colorCode || !_.isString(colorCode)) {
+                return {};
+            }
+
+            if (colorCode.match(/^[0-9a-f]+$/i)) { // Hex code
+                return {'border': `4px solid #${colorCode} !important`};
+            } else if (colorCode.match(/^[a-z]+$/i)) { // Color or invalid string
+                return {'border': `4px ${colorCode} solid !important`};
+            } else {
+                return {};
+            }
+        },
         dragStartPieceEvent: function (from, event) {
             this.lastDraggedPieceStartPosition = _.cloneDeep(from);
         },
-        //---------------------------------------------------------------------------
         dragFinishPieceEvent: function (to, event) {
             this.whenPieceDraggedEvent(this.lastDraggedPieceStartPosition, to);
         },
-        //---------------------------------------------------------------------------
         confirmPawnPromotion: function () {
             let ref = this;
             let pawnPromotionModel = this.pawnPromotionModel;
@@ -603,7 +551,6 @@ const Game = {
                     ref.$addErrorAlert("Unable to upgrade the pawn!")
                 });
         },
-        //---------------------------------------------------------------------------
         mapSideByteToText: function (value) {
             switch (value) {
                 case 0:
@@ -616,7 +563,6 @@ const Game = {
                     return "";
             }
         },
-        //---------------------------------------------------------------------------
         updateBoardPieces: function (items) {
             for (let i = 0; i < 64; i++) {
                 this.board.pop();
@@ -626,7 +572,6 @@ const Game = {
                 this.board.push(items[i])
             }
         },
-        //---------------------------------------------------------------------------
         refreshGamePieces: function () {
             let ref = this;
 
@@ -641,7 +586,6 @@ const Game = {
                 this.$addErrorAlert("Unable to fetch the pieces location (uuid is not available)!");
             }
         },
-        //---------------------------------------------------------------------------
         getCaseIdFromTargetWhenPieceDragEvent: function (target) {
             const parentElement = _.get(target, 'parentElement');
 
@@ -651,13 +595,11 @@ const Game = {
 
             return parentElement.getAttribute('data-case-id');
         },
-        //---------------------------------------------------------------------------
         clearAvailableMoveIndicators: function () {
             for (const currentCase of this.board) {
-                currentCase.isSelected = false;
+                currentCase.borderColor = null;
             }
         },
-        //---------------------------------------------------------------------------
         registerEvents: function () { //TODO: Unregister the events, before adding them!
             let ref = this;
 
@@ -708,11 +650,9 @@ const Game = {
                 ref.clearAvailableMoveIndicators();
             });
         },
-        //---------------------------------------------------------------------------
         saveUuid: function (data) {
             this.gameUuid = data;
         },
-        //---------------------------------------------------------------------------
         onGameEvent: function (payload) {
             let parsed = JSON.parse(payload.body);
             let chessEvent = parsed.event;
@@ -756,11 +696,9 @@ const Game = {
                     break;
             }
         },
-        //---------------------------------------------------------------------------
         onGameStart: function () {
             this.isGameStarted = true;
         },
-        //---------------------------------------------------------------------------
         onGameSideEvent: function (payload) {
             let parsed = JSON.parse(payload.body);
             let chessEvent = parsed.event;
@@ -783,16 +721,16 @@ const Game = {
                     if (from) {
                         var positions = obj.positions;
                         for (const currentCase of this.board) {
-                            currentCase.isSelected = false; // Unselect
+                            currentCase.borderColor = null; // Unselect
                             const numberOfSelected = positions.length;
 
-                            if(numberOfSelected === 0) {
+                            if (numberOfSelected === 0) {
                                 break; // None left
                             }
 
                             for (let i = 0; i < numberOfSelected; i++) {
-                                if(currentCase.rawPosition === positions[i]) {
-                                    currentCase.isSelected = true;
+                                if (currentCase.rawPosition === positions[i]) {
+                                    currentCase.borderColor = "36ff004a";
                                     positions.splice(i, 1); // already found
                                     break;
                                 }
@@ -802,13 +740,45 @@ const Game = {
                     break;
             }
         },
-        //---------------------------------------------------------------------------
-        initGameComponents: function () {
+        applyLoadingBoardCaseColors: function (firstColor, secondColor, thirdColor, fourthColor) {
+            this.board[27].borderColor = firstColor;
+            this.board[28].borderColor = secondColor;
+            this.board[36].borderColor = thirdColor;
+            this.board[35].borderColor = fourthColor;
+        },
+        startGameLoadingAnimation: function () {
+            let ref = this;
+            let idx = 0;
+            let refreshId = setInterval(function () {
+                if (ref.isGameStarted) {
+                    ref.applyLoadingBoardCaseColors(null, null, null, null);
+                    clearInterval(refreshId);
+                    return;
+                }
+
+                if (idx === 0) {
+                    ref.applyLoadingBoardCaseColors("C2C2C2", null, null, null);
+                } else if (idx === 1) {
+                    ref.applyLoadingBoardCaseColors(null, "C2C2C2", null, null);
+                } else if (idx === 2) {
+                    ref.applyLoadingBoardCaseColors(null, null, "C2C2C2", null);
+                } else if (idx === 3) {
+                    ref.applyLoadingBoardCaseColors(null, null, null, "C2C2C2");
+                } else {
+                    idx = 0;
+                    return;
+                }
+
+                idx++;
+
+            }, 275);
+        }, initGameComponents: function () {
+            this.startGameLoadingAnimation();
+
             let basePath = `/topic/${this.gameUuid}`;
             let sideEventPath = `${basePath}/${this.gameSide}`;
             this.$registerGameEvents(basePath, sideEventPath, this.onGameEvent, this.onGameSideEvent, this.onGameStart);
         },
-        //---------------------------------------------------------------------------
         initNewGame: function (gameUuid, gameSide) {
             this.eventLog = [];
             this.moveLog = [];
@@ -823,7 +793,6 @@ const Game = {
             this.refreshGamePieces();
             this.initGameComponents();
         },
-        //---------------------------------------------------------------------------
         createNewGameWithProperties: function () {
             let ref = this;
 
@@ -846,7 +815,6 @@ const Game = {
                 ref.$addErrorAlert("Unable to obtain a game id!");
             });
         },
-        //---------------------------------------------------------------------------
         joinGameWithProperties: function () {
             let ref = this;
 
@@ -862,7 +830,6 @@ const Game = {
                 ref.$addErrorAlert("Unable to obtain a game id!");
             });
         },
-        //---------------------------------------------------------------------------
         fetchNewUiUuidAndExecute: function (passCallback, failCallback) {
             let ref = this;
 
@@ -875,15 +842,12 @@ const Game = {
                     failCallback();
                 });
         },
-        //---------------------------------------------------------------------------
         newGame: function () {
             $('#new-game-modal').modal('toggle')
         },
-        //---------------------------------------------------------------------------
         joinGame: function () {
             $('#join-game-modal').modal('toggle')
         },
-        //---------------------------------------------------------------------------
         whenPieceDraggedEvent: function (from, to) {
             let ref = this;
 
@@ -894,7 +858,6 @@ const Game = {
                     });
             }
         },
-        //---------------------------------------------------------------------------
         handlePawnPromotion(message) {
 
             if (message.gameSide === this.gameSide) {
