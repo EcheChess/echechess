@@ -46,6 +46,7 @@ const Game = {
             </a>
             <a class="nav-link nav-top-bar-game-link" v-on:click="newGame">New Game</a>
             <a class="nav-link nav-top-bar-game-link" v-on:click="joinGame">Join Game</a>
+            <a class="nav-link nav-top-bar-game-link" v-if="isGameStarted && (observers || !againstComputer)" v-on:click="shareGame">Share Current Game</a>
         </nav>
         <nav id="navbar-right-menu" class="navbar">
             <a class="nav-link nav-top-bar-game-link" href="/swagger-ui/index.html">Swagger-ui</a>
@@ -54,7 +55,6 @@ const Game = {
     <div id="game">
         <div id="board">
             <div id="board-header">
-                <span id="game-uuid">{{gameUuid}}</span>
                 <div id="carousel-game-history" v-if="moveLog.length > 0" class="carousel slide" data-ride="carousel" data-interval="0">
                     <div id="carousel-game-history-items" class="carousel-inner text-center">
                         <div class="carousel-item" v-bind:class="[index === (moveLog.length - 1) ? 'active' : '']" v-for="(message, index) in moveLog">
@@ -219,6 +219,22 @@ const Game = {
                 </div>
                 <div class="modal-footer">
                     <button type="button" v-on:click="confirmPawnPromotion" class="btn btn-primary">Confirm the pawn promotion</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Share Game Modal -->
+    <div class="modal" id="share-game-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Share game</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="text-align: center">
+                    <span style="width: 100%;color: skyblue;font-size: larger">{{gameUuid}}</span>
                 </div>
             </div>
         </div>
@@ -603,6 +619,8 @@ const Game = {
         registerEvents: function () { //TODO: Unregister the events, before adding them!
             let ref = this;
 
+            //TODO: Convert to view events
+
             document.addEventListener("mouseover", function (event) {
                 if (!ref.gameUuid) {
                     event.preventDefault();
@@ -698,6 +716,7 @@ const Game = {
         },
         onGameStart: function () {
             this.isGameStarted = true;
+            router.push({name: 'game', query: {id: this.gameUuid}});
         },
         onGameSideEvent: function (payload) {
             let parsed = JSON.parse(payload.body);
@@ -843,10 +862,13 @@ const Game = {
                 });
         },
         newGame: function () {
-            $('#new-game-modal').modal('toggle')
+            $('#new-game-modal').modal('toggle');
         },
         joinGame: function () {
-            $('#join-game-modal').modal('toggle')
+            $('#join-game-modal').modal('toggle');
+        },
+        shareGame: function () {
+            $('#share-game-modal').modal('toggle');
         },
         whenPieceDraggedEvent: function (from, to) {
             let ref = this;

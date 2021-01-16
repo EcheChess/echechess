@@ -21,8 +21,8 @@ const router = VueRouter.createRouter({
     history: VueRouter.createWebHashHistory(),
     routes: [
         {path: '/:pathMatch(.*)*', component: Login},
-        {path: '/', component: Login},
-        {path: '/game', component: Game}
+        {path: '/', name: 'root', component: Login},
+        {path: '/game', name: 'game',  component: Game}
     ]
 });
 
