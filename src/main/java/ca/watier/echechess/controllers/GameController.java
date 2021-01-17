@@ -87,12 +87,11 @@ public class GameController {
                                            @ApiParam(value = PATTERN_CUSTOM_GAME) String specialGamePieces) {
 
         try {
-            UUID newGameUuid = gameService.createNewGame(specialGamePieces, side, againstComputer, observers, AuthenticationUtils.getUserDetail());
+            UserDetailsImpl userDetail = AuthenticationUtils.getUserDetail();
 
-            UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            principal.addCreatedGame(newGameUuid);
+            UUID newGameUuid = gameService.createNewGame(specialGamePieces, side, againstComputer, observers, userDetail);
+            userService.addGameToUser(userDetail.getUsername(), newGameUuid);
 
-            userService.addGameToUser(principal.getUsername(), newGameUuid);
             return ResponseEntity.ok(new StringResponse(newGameUuid.toString()));
         } catch (FenParserException | GameException ignored) {
             return BAD_REQUEST_RESPONSE_ENTITY;

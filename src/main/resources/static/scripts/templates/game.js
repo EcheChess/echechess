@@ -88,22 +88,10 @@ const Game = {
         </div>
     </div>
 
-    <div id="game-points">
+    <div id="game-points" v-if="isGameStarted">
         <span>Black: {{blackPlayerScore}}</span>
         <br/>
         <span>White: {{whitePlayerScore}}</span>
-    </div>
-
-    <button class="btn btn-outline-light" type="button" data-toggle="collapse" data-target="#collapseGameLog">
-        Show logs
-    </button>
-
-    <div class="collapse" id="collapseGameLog">
-        <div class="card card-body">
-            <div class="form-control" v-for="(log, index) in eventLog">
-                {{log}}<br/>
-            </div>
-        </div>
     </div>
 
     <!-- New Game Modal -->
@@ -153,8 +141,7 @@ const Game = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" v-on:click="createNewGameWithProperties" class="btn btn-primary">Create game
-                    </button>
+                    <button type="button" v-on:click="createNewGameWithProperties" class="btn btn-primary">Create game</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -522,7 +509,6 @@ const Game = {
                     "rawPosition": "H1"
                 }
             ],
-            eventLog: [],
             moveLog: []
         };
     },
@@ -668,16 +654,14 @@ const Game = {
                 ref.clearAvailableMoveIndicators();
             });
         },
-        saveUuid: function (data) {
-            this.gameUuid = data;
-        },
         onGameEvent: function (payload) {
             let parsed = JSON.parse(payload.body);
             let chessEvent = parsed.event;
             let message = parsed.message;
 
             switch (chessEvent) {
-                // case 'UI_SESSION_EXPIRED': //FIXME
+                //TODO: HANDLE THE EXPIRED SESSION MESSAGE
+                // case 'UI_SESSION_EXPIRED':
                 //     window.setInterval(function () {
                 //         location.reload();
                 //     }, 10 * 1000);
@@ -694,10 +678,10 @@ const Game = {
                     this.moveLog.push(message);
                     break;
                 case 'GAME_WON':
-                    this.eventLog.push(message);
+                    // TODO: PRINT THE GAME WON MESSAGE
                     break;
                 case 'GAME_WON_EVENT_MOVE':
-                    this.eventLog.push(message);
+                    // TODO: PRINT THE GAME WON MESSAGE
                     break;
                 case 'SCORE_UPDATE':
                     this.blackPlayerScore = message.blackPlayerPoint;
@@ -726,7 +710,6 @@ const Game = {
 
             switch (chessEvent) {
                 case 'PLAYER_TURN':
-                    this.eventLog.push(message);
                     this.$addSuccessAlert(message);
                     break;
                 case 'PAWN_PROMOTION':
@@ -799,7 +782,6 @@ const Game = {
             this.$registerGameEvents(basePath, sideEventPath, this.onGameEvent, this.onGameSideEvent, this.onGameStart);
         },
         initNewGame: function (gameUuid, gameSide) {
-            this.eventLog = [];
             this.moveLog = [];
             this.blackPlayerScore = 0;
             this.whitePlayerScore = 0;
@@ -808,7 +790,7 @@ const Game = {
                 this.gameSide = gameSide;
             }
 
-            this.saveUuid(gameUuid);
+            this.gameUuid = gameUuid;
             this.refreshGamePieces();
             this.initGameComponents();
         },
@@ -863,6 +845,7 @@ const Game = {
         },
         newGame: function () {
             $('#new-game-modal').modal('toggle');
+            //FIXME: clear context
         },
         joinGame: function () {
             $('#join-game-modal').modal('toggle');

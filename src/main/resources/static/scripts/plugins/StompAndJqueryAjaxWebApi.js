@@ -95,23 +95,27 @@ class StompAndJqueryAjaxWebApi {
         app.config.globalProperties.$registerGameEvents = function (basePath, sideEventPath, gameEventCallback, sideEventCallback, gameStartCallback) {
             if (app.config.globalProperties.websocketClient) {
                 app.config.globalProperties.websocketClient.unsubscribe();
-            } else {
-                let url = `${app.config.globalProperties.api.websocketUrl}/websocket?access_token=${app.config.globalProperties.oauth.token}`;
-                app.config.globalProperties.websocketClient = Stomp.over(new WebSocket(url));
-            }
-
-            let headers = {
-                "Authorization": `Bearer ${app.config.globalProperties.oauth.token}`
-            };
-
-            app.config.globalProperties.websocketClient.connect(headers, function () {
-                if(gameStartCallback) {
-                    gameStartCallback();
-                }
 
                 app.config.globalProperties.websocketClient.subscribe(sideEventPath, sideEventCallback);
                 app.config.globalProperties.websocketClient.subscribe(basePath, gameEventCallback);
-            });
+            } else {
+                let url = `${app.config.globalProperties.api.websocketUrl}/websocket?access_token=${app.config.globalProperties.oauth.token}`;
+                app.config.globalProperties.websocketClient = Stomp.over(new WebSocket(url));
+
+                let headers = {
+                    "Authorization": `Bearer ${app.config.globalProperties.oauth.token}`
+                };
+
+                app.config.globalProperties.websocketClient.connect(headers, function () {
+                    if(gameStartCallback) {
+                        gameStartCallback();
+                    }
+
+                    app.config.globalProperties.websocketClient.subscribe(sideEventPath, sideEventCallback);
+                    app.config.globalProperties.websocketClient.subscribe(basePath, gameEventCallback);
+                });
+
+            }
         }
 
         function handleFetchRequestResponseWithCallback(response, success, fail) {
