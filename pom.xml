@@ -22,7 +22,7 @@
     <parent>
         <groupId>ca.watier.echechess.properties</groupId>
         <artifactId>echechess-properties</artifactId>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
     </parent>
 
     <groupId>ca.watier.echechess</groupId>
@@ -31,7 +31,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>14</java.version>
+        <java.version>15</java.version>
         <spring.version>5.3.2</spring.version>
         <sonar.projectKey>echechess_echechess</sonar.projectKey>
         <sonar.organization>echechess</sonar.organization>
@@ -51,20 +51,16 @@
 
     <repositories>
         <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-doi9t-EcheChess</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/doi9t/EcheChess</url>
+            <id>gitlab-maven-echechess-communication</id> <!-- https://gitlab.com/echechess/echechesscommunication -->
+            <url>https://gitlab.com/api/v4/projects/8512704/packages/maven</url>
         </repository>
         <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-doi9t-Utilities</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/doi9t/Utilities</url>
+            <id>gitlab-maven-echechess-engine</id> <!-- https://gitlab.com/echechess/EcheChessEngine -->
+            <url>https://gitlab.com/api/v4/projects/6727276/packages/maven</url>
+        </repository>
+        <repository>
+            <id>gitlab-maven-echechess-properties</id> <!-- https://gitlab.com/echechess/EcheChessProperties -->
+            <url>https://gitlab.com/api/v4/projects/6727485/packages/maven</url>
         </repository>
     </repositories>
 
@@ -180,19 +176,19 @@
         <dependency>
             <groupId>ca.watier.echechess.engine</groupId>
             <artifactId>echechess-engine</artifactId>
-            <version>2.2.0</version>
+            <version>2.3.0</version>
         </dependency>
 
         <dependency>
             <groupId>ca.watier.echechess.common</groupId>
             <artifactId>echechess-common</artifactId>
-            <version>1.7.0</version>
+            <version>1.8.0</version>
         </dependency>
 
         <dependency>
             <groupId>ca.watier.echechess.communication</groupId>
             <artifactId>echechess-communication</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
