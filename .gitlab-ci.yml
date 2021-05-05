@@ -2,7 +2,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
   GIT_DEPTH: "0"
 sonarcloud-check:
-  image: 3.8.1-openjdk-15
+  image: maven:3.8.1-openjdk-15
   cache:
     key: "${CI_JOB_NAME}"
     paths:
