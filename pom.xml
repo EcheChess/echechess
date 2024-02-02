@@ -32,7 +32,7 @@
 
     <properties>
         <java.version>15</java.version>
-        <spring.version>5.3.2</spring.version>
+        <spring.version>5.3.20</spring.version>
         <sonar.projectKey>echechess_echechess</sonar.projectKey>
         <sonar.organization>echechess</sonar.organization>
     </properties>
